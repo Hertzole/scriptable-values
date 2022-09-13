@@ -1,0 +1,22 @@
+{
+    "name": "AuroraPunks.ScriptableValues",
+    "rootNamespace": "AuroraPunks.ScriptableValues",
+    "references": [
+        "GUID:9c41f127392022340a66f2ec885d3e8a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.aurorapunks.aurorautilities",
+            "expression": "",
+            "define": "AURORA_UTILITIES"
+        }
+    ],
+    "noEngineReferences": false
+}

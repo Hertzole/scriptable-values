@@ -1,0 +1,14 @@
+{
+    "name": "com.aurorapunks.aurorascriptablevalues",
+    "version": "0.1.0",
+    "displayName": "Aurora Scriptable Values",
+    "description": "Set up games using Scriptable Objects.",
+    "unity": "2020.3",
+    "unityRelease": "0f1",
+    "keywords": [
+        "scriptableobject",
+        "scriptable",
+        "object",
+        "aurora"
+    ]
+}
