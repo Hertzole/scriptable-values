@@ -4,6 +4,8 @@
 
 Scriptable Values allow you to use scriptable objects for reactive values, events, and collections instead of normal C# events and singletons.
 
+You also don't need to care about values being saved between sessions as they are clared before you enter play mode, but this is also customizable!
+
 ## ✨ Features
 
 ### Scriptable Values
@@ -115,9 +117,10 @@ There's also a premade ScriptableGameObjectList that you can use to store game o
 
 #### Scriptable collections usage
 
-**Basic list usage::**    
+**Basic list usage:**    
 ```cs
-public class ScriptableStringList : ScriptableList<int> {}
+[CreateAssetMenu(fileName = "New Scriptable String List", menuName = "My Lists/Scriptable String List")]
+public class ScriptableStringList : ScriptableList<string> {}
 
 public class MessageHandler : MonoBehaviour
 {
@@ -152,8 +155,9 @@ public class MessageUI : MonoBehaviour
 }
 ```
 
-**Basic dictionary usage::**    
+**Basic dictionary usage:**    
 ```cs
+[CreateAssetMenu(fileName = "New Scriptable Player Dictionary", menuName = "My Dictionaries/Scriptable Player Dictionary")]
 public class ScriptablePlayerDictionary : ScriptableDictionary<int, GameObject> {}
 
 public class PlayerID : MonoBehaviour
