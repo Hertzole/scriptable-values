@@ -34,7 +34,7 @@ namespace AuroraPunks.ScriptableValues
 	}
 
 #if UNITY_EDITOR
-	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event")]
+	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event", order = 1100)]
 #endif
 	public class ScriptableEvent : RuntimeScriptableObject
 	{
