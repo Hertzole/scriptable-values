@@ -3,7 +3,6 @@ name: Development Package
 on:
   push:
     paths-ignore:
-      - '.github/**'
       - '*.md'
 
 jobs:
@@ -18,14 +17,18 @@ jobs:
       run: |
         git branch -d dev-package &> /dev/null || echo dev-package branch not found
         git subtree split -P "$PKG_ROOT" -b dev-package
-        mv "Assets/Samples" /tmp/example
+        if [[ -d "Assets/Samples" ]]; then
+          mv "Assets/Samples" /tmp/example
+        fi
         mv README.md /tmp/README.md
         git checkout dev-package
-        mkdir "Samples~"
+        if [[ -d "/tmp/example"]]; then
+          mkdir "Samples~"
+          mv /tmp/example/* "Samples~/"
+          git add "Samples~"
+        fi
         mv /tmp/README.md README.md
         git add README.md
-        mv /tmp/example/* "Samples~/"
-        git add "Samples~"
         rm -rf Tests
         rm -f Tests.meta
         git config --global user.name 'github-bot'
