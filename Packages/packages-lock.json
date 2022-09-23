@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.aurorapunks.aurorascriptablevalues": {
-      "version": "file:Aurora Scriptable Values",
+      "version": "file:com.aurorapunks.scriptablevalues",
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
