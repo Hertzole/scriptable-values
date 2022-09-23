@@ -197,4 +197,4 @@ You use the Unity package manager to install it.
 
 1. Open the Unity package manager
 2. Click the plus button in the top left corner and add a project from git URL
-3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#package`
+3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#dev-package`
