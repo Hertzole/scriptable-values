@@ -24,7 +24,7 @@ namespace AuroraPunks.ScriptableValues
 		FromValueToValue = 3
 	}
 
-	public abstract class ValueListener<TValue> : MonoBehaviour
+	public abstract class ScriptableValueListener<TValue> : MonoBehaviour
 	{
 		[SerializeField]
 		private ScriptableValue<TValue> value = default;

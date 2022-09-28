@@ -5,5 +5,5 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable UInt Listener", 1005)]
 #endif
-	public sealed class UIntValueListener : ValueListener<uint> { }
+	public sealed class ScriptableUIntListener : ScriptableValueListener<uint> { }
 }

@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace AuroraPunks.ScriptableValues.Editor
 {
-	[CustomEditor(typeof(ValueListener<>), true)]
+	[CustomEditor(typeof(ScriptableValueListener<>), true)]
 	public class ValueListenerEditor : UnityEditor.Editor
 	{
 		private PropertyField valueField;
