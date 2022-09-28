@@ -1,0 +1,18 @@
+{
+    "name": "AuroraPunks.ScriptableValues.Editor",
+    "rootNamespace": "AuroraPunks.ScriptableValues.Editor",
+    "references": [
+        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
