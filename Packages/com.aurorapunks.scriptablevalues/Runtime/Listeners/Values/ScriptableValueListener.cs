@@ -1,4 +1,5 @@
-﻿using AuroraPunks.ScriptableValues.Helpers;
+﻿using System;
+using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -7,7 +8,8 @@ namespace AuroraPunks.ScriptableValues
 	public enum StartListenEvents
 	{
 		Awake = 0,
-		OnEnable = 1
+		Start = 1,
+		OnEnable = 2
 	}
 
 	public enum StopListenEvents
@@ -61,6 +63,14 @@ namespace AuroraPunks.ScriptableValues
 			isListening = false;
 
 			if (!isListening && startListening == StartListenEvents.Awake)
+			{
+				ToggleListening(true);
+			}
+		}
+
+		protected void Start()
+		{
+			if (!isListening && startListening == StartListenEvents.Start)
 			{
 				ToggleListening(true);
 			}
