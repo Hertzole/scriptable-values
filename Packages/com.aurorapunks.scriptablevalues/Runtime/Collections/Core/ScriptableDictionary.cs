@@ -78,9 +78,12 @@ namespace AuroraPunks.ScriptableValues
 				newValue = newValueT;
 				return true;
 			}
+			
 #if DEBUG
-
 			throw new InvalidCastException($"Cannot cast {value.GetType()} to {typeof(TType)}");
+#else
+			newValue = default;
+			return false;
 #endif
 		}
 
