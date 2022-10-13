@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues.Helpers
 {
 	internal static class EventHelper
 	{
+		[Conditional("DEBUG")]
 		internal static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, ScriptableObject targetObject = null) where T : Delegate
 		{
+#if DEBUG
 			if (action != null)
 			{
 				Delegate[] addedDelegates = action.GetInvocationList();
@@ -45,6 +49,7 @@ namespace AuroraPunks.ScriptableValues.Helpers
 
 				Debug.LogWarning(sb.ToString(), targetObject);
 			}
+#endif
 		}
 	}
 }

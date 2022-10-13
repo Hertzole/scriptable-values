@@ -2,6 +2,9 @@ using System;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
+using System.Diagnostics;
+#endif
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -18,6 +21,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Invoke(object sender, T args)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			PreviousArgs = currentArgs;
 			currentArgs = args;
 		
@@ -28,10 +35,8 @@ namespace AuroraPunks.ScriptableValues
 		public override void ResetValues()
 		{
 			base.ResetValues();
-
-#if DEBUG
+			
 			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
-#endif
 
 			PreviousArgs = default;
 			OnInvoked = null;
@@ -46,24 +51,30 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event", order = 1100)]
 #endif
-	public class ScriptableEvent : RuntimeScriptableObject
+	public partial class ScriptableEvent : RuntimeScriptableObject
 	{
 		[SerializeField]
 		private UnityEvent onInvoked = new UnityEvent();
 
 		public event EventHandler OnInvoked;
-
+		
 		public void Invoke(object sender)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
 		}
 
 		public override void ResetValues()
 		{
-#if DEBUG
-			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+#if UNITY_EDITOR
+			ResetStackTraces();
 #endif
+			
+			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
 
 			OnInvoked = null;
 		}
