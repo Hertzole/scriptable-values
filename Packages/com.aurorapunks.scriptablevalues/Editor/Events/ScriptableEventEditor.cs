@@ -7,9 +7,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableEvent), true)]
 	public class ScriptableEventEditor : UnityEditor.Editor
 	{
-		private SerializedProperty onInvoked;
-
 		private ScriptableEvent scriptableEvent;
+		private SerializedProperty onInvoked;
 
 		private StackTraceElement stackTraces;
 		private VisualElement contentViewport;
@@ -40,11 +39,32 @@ namespace AuroraPunks.ScriptableValues.Editor
 					marginTop = 4
 				}
 			};
-			
+
+			VisualElement invokeElement = CreateInvokeButton();
+
+			if (invokeElement != null)
+			{
+				invokeElement.style.marginBottom = 8;
+				root.Add(invokeElement);
+			}
+
 			root.Add(onInvokedField);
 			root.Add(stackTraces);
 
 			return root;
+		}
+
+		protected virtual VisualElement CreateInvokeButton()
+		{
+			return new Button(OnClickInvoke)
+			{
+				text = "Invoke"
+			};
+		}
+
+		private void OnClickInvoke()
+		{
+			scriptableEvent.Invoke(this);
 		}
 	}
 }

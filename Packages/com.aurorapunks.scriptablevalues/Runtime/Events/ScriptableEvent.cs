@@ -13,10 +13,15 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		private UnityEvent<T> onInvokedWithArgs = new UnityEvent<T>();
 
+#if UNITY_EDITOR
+		[SerializeField]
+		private T editorInvokeValue = default;
+#endif
+
 		private T currentArgs;
-		
+
 		public T PreviousArgs { get; private set; }
-		
+
 		public new event EventHandler<T> OnInvoked;
 
 		public void Invoke(object sender, T args)
@@ -25,10 +30,10 @@ namespace AuroraPunks.ScriptableValues
 			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(new StackTrace(1, true));
 #endif
-			
+
 			PreviousArgs = currentArgs;
 			currentArgs = args;
-		
+
 			OnInvoked?.Invoke(sender, args);
 			onInvokedWithArgs.Invoke(args);
 		}
@@ -36,7 +41,7 @@ namespace AuroraPunks.ScriptableValues
 		public override void ResetValues()
 		{
 			base.ResetValues();
-			
+
 			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
 
 			PreviousArgs = default;
@@ -58,7 +63,7 @@ namespace AuroraPunks.ScriptableValues
 		private UnityEvent onInvoked = new UnityEvent();
 
 		public event EventHandler OnInvoked;
-		
+
 		public void Invoke(object sender)
 		{
 #if UNITY_EDITOR
@@ -75,7 +80,7 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-			
+
 			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
 
 			OnInvoked = null;

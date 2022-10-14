@@ -1,7 +1,9 @@
-using System.Diagnostics;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
+using System.Diagnostics;
+#endif
 
 namespace AuroraPunks.ScriptableValues
 {
