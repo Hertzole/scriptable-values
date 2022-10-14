@@ -22,16 +22,22 @@ jobs:
       run: |
         git branch -d package &> /dev/null || echo package branch not found
         git subtree split -P "$PKG_ROOT" -b package
-        mv "Assets/Samples" /tmp/example
+        if [[ -d "Assets/Samples" ]]; then
+          mv "Assets/Samples" /tmp/example
+        fi
         mv README.md /tmp/README.md
         git checkout package
-        mkdir "Samples~"
         mv /tmp/README.md README.md
         git add README.md
-        mv /tmp/example/* "Samples~/"
-        git add "Samples~"
-        rm -rf Tests
-        rm -f Tests.meta
+        if [[ -d "/tmp/example" ]]; then
+          mkdir "Samples~"
+          mv /tmp/example/* "Samples~/"
+          git add "Samples~"
+        fi
+        if [[ -d "Tests" ]]; then
+          rm -rf Tests
+          rm -f Tests.meta
+        fi
         git config --global user.name 'github-bot'
         git config --global user.email 'github-bot@users.noreply.github.com'
         git commit -am "Packaged project"
