@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using AuroraPunks.ScriptableValues.Debugging;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEditor;
@@ -206,7 +209,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			StackFrame entry = stackFrames[index];
 
 			// Set the name to the method name.
-			nameLabel.text = entry.GetMethod().Name;
+			nameLabel.text = GetMethodName(entry.GetMethod());
 
 			// Get the file name and check if it exists.
 			// It may not exist if the method is native.
@@ -389,6 +392,56 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private static string ToLocalPath(string path)
 		{
 			return Path.GetFullPath(path).Substring(Application.dataPath.Length - 6).Replace('\\', '/');
+		}
+
+		/// <summary>
+		///     Gets a full method name.
+		/// </summary>
+		/// <param name="methodInfo">The method to get the name of.</param>
+		/// <returns>A pretty name.</returns>
+		private static string GetMethodName(MethodBase methodInfo)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			if (methodInfo.DeclaringType != null)
+			{
+				if (!string.IsNullOrEmpty(methodInfo.DeclaringType.Namespace))
+				{
+					sb.Append(methodInfo.DeclaringType.Namespace);
+					sb.Append(".");
+				}
+
+				sb.Append(ToPrettyName(methodInfo.DeclaringType));
+				sb.Append(".");
+			}
+
+			sb.Append(methodInfo.Name);
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		///     Converts a type name to a pretty name by removing ugly generic type names.
+		/// </summary>
+		/// <param name="type">The type to get the name from.</param>
+		/// <returns>A pretty name.</returns>
+		private static string ToPrettyName(Type type)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			if (type.IsGenericType)
+			{
+				sb.Append(type.Name.Split('`')[0]);
+				sb.Append("<");
+				sb.Append(string.Join(", ", type.GetGenericArguments().Select(ToPrettyName)));
+				sb.Append(">");
+			}
+			else
+			{
+				sb.Append(type.Name);
+			}
+
+			return sb.ToString();
 		}
 
 		/// <summary>
