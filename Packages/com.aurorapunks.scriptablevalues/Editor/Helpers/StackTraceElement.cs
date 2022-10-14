@@ -17,14 +17,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private readonly Color borderColorDark = new Color32(26, 26, 26, 255);
 		private readonly Color borderColorLight = new Color32(138, 138, 138, 255);
 
-		private Color BorderColor
-		{
-			get
-			{
-				return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight;
-			}
-		}
-
 		private readonly ListView stackTraceList;
 		private readonly ListView detailsList;
 
@@ -33,6 +25,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private readonly IStackTraceProvider target;
 
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
+
+		private Color BorderColor { get { return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight; } }
 
 		public StackTraceElement(IStackTraceProvider target, string title = "Stack Traces")
 		{
@@ -52,7 +46,34 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			// Create the toolbar.
 			Toolbar toolbar = new Toolbar();
+
+			ToolbarSpacer spacer = new ToolbarSpacer
+			{
+				style =
+				{
+					flexGrow = 1
+				}
+			};
+
+			ToolbarButton clearButton = new ToolbarButton(() =>
+			{
+				target.Invocations.Clear();
+				stackFrames.Clear();
+				stackTraceList?.RefreshItems();
+				detailsList?.RefreshItems();
+				UpdateDetailsVisibility(false);
+			})
+			{
+				text = "Clear",
+				style =
+				{
+					unityTextAlign = TextAnchor.MiddleCenter
+				}
+			};
+
 			toolbar.Add(CreateToolbarLabel(title));
+			toolbar.Add(spacer);
+			toolbar.Add(clearButton);
 
 			// Create the splitter.
 			TwoPaneSplitView splitter = new TwoPaneSplitView(1, 120, TwoPaneSplitViewOrientation.Vertical)
@@ -257,8 +278,18 @@ namespace AuroraPunks.ScriptableValues.Editor
 				showSelectTraceLabel = false;
 			}
 
+			UpdateDetailsVisibility(!showSelectTraceLabel);
+		}
+
+		/// <summary>
+		///     Updates the visibility of the details list and the "Select trace to view details" label.
+		/// </summary>
+		/// <param name="showDetailsList">Toggle to show the list or the label.</param>
+		private void UpdateDetailsVisibility(bool showDetailsList)
+		{
 			// Update the label visibility based on the showSelectTraceLabel variable.
-			emptyDetailsLabel.style.display = showSelectTraceLabel ? DisplayStyle.Flex : DisplayStyle.None;
+			emptyDetailsLabel.style.display = !showDetailsList ? DisplayStyle.Flex : DisplayStyle.None;
+			detailsList.style.display = showDetailsList ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 
 		/// <summary>
