@@ -70,7 +70,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 				text = "Clear",
 				style =
 				{
-					unityTextAlign = TextAnchor.MiddleCenter
+					unityTextAlign = TextAnchor.MiddleCenter,
+					left = 1 // Setting left to 1 makes it flush with the side.
 				}
 			};
 
