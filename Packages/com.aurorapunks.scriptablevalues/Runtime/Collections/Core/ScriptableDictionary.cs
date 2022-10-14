@@ -1,17 +1,28 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract class ScriptableDictionary<TKey, TValue> : RuntimeScriptableObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
+	public abstract partial class ScriptableDictionary<TKey, TValue> : RuntimeScriptableObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
 	{
 		[SerializeField]
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
+		
+#if UNITY_EDITOR
+#pragma warning disable 0414 // Disable "private field assigned but not used" warning
+		[SerializeField] 
+		private TKey editorKey = default;
+		[SerializeField] 
+		private TValue editorValue = default;
+#pragma warning restore 0414
+#endif
 
 		private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
@@ -96,6 +107,10 @@ namespace AuroraPunks.ScriptableValues
 					return;
 				}
 
+#if UNITY_EDITOR
+				AddStackTrace(new StackTrace(true));
+#endif
+				
 				dictionary[key] = value;
 				OnSet?.Invoke(key, oldValue, value);
 			}
@@ -110,6 +125,9 @@ namespace AuroraPunks.ScriptableValues
 			bool result = dictionary.TryAdd(key, value);
 			if (result)
 			{
+#if UNITY_EDITOR
+				AddStackTrace(new StackTrace(true));
+#endif
 				OnAdded?.Invoke(key, value);
 			}
 
@@ -153,11 +171,17 @@ namespace AuroraPunks.ScriptableValues
 
 		public void TrimExcess()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			dictionary.TrimExcess();
 		}
 
 		public void TrimExcess(int capacity)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			dictionary.TrimExcess(capacity);
 		}
 
@@ -209,6 +233,9 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Clear()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			dictionary.Clear();
 			OnCleared?.Invoke();
 		}
@@ -225,11 +252,17 @@ namespace AuroraPunks.ScriptableValues
 
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			return ContainsKey(item.Key) && dictionary.Remove(item.Key);
 		}
 
 		public void Add(TKey key, TValue value)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			dictionary.Add(key, value);
 			OnAdded?.Invoke(key, value);
 		}
@@ -247,6 +280,9 @@ namespace AuroraPunks.ScriptableValues
 				removed = dictionary.Remove(key, out TValue oldItem);
 				if (removed)
 				{
+#if UNITY_EDITOR
+					AddStackTrace(new StackTrace(true));
+#endif
 					OnRemoved?.Invoke(key, oldItem);
 				}
 			}
@@ -271,6 +307,9 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
+#if UNITY_EDITOR
+			ResetStackTraces();
+#endif
 
 			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
