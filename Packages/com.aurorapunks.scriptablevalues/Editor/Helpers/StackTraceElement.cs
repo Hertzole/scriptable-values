@@ -34,7 +34,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
 
-		public StackTraceElement(T target)
+		public StackTraceElement(T target, string title = "Stack Traces")
 		{
 			// Set the root as this element.
 			StackTraceElement<T> root = this;
@@ -52,7 +52,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			// Create the toolbar.
 			Toolbar toolbar = new Toolbar();
-			toolbar.Add(CreateToolbarLabel("Stack Traces"));
+			toolbar.Add(CreateToolbarLabel(title));
 
 			// Create the splitter.
 			TwoPaneSplitView splitter = new TwoPaneSplitView(1, 120, TwoPaneSplitViewOrientation.Vertical)

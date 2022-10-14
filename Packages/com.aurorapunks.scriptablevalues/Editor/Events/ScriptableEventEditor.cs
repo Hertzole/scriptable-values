@@ -35,7 +35,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			root.Add(onInvokedField);
 
-			stackTraceElement = new StackTraceElement<ScriptableEvent>(scriptableEvent)
+			stackTraceElement = new StackTraceElement<ScriptableEvent>(scriptableEvent, "Invocation Stack Traces")
 			{
 				style =
 				{
