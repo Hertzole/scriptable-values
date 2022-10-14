@@ -11,7 +11,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private ScriptableEvent scriptableEvent;
 
-		private StackTraceElement<ScriptableEvent> stackTraceElement;
+		private StackTraceElement stackTraces;
 		private VisualElement contentViewport;
 
 		protected virtual void OnEnable()
@@ -23,7 +23,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		protected virtual void OnDisable()
 		{
-			stackTraceElement?.Dispose();
+			stackTraces?.Dispose();
 		}
 
 		public override VisualElement CreateInspectorGUI()
@@ -33,16 +33,16 @@ namespace AuroraPunks.ScriptableValues.Editor
 			PropertyField onInvokedField = new PropertyField(onInvoked);
 			onInvokedField.Bind(serializedObject);
 
-			root.Add(onInvokedField);
-
-			stackTraceElement = new StackTraceElement<ScriptableEvent>(scriptableEvent, "Invocation Stack Traces")
+			stackTraces = new StackTraceElement(scriptableEvent, "Invocation Stack Traces")
 			{
 				style =
 				{
 					marginTop = 4
 				}
 			};
-			root.Add(stackTraceElement);
+			
+			root.Add(onInvokedField);
+			root.Add(stackTraces);
 
 			return root;
 		}

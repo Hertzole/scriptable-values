@@ -12,7 +12,7 @@ using Object = UnityEngine.Object;
 
 namespace AuroraPunks.ScriptableValues.Editor
 {
-	public sealed class StackTraceElement<T> : VisualElement, IDisposable where T : IStackTraceProvider
+	public sealed class StackTraceElement : VisualElement, IDisposable
 	{
 		private readonly Color borderColorDark = new Color32(26, 26, 26, 255);
 		private readonly Color borderColorLight = new Color32(138, 138, 138, 255);
@@ -30,14 +30,14 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private readonly Label emptyDetailsLabel;
 
-		private readonly T target;
+		private readonly IStackTraceProvider target;
 
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
 
-		public StackTraceElement(T target, string title = "Stack Traces")
+		public StackTraceElement(IStackTraceProvider target, string title = "Stack Traces")
 		{
 			// Set the root as this element.
-			StackTraceElement<T> root = this;
+			StackTraceElement root = this;
 
 			// Setup the border.
 			style.borderBottomColor = BorderColor;
@@ -165,7 +165,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			if (element is Label label)
 			{
 				StackTraceEntry entry = target.Invocations[index];
-				StackFrame frame = entry.trace.GetSecondOrBestFrame();
+				StackFrame frame = entry.trace.GetFrame(0);
 				// Set text to [HH:MM:SS] MethodName (Line:Column)
 				label.text = $"[{entry.hour:00}:{entry.minute:00}:{entry.second:00}] {frame.GetMethod().Name} ({frame.GetFileLineNumber()}:{frame.GetFileColumnNumber()})";
 			}
@@ -217,8 +217,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 					continue;
 				}
 
-				// Skip the first frame as it's the method that called the stack trace.
-				StackFrame frame = entry.trace.GetSecondOrBestFrame();
+				StackFrame frame = entry.trace.GetFrame(0);
 				// Open the frame in the code editor.
 				OpenStackFrame(frame);
 			}
@@ -243,23 +242,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 					continue;
 				}
 
-				// Get the count.
-				int count = stackTrace.trace.FrameCount;
-				if (count == 1)
+				// Add all the frames.
+				StackFrame[] frames = stackTrace.trace.GetFrames();
+				if (frames != null)
 				{
-					// If there's only one frame, just show that frame.
-					StackFrame frame = stackTrace.trace.GetFrame(0);
-					stackFrames.Add(frame);
-				}
-				else
-				{
-					// If there's more frames, skip the first one as we don't want to include the method that
-					// called created the stack trace.
-					for (int i = 1; i < stackTrace.trace.FrameCount; i++)
-					{
-						StackFrame frame = stackTrace.trace.GetFrame(i);
-						stackFrames.Add(frame);
-					}
+					stackFrames.AddRange(frames);
 				}
 
 				// Update the items source.

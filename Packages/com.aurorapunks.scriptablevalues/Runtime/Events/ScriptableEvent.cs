@@ -22,7 +22,8 @@ namespace AuroraPunks.ScriptableValues
 		public void Invoke(object sender, T args)
 		{
 #if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
+			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
+			AddStackTrace(new StackTrace(1, true));
 #endif
 			
 			PreviousArgs = currentArgs;
@@ -61,7 +62,8 @@ namespace AuroraPunks.ScriptableValues
 		public void Invoke(object sender)
 		{
 #if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
+			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
+			AddStackTrace(new StackTrace(1, true));
 #endif
 
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
