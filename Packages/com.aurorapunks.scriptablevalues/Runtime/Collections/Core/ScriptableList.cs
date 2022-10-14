@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using AuroraPunks.ScriptableValues;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+#if UNITY_EDITOR
+using System.Diagnostics;
+#endif
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -337,6 +338,13 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
+			
+			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
 			
 			list.Clear();
 			list.TrimExcess();

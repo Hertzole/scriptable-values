@@ -268,5 +268,27 @@ namespace AuroraPunks.ScriptableValues
 		{
 			return dictionary.ContainsKey(key);
 		}
+
+		public override void ResetValues()
+		{
+
+			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+			
+			dictionary.Clear();
+			dictionary.TrimExcess();
+		}
+		
+#if UNITY_EDITOR
+		protected override void OnExitPlayMode()
+		{
+			if (dictionary.Count > 0)
+			{
+				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
+			}
+		}
+#endif
 	}
 }
