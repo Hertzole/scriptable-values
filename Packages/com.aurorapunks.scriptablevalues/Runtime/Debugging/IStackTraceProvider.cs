@@ -10,6 +10,8 @@ namespace AuroraPunks.ScriptableValues.Debugging
 		List<StackTraceEntry> Invocations { get; }
 		
 		event Action OnStackTraceAdded;
+		
+		const int MAX_STACK_TRACE_ENTRIES = 100;
 	}
 }
 #endif

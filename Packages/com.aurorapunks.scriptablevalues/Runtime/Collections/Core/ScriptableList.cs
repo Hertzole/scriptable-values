@@ -1,20 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using AuroraPunks.ScriptableValues;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
+	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
 		[SerializeField] 
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
-
-		private readonly List<T> list = new List<T>();
+		[SerializeField]
+		private List<T> list = new List<T>();
 
 		public T this[int index] { get { return list[index]; } set { SetValue(index, value); } }
 
@@ -59,6 +61,10 @@ namespace AuroraPunks.ScriptableValues
 			{
 				return;
 			}
+			
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
 			
 			T oldValue = list[index];
 			list[index] = value;
@@ -140,6 +146,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Add(T item)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			int index = Count;
 			list.Add(item);
 			OnAdded?.Invoke(item);
@@ -148,6 +158,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Insert(int index, T item)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Insert(index, item);
 			OnInserted?.Invoke(index, item);
 			OnAddedOrInserted?.Invoke(index, item);
@@ -161,6 +175,10 @@ namespace AuroraPunks.ScriptableValues
 				return false;
 			}
 
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
 			return true;
@@ -168,6 +186,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void RemoveAt(int index)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			T item = list[index];
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
@@ -198,6 +220,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Clear()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Clear();
 			OnCleared?.Invoke();
 		}
@@ -219,31 +245,55 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Reverse()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Reverse();
 		}
 
 		public void Reverse(int index, int count)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Reverse(index, count);
 		}
 
 		public void Sort()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Sort();
 		}
 
 		public void Sort(IComparer<T> comparer)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Sort(0, Count, comparer);
 		}
 		
 		public void Sort(int index, int count, IComparer<T> comparer)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Sort(index, count, comparer);
 		}
 
 		public void Sort(Comparison<T> comparison)
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.Sort(comparison);
 		}
 
@@ -254,6 +304,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public void TrimExcess()
 		{
+#if UNITY_EDITOR
+			AddStackTrace(new StackTrace(true));
+#endif
+			
 			list.TrimExcess();
 		}
 
@@ -280,6 +334,10 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
+#if UNITY_EDITOR
+			ResetStackTraces();
+#endif
+			
 			list.Clear();
 			list.TrimExcess();
 		}

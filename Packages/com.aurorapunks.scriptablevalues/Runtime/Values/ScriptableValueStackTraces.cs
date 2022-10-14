@@ -19,7 +19,7 @@ namespace AuroraPunks.ScriptableValues
 			// Insert first so the most recent invocation is at the top.
 			((IStackTraceProvider) this).Invocations.Insert(0, new StackTraceEntry(trace));
 
-			if (((IStackTraceProvider) this).Invocations.Count > 100)
+			if (((IStackTraceProvider) this).Invocations.Count > IStackTraceProvider.MAX_STACK_TRACE_ENTRIES)
 			{
 				((IStackTraceProvider) this).Invocations.RemoveAt(((IStackTraceProvider) this).Invocations.Count - 1);
 			}

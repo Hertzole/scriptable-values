@@ -7,7 +7,7 @@ using AuroraPunks.ScriptableValues.Helpers;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public partial class ScriptableEvent : IStackTraceProvider
+	public partial class ScriptableList<T> : IStackTraceProvider
 	{
 		List<StackTraceEntry> IStackTraceProvider.Invocations { get; } = new List<StackTraceEntry>();
 		event Action IStackTraceProvider.OnStackTraceAdded { add { OnStackTraceAddedInternal += value; } remove { OnStackTraceAddedInternal -= value; } }
