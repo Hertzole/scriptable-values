@@ -1,5 +1,6 @@
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -19,6 +20,12 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
 		private bool setEqualityCheck = true;
+		[SerializeField] 
+		[Tooltip("Called before the current value is set.")]
+		private UnityEvent<T, T> onValueChanging = new UnityEvent<T, T>();
+		[SerializeField] 
+		[Tooltip("Called after the current value is set.")]
+		private UnityEvent<T, T> onValueChanged = new UnityEvent<T, T>();
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -65,15 +72,17 @@ namespace AuroraPunks.ScriptableValues
 
 			T oldValue = Value;
 			PreviousValue = oldValue;
-			if (notify && OnValueChanging != null)
+			if (notify)
 			{
-				OnValueChanging.Invoke(oldValue, newValue);
+				onValueChanging.Invoke(oldValue, newValue);
+				OnValueChanging?.Invoke(oldValue, newValue);
 			}
 
 			value = newValue;
-			if (notify && OnValueChanged != null)
+			if (notify)
 			{
-				OnValueChanged.Invoke(oldValue, Value);
+				onValueChanged.Invoke(oldValue, newValue);
+				OnValueChanged?.Invoke(oldValue, Value);
 			}
 		}
 
