@@ -93,7 +93,7 @@ namespace AuroraPunks.ScriptableValues
 			{
 				if (setEqualityCheck && !EqualityHelper.Equals(oldValue, value))
 				{
-					OnSet?.Invoke(key, oldValue, value);
+					return;
 				}
 
 				dictionary[key] = value;
