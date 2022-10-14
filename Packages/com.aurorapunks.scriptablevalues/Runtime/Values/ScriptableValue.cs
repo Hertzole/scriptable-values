@@ -58,7 +58,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void SetValue(T newValue, bool notify)
 		{
-			if (setEqualityCheck && EqualityHelper.Equals(newValue, value))
+			if (setEqualityCheck && EqualityHelper.Equals(newValue, PreviousValue))
 			{
 				return;
 			}
@@ -104,6 +104,11 @@ namespace AuroraPunks.ScriptableValues
 
 			OnValueChanging = null;
 			OnValueChanged = null;
+		}
+
+		protected virtual void OnValidate()
+		{
+			SetValue(value, true);
 		}
 	}
 }
