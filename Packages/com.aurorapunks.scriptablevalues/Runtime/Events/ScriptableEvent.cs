@@ -14,8 +14,10 @@ namespace AuroraPunks.ScriptableValues
 		private UnityEvent<T> onInvokedWithArgs = new UnityEvent<T>();
 
 #if UNITY_EDITOR
+#pragma warning disable CS0414 // The field is assigned but its value is never used
 		[SerializeField]
 		private T editorInvokeValue = default;
+#pragma warning restore CS0414 // The field is assigned but its value is never used
 #endif
 
 		private T currentArgs;
