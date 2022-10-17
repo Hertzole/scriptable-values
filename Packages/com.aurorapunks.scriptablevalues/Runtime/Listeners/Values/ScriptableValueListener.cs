@@ -1,5 +1,4 @@
-﻿using System;
-using AuroraPunks.ScriptableValues.Helpers;
+﻿using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -26,6 +25,12 @@ namespace AuroraPunks.ScriptableValues
 		FromValueToValue = 3
 	}
 
+	public enum InvokeParameters
+	{
+		Single = 1,
+		Multiple = 2
+	}
+
 	public abstract class ScriptableValueListener<TValue> : MonoBehaviour
 	{
 		[SerializeField]
@@ -41,10 +46,16 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		private TValue toValue = default;
 
+		[SerializeField] 
+		private InvokeParameters invokeParameters = InvokeParameters.Single;
+		[SerializeField] 
+		private UnityEvent<TValue> onValueChangingSingle = new UnityEvent<TValue>();
 		[SerializeField]
-		private UnityEvent<TValue, TValue> onValueChanging = new UnityEvent<TValue, TValue>();
+		private UnityEvent<TValue> onValueChangedSingle = new UnityEvent<TValue>();
 		[SerializeField]
-		private UnityEvent<TValue, TValue> onValueChanged = new UnityEvent<TValue, TValue>();
+		private UnityEvent<TValue, TValue> onValueChangingMultiple = new UnityEvent<TValue, TValue>();
+		[SerializeField]
+		private UnityEvent<TValue, TValue> onValueChangedMultiple = new UnityEvent<TValue, TValue>();
 
 		protected bool isListening;
 
@@ -54,9 +65,12 @@ namespace AuroraPunks.ScriptableValues
 		public InvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
 		public TValue FromValue { get { return fromValue; } set { fromValue = value; } }
 		public TValue ToValue { get { return toValue; } set { toValue = value; } }
+		public InvokeParameters InvokeParameters { get { return invokeParameters; } set { invokeParameters = value; } }
 
-		public UnityEvent<TValue, TValue> OnValueChanging { get { return onValueChanging; } }
-		public UnityEvent<TValue, TValue> OnValueChanged { get { return onValueChanged; } }
+		public UnityEvent<TValue> OnValueChangingSingle { get { return onValueChangingSingle; } }
+		public UnityEvent<TValue> OnValueChangedSingle { get { return onValueChangedSingle; } }
+		public UnityEvent<TValue, TValue> OnValueChangingMultiple { get { return onValueChangingMultiple; } }
+		public UnityEvent<TValue, TValue> OnValueChangedMultiple { get { return onValueChangedMultiple; } }
 
 		protected virtual void Awake()
 		{
@@ -123,7 +137,15 @@ namespace AuroraPunks.ScriptableValues
 			    (invokeOn == InvokeEvents.ToValue && IsEqual(newValue, toValue)) || // If the new value is the to value.
 			    (invokeOn == InvokeEvents.FromValueToValue && IsEqual(oldValue, fromValue) && IsEqual(newValue, toValue))) // If the old value is the from value and the new value is the to value. 
 			{
-				onValueChanging.Invoke(oldValue, newValue);
+				switch (invokeParameters)
+				{
+					case InvokeParameters.Single:
+						onValueChangingSingle.Invoke(newValue);
+						break;
+					case InvokeParameters.Multiple:
+						onValueChangingMultiple.Invoke(oldValue, newValue);
+						break;
+				}
 			}
 		}
 
@@ -134,7 +156,15 @@ namespace AuroraPunks.ScriptableValues
 			    (invokeOn == InvokeEvents.ToValue && IsEqual(newValue, toValue)) || // If the new value is the to value.
 			    (invokeOn == InvokeEvents.FromValueToValue && IsEqual(oldValue, fromValue) && IsEqual(newValue, toValue))) // If the old value is the from value and the new value is the to value. 
 			{
-				onValueChanged.Invoke(oldValue, newValue);
+				switch (invokeParameters)
+				{
+					case InvokeParameters.Single:
+						onValueChangedSingle.Invoke(newValue);
+						break;
+					case InvokeParameters.Multiple:
+						onValueChangedMultiple.Invoke(oldValue, newValue);
+						break;
+				}
 			}
 		}
 

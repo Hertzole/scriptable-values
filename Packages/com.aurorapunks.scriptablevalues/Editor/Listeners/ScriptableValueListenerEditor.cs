@@ -16,8 +16,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private PropertyField invokeOnField;
 		private PropertyField fromValueField;
 		private PropertyField toValueField;
-		private PropertyField onValueChangingField;
-		private PropertyField onValueChangedField;
+		private PropertyField invokeParametersField;
+		private PropertyField onValueChangingSingleField;
+		private PropertyField onValueChangedSingleField;
+		private PropertyField onValueChangingMultipleField;
+		private PropertyField onValueChangedMultipleField;
 
 		private SerializedProperty value;
 		private SerializedProperty startListening;
@@ -25,8 +28,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty invokeOn;
 		private SerializedProperty fromValue;
 		private SerializedProperty toValue;
-		private SerializedProperty onValueChanging;
-		private SerializedProperty onValueChanged;
+		private SerializedProperty invokeParameters;
+		private SerializedProperty onValueChangingSingle;
+		private SerializedProperty onValueChangedSingle;
+		private SerializedProperty onValueChangingMultiple;
+		private SerializedProperty onValueChangedMultiple;
 
 		private static readonly string[] valueFieldLabelClasses =
 		{
@@ -40,7 +46,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private readonly VisualElement[] spaces = new VisualElement[SPACES_COUNT];
 
-		private const int SPACES_COUNT = 3;
+		private const int SPACES_COUNT = 4;
 
 		protected virtual void OnEnable()
 		{
@@ -50,8 +56,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 			invokeOn = serializedObject.FindProperty(nameof(invokeOn));
 			fromValue = serializedObject.FindProperty(nameof(fromValue));
 			toValue = serializedObject.FindProperty(nameof(toValue));
-			onValueChanging = serializedObject.FindProperty(nameof(onValueChanging));
-			onValueChanged = serializedObject.FindProperty(nameof(onValueChanged));
+			invokeParameters = serializedObject.FindProperty(nameof(invokeParameters));
+			onValueChangingSingle = serializedObject.FindProperty(nameof(onValueChangingSingle));
+			onValueChangedSingle = serializedObject.FindProperty(nameof(onValueChangedSingle));
+			onValueChangingMultiple = serializedObject.FindProperty(nameof(onValueChangingMultiple));
+			onValueChangedMultiple = serializedObject.FindProperty(nameof(onValueChangedMultiple));
 
 			Type baseType = target.GetType().BaseType;
 			if (baseType != null && baseType.GenericTypeArguments.Length > 0)
@@ -70,8 +79,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 			invokeOnField = new PropertyField(invokeOn);
 			fromValueField = new PropertyField(fromValue);
 			toValueField = new PropertyField(toValue);
-			onValueChangingField = new PropertyField(onValueChanging);
-			onValueChangedField = new PropertyField(onValueChanged);
+			invokeParametersField = new PropertyField(invokeParameters);
+			onValueChangingSingleField = new PropertyField(onValueChangingSingle);
+			onValueChangedSingleField = new PropertyField(onValueChangedSingle);
+			onValueChangingMultipleField = new PropertyField(onValueChangingMultiple);
+			onValueChangedMultipleField = new PropertyField(onValueChangedMultiple);
 
 			valueField.RegisterCallback<GeometryChangedEvent>(OnValueFieldGeometryChanged);
 
@@ -83,12 +95,17 @@ namespace AuroraPunks.ScriptableValues.Editor
 			invokeOnField.Bind(serializedObject);
 			fromValueField.Bind(serializedObject);
 			toValueField.Bind(serializedObject);
-			onValueChangingField.Bind(serializedObject);
-			onValueChangedField.Bind(serializedObject);
+			invokeParametersField.Bind(serializedObject);
+			onValueChangingSingleField.Bind(serializedObject);
+			onValueChangedSingleField.Bind(serializedObject);
+			onValueChangingMultipleField.Bind(serializedObject);
+			onValueChangedMultipleField.Bind(serializedObject);
 
 			valueField.RegisterValueChangeCallback(_ => UpdateVisibility());
 
 			invokeOnField.RegisterValueChangeCallback(_ => UpdateVisibility());
+
+			invokeParametersField.RegisterValueChangeCallback(_ => UpdateVisibility());
 
 			for (int i = 0; i < SPACES_COUNT; i++)
 			{
@@ -107,8 +124,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(fromValueField);
 			root.Add(toValueField);
 			root.Add(spaces[2]);
-			root.Add(onValueChangingField);
-			root.Add(onValueChangedField);
+			root.Add(invokeParametersField);
+			root.Add(spaces[3]);
+			root.Add(onValueChangingSingleField);
+			root.Add(onValueChangedSingleField);
+			root.Add(onValueChangingMultipleField);
+			root.Add(onValueChangedMultipleField);
 
 			return root;
 		}
@@ -118,14 +139,19 @@ namespace AuroraPunks.ScriptableValues.Editor
 			bool hasValue = value.objectReferenceValue != null;
 			bool showFromValue = invokeOn.enumValueIndex == (int) InvokeEvents.FromValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showToValue = invokeOn.enumValueIndex == (int) InvokeEvents.ToValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
+			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single;
+			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple;
 
 			SetVisibility(startListeningField, hasValue);
 			SetVisibility(stopListeningField, hasValue);
 			SetVisibility(invokeOnField, hasValue);
 			SetVisibility(fromValueField, hasValue && showFromValue);
 			SetVisibility(toValueField, hasValue && showToValue);
-			SetVisibility(onValueChangingField, hasValue);
-			SetVisibility(onValueChangedField, hasValue);
+			SetVisibility(invokeParametersField, hasValue);
+			SetVisibility(onValueChangingSingleField, hasValue && showSingleEvent);
+			SetVisibility(onValueChangedSingleField, hasValue && showSingleEvent);
+			SetVisibility(onValueChangingMultipleField, hasValue && showMultipleEvent);
+			SetVisibility(onValueChangedMultipleField, hasValue && showMultipleEvent);
 
 			for (int i = 0; i < SPACES_COUNT; i++)
 			{
