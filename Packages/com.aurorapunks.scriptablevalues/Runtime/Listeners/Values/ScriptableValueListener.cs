@@ -28,7 +28,8 @@ namespace AuroraPunks.ScriptableValues
 	public enum InvokeParameters
 	{
 		Single = 1,
-		Multiple = 2
+		Multiple = 2,
+		Both = 3
 	}
 
 	public abstract class ScriptableValueListener<TValue> : MonoBehaviour
@@ -145,6 +146,10 @@ namespace AuroraPunks.ScriptableValues
 					case InvokeParameters.Multiple:
 						onValueChangingMultiple.Invoke(oldValue, newValue);
 						break;
+					case InvokeParameters.Both:
+						onValueChangingSingle.Invoke(newValue);
+						onValueChangingMultiple.Invoke(oldValue, newValue);
+						break;
 				}
 			}
 		}
@@ -162,6 +167,10 @@ namespace AuroraPunks.ScriptableValues
 						onValueChangedSingle.Invoke(newValue);
 						break;
 					case InvokeParameters.Multiple:
+						onValueChangedMultiple.Invoke(oldValue, newValue);
+						break;
+					case InvokeParameters.Both:
+						onValueChangedSingle.Invoke(newValue);
 						onValueChangedMultiple.Invoke(oldValue, newValue);
 						break;
 				}

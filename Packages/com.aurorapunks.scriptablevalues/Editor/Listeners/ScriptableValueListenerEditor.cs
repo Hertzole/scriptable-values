@@ -139,8 +139,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 			bool hasValue = value.objectReferenceValue != null;
 			bool showFromValue = invokeOn.enumValueIndex == (int) InvokeEvents.FromValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showToValue = invokeOn.enumValueIndex == (int) InvokeEvents.ToValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
-			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single;
-			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple;
+			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
+			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
 
 			SetVisibility(startListeningField, hasValue);
 			SetVisibility(stopListeningField, hasValue);
