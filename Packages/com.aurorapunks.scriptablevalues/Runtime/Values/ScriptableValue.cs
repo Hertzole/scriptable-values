@@ -83,8 +83,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			T oldValue = Value;
-			PreviousValue = oldValue;
+			T oldValue = PreviousValue;
+			PreviousValue = Value;
 			if (notify)
 			{
 				onValueChanging.Invoke(oldValue, newValue);
