@@ -140,16 +140,17 @@ namespace AuroraPunks.ScriptableValues
 				PreviousValue = DefaultValue;
 			}
 
-#if DEBUG
-			EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
-#endif
-
 			OnValueChanging = null;
 			OnValueChanged = null;
 		}
 
 #if UNITY_EDITOR
+		protected override void OnExitPlayMode()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
+		}
+
 		protected virtual void OnValidate()
 		{
 			SetValueOnValidateInternal();

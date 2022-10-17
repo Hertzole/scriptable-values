@@ -44,16 +44,18 @@ namespace AuroraPunks.ScriptableValues
 		{
 			base.ResetValues();
 
-			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+			OnInvoked = null;
 
 			PreviousArgs = default;
-			OnInvoked = null;
 		}
 
-		private void Reset()
+#if UNITY_EDITOR
+		protected override void OnExitPlayMode()
 		{
-			OnInvoked = null;
+			base.OnExitPlayMode();
+			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
 		}
+#endif
 	}
 
 #if UNITY_EDITOR
@@ -82,10 +84,16 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-
-			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
-
+			
 			OnInvoked = null;
 		}
+		
+#if UNITY_EDITOR
+		protected override void OnExitPlayMode()
+		{
+			base.OnExitPlayMode();
+			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+		}
+#endif
 	}
 }

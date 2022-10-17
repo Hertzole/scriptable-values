@@ -14,6 +14,9 @@ namespace AuroraPunks.ScriptableValues
 	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
 		[SerializeField] 
+		[Tooltip("If read only, the list cannot be changed at runtime.")]
+		private bool isReadOnly = false;
+		[SerializeField] 
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
 		[SerializeField]
@@ -45,9 +48,9 @@ namespace AuroraPunks.ScriptableValues
 		object ICollection.SyncRoot { get { return this; } }
 
 		bool IList.IsFixedSize { get { return false; } }
-		bool IList.IsReadOnly { get { return false; } }
+		bool IList.IsReadOnly { get { return isReadOnly; } }
 		public int Count { get { return list.Count; } }
-		bool ICollection<T>.IsReadOnly { get { return false; } }
+		bool ICollection<T>.IsReadOnly { get { return isReadOnly; } }
 
 		public event Action<T> OnAdded;
 		public event Action<int, T> OnInserted;
@@ -58,6 +61,12 @@ namespace AuroraPunks.ScriptableValues
 
 		private void SetValue(int index, T value)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
+				return;
+			}
+			
 			if (setEqualityCheck && !EqualityHelper.Equals(list[index], value))
 			{
 				return;
@@ -147,6 +156,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Add(T item)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -159,6 +174,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Insert(int index, T item)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be inserted to at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -170,6 +191,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public bool Remove(T item)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
+				return false;
+			}
+			
 			int index = list.IndexOf(item);
 			if (index == -1)
 			{
@@ -187,6 +214,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void RemoveAt(int index)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -204,6 +237,12 @@ namespace AuroraPunks.ScriptableValues
 				throw new ArgumentNullException(nameof(match));
 			}
 #endif
+			
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
+				return 0;
+			}
 
 			int result = 0;
 
@@ -221,6 +260,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Clear()
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -246,6 +291,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Reverse()
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be reversed at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -255,6 +306,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Reverse(int index, int count)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be reversed at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -264,6 +321,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Sort()
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -273,6 +336,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Sort(IComparer<T> comparer)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -282,6 +351,12 @@ namespace AuroraPunks.ScriptableValues
 		
 		public void Sort(int index, int count, IComparer<T> comparer)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -291,6 +366,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Sort(Comparison<T> comparison)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -305,6 +386,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void TrimExcess()
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -338,16 +425,18 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-			
-			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-			
-			list.Clear();
-			list.TrimExcess();
+
+			OnAdded = null;
+			OnInserted = null;
+			OnAddedOrInserted = null;
+			OnSet = null;
+			OnRemoved = null;
+			OnCleared = null;
+
+			if (!isReadOnly)
+			{
+				list.Clear();
+			}
 		}
 		
 #if UNITY_EDITOR
@@ -357,6 +446,15 @@ namespace AuroraPunks.ScriptableValues
 			{
 				Debug.LogWarning($"There are left over objects in the scriptable list {name}. You should clear the list before leaving play mode.");
 			}
+			
+			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+			
+			list.TrimExcess();
 		}
 #endif
 	}

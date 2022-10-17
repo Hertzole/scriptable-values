@@ -311,11 +311,11 @@ namespace AuroraPunks.ScriptableValues
 			ResetStackTraces();
 #endif
 
-			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-			
+			OnAdded = null;
+			OnSet = null;
+			OnRemoved = null;
+			OnCleared = null;
+
 			dictionary.Clear();
 			dictionary.TrimExcess();
 		}
@@ -327,6 +327,11 @@ namespace AuroraPunks.ScriptableValues
 			{
 				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
 			}
+			
+			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
 		}
 #endif
 	}
