@@ -19,6 +19,9 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField] 
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
+		[SerializeField] 
+		[Tooltip("If true, the list will be cleared on play mode start/game boot.")]
+		private bool clearOnStart = true;
 		[SerializeField]
 		private List<T> list = new List<T>();
 
@@ -433,7 +436,7 @@ namespace AuroraPunks.ScriptableValues
 			OnRemoved = null;
 			OnCleared = null;
 
-			if (!isReadOnly)
+			if (clearOnStart && !isReadOnly)
 			{
 				list.Clear();
 			}
