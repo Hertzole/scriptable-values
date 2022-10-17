@@ -70,24 +70,19 @@ namespace AuroraPunks.ScriptableValues.Editor
 		{
 			bool hasValue = targetEvent.objectReferenceValue != null;
 
-			SetVisibility(startListeningField, hasValue);
-			SetVisibility(stopListeningField, hasValue);
-			SetVisibility(onInvokedField, hasValue);
-
+			startListeningField.SetVisibility(hasValue);
+			stopListeningField.SetVisibility(hasValue);
+			onInvokedField.SetVisibility(hasValue);
+			
 			for (int i = 0; i < SPACES_COUNT; i++)
 			{
-				SetVisibility(spaces[i], hasValue);
+				spaces[i].SetVisibility(hasValue);
 			}
 		}
 
 		private static VisualElement GetSpace(float height = 8f)
 		{
 			return new VisualElement { style = { height = height } };
-		}
-
-		private static void SetVisibility(VisualElement element, bool visible)
-		{
-			element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 	}
 }

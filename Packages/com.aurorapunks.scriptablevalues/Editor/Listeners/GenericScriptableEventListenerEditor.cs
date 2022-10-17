@@ -113,16 +113,16 @@ namespace AuroraPunks.ScriptableValues.Editor
 			bool showFromValue = invokeOn.enumValueIndex == (int) InvokeEvents.FromValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showToValue = invokeOn.enumValueIndex == (int) InvokeEvents.ToValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 
-			SetVisibility(startListeningField, hasValue);
-			SetVisibility(stopListeningField, hasValue);
-			SetVisibility(invokeOnField, hasValue);
-			SetVisibility(fromValueField, hasValue && showFromValue);
-			SetVisibility(toValueField, hasValue && showToValue);
-			SetVisibility(onInvokedField, hasValue);
+			startListeningField.SetVisibility(hasValue);
+			stopListeningField.SetVisibility(hasValue);
+			invokeOnField.SetVisibility(hasValue);
+			fromValueField.SetVisibility(hasValue && showFromValue);
+			toValueField.SetVisibility(hasValue && showToValue);
+			onInvokedField.SetVisibility(hasValue);
 
 			for (int i = 0; i < SPACES_COUNT; i++)
 			{
-				SetVisibility(spaces[i], hasValue);
+				spaces[i].SetVisibility(hasValue);
 			}
 		}
 
@@ -156,11 +156,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private static VisualElement GetSpace(float height = 8f)
 		{
 			return new VisualElement { style = { height = height } };
-		}
-
-		private static void SetVisibility(VisualElement element, bool visible)
-		{
-			element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 	}
 }

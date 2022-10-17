@@ -142,20 +142,22 @@ namespace AuroraPunks.ScriptableValues.Editor
 			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
 			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
 
-			SetVisibility(startListeningField, hasValue);
-			SetVisibility(stopListeningField, hasValue);
-			SetVisibility(invokeOnField, hasValue);
-			SetVisibility(fromValueField, hasValue && showFromValue);
-			SetVisibility(toValueField, hasValue && showToValue);
-			SetVisibility(invokeParametersField, hasValue);
-			SetVisibility(onValueChangingSingleField, hasValue && showSingleEvent);
-			SetVisibility(onValueChangedSingleField, hasValue && showSingleEvent);
-			SetVisibility(onValueChangingMultipleField, hasValue && showMultipleEvent);
-			SetVisibility(onValueChangedMultipleField, hasValue && showMultipleEvent);
+			startListeningField.SetVisibility(hasValue);
+			
+			startListeningField.SetVisibility(hasValue);
+			stopListeningField.SetVisibility(hasValue);
+			invokeOnField.SetVisibility(hasValue);
+			fromValueField.SetVisibility(hasValue && showFromValue);
+			toValueField.SetVisibility(hasValue && showToValue);
+			invokeParametersField.SetVisibility(hasValue);
+			onValueChangingSingleField.SetVisibility(hasValue && showSingleEvent);
+			onValueChangedSingleField.SetVisibility(hasValue && showSingleEvent);
+			onValueChangingMultipleField.SetVisibility(hasValue && showMultipleEvent);
+			onValueChangedMultipleField.SetVisibility(hasValue && showMultipleEvent);
 
 			for (int i = 0; i < SPACES_COUNT; i++)
 			{
-				SetVisibility(spaces[i], hasValue);
+				spaces[i].SetVisibility(hasValue);
 			}
 		}
 
@@ -189,11 +191,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private static VisualElement GetSpace(float height = 8f)
 		{
 			return new VisualElement { style = { height = height } };
-		}
-
-		private static void SetVisibility(VisualElement element, bool visible)
-		{
-			element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 	}
 }

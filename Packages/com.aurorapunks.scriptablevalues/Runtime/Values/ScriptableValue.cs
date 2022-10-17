@@ -1,6 +1,7 @@
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using System.Diagnostics;
 #endif
@@ -14,6 +15,9 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		[Tooltip("The current value. This can be changed at runtime.")]
 		private T value = default;
+		[SerializeField]
+		[Tooltip("If read only, the value cannot be changed at runtime.")]
+		private bool isReadOnly = false;
 		[SerializeField]
 		[Tooltip("The default value. This is used when the value is reset.")]
 		private T defaultValue = default;
@@ -49,6 +53,10 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public T PreviousValue { get; private set; }
 		/// <summary>
+		///     If read only, the value cannot be changed at runtime.
+		/// </summary>
+		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
+		/// <summary>
 		///     The default value. This is used when the value is reset.
 		/// </summary>
 		public T DefaultValue { get { return defaultValue; } set { defaultValue = value; } }
@@ -78,6 +86,12 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void SetValue(T newValue, bool notify)
 		{
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
+				return;
+			}
+			
 			if (setEqualityCheck && EqualityHelper.Equals(newValue, PreviousValue))
 			{
 				return;
@@ -120,7 +134,7 @@ namespace AuroraPunks.ScriptableValues
 			ResetStackTraces();
 #endif
 
-			if (resetValueOnStart)
+			if (resetValueOnStart && !isReadOnly)
 			{
 				value = DefaultValue;
 				PreviousValue = DefaultValue;
@@ -146,8 +160,8 @@ namespace AuroraPunks.ScriptableValues
 			if (!EqualityHelper.Equals(PreviousValue, value))
 			{
 				AddStackTrace(new StackTrace(1, true));
-			SetValue(value, true);
-		}
+				SetValue(value, true);
+			}
 		}
 #endif
 	}
