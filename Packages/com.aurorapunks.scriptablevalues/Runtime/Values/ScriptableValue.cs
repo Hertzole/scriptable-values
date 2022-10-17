@@ -138,8 +138,16 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 		protected virtual void OnValidate()
 		{
-			AddStackTrace(new StackTrace(true));
+			SetValueOnValidateInternal();
+		}
+
+		private void SetValueOnValidateInternal()
+		{
+			if (!EqualityHelper.Equals(PreviousValue, value))
+			{
+				AddStackTrace(new StackTrace(1, true));
 			SetValue(value, true);
+		}
 		}
 #endif
 	}
