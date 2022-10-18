@@ -156,6 +156,12 @@ namespace AuroraPunks.ScriptableValues
 
 		private void SetValue(TKey key, TValue value)
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
+				return;
+			}
+			
 			if (dictionary.TryGetValue(key, out TValue oldValue))
 			{
 				if (setEqualityCheck && !EqualityHelper.Equals(oldValue, value))
@@ -185,6 +191,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public bool TryAdd(TKey key, TValue value)
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
+				return false;
+			}
+			
 			bool result = dictionary.TryAdd(key, value);
 			if (result)
 			{
@@ -238,6 +250,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void TrimExcess()
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -249,6 +267,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void TrimExcess(int capacity)
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -306,6 +330,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Clear()
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -337,6 +367,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Add(TKey key, TValue value)
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
+				return;
+			}
+			
 #if UNITY_EDITOR
 			AddStackTrace(new StackTrace(true));
 #endif
@@ -355,6 +391,12 @@ namespace AuroraPunks.ScriptableValues
 
 		public bool Remove(TKey key)
 		{
+			if (isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
+				return false;
+			}
+			
 			bool removed = false;
 			if (dictionary.ContainsKey(key))
 			{
