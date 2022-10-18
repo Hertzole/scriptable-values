@@ -14,7 +14,7 @@ namespace AuroraPunks.ScriptableValues
 	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
 		[SerializeField] 
-		[Tooltip("If read only, the list cannot be changed at runtime.")]
+		[Tooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
 		private bool isReadOnly = false;
 		[SerializeField] 
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
@@ -51,9 +51,8 @@ namespace AuroraPunks.ScriptableValues
 		object ICollection.SyncRoot { get { return this; } }
 
 		bool IList.IsFixedSize { get { return false; } }
-		bool IList.IsReadOnly { get { return isReadOnly; } }
+		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
 		public int Count { get { return list.Count; } }
-		bool ICollection<T>.IsReadOnly { get { return isReadOnly; } }
 
 		public event Action<T> OnAdded;
 		public event Action<int, T> OnInserted;
@@ -445,7 +444,7 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			if (list.Count > 0)
+			if (!isReadOnly && clearOnStart && list.Count > 0)
 			{
 				Debug.LogWarning($"There are left over objects in the scriptable list {name}. You should clear the list before leaving play mode.");
 			}
