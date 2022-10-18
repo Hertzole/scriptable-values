@@ -9,20 +9,35 @@ using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract partial class ScriptableDictionary<TKey, TValue> : RuntimeScriptableObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
+	public abstract class ScriptableDictionary : RuntimeScriptableObject
 	{
+		internal virtual bool IsValid()
+		{
+			return false;
+		}
+		
+		internal virtual bool IsIndexValid(int index)
+		{
+			return false;
+		}
+	}
+	
+	public abstract partial class ScriptableDictionary<TKey, TValue> : ScriptableDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
+	{
+		[SerializeField] 
+		[Tooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
+		private bool isReadOnly = false;
 		[SerializeField]
 		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
-		
-#if UNITY_EDITOR
-#pragma warning disable 0414 // Disable "private field assigned but not used" warning
 		[SerializeField] 
-		private TKey editorKey = default;
+		[Tooltip("If true, the dictionary will be cleared on play mode start/game boot.")]
+		private bool clearOnStart = true;
+
+		[SerializeField]
+		private List<TKey> keys = new List<TKey>();
 		[SerializeField] 
-		private TValue editorValue = default;
-#pragma warning restore 0414
-#endif
+		private List<TValue> values = new List<TValue>();
 
 		private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
@@ -58,8 +73,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 
-		bool IDictionary.IsFixedSize { get { return false; } }
-		bool IDictionary.IsReadOnly { get { return false; } }
+		bool IDictionary.IsFixedSize { get { return isReadOnly; } }
 
 		int ICollection.Count { get { return dictionary.Count; } }
 		bool ICollection.IsSynchronized { get { return false; } }
@@ -67,7 +81,7 @@ namespace AuroraPunks.ScriptableValues
 		ICollection IDictionary.Values { get { return dictionary.Values; } }
 		ICollection IDictionary.Keys { get { return dictionary.Keys; } }
 
-		bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly { get { return false; } }
+		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
 
 		public int Count { get { return dictionary.Count; } }
 
@@ -75,6 +89,9 @@ namespace AuroraPunks.ScriptableValues
 		public ICollection<TValue> Values { get { return dictionary.Values; } }
 		IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys { get { return dictionary.Keys; } }
 		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values { get { return dictionary.Values; } }
+
+		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+		public bool ClearOnStart { get { return clearOnStart; } set { clearOnStart = value; } }
 
 		public event Action<TKey, TValue> OnAdded;
 		public event Action<TKey, TValue, TValue> OnSet;
@@ -98,6 +115,45 @@ namespace AuroraPunks.ScriptableValues
 #endif
 		}
 
+		internal override bool IsValid()
+		{
+			for (int i = 0; i < keys.Count; i++)
+			{
+				for (int j = i; j < keys.Count; j++)
+				{
+					if (i == j)
+					{
+						continue;
+					}
+					
+					if (Comparer.Equals(keys[i], keys[j]))
+					{
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		internal override bool IsIndexValid(int index)
+		{
+			for (int i = 0; i < keys.Count; i++)
+			{
+				if (i == index)
+				{
+					continue;
+				}
+				
+				if (Comparer.Equals(keys[i], keys[index]))
+				{
+					return false;
+				}
+			}
+			
+			return true;
+		}
+
 		private void SetValue(TKey key, TValue value)
 		{
 			if (dictionary.TryGetValue(key, out TValue oldValue))
@@ -110,8 +166,15 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 				AddStackTrace(new StackTrace(true));
 #endif
+
+				int valueIndex = values.IndexOf(oldValue);
+				if(valueIndex >= 0)
+				{
+					values[valueIndex] = value;
+				}
 				
 				dictionary[key] = value;
+				
 				OnSet?.Invoke(key, oldValue, value);
 			}
 			else
@@ -128,6 +191,10 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 				AddStackTrace(new StackTrace(true));
 #endif
+
+				keys.Add(key);
+				values.Add(value);
+				
 				OnAdded?.Invoke(key, value);
 			}
 
@@ -175,6 +242,9 @@ namespace AuroraPunks.ScriptableValues
 			AddStackTrace(new StackTrace(true));
 #endif
 			dictionary.TrimExcess();
+			
+			keys.TrimExcess();
+			values.TrimExcess();
 		}
 
 		public void TrimExcess(int capacity)
@@ -183,6 +253,9 @@ namespace AuroraPunks.ScriptableValues
 			AddStackTrace(new StackTrace(true));
 #endif
 			dictionary.TrimExcess(capacity);
+			
+			keys.TrimExcess();
+			values.TrimExcess();
 		}
 
 		bool IDictionary.Contains(object key)
@@ -237,6 +310,10 @@ namespace AuroraPunks.ScriptableValues
 			AddStackTrace(new StackTrace(true));
 #endif
 			dictionary.Clear();
+			
+			keys.Clear();
+			values.Clear();
+			
 			OnCleared?.Invoke();
 		}
 
@@ -264,6 +341,10 @@ namespace AuroraPunks.ScriptableValues
 			AddStackTrace(new StackTrace(true));
 #endif
 			dictionary.Add(key, value);
+
+			keys.Add(key);
+			values.Add(value);
+			
 			OnAdded?.Invoke(key, value);
 		}
 
@@ -280,6 +361,9 @@ namespace AuroraPunks.ScriptableValues
 				removed = dictionary.Remove(key, out TValue oldItem);
 				if (removed)
 				{
+					keys.Remove(key);
+					values.Remove(oldItem);
+					
 #if UNITY_EDITOR
 					AddStackTrace(new StackTrace(true));
 #endif
@@ -316,14 +400,18 @@ namespace AuroraPunks.ScriptableValues
 			OnRemoved = null;
 			OnCleared = null;
 
-			dictionary.Clear();
-			dictionary.TrimExcess();
+			if (!isReadOnly && clearOnStart)
+			{
+				dictionary.Clear();
+				keys.Clear();
+				values.Clear();
+			}
 		}
 		
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			if (dictionary.Count > 0)
+			if (!isReadOnly && clearOnStart && dictionary.Count > 0)
 			{
 				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
 			}
@@ -332,7 +420,35 @@ namespace AuroraPunks.ScriptableValues
 			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+		
+			dictionary.TrimExcess();
 		}
 #endif
+		void ISerializationCallbackReceiver.OnBeforeSerialize()
+		{
+			// Does nothing.
+		}
+
+		void ISerializationCallbackReceiver.OnAfterDeserialize()
+		{
+#if DEBUG
+			if (!IsValid())
+			{
+				return;
+			}
+#endif
+			
+			dictionary.Clear();
+
+			if (keys.Count != values.Count)
+			{
+				return;
+			}
+			
+			for (int i = 0; i < keys.Count; i++)
+			{
+				dictionary.Add(keys[i], values[i]);
+			}
+		}
 	}
 }
