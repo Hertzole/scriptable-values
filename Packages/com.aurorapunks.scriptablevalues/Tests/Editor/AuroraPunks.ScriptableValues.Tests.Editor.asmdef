@@ -1,0 +1,25 @@
+{
+    "name": "AuroraPunks.ScriptableValues.Tests.Editor",
+    "rootNamespace": "AuroraPunks.ScriptableValues.Tests.Editor",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "AuroraPunks.ScriptableValues",
+        "AuroraPunks.ScriptableValues.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
