@@ -7,7 +7,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace AuroraPunks.ScriptableValues.Tests.Editor
 {
-	public class ResetValuesTests
+	public partial class ResetValuesTests
 	{
 		[Test]
 		public void ScriptableBool_ResetValue()
@@ -81,7 +81,6 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			ScriptableValueReset<ScriptableDecimal, decimal>(-11.1m, 12.2m);
 		}
 
-
 		[Test]
 		public void ScriptableString_ResetValue()
 		{
@@ -100,6 +99,29 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			Assert.IsTrue(EditorApplication.isPlaying);
 			Assert.IsTrue(instance.HasBeenReset);
+
+			Object.DestroyImmediate(instance);
+		}
+
+		[UnityTest]
+		public IEnumerator ExitPlayModeCallsExitPlayMode()
+		{
+			TestScriptableObject instance = ScriptableObject.CreateInstance<TestScriptableObject>();
+			// Set DontSave so it doesn't get destroyed when exiting play mode.
+			instance.hideFlags = HideFlags.DontSave;
+			
+			Assert.IsFalse(EditorApplication.isPlaying);
+			Assert.IsFalse(instance.HasExitedPlayMode);
+			
+			yield return new EnterPlayMode(false);
+			
+			Assert.IsTrue(EditorApplication.isPlaying);
+			Assert.IsFalse(instance.HasExitedPlayMode);
+			
+			yield return new ExitPlayMode();
+			
+			Assert.IsFalse(EditorApplication.isPlaying);
+			Assert.IsTrue(instance.HasExitedPlayMode);
 
 			Object.DestroyImmediate(instance);
 		}
@@ -125,10 +147,19 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 		private class TestScriptableObject : RuntimeScriptableObject
 		{
 			public bool HasBeenReset { get; private set; } = false;
+			public bool HasExitedPlayMode { get; private set; } = false;
 
 			public override void ResetValues()
 			{
+				base.ResetValues();;
 				HasBeenReset = true;
+				HasExitedPlayMode = false;
+			}
+
+			protected override void OnExitPlayMode()
+			{
+				base.OnExitPlayMode();
+				HasExitedPlayMode = true;
 			}
 		}
 	}

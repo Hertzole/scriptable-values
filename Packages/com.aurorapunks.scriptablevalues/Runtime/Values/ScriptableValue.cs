@@ -8,7 +8,34 @@ using System.Diagnostics;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract partial class ScriptableValue<T> : RuntimeScriptableObject
+	public abstract class ScriptableValue : RuntimeScriptableObject
+	{
+		[SerializeField]
+		[Tooltip("If read only, the value cannot be changed at runtime.")]
+		private bool isReadOnly = false;
+		[SerializeField]
+		[Tooltip("If true, the value will be reset to the default value on play mode start/game boot.")]
+		private bool resetValueOnStart = true;
+		[SerializeField]
+		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
+		private bool setEqualityCheck = true;
+		
+		/// <summary>
+		///     If read only, the value cannot be changed at runtime.
+		/// </summary>
+		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
+		/// <summary>
+		///     If true, the value will be reset to the default value on play mode start/game boot.
+		/// </summary>
+		public bool ResetValueOnStart { get { return resetValueOnStart; } set { resetValueOnStart = value; } }
+		/// <summary>
+		///     If true, an equality check will be run before setting the value to make sure the new value is not the same as the
+		///     old one.
+		/// </summary>
+		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+	}
+	
+	public abstract partial class ScriptableValue<T> : ScriptableValue
 	{
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
 
@@ -16,17 +43,8 @@ namespace AuroraPunks.ScriptableValues
 		[Tooltip("The current value. This can be changed at runtime.")]
 		private T value = default;
 		[SerializeField]
-		[Tooltip("If read only, the value cannot be changed at runtime.")]
-		private bool isReadOnly = false;
-		[SerializeField]
 		[Tooltip("The default value. This is used when the value is reset.")]
 		private T defaultValue = default;
-		[SerializeField]
-		[Tooltip("If true, the value will be reset to the default value on play mode start/game boot.")]
-		private bool resetValueOnStart = true;
-		[SerializeField]
-		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
-		private bool setEqualityCheck = true;
 		[SerializeField]
 		[Tooltip("Called before the current value is set.")]
 		private UnityEvent<T, T> onValueChanging = new UnityEvent<T, T>();
@@ -53,22 +71,9 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public T PreviousValue { get; private set; }
 		/// <summary>
-		///     If read only, the value cannot be changed at runtime.
-		/// </summary>
-		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
-		/// <summary>
 		///     The default value. This is used when the value is reset.
 		/// </summary>
 		public T DefaultValue { get { return defaultValue; } set { defaultValue = value; } }
-		/// <summary>
-		///     If true, the value will be reset to the default value on play mode start/game boot.
-		/// </summary>
-		public bool ResetValueOnStart { get { return resetValueOnStart; } set { resetValueOnStart = value; } }
-		/// <summary>
-		///     If true, an equality check will be run before setting the value to make sure the new value is not the same as the
-		///     old one.
-		/// </summary>
-		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
 
 		/// <summary>
 		///     Called before the current value is set.
@@ -79,6 +84,11 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public event OldNewValue<T> OnValueChanged;
 
+		#if UNITY_INCLUDE_TESTS
+		internal bool ValueChangingHasSubscribers { get { return OnValueChanging != null; } }
+		internal bool ValueChangedHasSubscribers { get { return OnValueChanged != null; } }
+		#endif
+		
 		protected virtual T GetValue()
 		{
 			return value;
@@ -86,13 +96,13 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void SetValue(T newValue, bool notify)
 		{
-			if (Application.isPlaying && isReadOnly)
+			if (Application.isPlaying && IsReadOnly)
 			{
 				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
 				return;
 			}
 			
-			if (setEqualityCheck && EqualityHelper.Equals(newValue, PreviousValue))
+			if (SetEqualityCheck && EqualityHelper.Equals(newValue, PreviousValue))
 			{
 				return;
 			}
@@ -134,7 +144,7 @@ namespace AuroraPunks.ScriptableValues
 			ResetStackTraces();
 #endif
 
-			if (resetValueOnStart && !isReadOnly)
+			if (ResetValueOnStart && !IsReadOnly)
 			{
 				value = DefaultValue;
 				PreviousValue = DefaultValue;
