@@ -8,7 +8,7 @@ namespace AuroraPunks.ScriptableValues.Helpers
 		public static bool Equals<T>(T left, T right)
 		{
 			// Do special checking on Unity objects.
-			if (typeof(T) == typeof(Object))
+			if (typeof(T) == typeof(Object) || typeof(T).IsSubclassOf(typeof(Object)))
 			{
 				Object leftUnityObject = left as Object;
 				Object rightUnityObject = right as Object;
