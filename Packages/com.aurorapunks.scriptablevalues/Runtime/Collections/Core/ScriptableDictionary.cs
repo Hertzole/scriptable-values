@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -169,9 +167,7 @@ namespace AuroraPunks.ScriptableValues
 					return;
 				}
 
-#if UNITY_EDITOR
-				AddStackTrace(new StackTrace(true));
-#endif
+				AddStackTrace();
 
 				int valueIndex = values.IndexOf(oldValue);
 				if(valueIndex >= 0)
@@ -200,9 +196,7 @@ namespace AuroraPunks.ScriptableValues
 			bool result = dictionary.TryAdd(key, value);
 			if (result)
 			{
-#if UNITY_EDITOR
-				AddStackTrace(new StackTrace(true));
-#endif
+				AddStackTrace();
 
 				keys.Add(key);
 				values.Add(value);
@@ -256,9 +250,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+			AddStackTrace();
+
 			dictionary.TrimExcess();
 			
 			keys.TrimExcess();
@@ -273,9 +266,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+
+			AddStackTrace();
+
 			dictionary.TrimExcess(capacity);
 			
 			keys.TrimExcess();
@@ -336,9 +329,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+
+			AddStackTrace();
+
 			dictionary.Clear();
 			
 			keys.Clear();
@@ -359,9 +352,8 @@ namespace AuroraPunks.ScriptableValues
 
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
 		{
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+			AddStackTrace();
+
 			return ContainsKey(item.Key) && dictionary.Remove(item.Key);
 		}
 
@@ -373,9 +365,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+			AddStackTrace();
+			
 			dictionary.Add(key, value);
 
 			keys.Add(key);
@@ -406,9 +397,8 @@ namespace AuroraPunks.ScriptableValues
 					keys.Remove(key);
 					values.Remove(oldItem);
 					
-#if UNITY_EDITOR
-					AddStackTrace(new StackTrace(true));
-#endif
+					AddStackTrace();
+					
 					OnRemoved?.Invoke(key, oldItem);
 				}
 			}
@@ -433,9 +423,7 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
-#if UNITY_EDITOR
 			ResetStackTraces();
-#endif
 
 			OnAdded = null;
 			OnSet = null;

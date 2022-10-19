@@ -2,9 +2,6 @@ using System;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
-#if UNITY_EDITOR
-using System.Diagnostics;
-#endif
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -28,10 +25,8 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Invoke(object sender, T args)
 		{
-#if UNITY_EDITOR
 			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
-			AddStackTrace(new StackTrace(1, true));
-#endif
+			AddStackTrace(1);
 
 			PreviousArgs = currentArgs;
 			currentArgs = args;
@@ -70,10 +65,8 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Invoke(object sender)
 		{
-#if UNITY_EDITOR
 			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
-			AddStackTrace(new StackTrace(1, true));
-#endif
+			AddStackTrace(1);
 
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
@@ -81,10 +74,8 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
-#if UNITY_EDITOR
-			ResetStackTraces();
-#endif
-			
+			// ResetStackTraces();
+
 			OnInvoked = null;
 		}
 		

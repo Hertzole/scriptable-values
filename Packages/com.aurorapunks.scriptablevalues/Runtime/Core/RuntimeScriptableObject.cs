@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract class RuntimeScriptableObject : ScriptableObject
+	public abstract partial class RuntimeScriptableObject : ScriptableObject
 	{
 		private void OnEnable()
 		{

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace AuroraPunks.ScriptableValues.Helpers
+namespace AuroraPunks.ScriptableValues.Debugging
 {
 	public readonly struct StackTraceEntry : IEquatable<StackTraceEntry>
 	{

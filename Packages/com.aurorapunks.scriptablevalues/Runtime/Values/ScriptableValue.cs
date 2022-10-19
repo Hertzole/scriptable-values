@@ -2,9 +2,6 @@ using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
-#if UNITY_EDITOR
-using System.Diagnostics;
-#endif
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -60,9 +57,8 @@ namespace AuroraPunks.ScriptableValues
 			get { return GetValue(); }
 			set
 			{
-#if UNITY_EDITOR
-				AddStackTrace(new StackTrace(1, true));
-#endif
+				AddStackTrace(1);
+				
 				SetValue(value, true);
 			}
 		}
@@ -129,9 +125,8 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="newValue">The new value.</param>
 		public void SetValueWithoutNotify(T newValue)
 		{
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
+			AddStackTrace();
+
 			SetValue(newValue, false);
 		}
 
@@ -170,7 +165,7 @@ namespace AuroraPunks.ScriptableValues
 		{
 			if (!EqualityHelper.Equals(PreviousValue, value))
 			{
-				AddStackTrace(new StackTrace(1, true));
+				AddStackTrace(1);
 				SetValue(value, true);
 			}
 		}

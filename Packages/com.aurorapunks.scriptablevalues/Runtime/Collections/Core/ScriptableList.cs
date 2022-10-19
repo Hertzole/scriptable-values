@@ -5,9 +5,6 @@ using System.Runtime.CompilerServices;
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
-#if UNITY_EDITOR
-using System.Diagnostics;
-#endif
 
 namespace AuroraPunks.ScriptableValues
 {
@@ -74,10 +71,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			T oldValue = list[index];
 			list[index] = value;
 			OnSet?.Invoke(index, oldValue, value);
@@ -164,10 +159,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			int index = Count;
 			list.Add(item);
 			OnAdded?.Invoke(item);
@@ -182,10 +175,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Insert(index, item);
 			OnInserted?.Invoke(index, item);
 			OnAddedOrInserted?.Invoke(index, item);
@@ -204,11 +195,9 @@ namespace AuroraPunks.ScriptableValues
 			{
 				return false;
 			}
-
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
 			
+			AddStackTrace();
+
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
 			return true;
@@ -222,10 +211,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			T item = list[index];
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
@@ -268,10 +255,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Clear();
 			OnCleared?.Invoke();
 		}
@@ -299,10 +284,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Reverse();
 		}
 
@@ -314,10 +297,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Reverse(index, count);
 		}
 
@@ -329,10 +310,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Sort();
 		}
 
@@ -344,10 +323,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Sort(0, Count, comparer);
 		}
 		
@@ -359,10 +336,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Sort(index, count, comparer);
 		}
 
@@ -374,10 +349,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.Sort(comparison);
 		}
 
@@ -394,10 +367,8 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-#if UNITY_EDITOR
-			AddStackTrace(new StackTrace(true));
-#endif
-			
+			AddStackTrace();
+
 			list.TrimExcess();
 		}
 
@@ -424,9 +395,7 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
-#if UNITY_EDITOR
 			ResetStackTraces();
-#endif
 
 			OnAdded = null;
 			OnInserted = null;
