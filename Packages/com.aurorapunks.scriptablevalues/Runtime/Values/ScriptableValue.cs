@@ -41,7 +41,7 @@ namespace AuroraPunks.ScriptableValues
 
 		[SerializeField]
 		[Tooltip("The current value. This can be changed at runtime.")]
-		private T value = default;
+		internal T value = default;
 		[SerializeField]
 		[Tooltip("The default value. This is used when the value is reset.")]
 		private T defaultValue = default;
@@ -84,10 +84,10 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public event OldNewValue<T> OnValueChanged;
 
-		#if UNITY_INCLUDE_TESTS
+#if UNITY_INCLUDE_TESTS
 		internal bool ValueChangingHasSubscribers { get { return OnValueChanging != null; } }
 		internal bool ValueChangedHasSubscribers { get { return OnValueChanged != null; } }
-		#endif
+#endif
 		
 		protected virtual T GetValue()
 		{
@@ -98,7 +98,7 @@ namespace AuroraPunks.ScriptableValues
 		{
 			if (Application.isPlaying && IsReadOnly)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
+				Debug.LogError($"'{name}' is marked as read only and cannot be changed at runtime.");
 				return;
 			}
 			
@@ -166,7 +166,7 @@ namespace AuroraPunks.ScriptableValues
 			SetValueOnValidateInternal();
 		}
 
-		private void SetValueOnValidateInternal()
+		internal void SetValueOnValidateInternal()
 		{
 			if (!EqualityHelper.Equals(PreviousValue, value))
 			{
