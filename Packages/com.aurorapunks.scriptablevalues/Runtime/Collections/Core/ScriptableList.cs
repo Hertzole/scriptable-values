@@ -66,7 +66,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			if (setEqualityCheck && !EqualityHelper.Equals(list[index], value))
+			if (setEqualityCheck && EqualityHelper.Equals(list[index], value))
 			{
 				return;
 			}
