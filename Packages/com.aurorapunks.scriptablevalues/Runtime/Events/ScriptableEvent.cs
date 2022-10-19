@@ -74,7 +74,7 @@ namespace AuroraPunks.ScriptableValues
 
 		public override void ResetValues()
 		{
-			// ResetStackTraces();
+			ResetStackTraces();
 
 			OnInvoked = null;
 		}
