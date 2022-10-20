@@ -8,7 +8,7 @@ using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
-	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
+	public abstract class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
 		[SerializeField] 
 		[Tooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
@@ -29,16 +29,10 @@ namespace AuroraPunks.ScriptableValues
 			get { return list[index]; }
 			set
 			{
-				if (value is T newValue)
+				if (IsValidType(value, out T newValue))
 				{
 					SetValue(index, newValue);
 				}
-#if DEBUG
-				else
-				{
-					throw new InvalidCastException($"Cannot cast {value.GetType()} to {typeof(T)}");
-				}
-#endif
 			}
 		}
 
@@ -47,9 +41,11 @@ namespace AuroraPunks.ScriptableValues
 		// Synchronization root for this object.
 		object ICollection.SyncRoot { get { return this; } }
 
-		bool IList.IsFixedSize { get { return false; } }
+		bool IList.IsFixedSize { get { return isReadOnly; } }
 		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
 		public int Count { get { return list.Count; } }
+		
+		public int Capacity { get { return list.Capacity; } }
 
 		public event Action<T> OnAdded;
 		public event Action<int, T> OnInserted;
@@ -88,11 +84,10 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 #if DEBUG
-			throw new InvalidCastException($"Cannot cast {value.GetType()} to {typeof(T)}");
-#else
+			Debug.LogError($"{typeof(T)} is not assignable from {value.GetType()}.");
+#endif
 			newValue = default;
 			return false;
-#endif
 		}
 
 		int IList.Add(object value)
@@ -100,9 +95,10 @@ namespace AuroraPunks.ScriptableValues
 			if (IsValidType(value, out T newValue))
 			{
 				Add(newValue);
+				return Count - 1;
 			}
 
-			return Count - 1;
+			return -1;
 		}
 
 		bool IList.Contains(object value)
