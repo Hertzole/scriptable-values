@@ -21,7 +21,7 @@ namespace AuroraPunks.ScriptableValues.Helpers
 				sb.Append($"{parameterName}");
 				if (targetObject != null)
 				{
-					sb.Append($" in object {targetObject.name} ({targetObject.GetType().FullName}) ");
+					sb.Append($" in object {targetObject.name} ({targetObject.GetType().FullName})");
 				}
 
 				sb.AppendLine(" has some left over subscribers:");

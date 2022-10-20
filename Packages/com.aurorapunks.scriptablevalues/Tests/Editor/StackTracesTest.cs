@@ -343,7 +343,5 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Object.DestroyImmediate(instance);
 			}
 		}
-
-		private class TestScriptableList : ScriptableList<int> { }
 	}
 }
