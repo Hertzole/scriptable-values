@@ -20,7 +20,7 @@ namespace AuroraPunks.ScriptableValues
 		}
 	}
 	
-	public abstract partial class ScriptableDictionary<TKey, TValue> : ScriptableDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
+	public abstract class ScriptableDictionary<TKey, TValue> : ScriptableDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
 	{
 		[SerializeField] 
 		[Tooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
@@ -33,9 +33,9 @@ namespace AuroraPunks.ScriptableValues
 		private bool clearOnStart = true;
 
 		[SerializeField]
-		private List<TKey> keys = new List<TKey>();
+		internal List<TKey> keys = new List<TKey>();
 		[SerializeField] 
-		private List<TValue> values = new List<TValue>();
+		internal List<TValue> values = new List<TValue>();
 
 		private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
@@ -72,8 +72,6 @@ namespace AuroraPunks.ScriptableValues
 		}
 
 		bool IDictionary.IsFixedSize { get { return isReadOnly; } }
-
-		int ICollection.Count { get { return dictionary.Count; } }
 		bool ICollection.IsSynchronized { get { return false; } }
 		object ICollection.SyncRoot { get { return this; } }
 		ICollection IDictionary.Values { get { return dictionary.Values; } }
@@ -264,7 +262,6 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
 				return;
 			}
-			
 
 			AddStackTrace();
 
@@ -327,7 +324,6 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
 				return;
 			}
-			
 
 			AddStackTrace();
 
@@ -413,16 +409,6 @@ namespace AuroraPunks.ScriptableValues
 		public bool TryGetValue(TKey key, out TValue value)
 		{
 			return dictionary.TryGetValue(key, out value);
-		}
-
-		bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value)
-		{
-			return dictionary.TryGetValue(key, out value);
-		}
-
-		bool IReadOnlyDictionary<TKey, TValue>.ContainsKey(TKey key)
-		{
-			return dictionary.ContainsKey(key);
 		}
 
 		public override void ResetValues()
