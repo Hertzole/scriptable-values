@@ -161,7 +161,7 @@ namespace AuroraPunks.ScriptableValues
 			
 			if (dictionary.TryGetValue(key, out TValue oldValue))
 			{
-				if (setEqualityCheck && !EqualityHelper.Equals(oldValue, value))
+				if (setEqualityCheck && EqualityHelper.Equals(oldValue, value))
 				{
 					return;
 				}
