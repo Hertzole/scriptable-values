@@ -353,7 +353,12 @@ namespace AuroraPunks.ScriptableValues
 		{
 			AddStackTrace();
 
-			return ContainsKey(item.Key) && dictionary.Remove(item.Key);
+			if(dictionary.TryGetValue(item.Key, out TValue value) && EqualityHelper.Equals(item.Value, value))
+			{
+				return Remove(item.Key);
+			}
+
+			return false;
 		}
 
 		public void Add(TKey key, TValue value)
