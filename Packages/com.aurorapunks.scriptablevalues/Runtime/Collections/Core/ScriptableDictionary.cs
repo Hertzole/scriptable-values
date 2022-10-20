@@ -53,7 +53,7 @@ namespace AuroraPunks.ScriptableValues
 
 		TValue IReadOnlyDictionary<TKey, TValue>.this[TKey key] { get { return dictionary[key]; } }
 
-		TValue IDictionary<TKey, TValue>.this[TKey key] { get { return dictionary[key]; } set { SetValue(key, value); } }
+		public TValue this[TKey key] { get { return dictionary[key]; } set { SetValue(key, value); } }
 
 		public IEqualityComparer<TKey> Comparer
 		{
@@ -106,11 +106,10 @@ namespace AuroraPunks.ScriptableValues
 			}
 			
 #if DEBUG
-			throw new InvalidCastException($"Cannot cast {value.GetType()} to {typeof(TType)}");
-#else
+			Debug.LogError($"{typeof(TType)} is not assignable from {value.GetType()}.");
+#endif
 			newValue = default;
 			return false;
-#endif
 		}
 
 		internal override bool IsValid()
