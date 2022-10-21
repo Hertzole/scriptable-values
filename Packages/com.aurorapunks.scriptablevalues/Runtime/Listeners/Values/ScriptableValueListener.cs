@@ -35,7 +35,7 @@ namespace AuroraPunks.ScriptableValues
 	public abstract class ScriptableValueListener<TValue> : MonoBehaviour
 	{
 		[SerializeField]
-		private ScriptableValue<TValue> value = default;
+		private ScriptableValue<TValue> targetValue = default;
 		[SerializeField]
 		private StartListenEvents startListening = StartListenEvents.Awake;
 		[SerializeField]
@@ -58,9 +58,9 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		private UnityEvent<TValue, TValue> onValueChangedMultiple = new UnityEvent<TValue, TValue>();
 
-		protected bool isListening;
+		public bool IsListening { get; private set; }
 
-		public ScriptableValue<TValue> Value { get { return value; } set { this.value = value; } }
+		public ScriptableValue<TValue> TargetValue { get { return targetValue; } set { SetTargetValue(value); } }
 		public StartListenEvents StartListening { get { return startListening; } set { startListening = value; } }
 		public StopListenEvents StopListening { get { return stopListening; } set { stopListening = value; } }
 		public InvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
@@ -75,9 +75,9 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void Awake()
 		{
-			isListening = false;
+			IsListening = false;
 
-			if (!isListening && startListening == StartListenEvents.Awake)
+			if (!IsListening && startListening == StartListenEvents.Awake)
 			{
 				ToggleListening(true);
 			}
@@ -85,7 +85,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected void Start()
 		{
-			if (!isListening && startListening == StartListenEvents.Start)
+			if (!IsListening && startListening == StartListenEvents.Start)
 			{
 				ToggleListening(true);
 			}
@@ -93,7 +93,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnEnable()
 		{
-			if (!isListening && startListening == StartListenEvents.OnEnable)
+			if (!IsListening && startListening == StartListenEvents.OnEnable)
 			{
 				ToggleListening(true);
 			}
@@ -101,7 +101,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnDisable()
 		{
-			if (isListening && stopListening == StopListenEvents.OnDisable)
+			if (IsListening && stopListening == StopListenEvents.OnDisable)
 			{
 				ToggleListening(false);
 			}
@@ -109,7 +109,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnDestroy()
 		{
-			if (isListening && stopListening == StopListenEvents.OnDestroy)
+			if (IsListening && stopListening == StopListenEvents.OnDestroy)
 			{
 				ToggleListening(false);
 			}
@@ -117,17 +117,22 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void ToggleListening(bool listen)
 		{
-			isListening = listen;
+			IsListening = listen;
+
+			if (targetValue == null)
+			{
+				return;
+			}
 
 			if (listen)
 			{
-				value.OnValueChanging += OnCurrentValueChanging;
-				value.OnValueChanged += OnCurrentValueChanged;
+				targetValue.OnValueChanging += OnCurrentValueChanging;
+				targetValue.OnValueChanged += OnCurrentValueChanged;
 			}
 			else
 			{
-				value.OnValueChanging -= OnCurrentValueChanging;
-				value.OnValueChanged -= OnCurrentValueChanged;
+				targetValue.OnValueChanging -= OnCurrentValueChanging;
+				targetValue.OnValueChanged -= OnCurrentValueChanged;
 			}
 		}
 
@@ -171,20 +176,40 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 
+		protected virtual void SetTargetValue(ScriptableValue<TValue> newValue)
+		{
+			if (newValue == targetValue)
+			{
+				return;
+			}
+
+			if (targetValue != null && IsListening)
+			{
+				targetValue.OnValueChanging -= OnCurrentValueChanging;
+				targetValue.OnValueChanged -= OnCurrentValueChanged;
+			}
+
+			targetValue = newValue;
+
+			if (targetValue != null && IsListening)
+			{
+				targetValue.OnValueChanging += OnCurrentValueChanging;
+				targetValue.OnValueChanged += OnCurrentValueChanged;
+			}
+		}
+
 		private static bool ShouldInvoke(InvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
 		{
 			switch (invokeOn)
 			{
-				case InvokeEvents.Any: // If anything happened
-					return true;
 				case InvokeEvents.FromValue: // If the old value is the from value.
 					return EqualityHelper.Equals(previousValue, fromValue);
 				case InvokeEvents.ToValue:
 					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
 				case InvokeEvents.FromValueToValue:
 					return EqualityHelper.Equals(previousValue, fromValue) && EqualityHelper.Equals(newValue, toValue); // If the old value is the from value and the new value is the to value.
-				default:
-					return false;
+				default: // If anything happened (includes any)
+					return true;
 			}
 		}
 	}
