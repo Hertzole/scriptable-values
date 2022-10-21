@@ -85,9 +85,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 		protected T CreateComponent<T>(GameObject go = null) where T : Component
 		{
-			go ??= new GameObject();
+			if (go == null)
+			{
+				go = new GameObject();
+				objects.Add(go);
+			}
 			T comp = go.AddComponent<T>();
-			objects.Add(comp);
 
 			return comp;
 		}
