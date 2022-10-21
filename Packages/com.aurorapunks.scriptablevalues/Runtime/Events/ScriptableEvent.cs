@@ -22,6 +22,10 @@ namespace AuroraPunks.ScriptableValues
 		public T PreviousArgs { get; private set; }
 
 		public new event EventHandler<T> OnInvoked;
+		
+#if UNITY_INCLUDE_TESTS
+		internal new bool InvokedHasSubscribers { get { return OnInvoked != null; } }
+#endif
 
 		public void Invoke(object sender, T args)
 		{
@@ -56,12 +60,16 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event", order = 1100)]
 #endif
-	public partial class ScriptableEvent : RuntimeScriptableObject
+	public class ScriptableEvent : RuntimeScriptableObject
 	{
 		[SerializeField]
 		private UnityEvent onInvoked = new UnityEvent();
 
 		public event EventHandler OnInvoked;
+		
+#if UNITY_INCLUDE_TESTS
+		internal bool InvokedHasSubscribers { get { return OnInvoked != null; } }
+#endif
 
 		public void Invoke(object sender)
 		{

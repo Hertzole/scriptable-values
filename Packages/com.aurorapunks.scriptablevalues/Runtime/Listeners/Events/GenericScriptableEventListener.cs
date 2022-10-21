@@ -28,9 +28,9 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		private UnityEvent<TValue> onInvoked = new UnityEvent<TValue>();
 
-		protected bool isListening = false;
+		public bool IsListening { get; private set; } = false;
 
-		public ScriptableEvent<TValue> TargetEvent { get { return targetEvent; } set { targetEvent = value; } }
+		public ScriptableEvent<TValue> TargetEvent { get { return targetEvent; } set { SetTargetEvent(value); } }
 		public StartListenEvents StartListening { get { return startListening; } set { startListening = value; } }
 		public StopListenEvents StopListening { get { return stopListening; } set { stopListening = value; } }
 		public EventInvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
@@ -41,9 +41,9 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void Awake()
 		{
-			isListening = false;
+			IsListening = false;
 
-			if (!isListening && startListening == StartListenEvents.Awake)
+			if (!IsListening && startListening == StartListenEvents.Awake)
 			{
 				ToggleListening(true);
 			}
@@ -51,7 +51,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected void Start()
 		{
-			if (!isListening && startListening == StartListenEvents.Start)
+			if (!IsListening && startListening == StartListenEvents.Start)
 			{
 				ToggleListening(true);
 			}
@@ -59,7 +59,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnEnable()
 		{
-			if (!isListening && startListening == StartListenEvents.OnEnable)
+			if (!IsListening && startListening == StartListenEvents.OnEnable)
 			{
 				ToggleListening(true);
 			}
@@ -67,7 +67,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnDisable()
 		{
-			if (isListening && stopListening == StopListenEvents.OnDisable)
+			if (IsListening && stopListening == StopListenEvents.OnDisable)
 			{
 				ToggleListening(false);
 			}
@@ -75,7 +75,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnDestroy()
 		{
-			if (isListening && stopListening == StopListenEvents.OnDestroy)
+			if (IsListening && stopListening == StopListenEvents.OnDestroy)
 			{
 				ToggleListening(false);
 			}
@@ -83,8 +83,13 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void ToggleListening(bool listen)
 		{
-			isListening = listen;
+			IsListening = listen;
 
+			if (targetEvent == null)
+			{
+				return;
+			}
+			
 			if (listen)
 			{
 				targetEvent.OnInvoked += OnEventInvoked;
@@ -92,6 +97,26 @@ namespace AuroraPunks.ScriptableValues
 			else
 			{
 				targetEvent.OnInvoked -= OnEventInvoked;
+			}
+		}
+		
+		protected virtual void SetTargetEvent(ScriptableEvent<TValue> newEvent)
+		{
+			if (newEvent == targetEvent)
+			{
+				return;
+			}
+			
+			if (targetEvent != null && IsListening)
+			{
+				targetEvent.OnInvoked -= OnEventInvoked;
+			}
+			
+			targetEvent = newEvent;
+			
+			if (targetEvent != null && IsListening)
+			{
+				targetEvent.OnInvoked += OnEventInvoked;
 			}
 		}
 

@@ -36,6 +36,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			for (int i = 0; i < objects.Count; i++)
 			{
+				if (objects[i] == null)
+				{
+					continue;
+				}
+				
 				if (objects[i] is GameObject go)
 				{
 					Object.Destroy(go);
@@ -85,6 +90,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 			objects.Add(comp);
 
 			return comp;
+		}
+
+		protected T Instantiate<T>(T prefab) where T : Object
+		{
+			var instance = Object.Instantiate(prefab);
+			objects.Add(instance);
+			
+			return instance;
+		}
+
+		protected void Destroy(Object obj)
+		{
+			Object.Destroy(obj);
+			objects.Remove(obj);
 		}
 	}
 }
