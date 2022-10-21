@@ -47,9 +47,9 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		private TValue toValue = default;
 
-		[SerializeField] 
+		[SerializeField]
 		private InvokeParameters invokeParameters = InvokeParameters.Single;
-		[SerializeField] 
+		[SerializeField]
 		private UnityEvent<TValue> onValueChangingSingle = new UnityEvent<TValue>();
 		[SerializeField]
 		private UnityEvent<TValue> onValueChangedSingle = new UnityEvent<TValue>();
@@ -133,10 +133,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnCurrentValueChanging(TValue oldValue, TValue newValue)
 		{
-			if (invokeOn == InvokeEvents.Any || // If anything happened
-			    (invokeOn == InvokeEvents.FromValue && IsEqual(oldValue, fromValue)) || // If the old value is the from value.
-			    (invokeOn == InvokeEvents.ToValue && IsEqual(newValue, toValue)) || // If the new value is the to value.
-			    (invokeOn == InvokeEvents.FromValueToValue && IsEqual(oldValue, fromValue) && IsEqual(newValue, toValue))) // If the old value is the from value and the new value is the to value. 
+			if (ShouldInvoke(invokeOn, oldValue, newValue, fromValue, toValue))
 			{
 				switch (invokeParameters)
 				{
@@ -156,10 +153,7 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnCurrentValueChanged(TValue oldValue, TValue newValue)
 		{
-			if (invokeOn == InvokeEvents.Any || // If anything happened
-			    (invokeOn == InvokeEvents.FromValue && IsEqual(oldValue, fromValue)) || // If the old value is the from value.
-			    (invokeOn == InvokeEvents.ToValue && IsEqual(newValue, toValue)) || // If the new value is the to value.
-			    (invokeOn == InvokeEvents.FromValueToValue && IsEqual(oldValue, fromValue) && IsEqual(newValue, toValue))) // If the old value is the from value and the new value is the to value. 
+			if (ShouldInvoke(invokeOn, oldValue, newValue, fromValue, toValue))
 			{
 				switch (invokeParameters)
 				{
@@ -177,9 +171,21 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 
-		private static bool IsEqual(TValue a, TValue b)
+		private static bool ShouldInvoke(InvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
 		{
-			return EqualityHelper.Equals(a, b);
+			switch (invokeOn)
+			{
+				case InvokeEvents.Any: // If anything happened
+					return true;
+				case InvokeEvents.FromValue: // If the old value is the from value.
+					return EqualityHelper.Equals(previousValue, fromValue);
+				case InvokeEvents.ToValue:
+					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
+				case InvokeEvents.FromValueToValue:
+					return EqualityHelper.Equals(previousValue, fromValue) && EqualityHelper.Equals(newValue, toValue); // If the old value is the from value and the new value is the to value.
+				default:
+					return false;
+			}
 		}
 	}
 }

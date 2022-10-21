@@ -48,7 +48,7 @@ namespace AuroraPunks.ScriptableValues
 				ToggleListening(true);
 			}
 		}
-		
+
 		protected void Start()
 		{
 			if (!isListening && startListening == StartListenEvents.Start)
@@ -97,17 +97,25 @@ namespace AuroraPunks.ScriptableValues
 
 		private void OnEventInvoked(object sender, TValue args)
 		{
-			if (invokeOn == EventInvokeEvents.Any || // If anything happened
-			    (invokeOn == EventInvokeEvents.FromValue && IsEqual(targetEvent.PreviousArgs, fromValue)) || // If the old value is the from value.
-			    (invokeOn == EventInvokeEvents.ToValue && IsEqual(args, toValue))) // If the new value is the to value.
+			if (ShouldInvoke(invokeOn, targetEvent.PreviousArgs, args, fromValue, toValue))
 			{
 				onInvoked.Invoke(args);
 			}
 		}
 
-		private static bool IsEqual(TValue a, TValue b)
+		private static bool ShouldInvoke(EventInvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
 		{
-			return EqualityHelper.Equals(a, b);
+			switch (invokeOn)
+			{
+				case EventInvokeEvents.Any: // If anything happened
+					return true;
+				case EventInvokeEvents.FromValue: // If the old value is the from value.
+					return EqualityHelper.Equals(previousValue, fromValue);
+				case EventInvokeEvents.ToValue:
+					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
+				default:
+					return false;
+			}
 		}
 	}
 }
