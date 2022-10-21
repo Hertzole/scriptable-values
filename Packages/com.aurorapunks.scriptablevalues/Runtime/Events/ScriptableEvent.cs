@@ -27,6 +27,19 @@ namespace AuroraPunks.ScriptableValues
 		internal new bool InvokedHasSubscribers { get { return OnInvoked != null; } }
 #endif
 
+		// We must override the base class' invoke method to ensure that the event is invoked with the correct arguments.
+		public new void Invoke(object sender)
+		{
+			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
+			AddStackTrace(1);
+			
+			PreviousArgs = currentArgs;
+			currentArgs = default;
+
+			OnInvoked?.Invoke(sender, currentArgs);
+			onInvokedWithArgs.Invoke(currentArgs);
+		}
+		
 		public void Invoke(object sender, T args)
 		{
 			// Skip a frame to avoid the Invoke method itself being included in the stack trace.

@@ -132,14 +132,12 @@ namespace AuroraPunks.ScriptableValues
 		{
 			switch (invokeOn)
 			{
-				case EventInvokeEvents.Any: // If anything happened
-					return true;
 				case EventInvokeEvents.FromValue: // If the old value is the from value.
 					return EqualityHelper.Equals(previousValue, fromValue);
 				case EventInvokeEvents.ToValue:
 					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
-				default:
-					return false;
+				default: // If anything happened (includes any)
+					return true;
 			}
 		}
 	}
