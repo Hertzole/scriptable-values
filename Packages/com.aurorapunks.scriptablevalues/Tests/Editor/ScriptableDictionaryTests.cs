@@ -1281,6 +1281,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			
 			Assert.IsFalse(dictionary.IsValid());
 		}
+
+		[Test]
+		public void IsValid_Base()
+		{
+			var baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
+
+			Assert.IsFalse(baseDic.IsValid());
+		}
 		
 		[Test]
 		public void IsIndexValid_Valid()
@@ -1316,6 +1324,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.values.Add(5);
 			
 			Assert.IsFalse(dictionary.IsIndexValid(0));
+		}
+		
+		[Test]
+		public void IsIndexValid_Base()
+		{
+			var baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
+
+			Assert.IsFalse(baseDic.IsIndexValid(0));
 		}
 		
 		[Test]
@@ -1357,7 +1373,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.AreEqual(43, dictionary[1]);
 			Assert.AreEqual(44, dictionary[2]);
 		}
-		
+
 		private class ReverseComparer<T> : IEqualityComparer<T>
 		{
 			public bool Equals(T x, T y)
@@ -1370,5 +1386,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				return EqualityComparer<T>.Default.GetHashCode(obj);
 			}
 		}
+
+		private class TestBaseScriptableDictionary : ScriptableDictionary { }
 	}
 }
