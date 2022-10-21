@@ -330,6 +330,34 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 		}
 
 		[Test]
+		public void Set_SameValue_NoEqualsCheck()
+		{
+			dictionary.Add(0, 42);
+
+			bool setEventInvoked = false;
+			dictionary.OnSet += (key, oldValue, newValue) =>
+			{
+				Assert.AreEqual(0, key);
+				Assert.AreEqual(42, oldValue);
+				Assert.AreEqual(42, newValue);
+				setEventInvoked = true;
+			};
+
+			dictionary.SetEqualityCheck = false;
+			dictionary[0] = 42;
+
+			Assert.AreEqual(1, dictionary.Count);
+			Assert.AreEqual(42, dictionary[0]);
+			Assert.AreEqual(1, dictionary.keys.Count);
+			Assert.AreEqual(0, dictionary.keys[0]);
+			Assert.AreEqual(1, dictionary.values.Count);
+			Assert.AreEqual(42, dictionary.values[0]);
+			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
+
+			Assert.IsTrue(setEventInvoked);
+		}
+
+		[Test]
 		public void Set_SameValue()
 		{
 			dictionary.Add(0, 42);
@@ -1081,6 +1109,266 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			}
 			
 			Assert.AreEqual(45, index);
+		}
+
+		[Test]
+		public void Serialization_CreatesDictionary()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			
+			ISerializationCallbackReceiver callbackReceiver = dictionary;
+
+			Assert.IsNotNull(callbackReceiver);
+			
+			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
+			
+			callbackReceiver.OnAfterDeserialize();
+			
+			Assert.AreEqual(3, dictionary.Count);
+			Assert.AreEqual(42, dictionary[0]);
+			Assert.AreEqual(43, dictionary[1]);
+			Assert.AreEqual(44, dictionary[2]);
+		}
+
+		[Test]
+		public void Serialization_Invalid_KeyLengthMismatch()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			dictionary.keys.Add(3);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			
+			ISerializationCallbackReceiver callbackReceiver = dictionary;
+
+			Assert.IsNotNull(callbackReceiver);
+			
+			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
+			
+			callbackReceiver.OnAfterDeserialize();
+			
+			Assert.AreEqual(0, dictionary.Count);
+		}
+		
+		[Test]
+		public void Serialization_Invalid_ValueLengthMismatch()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			dictionary.values.Add(45);
+			
+			ISerializationCallbackReceiver callbackReceiver = dictionary;
+
+			Assert.IsNotNull(callbackReceiver);
+			
+			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
+			
+			callbackReceiver.OnAfterDeserialize();
+			
+			Assert.AreEqual(0, dictionary.Count);
+		}
+		
+		[Test]
+		public void Serialization_Invalid_DuplicateKeys()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			dictionary.values.Add(45);
+			
+			ISerializationCallbackReceiver callbackReceiver = dictionary;
+
+			Assert.IsNotNull(callbackReceiver);
+			
+			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
+
+			callbackReceiver.OnAfterDeserialize();
+			
+			Assert.AreEqual(0, dictionary.Count);
+		}
+
+		[Test]
+		public void IsValid_Valid()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			
+			Assert.IsTrue(dictionary.IsValid());
+		}
+		
+		[Test]
+		public void IsValid_Invalid_KeyLengthMismatch()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			dictionary.keys.Add(3);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			
+			Assert.IsFalse(dictionary.IsValid());
+		}
+		
+		[Test]
+		public void IsValid_Invalid_ValueLengthMismatch()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			dictionary.values.Add(45);
+			
+			Assert.IsFalse(dictionary.IsValid());
+		}
+		
+		[Test]
+		public void IsValid_Invalid_DuplicateKeys()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			dictionary.values.Add(45);
+			
+			Assert.IsFalse(dictionary.IsValid());
+		}
+		
+		[Test]
+		public void IsIndexValid_Valid()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			
+			Assert.IsTrue(dictionary.IsIndexValid(0));
+			Assert.IsTrue(dictionary.IsIndexValid(1));
+			Assert.IsTrue(dictionary.IsIndexValid(2));
+		}
+		
+		[Test]
+		public void IsIndexValid_Invalid_DuplicateKeys()
+		{
+			dictionary.dictionary.Clear();
+
+			dictionary.keys.Add(0);
+			dictionary.keys.Add(1);
+			dictionary.keys.Add(2);
+			dictionary.keys.Add(0);
+			
+			dictionary.values.Add(42);
+			dictionary.values.Add(43);
+			dictionary.values.Add(44);
+			dictionary.values.Add(5);
+			
+			Assert.IsFalse(dictionary.IsIndexValid(0));
+		}
+		
+		[Test]
+		public void Comparer_SetNewComparer()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+			
+			Assert.AreEqual(3, dictionary.Count);
+			
+			ReverseComparer<int> comparer = new ReverseComparer<int>();
+			
+			dictionary.Comparer = comparer;
+
+			Assert.AreEqual(comparer, dictionary.Comparer);
+			Assert.AreEqual(3, dictionary.Count);
+			
+			Assert.AreEqual(42, dictionary[0]);
+			Assert.AreEqual(43, dictionary[1]);
+			Assert.AreEqual(44, dictionary[2]);
+		}
+		
+		[Test]
+		public void Comparer_SetNull()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+			
+			Assert.AreEqual(3, dictionary.Count);
+			
+			dictionary.Comparer = null;
+
+			Assert.AreEqual(EqualityComparer<int>.Default, dictionary.Comparer);
+			Assert.AreEqual(3, dictionary.Count);
+			
+			Assert.AreEqual(42, dictionary[0]);
+			Assert.AreEqual(43, dictionary[1]);
+			Assert.AreEqual(44, dictionary[2]);
+		}
+		
+		private class ReverseComparer<T> : IEqualityComparer<T>
+		{
+			public bool Equals(T x, T y)
+			{
+				return EqualityComparer<T>.Default.Equals(y, x);
+			}
+			
+			public int GetHashCode(T obj)
+			{
+				return EqualityComparer<T>.Default.GetHashCode(obj);
+			}
 		}
 	}
 }

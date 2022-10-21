@@ -287,6 +287,24 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			yield return new ExitPlayMode();
 		}
 
+		[UnityTest]
+		[TestMustExpectAllLogs]
+		public IEnumerator ScriptableDictionary_Objects_NoClear()
+		{
+			TestScriptableDictionary instance = ScriptableObject.CreateInstance<TestScriptableDictionary>();
+			instance.hideFlags = HideFlags.DontSave;
+			instance.name = "Instance";
+			instance.ClearOnStart = false;
+
+			yield return new EnterPlayMode(false);
+
+			instance.Add(10, 42);
+
+			LogAssert.NoUnexpectedReceived();
+
+			yield return new ExitPlayMode();
+		}
+
 		private class LeftOverWarningTest<T> : IEditModeTestYieldInstruction where T : RuntimeScriptableObject
 		{
 			private readonly int warningAmount;

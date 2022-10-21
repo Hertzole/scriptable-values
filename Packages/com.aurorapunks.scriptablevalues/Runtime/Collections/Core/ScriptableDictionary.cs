@@ -37,7 +37,7 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField] 
 		internal List<TValue> values = new List<TValue>();
 
-		private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+		internal Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
 		object IDictionary.this[object key]
 		{
@@ -112,6 +112,11 @@ namespace AuroraPunks.ScriptableValues
 
 		internal override bool IsValid()
 		{
+			if (keys.Count != values.Count)
+			{
+				return false;
+			}
+
 			for (int i = 0; i < keys.Count; i++)
 			{
 				for (int j = i; j < keys.Count; j++)
@@ -460,11 +465,6 @@ namespace AuroraPunks.ScriptableValues
 			
 			dictionary.Clear();
 
-			if (keys.Count != values.Count)
-			{
-				return;
-			}
-			
 			for (int i = 0; i < keys.Count; i++)
 			{
 				dictionary.Add(keys[i], values[i]);
