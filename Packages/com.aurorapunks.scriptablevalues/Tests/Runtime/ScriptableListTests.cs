@@ -6,33 +6,19 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
-using Object = UnityEngine.Object;
 
-namespace AuroraPunks.ScriptableValues.Tests.Editor
+namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptableListTests
+	public class ScriptableListTests : BaseTest
 	{
 		private TestScriptableList list;
 
 		public bool IsReadOnly { get { return list.IsReadOnly; } set { list.IsReadOnly = value; } }
 
-		[UnitySetUp]
-		public IEnumerator Setup()
+		protected override void OnSetup()
 		{
-			list = ScriptableObject.CreateInstance<TestScriptableList>();
+			list = CreateInstance<TestScriptableList>();
 			list.name = "Instance";
-
-			yield return new EnterPlayMode(false);
-
-			Assert.IsTrue(Application.isPlaying);
-		}
-
-		[UnityTearDown]
-		public IEnumerator Teardown()
-		{
-			yield return new ExitPlayMode();
-
-			Object.DestroyImmediate(list);
 		}
 
 		[Test]
@@ -67,7 +53,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
 
 			list.Add(1);
 
@@ -110,7 +96,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
 
 			((IList) list).Add(1);
 
@@ -175,7 +161,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be inserted to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be inserted to at runtime.");
 
 			list.Insert(1, 3);
 
@@ -233,7 +219,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be inserted to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be inserted to at runtime.");
 
 			((IList) list).Insert(1, 3);
 
@@ -282,7 +268,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be changed at runtime.");
 
 			list[0] = 1;
 
@@ -314,7 +300,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be changed at runtime.");
 
 			list[0] = 0;
 
@@ -352,7 +338,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be changed at runtime.");
 
 			((IList) list)[0] = 1;
 
@@ -419,7 +405,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be removed from at runtime.");
 
 			bool removed = list.Remove(2);
 
@@ -464,7 +450,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be removed from at runtime.");
 
 			l.Remove(2);
 
@@ -514,7 +500,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be removed from at runtime.");
 
 			list.RemoveAt(1);
 
@@ -571,7 +557,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be removed from at runtime.");
 
 			int removedCount = list.RemoveAll(i => i > 1);
 
@@ -626,7 +612,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be cleared at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be cleared at runtime.");
 
 			list.Clear();
 
@@ -660,7 +646,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be reversed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be reversed at runtime.");
 
 			list.Reverse();
 
@@ -697,7 +683,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be reversed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be reversed at runtime.");
 
 			list.Reverse(1, 2);
 
@@ -736,7 +722,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be sorted at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
 			list.Sort();
 
@@ -776,7 +762,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be sorted at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
 			list.Sort(Comparer<int>.Default);
 
@@ -816,7 +802,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be sorted at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
 			list.Sort(1, 2, Comparer<int>.Default);
 
@@ -856,7 +842,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be sorted at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
 			list.Sort((a, b) => b.CompareTo(a));
 
@@ -908,7 +894,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableList) is marked as read only and cannot be trimmed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be trimmed at runtime.");
 
 			list.TrimExcess();
 

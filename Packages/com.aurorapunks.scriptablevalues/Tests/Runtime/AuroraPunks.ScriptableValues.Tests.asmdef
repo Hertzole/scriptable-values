@@ -1,16 +1,12 @@
 {
-    "name": "AuroraPunks.ScriptableValues.Tests.Editor",
-    "rootNamespace": "AuroraPunks.ScriptableValues.Tests.Editor",
+    "name": "AuroraPunks.ScriptableValues.Tests",
+    "rootNamespace": "AuroraPunks.ScriptableValues.Tests",
     "references": [
         "GUID:27619889b8ba8c24980f49ee34dbb44a",
         "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6",
-        "GUID:f2f9d2fc68e34493a779a29584e279dc",
-        "GUID:20af3952b70c6ad4faf6895eefc34598"
+        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

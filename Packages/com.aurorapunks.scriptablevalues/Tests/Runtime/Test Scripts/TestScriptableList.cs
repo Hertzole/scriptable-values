@@ -1,4 +1,4 @@
-﻿namespace AuroraPunks.ScriptableValues.Tests.Editor
+﻿namespace AuroraPunks.ScriptableValues.Tests
 {
 	public class TestScriptableList : ScriptableList<int> { }
 }

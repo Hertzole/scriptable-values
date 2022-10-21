@@ -6,31 +6,18 @@ using UnityEngine.TestTools;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
 
-namespace AuroraPunks.ScriptableValues.Tests.Editor
+namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptableDictionaryTests
+	public class ScriptableDictionaryTests : BaseTest
 	{
 		private TestScriptableDictionary dictionary;
 
 		public bool IsReadOnly { get { return dictionary.IsReadOnly; } set { dictionary.IsReadOnly = value; } }
 
-		[UnitySetUp]
-		public IEnumerator Setup()
+		protected override void OnSetup()
 		{
-			dictionary = ScriptableObject.CreateInstance<TestScriptableDictionary>();
+			dictionary = CreateInstance<TestScriptableDictionary>();
 			dictionary.name = "Instance";
-
-			yield return new EnterPlayMode(false);
-
-			Assert.IsTrue(Application.isPlaying);
-		}
-
-		[UnityTearDown]
-		public IEnumerator Teardown()
-		{
-			yield return new ExitPlayMode();
-
-			Object.DestroyImmediate(dictionary);
 		}
 
 		[Test]
@@ -64,7 +51,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be added to at runtime.");
 
 			dictionary.Add(0, 42);
 
@@ -106,7 +93,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be added to at runtime.");
 
 			IDictionary d = dictionary;
 			d.Add(0, 42);
@@ -150,7 +137,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be added to at runtime.");
 
 			ICollection<KeyValuePair<int, int>> d = dictionary;
 
@@ -214,7 +201,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be added to at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be added to at runtime.");
 
 			bool result = dictionary.TryAdd(0, 42);
 
@@ -262,7 +249,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be changed at runtime.");
 
 			dictionary[0] = 42;
 
@@ -276,7 +263,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			Assert.IsFalse(setEventInvoked);
 		}
-		
+
 		[Test]
 		public void Set_Add()
 		{
@@ -288,10 +275,8 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Assert.AreEqual(42, value);
 				addEventInvoked = true;
 			};
-			dictionary.OnSet += (key, oldValue, newValue) =>
-			{
-				setEventInvoked = true;
-			};
+
+			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
 
 			dictionary[0] = 42;
 
@@ -306,7 +291,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
 		}
-		
+
 		[Test]
 		public void Set_Add_ReadOnly()
 		{
@@ -317,7 +302,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be changed at runtime.");
 
 			dictionary[0] = 42;
 
@@ -388,7 +373,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be changed at runtime.");
 
 			dictionary[0] = 42;
 
@@ -441,7 +426,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be changed at runtime.");
 
 			IDictionary d = dictionary;
 			d[0] = 42;
@@ -456,7 +441,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			Assert.IsFalse(setEventInvoked);
 		}
-		
+
 		[Test]
 		public void Set_Add_Object()
 		{
@@ -468,10 +453,8 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Assert.AreEqual(42, value);
 				addEventInvoked = true;
 			};
-			dictionary.OnSet += (key, oldValue, newValue) =>
-			{
-				setEventInvoked = true;
-			};
+
+			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
 
 			IDictionary d = dictionary;
 			d[0] = 42;
@@ -487,24 +470,18 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
 		}
-		
+
 		[Test]
 		public void Set_Add_Object_ReadOnly()
 		{
 			bool addEventInvoked = false;
 			bool setEventInvoked = false;
-			dictionary.OnAdded += (key, value) =>
-			{
-				addEventInvoked = true;
-			};
-			dictionary.OnSet += (key, oldValue, newValue) =>
-			{
-				setEventInvoked = true;
-			};
+			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be changed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be changed at runtime.");
 
 			IDictionary d = dictionary;
 			d[0] = 42;
@@ -516,7 +493,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
 		}
-		
+
 		[Test]
 		public void Set_ObjectInvalid()
 		{
@@ -533,7 +510,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IDictionary d = dictionary;
 			d[0] = "invalid";
-			
+
 			LogAssert.Expect(LogType.Error, "System.Int32 is not assignable from System.String.");
 
 			Assert.AreEqual(1, dictionary.Count);
@@ -577,7 +554,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be removed from at runtime.");
 
 			bool result = dictionary.Remove(0);
 
@@ -622,7 +599,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be removed from at runtime.");
 
 			IDictionary d = dictionary;
 			d.Remove(0);
@@ -720,7 +697,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be removed from at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be removed from at runtime.");
 
 			ICollection<KeyValuePair<int, int>> d = dictionary;
 			bool removed = d.Remove(new KeyValuePair<int, int>(0, 42));
@@ -760,7 +737,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be cleared at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be cleared at runtime.");
 
 			dictionary.Clear();
 
@@ -889,7 +866,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.Add(2, 44);
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be trimmed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be trimmed at runtime.");
 
 			dictionary.TrimExcess();
 			Assert.AreEqual(3, dictionary.Count);
@@ -917,7 +894,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.Add(2, 44);
 			IsReadOnly = true;
 
-			LogAssert.Expect(LogType.Error, "Instance (AuroraPunks.ScriptableValues.Tests.Editor.TestScriptableDictionary) is marked as read only and cannot be trimmed at runtime.");
+			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be trimmed at runtime.");
 
 			dictionary.TrimExcess(2);
 			Assert.AreEqual(3, dictionary.Count);
@@ -952,7 +929,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				enumerator.Dispose();
 			}
 		}
-		
+
 		[Test]
 		public void GetEnumerator()
 		{
@@ -960,7 +937,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
 			IEnumerator enumerator = ((IEnumerable) dictionary).GetEnumerator();
-			
+
 			Assert.IsTrue(enumerator.MoveNext());
 			Assert.AreEqual(0, ((KeyValuePair<int, int>) enumerator.Current!).Key);
 			Assert.AreEqual(42, ((KeyValuePair<int, int>) enumerator.Current).Value);
@@ -972,7 +949,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.AreEqual(44, ((KeyValuePair<int, int>) enumerator.Current).Value);
 			Assert.IsFalse(enumerator.MoveNext());
 		}
-		
+
 		[Test]
 		public void GetEnumerator_Object()
 		{
@@ -980,7 +957,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
 			IDictionaryEnumerator enumerator = ((IDictionary) dictionary).GetEnumerator();
-			
+
 			Assert.IsTrue(enumerator.MoveNext());
 			Assert.AreEqual(0, enumerator.Key);
 			Assert.AreEqual(42, enumerator.Value);
@@ -992,7 +969,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.AreEqual(44, enumerator.Value);
 			Assert.IsFalse(enumerator.MoveNext());
 		}
-		
+
 		[Test]
 		public void IsFixedSizeWhenReadOnly()
 		{
@@ -1047,31 +1024,31 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Assert.AreEqual(index, key);
 				index++;
 			}
-			
+
 			Assert.AreEqual(3, index);
-			
+
 			index = 0;
-			
+
 			foreach (int key in dictionary.Keys)
 			{
 				Assert.AreEqual(index, key);
 				index++;
 			}
-			
+
 			Assert.AreEqual(3, index);
-			
+
 			index = 0;
 
-			var readOnlyKeys = ((IReadOnlyDictionary<int, int>) dictionary).Keys;
+			IEnumerable<int> readOnlyKeys = ((IReadOnlyDictionary<int, int>) dictionary).Keys;
 			foreach (int key in readOnlyKeys)
 			{
 				Assert.AreEqual(index, key);
 				index++;
 			}
-			
+
 			Assert.AreEqual(3, index);
 		}
-		
+
 		[Test]
 		public void DoesValuesMatch()
 		{
@@ -1086,28 +1063,28 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Assert.AreEqual(index, value);
 				index++;
 			}
-			
+
 			Assert.AreEqual(45, index);
-			
+
 			index = 42;
-			
+
 			foreach (int value in dictionary.Values)
 			{
 				Assert.AreEqual(index, value);
 				index++;
 			}
-			
+
 			Assert.AreEqual(45, index);
-			
+
 			index = 42;
 
-			var readOnlyValues = ((IReadOnlyDictionary<int, int>) dictionary).Values;
+			IEnumerable<int> readOnlyValues = ((IReadOnlyDictionary<int, int>) dictionary).Values;
 			foreach (int value in readOnlyValues)
 			{
 				Assert.AreEqual(index, value);
 				index++;
 			}
-			
+
 			Assert.AreEqual(45, index);
 		}
 
@@ -1119,19 +1096,19 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(0);
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
-			
+
 			ISerializationCallbackReceiver callbackReceiver = dictionary;
 
 			Assert.IsNotNull(callbackReceiver);
-			
+
 			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
-			
+
 			callbackReceiver.OnAfterDeserialize();
-			
+
 			Assert.AreEqual(3, dictionary.Count);
 			Assert.AreEqual(42, dictionary[0]);
 			Assert.AreEqual(43, dictionary[1]);
@@ -1147,22 +1124,22 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
 			dictionary.keys.Add(3);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
-			
+
 			ISerializationCallbackReceiver callbackReceiver = dictionary;
 
 			Assert.IsNotNull(callbackReceiver);
-			
+
 			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
-			
+
 			callbackReceiver.OnAfterDeserialize();
-			
+
 			Assert.AreEqual(0, dictionary.Count);
 		}
-		
+
 		[Test]
 		public void Serialization_Invalid_ValueLengthMismatch()
 		{
@@ -1171,23 +1148,23 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(0);
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 			dictionary.values.Add(45);
-			
+
 			ISerializationCallbackReceiver callbackReceiver = dictionary;
 
 			Assert.IsNotNull(callbackReceiver);
-			
+
 			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
-			
+
 			callbackReceiver.OnAfterDeserialize();
-			
+
 			Assert.AreEqual(0, dictionary.Count);
 		}
-		
+
 		[Test]
 		public void Serialization_Invalid_DuplicateKeys()
 		{
@@ -1197,20 +1174,20 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 			dictionary.values.Add(45);
-			
+
 			ISerializationCallbackReceiver callbackReceiver = dictionary;
 
 			Assert.IsNotNull(callbackReceiver);
-			
+
 			callbackReceiver.OnBeforeSerialize(); // Just to get the coverage up. Does nothing.
 
 			callbackReceiver.OnAfterDeserialize();
-			
+
 			Assert.AreEqual(0, dictionary.Count);
 		}
 
@@ -1222,14 +1199,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(0);
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
-			
+
 			Assert.IsTrue(dictionary.IsValid());
 		}
-		
+
 		[Test]
 		public void IsValid_Invalid_KeyLengthMismatch()
 		{
@@ -1239,14 +1216,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
 			dictionary.keys.Add(3);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
-			
+
 			Assert.IsFalse(dictionary.IsValid());
 		}
-		
+
 		[Test]
 		public void IsValid_Invalid_ValueLengthMismatch()
 		{
@@ -1255,15 +1232,15 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(0);
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 			dictionary.values.Add(45);
-			
+
 			Assert.IsFalse(dictionary.IsValid());
 		}
-		
+
 		[Test]
 		public void IsValid_Invalid_DuplicateKeys()
 		{
@@ -1273,23 +1250,23 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 			dictionary.values.Add(45);
-			
+
 			Assert.IsFalse(dictionary.IsValid());
 		}
 
 		[Test]
 		public void IsValid_Base()
 		{
-			var baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
+			TestBaseScriptableDictionary baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
 
 			Assert.IsFalse(baseDic.IsValid());
 		}
-		
+
 		[Test]
 		public void IsIndexValid_Valid()
 		{
@@ -1298,16 +1275,16 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(0);
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
-			
+
 			Assert.IsTrue(dictionary.IsIndexValid(0));
 			Assert.IsTrue(dictionary.IsIndexValid(1));
 			Assert.IsTrue(dictionary.IsIndexValid(2));
 		}
-		
+
 		[Test]
 		public void IsIndexValid_Invalid_DuplicateKeys()
 		{
@@ -1317,58 +1294,58 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			dictionary.keys.Add(1);
 			dictionary.keys.Add(2);
 			dictionary.keys.Add(0);
-			
+
 			dictionary.values.Add(42);
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 			dictionary.values.Add(5);
-			
+
 			Assert.IsFalse(dictionary.IsIndexValid(0));
 		}
-		
+
 		[Test]
 		public void IsIndexValid_Base()
 		{
-			var baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
+			TestBaseScriptableDictionary baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
 
 			Assert.IsFalse(baseDic.IsIndexValid(0));
 		}
-		
+
 		[Test]
 		public void Comparer_SetNewComparer()
 		{
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
-			
+
 			Assert.AreEqual(3, dictionary.Count);
-			
+
 			ReverseComparer<int> comparer = new ReverseComparer<int>();
-			
+
 			dictionary.Comparer = comparer;
 
 			Assert.AreEqual(comparer, dictionary.Comparer);
 			Assert.AreEqual(3, dictionary.Count);
-			
+
 			Assert.AreEqual(42, dictionary[0]);
 			Assert.AreEqual(43, dictionary[1]);
 			Assert.AreEqual(44, dictionary[2]);
 		}
-		
+
 		[Test]
 		public void Comparer_SetNull()
 		{
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
-			
+
 			Assert.AreEqual(3, dictionary.Count);
-			
+
 			dictionary.Comparer = null;
 
 			Assert.AreEqual(EqualityComparer<int>.Default, dictionary.Comparer);
 			Assert.AreEqual(3, dictionary.Count);
-			
+
 			Assert.AreEqual(42, dictionary[0]);
 			Assert.AreEqual(43, dictionary[1]);
 			Assert.AreEqual(44, dictionary[2]);
@@ -1380,7 +1357,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			{
 				return EqualityComparer<T>.Default.Equals(y, x);
 			}
-			
+
 			public int GetHashCode(T obj)
 			{
 				return EqualityComparer<T>.Default.GetHashCode(obj);

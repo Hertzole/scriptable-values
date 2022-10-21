@@ -156,6 +156,11 @@ namespace AuroraPunks.ScriptableValues
 			EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
 		}
 
+		internal void CallOnValidate_TestOnly()
+		{
+			OnValidate();
+		}
+
 		protected virtual void OnValidate()
 		{
 			SetValueOnValidateInternal();
