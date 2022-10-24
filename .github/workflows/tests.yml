@@ -1,0 +1,141 @@
+name: Unity Tests
+on:
+  push:
+    branch: # Only run jobs if files changed on this branch
+      - master
+    paths: # Only run jobs if files changed at these paths
+      - '.github/workflows/**'
+      - 'Assets/**'
+      - 'Packages/**'
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+jobs:
+  # Run the Unity tests
+  tests:
+    name: Run Unity 2021.3 tests
+    runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-2021.3.0f1-base-1.0.1
+    steps:
+    # Activate the Unity license
+    - name: Activate Unity
+      continue-on-error: true
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      run: |
+        echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+        unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+
+    # Checkout
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+
+    # Cache
+    - name: Cache library
+      id: cache-library
+      uses: actions/cache@v3
+      with:
+        path: Library
+        key: Library-2021
+
+    # Run play mode tests
+    - name: Run play mode tests
+      run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues"
+
+    # Run edit mode tests
+    - name: Run edit mode tests
+      run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform editmode -testResults Tests/editmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues"
+
+    # Upload test results
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: Test results
+        path: Tests
+
+    # Upload test coverage results
+    - name: Upload coverage results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with: 
+        name: Coverage results
+        path: TestCoverage
+
+  # SonarScan job
+  sonarscan:
+    needs: [tests]
+    name: SonarScan
+    runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-2021.3.0f1-base-1.0.1
+    steps:
+      # Activate the Unity license
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Cache library map
+      - name: Cache library
+        id: cache-library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-2021-Scan
+      # Install .NET 6
+      - name: Install .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.0.x
+
+      # Install SonarQube scanner
+      - name: Install scanner
+        run: |
+          dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
+          apt update
+          apt install -y openjdk-11-jre-headless
+
+      # Generate the project solution
+      - name: Generate Solution
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      # Get the test results from the artifacts
+      - name: Get test reports
+        uses: actions/download-artifact@v3
+        with:
+          name: Test results
+          path: Tests
+      
+      # Get the test coverage results from the artifacts
+      - name: Get test coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: Coverage results
+          path: Coverage
+
+      # Run the analysis
+      - name: SonarQube analysis
+        env:
+          FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ls
+          ./dotnet-sonarscanner begin \
+           /o:"aurora-punks" \
+           /k:"Aurora-Punks_aurora-scriptable-values" \
+           /d:sonar.host.url=https://sonarcloud.io \
+           /d:sonar.verbose=false \
+           /d:sonar.login=$SONAR_TOKEN \
+           /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
+           /d:sonar.cs.opencover.reportsPaths=Coverage/scriptable-values-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/scriptable-values-opencov/EditMode/TestCoverageResults_0000.xml
+          dotnet build scriptable-values.sln
+          ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN
