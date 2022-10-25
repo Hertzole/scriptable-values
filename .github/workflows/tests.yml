@@ -19,12 +19,13 @@ jobs:
     steps:
       # Checkout the repo
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.1.0
         with:
           lfs: true
 
       # Cache library folder for faster tests
       - name: Cache library
+        uses: actions/cache@v3.0.11
         path: Library
         key: LibraryFolder
         restore-keys: |
