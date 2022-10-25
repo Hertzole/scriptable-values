@@ -280,10 +280,12 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			yield return new EnterPlayMode(false);
 
-			while (!Application.isPlaying)
+			while (!EditorApplication.isPlaying)
 			{
 				yield return null;
 			}
+
+			Assert.IsTrue(EditorApplication.isPlaying);
 
 			instance.Add(10, 42);
 
@@ -291,10 +293,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			yield return new ExitPlayMode();
 
-			while (Application.isPlaying)
+			while (EditorApplication.isPlaying)
 			{
 				yield return null;
 			}
+
+			Assert.IsFalse(EditorApplication.isPlaying);
+
+			yield return null;
 		}
 
 		[UnityTest]
