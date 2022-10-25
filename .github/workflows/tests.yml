@@ -1,7 +1,7 @@
 name: Unity Tests
 on:
   push:
-    branch: # Only run jobs if files changed on this branch
+    branches: # Only run jobs if files changed on this branch
       - master
     paths: # Only run jobs if files changed at these paths
       - '.github/workflows/**'
@@ -26,10 +26,11 @@ jobs:
       # Cache library folder for faster tests
       - name: Cache library
         uses: actions/cache@v3.0.11
-        path: Library
-        key: LibraryFolder
-        restore-keys: |
-          LibraryFolder
+        with:
+          path: Library
+          key: LibraryFolder
+          restore-keys: |
+            LibraryFolder
 
       # Run play mode tests
       - name: Play mode tests
