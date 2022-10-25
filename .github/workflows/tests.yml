@@ -69,3 +69,7 @@ jobs:
         with:
           name: Coverage results for edit mode
           path: ${{ steps.playmode_tests.outputs.coveragePath }}
+
+      - name: Check directory
+        run: |
+          ls

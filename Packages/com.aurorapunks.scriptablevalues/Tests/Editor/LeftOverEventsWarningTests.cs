@@ -280,11 +280,21 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			yield return new EnterPlayMode(false);
 
+			while (!Application.isPlaying)
+			{
+				yield return null;
+			}
+
 			instance.Add(10, 42);
 
 			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
 
 			yield return new ExitPlayMode();
+
+			while (Application.isPlaying)
+			{
+				yield return null;
+			}
 		}
 
 		[UnityTest]
@@ -383,7 +393,14 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 					yield break;
 				}
 
+				for (int i = 0; i < 10; i++)
+				{
+					yield return null;
+				}
+
 				Object.DestroyImmediate(instance);
+			
+				yield return null;
 			}
 		}
 	}
