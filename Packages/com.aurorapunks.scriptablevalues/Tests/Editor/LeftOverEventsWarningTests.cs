@@ -364,7 +364,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 					Assert.IsTrue(Application.isPlaying, "Not in play mode when exiting play mode.");
 					for (int i = 0; i < warningAmount; i++)
 					{
-						LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
+						// LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
 					}
 				}
 				catch (AssertionException)
