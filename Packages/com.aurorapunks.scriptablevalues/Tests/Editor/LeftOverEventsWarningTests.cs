@@ -12,8 +12,8 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 	public class LeftOverEventsWarningTests
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
-			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*",
-			RegexOptions.Compiled);
+			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
+			RegexOptions.Multiline);
 
 		[UnityTest]
 		public IEnumerator ScriptableValue_Bool()
