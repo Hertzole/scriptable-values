@@ -196,9 +196,25 @@ public class PlayersUI : MonoBehaviour
 
 ## 📦 Installation
 
-For now, there's only a dev package available.    
-You use the Unity package manager to install it.
+Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. It may support older versions but they are currently untested.
 
-1. Open the Unity package manager
-2. Click the plus button in the top left corner and add a project from git URL
-3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#dev-package`
+### OpenUPM (Recommended)
+1. Add the OpenUPM reigstry.   
+   Click in the menu bar Edit → Project Settings... → Package Manager
+   Add a new scoped registry with the following parameters:  
+   Name: `OpenUPM`  
+   URL: `https://package.openupm.com`  
+   Scopes:  
+   - `com.openupm`  
+   - `com.aurorapunks.scriptablevalues`
+2. Click apply and close the project settings.
+3. Open up the package manager.  
+   Click in the menu bar Window → Package Manager
+4. Select `Packages: My Registries` in the menu bar of the package manager window.
+5. You should see Scriptable Values under the `Aurora Punks` section. Click on it and then press Install in the bottom right corner.
+
+### Unity package manager through git
+1. Open up the Unity package manager
+2. Click on the plus icon in the top left and "Add package from git url"
+3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git`  
+   You can also paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
