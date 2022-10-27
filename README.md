@@ -1,5 +1,7 @@
 # Aurora Scriptable Values
 
+[![openupm](https://img.shields.io/npm/v/com.aurorapunks.aurorascriptablevalues?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.aurorapunks.aurorascriptablevalues/)
+
 ## ❓ What is this?
 
 Scriptable Values allow you to use scriptable objects for reactive values, events, and collections instead of normal C# events and singletons.
@@ -211,7 +213,7 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
 3. Open up the package manager.  
    Click in the menu bar Window → Package Manager
 4. Select `Packages: My Registries` in the menu bar of the package manager window.
-5. You should see Scriptable Values under the `Aurora Punks` section. Click on it and then press Install in the bottom right corner.
+5. You should see `Aurora Scriptable Values` under the `Aurora Punks` section (or `Other` section). Click on it and then press Install in the bottom right corner.
 
 ### Unity package manager through git
 1. Open up the Unity package manager
