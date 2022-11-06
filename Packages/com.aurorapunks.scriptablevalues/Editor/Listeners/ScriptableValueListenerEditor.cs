@@ -22,7 +22,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private PropertyField onValueChangingMultipleField;
 		private PropertyField onValueChangedMultipleField;
 
-		private SerializedProperty value;
+		private SerializedProperty targetValue;
 		private SerializedProperty startListening;
 		private SerializedProperty stopListening;
 		private SerializedProperty invokeOn;
@@ -50,7 +50,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		protected virtual void OnEnable()
 		{
-			value = serializedObject.FindProperty(nameof(value));
+			targetValue = serializedObject.FindProperty(nameof(targetValue));
 			startListening = serializedObject.FindProperty(nameof(startListening));
 			stopListening = serializedObject.FindProperty(nameof(stopListening));
 			invokeOn = serializedObject.FindProperty(nameof(invokeOn));
@@ -73,7 +73,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		{
 			VisualElement root = new VisualElement();
 
-			valueField = new PropertyField(value);
+			valueField = new PropertyField(targetValue);
 			startListeningField = new PropertyField(startListening);
 			stopListeningField = new PropertyField(stopListening);
 			invokeOnField = new PropertyField(invokeOn);
@@ -136,7 +136,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private void UpdateVisibility()
 		{
-			bool hasValue = value.objectReferenceValue != null;
+			bool hasValue = targetValue.objectReferenceValue != null;
 			bool showFromValue = invokeOn.enumValueIndex == (int) InvokeEvents.FromValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showToValue = invokeOn.enumValueIndex == (int) InvokeEvents.ToValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
@@ -180,7 +180,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private void UpdateValueFieldLabel()
 		{
-			if (valueType == null || valueLabel == null || value.objectReferenceValue != null)
+			if (valueType == null || valueLabel == null || targetValue.objectReferenceValue != null)
 			{
 				return;
 			}
