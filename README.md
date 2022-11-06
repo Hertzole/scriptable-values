@@ -6,7 +6,7 @@
 
 Scriptable Values allow you to use scriptable objects for reactive values, events, and collections instead of normal C# events and singletons.
 
-You also don't need to care about values being saved between sessions as they are clared before you enter play mode, but this is also customizable!
+You also don't need to care about values being saved between sessions as they are cleared before you enter play mode, but this is also customizable!
 
 ## ✨ Features
 
