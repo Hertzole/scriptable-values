@@ -98,7 +98,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			if (SetEqualityCheck && EqualityHelper.Equals(newValue, PreviousValue))
+			if (SetEqualityCheck && EqualityHelper.Equals(newValue, value))
 			{
 				return;
 			}
