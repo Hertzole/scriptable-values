@@ -218,5 +218,5 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
 ### Unity package manager through git
 1. Open up the Unity package manager
 2. Click on the plus icon in the top left and "Add package from git url"
-3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git`  
+3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#package`  
    You can also paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
