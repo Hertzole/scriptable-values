@@ -7,28 +7,30 @@ namespace AuroraPunks.ScriptableValues.Tests
 {
 	public class ScriptableValueTests : BaseTest
 	{
+		private static readonly bool[] bools = { true, false };
+
 		[Test]
-		public void SetValue_ScriptableBool()
+		public void SetValue_ScriptableBool([ValueSource(nameof(bools))] bool value)
 		{
-			TestSetValue<ScriptableBool, bool>(true);
-		}
-		
-		[Test]
-		public void SetValue_WithoutNotify_ScriptableBool()
-		{
-			TestSetValue_WithoutNotify<ScriptableBool, bool>(true);
-		}
-		
-		[Test]
-		public void SetValue_OnValidate_ScriptableBool()
-		{
-			TestSetValue_OnValidate<ScriptableBool, bool>(true);
+			TestSetValue<ScriptableBool, bool>(value, !value);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableBool()
+		public void SetValue_WithoutNotify_ScriptableBool([ValueSource(nameof(bools))] bool value)
 		{
-			TestSetValue_ReadOnly<ScriptableBool, bool>(true);
+			TestSetValue_WithoutNotify<ScriptableBool, bool>(value, !value);
+		}
+
+		[Test]
+		public void SetValue_OnValidate_ScriptableBool([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(bools))] bool value)
+		{
+			TestSetValue_OnValidate<ScriptableBool, bool>(equalsCheck, value, !value);
+		}
+
+		[Test]
+		public void SetValue_ReadOnly_ScriptableBool([ValueSource(nameof(bools))] bool value)
+		{
+			TestSetValue_ReadOnly<ScriptableBool, bool>(value, !value);
 		}
 
 		[Test]
@@ -48,17 +50,17 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TestSetValue<ScriptableByte, byte>(1);
 		}
-		
+
 		[Test]
 		public void SetValue_WithoutNotify_ScriptableByte()
 		{
 			TestSetValue_WithoutNotify<ScriptableByte, byte>(1);
 		}
-		
+
 		[Test]
-		public void SetValue_OnValidate_ScriptableByte()
+		public void SetValue_OnValidate_ScriptableByte([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableByte, byte>(1);
+			TestSetValue_OnValidate<ScriptableByte, byte>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -92,9 +94,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableSByte()
+		public void SetValue_OnValidate_ScriptableSByte([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableSByte, sbyte>(1);
+			TestSetValue_OnValidate<ScriptableSByte, sbyte>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -128,9 +130,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableShort()
+		public void SetValue_OnValidate_ScriptableShort([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableShort, short>(1);
+			TestSetValue_OnValidate<ScriptableShort, short>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -164,9 +166,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableUShort()
+		public void SetValue_OnValidate_ScriptableUShort([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableUShort, ushort>(1);
+			TestSetValue_OnValidate<ScriptableUShort, ushort>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -200,9 +202,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableInt()
+		public void SetValue_OnValidate_ScriptableInt([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableInt, int>(1);
+			TestSetValue_OnValidate<ScriptableInt, int>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -236,9 +238,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableUInt()
+		public void SetValue_OnValidate_ScriptableUInt([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableUInt, uint>(1);
+			TestSetValue_OnValidate<ScriptableUInt, uint>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -272,9 +274,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableLong()
+		public void SetValue_OnValidate_ScriptableLong([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableLong, long>(1);
+			TestSetValue_OnValidate<ScriptableLong, long>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -308,9 +310,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableULong()
+		public void SetValue_OnValidate_ScriptableULong([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableULong, ulong>(1);
+			TestSetValue_OnValidate<ScriptableULong, ulong>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -344,9 +346,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableFloat()
+		public void SetValue_OnValidate_ScriptableFloat([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableFloat, float>(1);
+			TestSetValue_OnValidate<ScriptableFloat, float>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -380,9 +382,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableDouble()
+		public void SetValue_OnValidate_ScriptableDouble([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableDouble, double>(1);
+			TestSetValue_OnValidate<ScriptableDouble, double>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -416,9 +418,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableDecimal()
+		public void SetValue_OnValidate_ScriptableDecimal([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableDecimal, decimal>(1);
+			TestSetValue_OnValidate<ScriptableDecimal, decimal>(equalsCheck, 1);
 		}
 
 		[Test]
@@ -452,9 +454,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableString()
+		public void SetValue_OnValidate_ScriptableString([ValueSource(nameof(bools))] bool equalsCheck)
 		{
-			TestSetValue_OnValidate<ScriptableString, string>("1");
+			TestSetValue_OnValidate<ScriptableString, string>(equalsCheck, "1");
 		}
 
 		[Test]
@@ -475,11 +477,13 @@ namespace AuroraPunks.ScriptableValues.Tests
 			TestSetValue_SameValue_NoEqualsCheck<ScriptableString, string>(default);
 		}
 
-		private void TestSetValue<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+		private void TestSetValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the default value.");
+			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 
@@ -506,25 +510,21 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
-		
-		private void TestSetValue_WithoutNotify<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+
+		private void TestSetValue_WithoutNotify<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the default value.");
+			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
 			bool valueChangingInvoked = false;
 			bool valueChangedInvoked = false;
 
-			instance.OnValueChanging += (oldValue, newValue) =>
-			{
-				valueChangingInvoked = true;
-			};
+			instance.OnValueChanging += (oldValue, newValue) => { valueChangingInvoked = true; };
 
-			instance.OnValueChanged += (oldValue, newValue) =>
-			{
-				valueChangedInvoked = true;
-			};
+			instance.OnValueChanged += (oldValue, newValue) => { valueChangedInvoked = true; };
 
 			instance.SetValueWithoutNotify(value);
 
@@ -533,14 +533,16 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
 		}
 
-		private void TestSetValue_ReadOnly<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+		private void TestSetValue_ReadOnly<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
 			instance.name = "Instance";
 
 			instance.IsReadOnly = true;
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the default value.");
+			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 
@@ -560,14 +562,16 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
 		}
 
-		private void TestSetValue_SameValue<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+		private void TestSetValue_SameValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
 			instance.name = "Instance";
 
 			instance.SetEqualityCheck = true;
 
-			Assert.AreEqual(instance.Value, value, "Value should be equal to the default value.");
+			Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 
@@ -585,13 +589,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
 		}
 
-		private void TestSetValue_SameValue_NoEqualsCheck<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+		private void TestSetValue_SameValue_NoEqualsCheck<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
 
 			instance.SetEqualityCheck = false;
 
-			Assert.AreEqual(instance.Value, value, "Value should be equal to the default value.");
+			Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 
@@ -618,12 +624,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
-		
-		private void TestSetValue_OnValidate<TType, TValue>(TValue value) where TType : ScriptableValue<TValue>
+
+		private void TestSetValue_OnValidate<TType, TValue>(bool equalsCheck, TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
+			instance.value = startValue;
+			instance.PreviousValue = startValue;
+			instance.SetEqualityCheck = equalsCheck;
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the default value.");
+			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 

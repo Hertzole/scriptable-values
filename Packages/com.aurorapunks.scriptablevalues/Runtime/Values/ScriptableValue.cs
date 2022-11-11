@@ -65,7 +65,7 @@ namespace AuroraPunks.ScriptableValues
 		/// <summary>
 		///     The previous value before the current value was set.
 		/// </summary>
-		public T PreviousValue { get; private set; }
+		public T PreviousValue { get; internal set; }
 		/// <summary>
 		///     The default value. This is used when the value is reset.
 		/// </summary>
@@ -166,13 +166,26 @@ namespace AuroraPunks.ScriptableValues
 			SetValueOnValidateInternal();
 		}
 
-		internal void SetValueOnValidateInternal()
+		private void SetValueOnValidateInternal()
 		{
-			if (!EqualityHelper.Equals(PreviousValue, value))
+			bool equals = false;
+			bool originalSetEqualityCheck = SetEqualityCheck;
+			// Only do an equality check if we're supposed to and that determines if we can set the new value or not.
+			if (SetEqualityCheck)
 			{
-				AddStackTrace(1);
+				equals = EqualityHelper.Equals(PreviousValue, value);
+				// We need to turn off the equality check in OnValidate to make sure the value is set and the events are invoked.
+				SetEqualityCheck = false;
+			}
+			
+			// If we can set the value, set it.
+			if (!equals)
+			{
 				SetValue(value, true);
 			}
+			
+			// Restore the original value.
+			SetEqualityCheck = originalSetEqualityCheck;
 		}
 #endif
 	}
