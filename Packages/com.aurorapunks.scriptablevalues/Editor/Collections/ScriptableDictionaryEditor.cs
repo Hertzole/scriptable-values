@@ -25,6 +25,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty clearOnStart;
 		private SerializedProperty keys;
 		private SerializedProperty values;
+		private SerializedProperty collectStackTraces;
 
 		private void OnEnable()
 		{
@@ -33,6 +34,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
 			keys = serializedObject.FindProperty(nameof(keys));
 			values = serializedObject.FindProperty(nameof(values));
+			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 
 			dictionary = (ScriptableDictionary) target;
 
@@ -78,7 +80,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			dictionaryListView.BindProperty(keys);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, "Dictionary Change Stack Traces")
+			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "Dictionary Change Stack Traces")
 			{
 				style =
 				{

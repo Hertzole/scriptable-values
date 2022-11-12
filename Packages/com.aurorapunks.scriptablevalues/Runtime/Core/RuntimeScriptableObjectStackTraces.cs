@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEngine;
 #if UNITY_EDITOR
 using AuroraPunks.ScriptableValues.Debugging;
 #endif
@@ -12,9 +13,21 @@ namespace AuroraPunks.ScriptableValues
 		: IStackTraceProvider
 #endif
 	{
+#if UNITY_EDITOR
+		[SerializeField]
+		private bool collectStackTraces = true;
+
+		public bool CollectStackTraces { get { return collectStackTraces; } set { collectStackTraces = value; } }
+#endif
+		
 		[Conditional("UNITY_EDITOR")]
 		protected void AddStackTrace(int skipFrames = 0)
 		{
+			if (!collectStackTraces)
+			{
+				return;
+			}
+			
 #if UNITY_EDITOR
 			// Always skip one frame because we don't want to include this current method.
 			StackTrace trace = new StackTrace(1 + skipFrames, true);

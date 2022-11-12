@@ -12,6 +12,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty isReadOnly;
 		private SerializedProperty clearOnStart;
 		private SerializedProperty list;
+		private SerializedProperty collectStackTraces;
 
 		private StackTraceElement stackTraces;
 		private PropertyField setEqualityCheckField;
@@ -25,6 +26,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
 			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
 			list = serializedObject.FindProperty(nameof(list));
+			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 			
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
@@ -50,7 +52,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			clearOnStartField.Bind(serializedObject);
 			listField.Bind(serializedObject);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, "List Change Stack Traces")
+			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "List Change Stack Traces")
 			{
 				style =
 				{

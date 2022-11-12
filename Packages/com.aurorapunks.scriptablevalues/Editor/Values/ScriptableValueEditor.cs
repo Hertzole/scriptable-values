@@ -15,6 +15,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty setEqualityCheck;
 		private SerializedProperty onValueChanging;
 		private SerializedProperty onValueChanged;
+		private SerializedProperty collectStackTraces;
 
 		private StackTraceElement stackTraces;
 		private PropertyField valueField;
@@ -34,6 +35,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
 			onValueChanging = serializedObject.FindProperty(nameof(onValueChanging));
 			onValueChanged = serializedObject.FindProperty(nameof(onValueChanged));
+			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 			
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
@@ -64,7 +66,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangingField.Bind(serializedObject);
 			onValueChangedField.Bind(serializedObject);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, "Set Value Stack Traces")
+			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "Set Value Stack Traces")
 			{
 				style =
 				{

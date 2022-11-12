@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using AuroraPunks.ScriptableValues.Debugging;
-using AuroraPunks.ScriptableValues.Helpers;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -31,7 +30,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private Color BorderColor { get { return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight; } }
 
-		public StackTraceElement(IStackTraceProvider target, string title = "Stack Traces")
+		public StackTraceElement(IStackTraceProvider target, SerializedProperty collectStackTracesProperty, string title = "Stack Traces")
 		{
 			// Set the root as this element.
 			StackTraceElement root = this;
@@ -75,9 +74,18 @@ namespace AuroraPunks.ScriptableValues.Editor
 				}
 			};
 
+			ToolbarToggle stackTraceToggle = new ToolbarToggle
+			{
+				text = "Collect Stack Traces",
+				value = collectStackTracesProperty.boolValue
+			};
+
+			stackTraceToggle.BindProperty(collectStackTracesProperty);
+
 			toolbar.Add(CreateToolbarLabel(title));
 			toolbar.Add(spacer);
 			toolbar.Add(clearButton);
+			toolbar.Add(stackTraceToggle);
 
 			// Create the splitter.
 			TwoPaneSplitView splitter = new TwoPaneSplitView(1, 120, TwoPaneSplitViewOrientation.Vertical)

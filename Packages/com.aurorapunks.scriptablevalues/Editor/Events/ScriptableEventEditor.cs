@@ -9,6 +9,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 	{
 		private ScriptableEvent scriptableEvent;
 		private SerializedProperty onInvoked;
+		private SerializedProperty collectStackTraces;
 
 		private StackTraceElement stackTraces;
 		private VisualElement contentViewport;
@@ -18,6 +19,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			scriptableEvent = (ScriptableEvent) target;
 
 			onInvoked = serializedObject.FindProperty(nameof(onInvoked));
+			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 		}
 
 		protected virtual void OnDisable()
@@ -32,7 +34,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			PropertyField onInvokedField = new PropertyField(onInvoked);
 			onInvokedField.Bind(serializedObject);
 
-			stackTraces = new StackTraceElement(scriptableEvent, "Invocation Stack Traces")
+			stackTraces = new StackTraceElement(scriptableEvent, collectStackTraces, "Invocation Stack Traces")
 			{
 				style =
 				{
