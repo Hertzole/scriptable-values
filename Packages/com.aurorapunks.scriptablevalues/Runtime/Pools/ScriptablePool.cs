@@ -14,7 +14,7 @@ namespace AuroraPunks.ScriptableValues
 		public T Get()
 		{
 			AddStackTrace();
-			
+
 			T item = null;
 			// Objects may be destroyed when switching scenes, so we need to check if they are null.
 			// If the returned object is null, just keep going until we find one that isn't.
@@ -34,7 +34,7 @@ namespace AuroraPunks.ScriptableValues
 		public void Return(T item)
 		{
 			AddStackTrace();
-			
+
 			activeObjects.Remove(item);
 
 			OnReturn(item);
@@ -45,7 +45,7 @@ namespace AuroraPunks.ScriptableValues
 		public void Clear()
 		{
 			AddStackTrace();
-			
+
 			foreach (T activeObject in activeObjects)
 			{
 				DestroyObject(activeObject);
@@ -69,9 +69,11 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnReturn(T item) { }
 
-		public override void ResetValues()
+#if UNITY_EDITOR
+		protected override void OnExitPlayMode()
 		{
 			Clear();
 		}
+#endif
 	}
 }

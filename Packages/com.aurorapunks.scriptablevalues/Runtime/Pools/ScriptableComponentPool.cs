@@ -14,7 +14,11 @@ namespace AuroraPunks.ScriptableValues
 
 		protected override void DestroyObject(T item)
 		{
-			Destroy(item.gameObject);
+			// The object may already have been destroyed. Check if it exists first.
+			if (item != null)
+			{
+				Destroy(item.gameObject);
+			}
 		}
 
 		protected override void OnGet(T item)
