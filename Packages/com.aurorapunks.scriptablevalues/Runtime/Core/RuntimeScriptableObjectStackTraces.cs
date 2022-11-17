@@ -23,12 +23,12 @@ namespace AuroraPunks.ScriptableValues
 		[Conditional("UNITY_EDITOR")]
 		protected void AddStackTrace(int skipFrames = 0)
 		{
+#if UNITY_EDITOR
 			if (!collectStackTraces)
 			{
 				return;
 			}
 			
-#if UNITY_EDITOR
 			// Always skip one frame because we don't want to include this current method.
 			StackTrace trace = new StackTrace(1 + skipFrames, true);
 
