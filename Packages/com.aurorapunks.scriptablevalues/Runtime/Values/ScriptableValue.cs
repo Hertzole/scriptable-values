@@ -65,7 +65,7 @@ namespace AuroraPunks.ScriptableValues
 		/// <summary>
 		///     The previous value before the current value was set.
 		/// </summary>
-		public T PreviousValue { get; internal set; }
+		public T PreviousValue { get; private set; }
 		/// <summary>
 		///     The default value. This is used when the value is reset.
 		/// </summary>
@@ -103,19 +103,18 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			T oldValue = PreviousValue;
-			PreviousValue = Value;
+			PreviousValue = value;
 			if (notify)
 			{
-				onValueChanging.Invoke(oldValue, newValue);
-				OnValueChanging?.Invoke(oldValue, newValue);
+				onValueChanging.Invoke(PreviousValue, newValue);
+				OnValueChanging?.Invoke(PreviousValue, newValue);
 			}
 
 			value = newValue;
 			if (notify)
 			{
-				onValueChanged.Invoke(oldValue, newValue);
-				OnValueChanged?.Invoke(oldValue, Value);
+				onValueChanged.Invoke(PreviousValue, newValue);
+				OnValueChanged?.Invoke(PreviousValue, Value);
 			}
 		}
 

@@ -8,6 +8,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 	public class ScriptableValueTests : BaseTest
 	{
 		private static readonly bool[] bools = { true, false };
+		private static readonly int[] intStartValues = { 0, 2 };
 
 		[Test]
 		public void SetValue_ScriptableBool([ValueSource(nameof(bools))] bool value)
@@ -190,9 +191,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_ScriptableInt()
+		public void SetValue_ScriptableInt([ValueSource(nameof(intStartValues))] int startValue)
 		{
-			TestSetValue<ScriptableInt, int>(1);
+			TestSetValue<ScriptableInt, int>(1, startValue);
 		}
 
 		[Test]
@@ -481,7 +482,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -515,7 +515,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -537,7 +536,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 			instance.name = "Instance";
 
 			instance.IsReadOnly = true;
@@ -566,7 +564,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 			instance.name = "Instance";
 
 			instance.SetEqualityCheck = true;
@@ -593,7 +590,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 
 			instance.SetEqualityCheck = false;
 
@@ -629,7 +625,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TType instance = CreateInstance<TType>();
 			instance.value = startValue;
-			instance.PreviousValue = startValue;
 			instance.SetEqualityCheck = equalsCheck;
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
@@ -641,7 +636,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			instance.OnValueChanging += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangingInvoked = true;
 			};
