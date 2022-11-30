@@ -84,6 +84,11 @@ namespace AuroraPunks.ScriptableValues
 		internal bool InvokedHasSubscribers { get { return OnInvoked != null; } }
 #endif
 
+		public void Invoke()
+		{
+			Invoke(this);
+		}
+
 		public void Invoke(object sender)
 		{
 			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
