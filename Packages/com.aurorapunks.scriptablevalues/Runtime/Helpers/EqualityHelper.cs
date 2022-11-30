@@ -8,7 +8,7 @@ namespace AuroraPunks.ScriptableValues.Helpers
 		public static bool Equals<T>(T left, T right)
 		{
 			// Do special checking on Unity objects.
-			if (typeof(T) == typeof(Object) || typeof(T).IsSubclassOf(typeof(Object)))
+			if (typeof(T).IsSubclassOf(typeof(Object)) || typeof(T) == typeof(Object))
 			{
 				Object leftUnityObject = left as Object;
 				Object rightUnityObject = right as Object;
@@ -17,6 +17,18 @@ namespace AuroraPunks.ScriptableValues.Helpers
 			}
 
 			return EqualityComparer<T>.Default.Equals(left, right);
+		}
+
+		public static bool IsNull<T>(T obj)
+		{
+			// Do special checking on Unity objects.
+			if (typeof(T).IsSubclassOf(typeof(Object)) || typeof(T) == typeof(Object))
+			{
+				Object unityObject = obj as Object;
+				return unityObject == null;
+			}
+
+			return obj == null;
 		}
 	}
 }
