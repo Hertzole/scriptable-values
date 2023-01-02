@@ -49,6 +49,10 @@ namespace AuroraPunks.ScriptableValues
 		[Tooltip("Called after the current value is set.")]
 		private UnityEvent<T, T> onValueChanged = new UnityEvent<T, T>();
 
+		// This is mainly use for OnValidate weirdness.
+		// We need to have another value that is the value right before it gets modified.
+		private T temporaryValue = default;
+		
 		/// <summary>
 		///     The current value. This can be changed at runtime.
 		/// </summary>
@@ -103,7 +107,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			PreviousValue = value;
+			PreviousValue = temporaryValue;
 			if (notify)
 			{
 				onValueChanging.Invoke(PreviousValue, newValue);
@@ -111,6 +115,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			value = newValue;
+			temporaryValue = newValue;
 			if (notify)
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
@@ -142,6 +147,7 @@ namespace AuroraPunks.ScriptableValues
 			{
 				value = DefaultValue;
 				PreviousValue = DefaultValue;
+				temporaryValue = DefaultValue;
 			}
 
 			OnValueChanging = null;

@@ -481,7 +481,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
+			instance.ResetValues();
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -492,14 +494,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			instance.OnValueChanging += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangingInvoked = true;
 			};
 
 			instance.OnValueChanged += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangedInvoked = true;
 			};
@@ -514,7 +516,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue_WithoutNotify<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
+			instance.ResetValues();
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -535,8 +539,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue_ReadOnly<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
-			instance.name = "Instance";
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
+			instance.ResetValues();
 
 			instance.IsReadOnly = true;
 
@@ -563,8 +568,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue_SameValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
-			instance.name = "Instance";
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
+			instance.ResetValues();
 
 			instance.SetEqualityCheck = true;
 
@@ -589,7 +595,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue_SameValue_NoEqualsCheck<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
+			instance.ResetValues();
 
 			instance.SetEqualityCheck = false;
 
@@ -602,14 +610,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			instance.OnValueChanging += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangingInvoked = true;
 			};
 
 			instance.OnValueChanged += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangedInvoked = true;
 			};
@@ -624,8 +632,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void TestSetValue_OnValidate<TType, TValue>(bool equalsCheck, TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
 		{
 			TType instance = CreateInstance<TType>();
-			instance.value = startValue;
+			instance.DefaultValue = startValue;
+			instance.ResetValueOnStart = true;
 			instance.SetEqualityCheck = equalsCheck;
+			instance.ResetValues();
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -643,7 +653,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			instance.OnValueChanged += (oldValue, newValue) =>
 			{
-				Assert.AreEqual(originalValue, oldValue, "Old value should be the original value.");
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
 				Assert.AreEqual(value, newValue, "New value should be the value being set.");
 				valueChangedInvoked = true;
 			};
