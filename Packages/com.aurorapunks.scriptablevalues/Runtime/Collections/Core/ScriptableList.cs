@@ -10,6 +10,10 @@ namespace AuroraPunks.ScriptableValues
 {
 	public abstract class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
+#if UNITY_EDITOR
+		internal const int ORDER = ScriptableEvent.ORDER + 50;
+#endif
+		
 		[SerializeField] 
 		[Tooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
 		private bool isReadOnly = false;

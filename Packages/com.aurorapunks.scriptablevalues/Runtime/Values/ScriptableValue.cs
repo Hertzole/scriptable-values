@@ -7,6 +7,11 @@ namespace AuroraPunks.ScriptableValues
 {
 	public abstract class ScriptableValue : RuntimeScriptableObject
 	{
+#if UNITY_EDITOR
+		// Used for the CreateAssetMenu attribute order.
+		internal const int ORDER = -1000;
+#endif
+		
 		[SerializeField]
 		[Tooltip("If read only, the value cannot be changed at runtime.")]
 		private bool isReadOnly = false;

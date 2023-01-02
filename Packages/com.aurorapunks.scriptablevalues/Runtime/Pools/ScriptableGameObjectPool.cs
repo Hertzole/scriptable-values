@@ -3,7 +3,7 @@
 namespace AuroraPunks.ScriptableValues
 {
 #if UNITY_EDITOR
-	[CreateAssetMenu(fileName = "New Game Object Pool", menuName = "Aurora Punks/Scriptable Values/Pools/Game Object Pool", order = 1300)]
+	[CreateAssetMenu(fileName = "New Game Object Pool", menuName = "Aurora Punks/Scriptable Values/Pools/Game Object Pool", order = ORDER)]
 #endif
 	public class ScriptableGameObjectPool : ScriptablePool<GameObject>
 	{

@@ -7,6 +7,10 @@ namespace AuroraPunks.ScriptableValues
 {
 	public abstract class ScriptablePool<T> : RuntimeScriptableObject where T : class
 	{
+#if UNITY_EDITOR
+		internal const int ORDER = ScriptableList<object>.ORDER + 50;
+#endif
+		
 		private readonly List<T> activeObjects = new List<T>();
 		private readonly Stack<T> pool = new Stack<T>();
 

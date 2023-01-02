@@ -71,10 +71,16 @@ namespace AuroraPunks.ScriptableValues
 	}
 
 #if UNITY_EDITOR
-	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event", order = 1100)]
+	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Aurora Punks/Scriptable Values/Events/Runtime Event", order = ORDER)]
 #endif
 	public class ScriptableEvent : RuntimeScriptableObject
 	{
+		
+#if UNITY_EDITOR
+		// Used for the CreateAssetMenu attribute order.
+		internal const int ORDER = ScriptableValue.ORDER + 50;
+#endif
+		
 		[SerializeField]
 		private UnityEvent onInvoked = new UnityEvent();
 
