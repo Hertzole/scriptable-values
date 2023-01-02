@@ -25,8 +25,6 @@ namespace AuroraPunks.ScriptableValues
 
 		public T Get()
 		{
-			AddStackTrace();
-
 			T item = null;
 			// Objects may be destroyed when switching scenes, so we need to check if they are null.
 			// If the returned object is null, just keep going until we find one that isn't.
@@ -56,25 +54,25 @@ namespace AuroraPunks.ScriptableValues
 			OnGetInternal(item);
 			OnGetObject?.Invoke(item);
 
+			AddStackTrace();
+
 			return item;
 		}
 
 		public void Return(T item)
 		{
-			AddStackTrace();
-
 			activeObjects.Remove(item);
 
 			OnReturnInternal(item);
 			OnReturnObject?.Invoke(item);
 
 			pool.Push(item);
+		
+			AddStackTrace();
 		}
 
 		public void Clear()
 		{
-			AddStackTrace();
-
 			foreach (T activeObject in activeObjects)
 			{
 				OnDestroyObject?.Invoke(activeObject);
@@ -93,6 +91,8 @@ namespace AuroraPunks.ScriptableValues
 
 			pool.Clear();
 			Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
+			
+			AddStackTrace();
 		}
 
 		internal virtual void OnGetInternal(T item)
