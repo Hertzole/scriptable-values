@@ -122,6 +122,11 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
+			EventHelper.WarnIfLeftOverSubscribers(OnCreateObject, nameof(OnCreateObject), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnDestroyObject, nameof(OnDestroyObject), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnGetObject, nameof(OnGetObject), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnReturnObject, nameof(OnReturnObject), this);
+
 			Clear();
 		}
 #endif
