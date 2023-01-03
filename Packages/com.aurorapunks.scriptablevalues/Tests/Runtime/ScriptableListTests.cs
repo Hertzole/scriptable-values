@@ -9,7 +9,7 @@ using AssertionException = UnityEngine.Assertions.AssertionException;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptableListTests : BaseTest
+	public class ScriptableListTests : BaseRuntimeTest
 	{
 		private TestScriptableList list;
 

@@ -8,7 +8,7 @@ using AssertionException = UnityEngine.Assertions.AssertionException;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptableDictionaryTests : BaseTest
+	public class ScriptableDictionaryTests : BaseRuntimeTest
 	{
 		private TestScriptableDictionary dictionary;
 

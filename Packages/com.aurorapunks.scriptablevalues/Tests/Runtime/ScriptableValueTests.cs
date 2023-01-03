@@ -5,7 +5,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptableValueTests : BaseTest
+	public class ScriptableValueTests : BaseRuntimeTest
 	{
 		// Bool
 

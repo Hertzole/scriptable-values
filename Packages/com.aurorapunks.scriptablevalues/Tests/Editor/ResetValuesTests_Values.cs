@@ -1,8 +1,4 @@
-using System.Collections;
 using NUnit.Framework;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.TestTools;
 using Assert = UnityEngine.Assertions.Assert;
 
 namespace AuroraPunks.ScriptableValues.Tests.Editor
@@ -87,48 +83,9 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			ScriptableValueReset<ScriptableString, string>("First Value", "Second Value");
 		}
 
-		[UnityTest]
-		public IEnumerator EnterPlayModeResetsValues()
-		{
-			TestScriptableObject instance = ScriptableObject.CreateInstance<TestScriptableObject>();
-
-			Assert.IsFalse(EditorApplication.isPlaying);
-			Assert.IsFalse(instance.HasBeenReset);
-
-			yield return new EnterPlayMode(false);
-
-			Assert.IsTrue(EditorApplication.isPlaying);
-			Assert.IsTrue(instance.HasBeenReset);
-
-			Object.DestroyImmediate(instance);
-		}
-
-		[UnityTest]
-		public IEnumerator ExitPlayModeCallsExitPlayMode()
-		{
-			TestScriptableObject instance = ScriptableObject.CreateInstance<TestScriptableObject>();
-			// Set DontSave so it doesn't get destroyed when exiting play mode.
-			instance.hideFlags = HideFlags.DontSave;
-			
-			Assert.IsFalse(EditorApplication.isPlaying);
-			Assert.IsFalse(instance.HasExitedPlayMode);
-			
-			yield return new EnterPlayMode(false);
-			
-			Assert.IsTrue(EditorApplication.isPlaying);
-			Assert.IsFalse(instance.HasExitedPlayMode);
-			
-			yield return new ExitPlayMode();
-			
-			Assert.IsFalse(EditorApplication.isPlaying);
-			Assert.IsTrue(instance.HasExitedPlayMode);
-
-			Object.DestroyImmediate(instance);
-		}
-
 		private void ScriptableValueReset<TType, TValue>(TValue initialValue, TValue newValue) where TType : ScriptableValue<TValue>
 		{
-			TType instance = ScriptableObject.CreateInstance<TType>();
+			TType instance = CreateInstance<TType>();
 
 			instance.Value = initialValue;
 			instance.DefaultValue = initialValue;
@@ -142,25 +99,6 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			instance.ResetValues();
 
 			Assert.AreEqual(initialValue, instance.Value);
-		}
-
-		private class TestScriptableObject : RuntimeScriptableObject
-		{
-			public bool HasBeenReset { get; private set; } = false;
-			public bool HasExitedPlayMode { get; private set; } = false;
-
-			public override void ResetValues()
-			{
-				base.ResetValues();;
-				HasBeenReset = true;
-				HasExitedPlayMode = false;
-			}
-
-			protected override void OnExitPlayMode()
-			{
-				base.OnExitPlayMode();
-				HasExitedPlayMode = true;
-			}
 		}
 	}
 }

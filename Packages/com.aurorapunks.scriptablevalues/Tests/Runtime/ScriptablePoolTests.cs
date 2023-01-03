@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class ScriptablePoolTests : BaseTest
+	public class ScriptablePoolTests : BaseRuntimeTest
 	{
 		// Get
 

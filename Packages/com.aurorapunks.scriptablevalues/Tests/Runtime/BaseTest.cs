@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.TestTools;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
 	public class BaseTest
 	{
-		private readonly List<Object> objects = new List<Object>();
+		protected readonly List<Object> objects = new List<Object>();
 
 		protected static readonly bool[] bools = { true, false };
 		protected static readonly byte[] bytes = { byte.MinValue, byte.MaxValue, 2 };
@@ -24,66 +21,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 		protected static readonly decimal[] decimals = { -69.420m, 69.420m, 0, 2, -2, decimal.One, decimal.Zero, decimal.MinusOne };
 		protected static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
 
-		[UnitySetUp]
-		public IEnumerator Setup()
-		{
-			Assert.AreEqual(0, objects.Count);
-
-			OnSetup();
-
-			yield return OnSetupRoutine();
-		}
-
-		protected virtual IEnumerator OnSetupRoutine()
-		{
-			yield return null;
-		}
-
-		protected virtual void OnSetup() { }
-
-		[UnityTearDown]
-		public IEnumerator TearDown()
-		{
-			OnTearDown();
-
-			yield return OnTearDownRoutine();
-
-			for (int i = 0; i < objects.Count; i++)
-			{
-				if (objects[i] == null)
-				{
-					continue;
-				}
-
-				if (objects[i] is GameObject go)
-				{
-					Object.Destroy(go);
-				}
-				else if (objects[i] is Component comp)
-				{
-					Object.Destroy(comp.gameObject);
-				}
-				else
-				{
-					Object.Destroy(objects[i]);
-				}
-			}
-
-			objects.Clear();
-
-			yield return null;
-		}
-
-		protected virtual IEnumerator OnTearDownRoutine()
-		{
-			yield return null;
-		}
-
-		protected virtual void OnTearDown() { }
-
 		protected T CreateInstance<T>() where T : ScriptableObject
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
+			// Set DontSave so it doesn't get destroyed when exiting play mode.
+			instance.hideFlags = HideFlags.DontSave;
 			objects.Add(instance);
 
 			return instance;
@@ -120,8 +62,8 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 		protected void Destroy(Object obj)
 		{
-			Object.Destroy(obj);
 			objects.Remove(obj);
+			Object.Destroy(obj);
 		}
 	}
 }

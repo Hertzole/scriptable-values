@@ -5,7 +5,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	public class GenericEventListenerTests : BaseTest
+	public class GenericEventListenerTests : BaseRuntimeTest
 	{
 		private static readonly EventInvokeEvents[] invokeEvents =
 		{

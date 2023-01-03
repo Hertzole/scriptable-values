@@ -37,7 +37,7 @@ namespace AuroraPunks.ScriptableValues
 		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
 	}
 	
-	public abstract partial class ScriptableValue<T> : ScriptableValue
+	public abstract class ScriptableValue<T> : ScriptableValue
 	{
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
 
