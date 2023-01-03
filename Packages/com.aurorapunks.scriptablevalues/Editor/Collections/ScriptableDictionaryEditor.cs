@@ -10,7 +10,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 	public class ScriptableDictionaryEditor : UnityEditor.Editor
 	{
 		private bool previousIsValid = true;
-		
+
 		private PropertyField isReadOnlyField;
 		private PropertyField setEqualityCheckElement;
 		private PropertyField clearOnStartElement;
@@ -77,6 +77,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			};
 
 			dictionaryListView.itemsAdded += OnItemsAdded;
+			dictionaryListView.itemsRemoved += OnItemsRemoved;
 
 			dictionaryListView.BindProperty(keys);
 
@@ -100,7 +101,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(clearOnStartElement);
 			root.Add(dictionaryListView);
 			root.Add(stackTraces);
-
+			
 			return root;
 		}
 
@@ -146,9 +147,35 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			UpdateErrorBox();
 		}
+		
+		private void OnItemsRemoved(IEnumerable<int> removedItems)
+		{
+			foreach (int removedItem in removedItems)
+			{
+				int oldCount = values.arraySize;
+				
+				values.DeleteArrayElementAtIndex(removedItem);
+
+				// We may need to delete twice because Unity thought it was a good idea to sometimes not remove the element
+				// from the array. ಠ╭╮ಠ
+				if (values.arraySize == oldCount)
+				{
+					values.DeleteArrayElementAtIndex(removedItem);
+				}
+				
+				values.serializedObject.ApplyModifiedProperties();
+			}
+
+			UpdateErrorBox();
+		}
 
 		private void BindDictionaryItem(VisualElement element, int index)
 		{
+			if (keys.arraySize <= index || values.arraySize <= index)
+			{
+				return;
+			}
+			
 			SerializedProperty key = keys.GetArrayElementAtIndex(index);
 			SerializedProperty value = values.GetArrayElementAtIndex(index);
 
@@ -177,7 +204,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			UpdateErrorBox();
 		}
 
-		private VisualElement MakeDictionaryItem()
+		private static VisualElement MakeDictionaryItem()
 		{
 			VisualElement root = new VisualElement
 			{
