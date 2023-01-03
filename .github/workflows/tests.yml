@@ -100,8 +100,8 @@ jobs:
       - name: Install scanner
         run: |
           dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
-          sudo apt update
-          sudo apt install -y openjdk-11-jre-headless
+          apt update
+          apt install -y openjdk-11-jre-headless
 
       - name: Generate Solution
         run: unity-editor -nographics -logFile /dev/stdout -customBuildName runtime-options-manager -projectPath . -executeMethod GitTools.Solution.Sync -quit
