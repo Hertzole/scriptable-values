@@ -7,8 +7,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 {
 	public class ScriptableValueTests : BaseTest
 	{
-		private static readonly bool[] bools = { true, false };
-		private static readonly int[] intStartValues = { 0, 2 };
+		// Bool
 
 		[Test]
 		public void SetValue_ScriptableBool([ValueSource(nameof(bools))] bool value)
@@ -35,447 +34,471 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableBool()
+		public void SetValue_SameValue_ScriptableBool([ValueSource(nameof(bools))] bool value)
 		{
-			TestSetValue_SameValue<ScriptableBool, bool>(default);
+			TestSetValue_SameValue<ScriptableBool, bool>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableBool()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableBool([ValueSource(nameof(bools))] bool value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableBool, bool>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableBool, bool>(value, value);
 		}
 
+		// Byte
+
 		[Test]
-		public void SetValue_ScriptableByte()
+		public void SetValue_ScriptableByte([ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue<ScriptableByte, byte>(1);
+			TestSetValue<ScriptableByte, byte>(value, (byte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableByte()
+		public void SetValue_WithoutNotify_ScriptableByte([ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue_WithoutNotify<ScriptableByte, byte>(1);
+			TestSetValue_WithoutNotify<ScriptableByte, byte>(value, (byte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableByte([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableByte([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue_OnValidate<ScriptableByte, byte>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableByte, byte>(equalsCheck, value, (byte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableByte()
+		public void SetValue_ReadOnly_ScriptableByte([ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue_ReadOnly<ScriptableByte, byte>(1);
+			TestSetValue_ReadOnly<ScriptableByte, byte>(value, (byte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableByte()
+		public void SetValue_SameValue_ScriptableByte([ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue_SameValue<ScriptableByte, byte>(default);
+			TestSetValue_SameValue<ScriptableByte, byte>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableByte()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableByte([ValueSource(nameof(bytes))] byte value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableByte, byte>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableByte, byte>(value, value);
 		}
 
+		// SByte
+
 		[Test]
-		public void SetValue_ScriptableSByte()
+		public void SetValue_ScriptableSByte([ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue<ScriptableSByte, sbyte>(1);
+			TestSetValue<ScriptableSByte, sbyte>(value, (sbyte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableSByte()
+		public void SetValue_WithoutNotify_ScriptableSByte([ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue_WithoutNotify<ScriptableSByte, sbyte>(1);
+			TestSetValue_WithoutNotify<ScriptableSByte, sbyte>(value, (sbyte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableSByte([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableSByte([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue_OnValidate<ScriptableSByte, sbyte>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableSByte, sbyte>(equalsCheck, value, (sbyte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableSByte()
+		public void SetValue_ReadOnly_ScriptableSByte([ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue_ReadOnly<ScriptableSByte, sbyte>(1);
+			TestSetValue_ReadOnly<ScriptableSByte, sbyte>(value, (sbyte) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableSByte()
+		public void SetValue_SameValue_ScriptableSByte([ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue_SameValue<ScriptableSByte, sbyte>(default);
+			TestSetValue_SameValue<ScriptableSByte, sbyte>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableSByte()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableSByte([ValueSource(nameof(sbytes))] sbyte value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableSByte, sbyte>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableSByte, sbyte>(value, value);
 		}
+
+		// Short
 
 		[Test]
-		public void SetValue_ScriptableShort()
+		public void SetValue_ScriptableShort([ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue<ScriptableShort, short>(1);
+			TestSetValue<ScriptableShort, short>(value, (short) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableShort()
+		public void SetValue_WithoutNotify_ScriptableShort([ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue_WithoutNotify<ScriptableShort, short>(1);
+			TestSetValue_WithoutNotify<ScriptableShort, short>(value, (short) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableShort([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableShort([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue_OnValidate<ScriptableShort, short>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableShort, short>(equalsCheck, value, (short) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableShort()
+		public void SetValue_ReadOnly_ScriptableShort([ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue_ReadOnly<ScriptableShort, short>(1);
+			TestSetValue_ReadOnly<ScriptableShort, short>(value, (short) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableShort()
+		public void SetValue_SameValue_ScriptableShort([ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue_SameValue<ScriptableShort, short>(default);
+			TestSetValue_SameValue<ScriptableShort, short>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableShort()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableShort([ValueSource(nameof(shorts))] short value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableShort, short>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableShort, short>(value, value);
 		}
 
+		// UShort
+
 		[Test]
-		public void SetValue_ScriptableUShort()
+		public void SetValue_ScriptableUShort([ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue<ScriptableUShort, ushort>(1);
+			TestSetValue<ScriptableUShort, ushort>(value, (ushort) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableUShort()
+		public void SetValue_WithoutNotify_ScriptableUShort([ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue_WithoutNotify<ScriptableUShort, ushort>(1);
+			TestSetValue_WithoutNotify<ScriptableUShort, ushort>(value, (ushort) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableUShort([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableUShort([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue_OnValidate<ScriptableUShort, ushort>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableUShort, ushort>(equalsCheck, value, (ushort) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableUShort()
+		public void SetValue_ReadOnly_ScriptableUShort([ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue_ReadOnly<ScriptableUShort, ushort>(1);
+			TestSetValue_ReadOnly<ScriptableUShort, ushort>(value, (ushort) (value - 1));
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableUShort()
+		public void SetValue_SameValue_ScriptableUShort([ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue_SameValue<ScriptableUShort, ushort>(default);
+			TestSetValue_SameValue<ScriptableUShort, ushort>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableUShort()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableUShort([ValueSource(nameof(ushorts))] ushort value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableUShort, ushort>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableUShort, ushort>(value, value);
 		}
 
+		// Int
+
 		[Test]
-		public void SetValue_ScriptableInt([ValueSource(nameof(intStartValues))] int startValue)
+		public void SetValue_ScriptableInt([ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue<ScriptableInt, int>(1, startValue);
+			TestSetValue<ScriptableInt, int>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableInt()
+		public void SetValue_WithoutNotify_ScriptableInt([ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue_WithoutNotify<ScriptableInt, int>(1);
+			TestSetValue_WithoutNotify<ScriptableInt, int>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableInt([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableInt([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue_OnValidate<ScriptableInt, int>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableInt, int>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableInt()
+		public void SetValue_ReadOnly_ScriptableInt([ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue_ReadOnly<ScriptableInt, int>(1);
+			TestSetValue_ReadOnly<ScriptableInt, int>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableInt()
+		public void SetValue_SameValue_ScriptableInt([ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue_SameValue<ScriptableInt, int>(default);
+			TestSetValue_SameValue<ScriptableInt, int>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableInt()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableInt([ValueSource(nameof(ints))] int value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableInt, int>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableInt, int>(value, value);
 		}
+
+		// UInt
 
 		[Test]
-		public void SetValue_ScriptableUInt()
+		public void SetValue_ScriptableUInt([ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue<ScriptableUInt, uint>(1);
+			TestSetValue<ScriptableUInt, uint>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableUInt()
+		public void SetValue_WithoutNotify_ScriptableUInt([ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue_WithoutNotify<ScriptableUInt, uint>(1);
+			TestSetValue_WithoutNotify<ScriptableUInt, uint>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableUInt([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableUInt([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue_OnValidate<ScriptableUInt, uint>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableUInt, uint>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableUInt()
+		public void SetValue_ReadOnly_ScriptableUInt([ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue_ReadOnly<ScriptableUInt, uint>(1);
+			TestSetValue_ReadOnly<ScriptableUInt, uint>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableUInt()
+		public void SetValue_SameValue_ScriptableUInt([ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue_SameValue<ScriptableUInt, uint>(default);
+			TestSetValue_SameValue<ScriptableUInt, uint>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableUInt()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableUInt([ValueSource(nameof(uints))] uint value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableUInt, uint>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableUInt, uint>(value, value);
 		}
 
+		// Long
+
 		[Test]
-		public void SetValue_ScriptableLong()
+		public void SetValue_ScriptableLong([ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue<ScriptableLong, long>(1);
+			TestSetValue<ScriptableLong, long>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableLong()
+		public void SetValue_WithoutNotify_ScriptableLong([ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue_WithoutNotify<ScriptableLong, long>(1);
+			TestSetValue_WithoutNotify<ScriptableLong, long>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableLong([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableLong([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue_OnValidate<ScriptableLong, long>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableLong, long>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableLong()
+		public void SetValue_ReadOnly_ScriptableLong([ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue_ReadOnly<ScriptableLong, long>(1);
+			TestSetValue_ReadOnly<ScriptableLong, long>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableLong()
+		public void SetValue_SameValue_ScriptableLong([ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue_SameValue<ScriptableLong, long>(default);
+			TestSetValue_SameValue<ScriptableLong, long>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableLong()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableLong([ValueSource(nameof(longs))] long value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableLong, long>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableLong, long>(value, value);
 		}
 
+		// ULong
+
 		[Test]
-		public void SetValue_ScriptableULong()
+		public void SetValue_ScriptableULong([ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue<ScriptableULong, ulong>(1);
+			TestSetValue<ScriptableULong, ulong>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableULong()
+		public void SetValue_WithoutNotify_ScriptableULong([ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue_WithoutNotify<ScriptableULong, ulong>(1);
+			TestSetValue_WithoutNotify<ScriptableULong, ulong>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableULong([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableULong([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue_OnValidate<ScriptableULong, ulong>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableULong, ulong>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableULong()
+		public void SetValue_ReadOnly_ScriptableULong([ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue_ReadOnly<ScriptableULong, ulong>(1);
+			TestSetValue_ReadOnly<ScriptableULong, ulong>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableULong()
+		public void SetValue_SameValue_ScriptableULong([ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue_SameValue<ScriptableULong, ulong>(default);
+			TestSetValue_SameValue<ScriptableULong, ulong>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableULong()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableULong([ValueSource(nameof(ulongs))] ulong value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableULong, ulong>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableULong, ulong>(value, value);
 		}
+
+		// Float
 
 		[Test]
-		public void SetValue_ScriptableFloat()
+		public void SetValue_ScriptableFloat([ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue<ScriptableFloat, float>(1);
+			TestSetValue<ScriptableFloat, float>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableFloat()
+		public void SetValue_WithoutNotify_ScriptableFloat([ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue_WithoutNotify<ScriptableFloat, float>(1);
+			TestSetValue_WithoutNotify<ScriptableFloat, float>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableFloat([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableFloat([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue_OnValidate<ScriptableFloat, float>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableFloat, float>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableFloat()
+		public void SetValue_ReadOnly_ScriptableFloat([ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue_ReadOnly<ScriptableFloat, float>(1);
+			TestSetValue_ReadOnly<ScriptableFloat, float>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableFloat()
+		public void SetValue_SameValue_ScriptableFloat([ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue_SameValue<ScriptableFloat, float>(default);
+			TestSetValue_SameValue<ScriptableFloat, float>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableFloat()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableFloat([ValueSource(nameof(floats))] float value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableFloat, float>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableFloat, float>(value, value);
 		}
 
+		// Double
+
 		[Test]
-		public void SetValue_ScriptableDouble()
+		public void SetValue_ScriptableDouble([ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue<ScriptableDouble, double>(1);
+			TestSetValue<ScriptableDouble, double>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableDouble()
+		public void SetValue_WithoutNotify_ScriptableDouble([ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue_WithoutNotify<ScriptableDouble, double>(1);
+			TestSetValue_WithoutNotify<ScriptableDouble, double>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableDouble([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableDouble([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue_OnValidate<ScriptableDouble, double>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableDouble, double>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableDouble()
+		public void SetValue_ReadOnly_ScriptableDouble([ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue_ReadOnly<ScriptableDouble, double>(1);
+			TestSetValue_ReadOnly<ScriptableDouble, double>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableDouble()
+		public void SetValue_SameValue_ScriptableDouble([ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue_SameValue<ScriptableDouble, double>(default);
+			TestSetValue_SameValue<ScriptableDouble, double>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableDouble()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableDouble([ValueSource(nameof(doubles))] double value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableDouble, double>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableDouble, double>(value, value);
 		}
 
+		// Decimal
+
 		[Test]
-		public void SetValue_ScriptableDecimal()
+		public void SetValue_ScriptableDecimal([ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue<ScriptableDecimal, decimal>(1);
+			TestSetValue<ScriptableDecimal, decimal>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableDecimal()
+		public void SetValue_WithoutNotify_ScriptableDecimal([ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue_WithoutNotify<ScriptableDecimal, decimal>(1);
+			TestSetValue_WithoutNotify<ScriptableDecimal, decimal>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableDecimal([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableDecimal([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue_OnValidate<ScriptableDecimal, decimal>(equalsCheck, 1);
+			TestSetValue_OnValidate<ScriptableDecimal, decimal>(equalsCheck, value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableDecimal()
+		public void SetValue_ReadOnly_ScriptableDecimal([ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue_ReadOnly<ScriptableDecimal, decimal>(1);
+			TestSetValue_ReadOnly<ScriptableDecimal, decimal>(value, value - 1);
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableDecimal()
+		public void SetValue_SameValue_ScriptableDecimal([ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue_SameValue<ScriptableDecimal, decimal>(default);
+			TestSetValue_SameValue<ScriptableDecimal, decimal>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableDecimal()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableDecimal([ValueSource(nameof(decimals))] decimal value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableDecimal, decimal>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableDecimal, decimal>(value, value);
 		}
+
+		// String
 
 		[Test]
-		public void SetValue_ScriptableString()
+		public void SetValue_ScriptableString([ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue<ScriptableString, string>("1");
+			TestSetValue<ScriptableString, string>(value, value + "1");
 		}
 
 		[Test]
-		public void SetValue_WithoutNotify_ScriptableString()
+		public void SetValue_WithoutNotify_ScriptableString([ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue_WithoutNotify<ScriptableString, string>("1");
+			TestSetValue_WithoutNotify<ScriptableString, string>(value, value + "1");
 		}
 
 		[Test]
-		public void SetValue_OnValidate_ScriptableString([ValueSource(nameof(bools))] bool equalsCheck)
+		public void SetValue_OnValidate_ScriptableString([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue_OnValidate<ScriptableString, string>(equalsCheck, "1");
+			TestSetValue_OnValidate<ScriptableString, string>(equalsCheck, value, value + "1");
 		}
 
 		[Test]
-		public void SetValue_ReadOnly_ScriptableString()
+		public void SetValue_ReadOnly_ScriptableString([ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue_ReadOnly<ScriptableString, string>("1");
+			TestSetValue_ReadOnly<ScriptableString, string>(value, value + "1");
 		}
 
 		[Test]
-		public void SetValue_SameValue_ScriptableString()
+		public void SetValue_SameValue_ScriptableString([ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue_SameValue<ScriptableString, string>(default);
+			TestSetValue_SameValue<ScriptableString, string>(value, value);
 		}
 
 		[Test]
-		public void SetValue_SameValue_NoEqualsCheck_ScriptableString()
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableString([ValueSource(nameof(strings))] string value)
 		{
-			TestSetValue_SameValue_NoEqualsCheck<ScriptableString, string>(default);
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableString, string>(value, value);
 		}
 
 		private void TestSetValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>

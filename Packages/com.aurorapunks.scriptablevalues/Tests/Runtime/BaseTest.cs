@@ -10,6 +10,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 	{
 		private readonly List<Object> objects = new List<Object>();
 
+		protected static readonly bool[] bools = { true, false };
+		protected static readonly byte[] bytes = { byte.MinValue, byte.MaxValue, 2 };
+		protected static readonly sbyte[] sbytes = { sbyte.MinValue, sbyte.MaxValue, 0, 2, -2 };
+		protected static readonly short[] shorts = { short.MinValue, short.MaxValue, 0, 2, -2 };
+		protected static readonly ushort[] ushorts = { ushort.MinValue, ushort.MaxValue, 1 };
+		protected static readonly int[] ints = { int.MinValue, int.MaxValue, 0, 2, -2 };
+		protected static readonly uint[] uints = { uint.MinValue, uint.MaxValue, 2 };
+		protected static readonly long[] longs = { long.MinValue, long.MaxValue, 0, 2, -2 };
+		protected static readonly ulong[] ulongs = { ulong.MinValue, ulong.MaxValue, 2 };
+		protected static readonly float[] floats = { -69.420f, 69.420f, 0, 2, -2 };
+		protected static readonly double[] doubles = { -69.420, 69.420, 0, 2, -2 };
+		protected static readonly decimal[] decimals = { -69.420m, 69.420m, 0, 2, -2, decimal.One, decimal.Zero, decimal.MinusOne };
+		protected static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
+
 		[UnitySetUp]
 		public IEnumerator Setup()
 		{
@@ -40,7 +54,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 				{
 					continue;
 				}
-				
+
 				if (objects[i] is GameObject go)
 				{
 					Object.Destroy(go);
@@ -90,6 +104,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 				go = new GameObject();
 				objects.Add(go);
 			}
+
 			T comp = go.AddComponent<T>();
 
 			return comp;
@@ -97,9 +112,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 		protected T Instantiate<T>(T prefab) where T : Object
 		{
-			var instance = Object.Instantiate(prefab);
+			T instance = Object.Instantiate(prefab);
 			objects.Add(instance);
-			
+
 			return instance;
 		}
 
