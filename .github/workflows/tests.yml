@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Coverage results for play mode
+          name: Test results
           path: ${{ steps.playmode_tests.outputs.coveragePath }}
 
       # Upload test coverage results
@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Coverage results for edit mode
+          name: Coverage results
           path: ${{ steps.playmode_tests.outputs.coveragePath }}
 
   sonarscan:
