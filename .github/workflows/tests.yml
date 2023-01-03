@@ -34,7 +34,7 @@ jobs:
 
       # Run play mode tests
       - name: Play mode tests
-        uses: game-ci/unity-test-runner@v2
+        uses: game-ci/unity-test-runner@main # Must be on main until a fix regarding character limit is published
         id: playmode_tests
         with:
           testMode: playmode
@@ -45,7 +45,7 @@ jobs:
 
       # Run edit mode tests
       - name: Edit mode tests
-        uses: game-ci/unity-test-runner@v2
+        uses: game-ci/unity-test-runner@main # Must be on main until a fix regarding character limit is published
         id: editmode_tests
         with:
           testMode: editmode
