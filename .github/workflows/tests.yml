@@ -1,0 +1,118 @@
+name: Unity Tests
+on:
+  push:
+    branches: # Only run jobs if files changed on this branch
+      - master
+    paths: # Only run jobs if files changed at these paths
+      - '.github/workflows/**'
+      - 'Assets/**'
+      - 'Packages/**'
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+jobs:
+  # Run the Unity tests
+  tests:
+    name: Run Unity 2021.3 tests
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+        with:
+          lfs: true
+
+      # Cache library folder for faster tests
+      - name: Cache library
+        uses: actions/cache@v3.0.11
+        with:
+          path: Library
+          key: LibraryFolder
+          restore-keys: |
+            LibraryFolder
+
+      # Run play mode tests
+      - name: Play mode tests
+        uses: game-ci/unity-test-runner@v2
+        id: playmode_tests
+        with:
+          testMode: playmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          artifactsPath: playmode-artifacts
+          checkName: Play mode test results
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
+
+      # Run edit mode tests
+      - name: Edit mode tests
+        uses: game-ci/unity-test-runner@v2
+        id: editmode_tests
+        with:
+          testMode: editmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          artifactsPath: editmode-artifacts
+          checkName: Edit mode test results
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
+
+      # Upload test results
+      - name: Upload play mode results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Coverage results for play mode
+          path: ${{ steps.playmode_tests.outputs.coveragePath }}
+
+      # Upload test coverage results
+      - name: Upload edit mode results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Coverage results for edit mode
+          path: ${{ steps.playmode_tests.outputs.coveragePath }}
+
+      - name: Check directory
+        run: |
+          ls
+
+      # Install SonarQube scanner
+      - name: Install scanner
+        run: |
+          dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
+          apt update
+          apt install -y openjdk-11-jre-headless
+
+      # Generate the project solution
+      - name: Generate Solution
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      # Get the test results from the artifacts
+      - name: Get test reports
+        uses: actions/download-artifact@v3
+        with:
+          name: Test results
+          path: Tests
+      
+      # Get the test coverage results from the artifacts
+      - name: Get test coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: Coverage results
+          path: Coverage
+
+      # Run the analysis
+      - name: SonarQube analysis
+        env:
+          FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ls
+          ./dotnet-sonarscanner begin \
+           /o:"aurora-punks" \
+           /k:"Aurora-Punks_aurora-scriptable-values" \
+           /d:sonar.host.url=https://sonarcloud.io \
+           /d:sonar.verbose=false \
+           /d:sonar.login=$SONAR_TOKEN \
+           /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
+           /d:sonar.cs.opencover.reportsPaths=Coverage/scriptable-values-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/scriptable-values-opencov/EditMode/TestCoverageResults_0000.xml
+          dotnet build scriptable-values.sln
+          ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN
