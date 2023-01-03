@@ -10,6 +10,8 @@ namespace AuroraPunks.ScriptableValues
 
 		private readonly List<IPoolable> poolableBuffer = new List<IPoolable>(10);
 
+		public T Prefab { get { return prefab; } set { prefab = value; } }
+
 		protected override T CreateObject()
 		{
 			return Instantiate(prefab);
@@ -50,6 +52,11 @@ namespace AuroraPunks.ScriptableValues
 
 		protected override void OnReturn(T item)
 		{
+			if (item == null)
+			{
+				return;
+			}
+			
 			poolableBuffer.Clear();
 			item.GetComponentsInChildren(true, poolableBuffer);
 
