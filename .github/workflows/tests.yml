@@ -16,7 +16,6 @@ jobs:
   tests:
     name: Run Unity 2021.3 tests
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-2021.3.10f1-base-1.0.1
     steps:
       # Checkout the repo
       - name: Checkout
@@ -67,24 +66,45 @@ jobs:
           name: Coverage results for edit mode
           path: ${{ steps.playmode_tests.outputs.coveragePath }}
 
-      - name: Check directory
+  sonarscan:
+    needs: [tests]
+    name: SonarScan
+    runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-2021.3.10f1-base-1.0.1
+    steps:
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         run: |
-          ls
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
 
-      # Install SonarQube scanner
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Cache library
+        uses: actions/cache@v3.0.11
+        with:
+          path: Library
+          key: LibraryFolder
+          restore-keys: |
+            LibraryFolder
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v2.1.0
+        with:
+          dotnet-version: |
+            6.0.x
+
       - name: Install scanner
         run: |
           dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
           sudo apt update
           sudo apt install -y openjdk-11-jre-headless
 
-      # Generate the project solution
       - name: Generate Solution
-        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
-
-      - name: Check directory
-        run: |
-          ls
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName runtime-options-manager -projectPath . -executeMethod GitTools.Solution.Sync -quit
 
       # Get the test results from the artifacts
       - name: Get test reports
@@ -100,7 +120,6 @@ jobs:
           name: Coverage results
           path: Coverage
 
-      # Run the analysis
       - name: SonarQube analysis
         env:
           FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
