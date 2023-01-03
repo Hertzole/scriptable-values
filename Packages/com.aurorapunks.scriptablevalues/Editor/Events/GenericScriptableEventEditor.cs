@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -74,6 +75,13 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private void OnClickInvoke(object args)
 		{
 			invokeMethod.Invoke(target, new[] { this, args });
+		}
+
+		protected override void GetExcludingProperties(List<SerializedProperty> properties)
+		{
+			base.GetExcludingProperties(properties);
+			properties.Add(onInvokedWithArgs);
+			properties.Add(editorInvokeValue);
 		}
 	}
 }

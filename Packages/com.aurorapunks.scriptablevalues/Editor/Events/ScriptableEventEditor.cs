@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -9,14 +10,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 	{
 		private ScriptableEvent scriptableEvent;
 		private SerializedProperty onInvoked;
-		private SerializedProperty collectStackTraces;
 
 		protected override void GatherProperties()
 		{
 			scriptableEvent = (ScriptableEvent) target;
 
 			onInvoked = serializedObject.FindProperty(nameof(onInvoked));
-			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
@@ -46,6 +45,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private void OnClickInvoke()
 		{
 			scriptableEvent.Invoke(this);
+		}
+
+		protected override void GetExcludingProperties(List<SerializedProperty> properties)
+		{
+			properties.Add(onInvoked);
 		}
 	}
 }

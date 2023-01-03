@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -23,6 +24,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(prefabField);
 
 			base.CreateGUIBeforeStackTraces(root);
+		}
+
+		protected override void GetExcludingProperties(List<SerializedProperty> properties)
+		{
+			base.GetExcludingProperties(properties);
+			properties.Add(prefab);
 		}
 	}
 }

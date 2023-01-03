@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using AuroraPunks.ScriptableValues.Debugging;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -7,16 +6,15 @@ using UnityEngine.UIElements;
 namespace AuroraPunks.ScriptableValues.Editor
 {
 	[CustomEditor(typeof(ScriptableDictionary<,>), true)]
-	public class ScriptableDictionaryEditor : UnityEditor.Editor
+	public class ScriptableDictionaryEditor : RuntimeScriptableObjectEditor
 	{
 		private bool previousIsValid = true;
+		private HelpBox errorBox;
+		private ListView dictionaryListView;
 
 		private PropertyField isReadOnlyField;
 		private PropertyField setEqualityCheckElement;
 		private PropertyField clearOnStartElement;
-		private HelpBox errorBox;
-		private ListView dictionaryListView;
-		private StackTraceElement stackTraces;
 
 		private ScriptableDictionary dictionary;
 
@@ -25,33 +23,36 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty clearOnStart;
 		private SerializedProperty keys;
 		private SerializedProperty values;
-		private SerializedProperty collectStackTraces;
 
-		private void OnEnable()
+		protected override string StackTracesLabel { get { return "Dictionary Change Stack Traces"; } }
+
+		protected override void OnEnable()
 		{
-			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
-			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
-			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
-			keys = serializedObject.FindProperty(nameof(keys));
-			values = serializedObject.FindProperty(nameof(values));
-			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
+			base.OnEnable();
 
 			dictionary = (ScriptableDictionary) target;
 
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
 
-		private void OnDisable()
+		protected override void OnDisable()
 		{
-			stackTraces?.Dispose();
+			base.OnDisable();
 
 			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 		}
 
-		public override VisualElement CreateInspectorGUI()
+		protected override void GatherProperties()
 		{
-			EntireInspectorElement root = new EntireInspectorElement();
+			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
+			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
+			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
+			keys = serializedObject.FindProperty(nameof(keys));
+			values = serializedObject.FindProperty(nameof(values));
+		}
 
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
+		{
 			errorBox = new HelpBox("There are keys with the same value. All keys must be unique!", HelpBoxMessageType.Error);
 
 			isReadOnlyField = new PropertyField(isReadOnly);
@@ -81,14 +82,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			dictionaryListView.BindProperty(keys);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "Dictionary Change Stack Traces")
-			{
-				style =
-				{
-					marginTop = 4
-				}
-			};
-
 			isReadOnlyField.RegisterValueChangeCallback(evt => UpdateVisibility());
 
 			UpdateErrorBox();
@@ -99,10 +92,10 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(isReadOnlyField);
 			root.Add(setEqualityCheckElement);
 			root.Add(clearOnStartElement);
-			root.Add(dictionaryListView);
-			root.Add(stackTraces);
 			
-			return root;
+			CreateDefaultInspectorGUI(root);
+			
+			root.Add(dictionaryListView);
 		}
 
 		private void OnPlayModeStateChanged(PlayModeStateChange obj)
@@ -263,6 +256,15 @@ namespace AuroraPunks.ScriptableValues.Editor
 			valueHolder.Add(valueElement);
 
 			return root;
+		}
+
+		protected override void GetExcludingProperties(List<SerializedProperty> properties)
+		{
+			properties.Add(isReadOnly);
+			properties.Add(keys);
+			properties.Add(values);
+			properties.Add(setEqualityCheck);
+			properties.Add(clearOnStart);
 		}
 	}
 }

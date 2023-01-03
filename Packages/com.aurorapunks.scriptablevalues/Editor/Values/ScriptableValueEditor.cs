@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -22,6 +23,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty onValueChanging;
 		private SerializedProperty onValueChanged;
 		private SerializedProperty collectStackTraces;
+
+		protected override string StackTracesLabel { get { return "Set Value Stack Traces"; } }
 
 		protected override void OnEnable()
 		{
@@ -77,6 +80,9 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(defaultValueField);
 			root.Add(resetValueOnStartField);
 			root.Add(setEqualityCheckField);
+			
+			CreateDefaultInspectorGUI(root);
+			
 			root.Add(onValueChangingField);
 			root.Add(onValueChangedField);
 		}
@@ -100,6 +106,17 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private void OnPlayModeStateChanged(PlayModeStateChange obj)
 		{
 			UpdateEnabledState();
+		}
+
+		protected override void GetExcludingProperties(List<SerializedProperty> properties)
+		{
+			properties.Add(value);
+			properties.Add(isReadOnly);
+			properties.Add(defaultValue);
+			properties.Add(resetValueOnStart);
+			properties.Add(setEqualityCheck);
+			properties.Add(onValueChanging);
+			properties.Add(onValueChanged);
 		}
 	}
 }
