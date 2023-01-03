@@ -126,6 +126,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ls
+          ls Coverage
           ./dotnet-sonarscanner begin \
            /o:"aurora-punks" \
            /k:"Aurora-Punks_aurora-scriptable-values" \
@@ -133,6 +134,6 @@ jobs:
            /d:sonar.verbose=false \
            /d:sonar.login=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
-           /d:sonar.cs.opencover.reportsPaths=Coverage/scriptable-values-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/scriptable-values-opencov/EditMode/TestCoverageResults_0000.xml
+           /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/workspace-opencov/EditMode/TestCoverageResults_0000.xml
           dotnet build aurora-scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN
