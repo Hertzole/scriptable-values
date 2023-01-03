@@ -51,6 +51,15 @@ namespace AuroraPunks.ScriptableValues
 		
 		public int Capacity { get { return list.Capacity; } }
 
+		/// <summary>
+		///		If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.
+		/// </summary>
+		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+		/// <summary>
+		///		If true, the list will be cleared on play mode start/game boot.
+		/// </summary>
+		public bool ClearOnStart { get { return clearOnStart; } set { clearOnStart = value; } }
+
 		public event Action<T> OnAdded;
 		public event Action<int, T> OnInserted;
 		public event Action<int, T> OnAddedOrInserted;
