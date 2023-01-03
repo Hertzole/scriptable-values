@@ -39,5 +39,39 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Object.DestroyImmediate(go1);
 			Object.DestroyImmediate(go2);
 		}
+		
+		[Test]
+		public void NonUnityObject_IsNull()
+		{
+			string value = null;
+			
+			Assert.IsTrue(EqualityHelper.IsNull(value));
+		}
+		
+		[Test]
+		public void NonUnityObject_IsNotNull()
+		{
+			string value = "test";
+			
+			Assert.IsFalse(EqualityHelper.IsNull(value));
+		}
+		
+		[Test]
+		public void UnityObject_IsNull()
+		{
+			GameObject go = null;
+			
+			Assert.IsTrue(EqualityHelper.IsNull(go));
+		}
+		
+		[Test]
+		public void UnityObject_IsNotNull()
+		{
+			GameObject go = new GameObject();
+			
+			Assert.IsFalse(EqualityHelper.IsNull(go));
+			
+			Object.DestroyImmediate(go);
+		}
 	}
 }
