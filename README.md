@@ -1,6 +1,12 @@
 # Aurora Scriptable Values
 
 [![openupm](https://img.shields.io/npm/v/com.aurorapunks.aurorascriptablevalues?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.aurorapunks.aurorascriptablevalues/)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
 
 ## ❓ What is this?
 
