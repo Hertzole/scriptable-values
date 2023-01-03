@@ -14,7 +14,7 @@ namespace AuroraPunks.ScriptableValues
 		private readonly List<T> activeObjects = new List<T>();
 		private readonly Stack<T> pool = new Stack<T>();
 
-		public int CountAll { get; private set; }
+		public int CountAll { get { return activeObjects.Count + pool.Count; } }
 		public int CountActive { get { return activeObjects.Count; } }
 		public int CountInactive { get { return pool.Count; } }
 
@@ -36,15 +36,13 @@ namespace AuroraPunks.ScriptableValues
 					item = pool.Pop();
 					if (EqualityHelper.IsNull(item))
 					{
-						// The item was null and we need to keep track of all of the objects we've created.
-						// Remove one as it's no longer alive.
-						CountAll--;
+						// The item was null and we should just move onto the next one.
+						continue;
 					}
 				}
 				else
 				{
 					item = CreateObject();
-					CountAll++;
 					OnCreateObject?.Invoke(item);
 				}
 			}
@@ -73,23 +71,21 @@ namespace AuroraPunks.ScriptableValues
 
 		public void Clear()
 		{
-			foreach (T activeObject in activeObjects)
+			for (int i = activeObjects.Count - 1; i >= 0; i--)
 			{
-				OnDestroyObject?.Invoke(activeObject);
-				DestroyObject(activeObject);
-				CountAll--;
+				T item = activeObjects[i];
+				
+				OnDestroyObject?.Invoke(item);
+				DestroyObject(item);
+				activeObjects.RemoveAt(i);
 			}
 
-			activeObjects.Clear();
-
-			foreach (T inactiveObject in pool)
+			while (pool.TryPop(out T item))
 			{
-				OnDestroyObject?.Invoke(inactiveObject);
-				DestroyObject(inactiveObject);
-				CountAll--;
+				OnDestroyObject?.Invoke(item);
+				DestroyObject(item);
 			}
 
-			pool.Clear();
 			Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
 			
 			AddStackTrace();
@@ -123,16 +119,10 @@ namespace AuroraPunks.ScriptableValues
 
 		protected virtual void OnReturn(T item) { }
 
-		public override void ResetValues()
-		{
-			CountAll = 0;
-		}
-
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
 			Clear();
-			CountAll = 0;
 		}
 #endif
 	}
