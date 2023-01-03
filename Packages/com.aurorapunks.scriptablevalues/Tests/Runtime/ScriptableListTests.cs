@@ -277,17 +277,27 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Set_SameValue()
+		public void Set_SameValue([ValueSource(nameof(bools))] bool setEqualityCheck)
 		{
 			bool setEventInvoked = false;
 
+			list.SetEqualityCheck = setEqualityCheck;
+			
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
 
 			list[0] = 0;
 
 			Assert.AreEqual(0, list[0]);
-			Assert.IsFalse(setEventInvoked);
+
+			if (setEqualityCheck)
+			{
+				Assert.IsFalse(setEventInvoked);
+			}
+			else
+			{
+				Assert.IsTrue(setEventInvoked);
+			}
 		}
 
 		[Test]
