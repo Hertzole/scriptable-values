@@ -39,7 +39,7 @@ jobs:
         with:
           testMode: playmode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          artifactsPath: playmode-artifacts
+          #artifactsPath: playmode-artifacts
           checkName: Play mode test results
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
 
@@ -50,7 +50,7 @@ jobs:
         with:
           testMode: editmode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          artifactsPath: editmode-artifacts
+          #artifactsPath: editmode-artifacts
           checkName: Edit mode test results
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
 
