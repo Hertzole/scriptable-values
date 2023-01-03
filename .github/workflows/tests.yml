@@ -38,7 +38,6 @@ jobs:
         id: playmode_tests
         with:
           testMode: playmode
-          #artifactsPath: playmode-artifacts
           checkName: Play mode test results
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
 
@@ -48,7 +47,6 @@ jobs:
         id: editmode_tests
         with:
           testMode: editmode
-          #artifactsPath: editmode-artifacts
           checkName: Edit mode test results
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
 
@@ -76,8 +74,8 @@ jobs:
       - name: Install scanner
         run: |
           dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
-          apt update
-          apt install -y openjdk-11-jre-headless
+          sudo apt update
+          sudo apt install -y openjdk-11-jre-headless
 
       # Generate the project solution
       - name: Generate Solution
