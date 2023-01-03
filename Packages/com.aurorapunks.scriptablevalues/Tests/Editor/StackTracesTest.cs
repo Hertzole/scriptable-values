@@ -12,6 +12,8 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 	{
 		private const int MAX_STACK_TRACE_LENGTH = IStackTraceProvider.MAX_STACK_TRACE_ENTRIES;
 
+		// Scriptable Values
+		
 		[Test]
 		public void MaxStackTraces_ScriptableValues()
 		{
@@ -38,6 +40,17 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				i.Value = 1;
 			});
 		}
+
+		[Test]
+		public void StackTrace_DontCollect_ScriptableValues()
+		{
+			TestStackTraceWereNotCollected<ScriptableInt>(i =>
+			{
+				i.Value = 1;
+			});
+		}
+		
+		// Events
 		
 		[Test]
 		public void MaxStackTraces_ScriptableEvent()
@@ -67,6 +80,17 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 		}
 		
 		[Test]
+		public void StackTrace_DontCollect_ScriptableEvent()
+		{
+			TestStackTraceWereNotCollected<ScriptableEvent>(i =>
+			{
+				i.Invoke(this);
+			});
+		}
+		
+		// Generic events
+		
+		[Test]
 		public void MaxStackTraces_ScriptableGenericEvent()
 		{
 			TestStackTraceCount<ScriptableIntEvent>(i =>
@@ -92,6 +116,17 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				i.Invoke(this, 1);
 			});
 		}
+		
+		[Test]
+		public void StackTrace_DontCollect_ScriptableGenericEvent()
+		{
+			TestStackTraceWereNotCollected<ScriptableIntEvent>(i =>
+			{
+				i.Invoke(this);
+			});
+		}
+		
+		// List
 		
 		[Test]
 		public void MaxStackTraces_ScriptableList()
@@ -281,6 +316,15 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			});
 		}
 		
+		[Test]
+		public void StackTrace_DontCollect_ScriptableList()
+		{
+			TestStackTraceWereNotCollected<TestScriptableList>(i =>
+			{
+				i.Add(0);
+			});
+		}
+		
 		private static void TestStackTraceCount<T>(Action<T> action) where T : ScriptableObject, IStackTraceProvider
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
@@ -336,6 +380,30 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				Assert.IsTrue(instance.Invocations.Count > 0, "No stack traces have been added.");
 				instance.ResetValues();
 				Assert.AreEqual(0, instance.Invocations.Count, "Stack traces were not cleared.");
+			}
+			catch (AssertionException) { }
+			finally
+			{
+				Object.DestroyImmediate(instance);
+			}
+		}
+		
+		private static void TestStackTraceWereNotCollected<T>(Action<T> invoke) where T : RuntimeScriptableObject, IStackTraceProvider
+		{
+			T instance = ScriptableObject.CreateInstance<T>();
+
+			instance.CollectStackTraces = false;
+			
+			bool stackTraceAdded = false;
+
+			instance.OnStackTraceAdded += () => stackTraceAdded = true; 
+			
+			invoke.Invoke(instance);
+
+			try
+			{
+				Assert.IsFalse(stackTraceAdded, "Stack trace was collected.");
+				Assert.AreEqual(0, instance.Invocations.Count, "Stack trace was collected.");
 			}
 			catch (AssertionException) { }
 			finally
