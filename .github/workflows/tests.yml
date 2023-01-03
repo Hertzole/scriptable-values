@@ -134,5 +134,5 @@ jobs:
            /d:sonar.login=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
            /d:sonar.cs.opencover.reportsPaths=Coverage/scriptable-values-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/scriptable-values-opencov/EditMode/TestCoverageResults_0000.xml
-          dotnet build scriptable-values.sln
+          dotnet build aurora-scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN
