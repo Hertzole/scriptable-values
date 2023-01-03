@@ -5,16 +5,13 @@ using UnityEngine.UIElements;
 namespace AuroraPunks.ScriptableValues.Editor
 {
 	[CustomEditor(typeof(ScriptableEvent), true)]
-	public class ScriptableEventEditor : UnityEditor.Editor
+	public class ScriptableEventEditor : RuntimeScriptableObjectEditor
 	{
 		private ScriptableEvent scriptableEvent;
 		private SerializedProperty onInvoked;
 		private SerializedProperty collectStackTraces;
 
-		private StackTraceElement stackTraces;
-		private VisualElement contentViewport;
-
-		protected virtual void OnEnable()
+		protected override void GatherProperties()
 		{
 			scriptableEvent = (ScriptableEvent) target;
 
@@ -22,25 +19,10 @@ namespace AuroraPunks.ScriptableValues.Editor
 			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 		}
 
-		protected virtual void OnDisable()
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			stackTraces?.Dispose();
-		}
-
-		public override VisualElement CreateInspectorGUI()
-		{
-			VisualElement root = new EntireInspectorElement();
-
 			PropertyField onInvokedField = new PropertyField(onInvoked);
 			onInvokedField.Bind(serializedObject);
-
-			stackTraces = new StackTraceElement(scriptableEvent, collectStackTraces, "Invocation Stack Traces")
-			{
-				style =
-				{
-					marginTop = 4
-				}
-			};
 
 			VisualElement invokeElement = CreateInvokeButton();
 
@@ -51,9 +33,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 
 			root.Add(onInvokedField);
-			root.Add(stackTraces);
-
-			return root;
 		}
 
 		protected virtual VisualElement CreateInvokeButton()

@@ -9,22 +9,20 @@ namespace AuroraPunks.ScriptableValues.Editor
 	{
 		private SerializedProperty prefab;
 
-		protected override void OnEnable()
+		protected override void GatherProperties()
 		{
-			base.OnEnable();
+			base.GatherProperties();
 			prefab = serializedObject.FindProperty(nameof(prefab));
 		}
 
-		public override VisualElement CreateInspectorGUI()
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			VisualElement root = base.CreateInspectorGUI();
-
 			PropertyField prefabField = new PropertyField(prefab);
 			prefabField.Bind(serializedObject);
 
-			root.Insert(0, prefabField);
+			root.Add(prefabField);
 
-			return root;
+			base.CreateGUIBeforeStackTraces(root);
 		}
 	}
 }

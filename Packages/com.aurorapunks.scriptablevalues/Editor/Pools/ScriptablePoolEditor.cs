@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using AuroraPunks.ScriptableValues.Debugging;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -7,7 +6,7 @@ using UnityEngine.UIElements;
 namespace AuroraPunks.ScriptableValues.Editor
 {
 	[CustomEditor(typeof(ScriptablePool<>), true)]
-	public class ScriptablePoolEditor : UnityEditor.Editor
+	public class ScriptablePoolEditor : RuntimeScriptableObjectEditor
 	{
 		private Label countAllLabel;
 		private Label countActiveLabel;
@@ -16,25 +15,17 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private PropertyInfo countAllProperty;
 		private PropertyInfo countActiveProperty;
 		private PropertyInfo countInactiveProperty;
-		private SerializedProperty collectStackTraces;
 
-		private StackTraceElement stackTraces;
-		private VisualElement contentViewport;
-
-		protected virtual void OnEnable()
+		protected override void GatherProperties()
 		{
-			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
-
 			countAllProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountAll));
 			countActiveProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountActive));
 			countInactiveProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountInactive));
-
-			((IStackTraceProvider) target).OnStackTraceAdded += UpdateCounts;
 		}
 
-		private void OnDisable()
+		protected override void OnStackTraceAdded()
 		{
-			((IStackTraceProvider) target).OnStackTraceAdded -= UpdateCounts;
+			UpdateCounts();
 		}
 
 		private void UpdateCounts()
@@ -55,18 +46,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 		}
 
-		public override VisualElement CreateInspectorGUI()
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			VisualElement root = new EntireInspectorElement();
-
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "Invocation Stack Traces")
-			{
-				style =
-				{
-					marginTop = 4
-				}
-			};
-
 			VisualElement countAll = CreateLabelField("Count All", out countAllLabel);
 			VisualElement countActive = CreateLabelField("Count Active", out countActiveLabel);
 			VisualElement countInactive = CreateLabelField("Count Inactive", out countInactiveLabel);
@@ -75,11 +56,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(countActive);
 			root.Add(countInactive);
 
-			root.Add(stackTraces);
-
 			UpdateCounts();
-
-			return root;
 		}
 
 		private static VisualElement CreateLabelField(string labelText, out Label labelValue)

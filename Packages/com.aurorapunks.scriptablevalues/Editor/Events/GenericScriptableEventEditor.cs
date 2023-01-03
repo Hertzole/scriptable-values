@@ -13,10 +13,10 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty onInvokedWithArgs;
 		private SerializedProperty editorInvokeValue;
 
-		protected override void OnEnable()
+		protected override void GatherProperties()
 		{
-			base.OnEnable();
-
+			base.GatherProperties();
+			
 			onInvokedWithArgs = serializedObject.FindProperty(nameof(onInvokedWithArgs));
 			editorInvokeValue = serializedObject.FindProperty(nameof(editorInvokeValue));
 
@@ -27,15 +27,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 		}
 
-		public override VisualElement CreateInspectorGUI()
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			VisualElement root = base.CreateInspectorGUI();
-
+			base.CreateGUIBeforeStackTraces(root);
 			PropertyField onInvokedWithArgsField = new PropertyField(onInvokedWithArgs);
 			onInvokedWithArgsField.Bind(serializedObject);
-			root.Insert(1, onInvokedWithArgsField);
-
-			return root;
+			root.Add(onInvokedWithArgsField);
 		}
 
 		protected override VisualElement CreateInvokeButton()

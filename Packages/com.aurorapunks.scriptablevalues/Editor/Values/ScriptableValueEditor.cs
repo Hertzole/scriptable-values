@@ -1,13 +1,19 @@
 ﻿using UnityEditor;
-using AuroraPunks.ScriptableValues.Debugging;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace AuroraPunks.ScriptableValues.Editor
 {
 	[CustomEditor(typeof(ScriptableValue<>), true)]
-	public class ScriptableValueEditor : UnityEditor.Editor
+	public class ScriptableValueEditor : RuntimeScriptableObjectEditor
 	{
+		private PropertyField valueField;
+		private PropertyField isReadOnlyField;
+		private PropertyField defaultValueField;
+		private PropertyField resetValueOnStartField;
+		private PropertyField setEqualityCheckField;
+		private PropertyField onValueChangingField;
+		private PropertyField onValueChangedField;
 		private SerializedProperty value;
 		private SerializedProperty isReadOnly;
 		private SerializedProperty defaultValue;
@@ -17,16 +23,21 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty onValueChanged;
 		private SerializedProperty collectStackTraces;
 
-		private StackTraceElement stackTraces;
-		private PropertyField valueField;
-		private PropertyField isReadOnlyField;
-		private PropertyField defaultValueField;
-		private PropertyField resetValueOnStartField;
-		private PropertyField setEqualityCheckField;
-		private PropertyField onValueChangingField;
-		private PropertyField onValueChangedField;
+		protected override void OnEnable()
+		{
+			base.OnEnable();
 
-		protected virtual void OnEnable()
+			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+		}
+
+		protected override void GatherProperties()
 		{
 			value = serializedObject.FindProperty(nameof(value));
 			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
@@ -36,20 +47,10 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChanging = serializedObject.FindProperty(nameof(onValueChanging));
 			onValueChanged = serializedObject.FindProperty(nameof(onValueChanged));
 			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
-			
-			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
 
-		protected virtual void OnDisable()
+		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			stackTraces?.Dispose();
-			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-		}
-
-		public override VisualElement CreateInspectorGUI()
-		{
-			VisualElement root = new EntireInspectorElement();
-
 			valueField = new PropertyField(value);
 			isReadOnlyField = new PropertyField(isReadOnly);
 			defaultValueField = new PropertyField(defaultValue);
@@ -66,19 +67,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangingField.Bind(serializedObject);
 			onValueChangedField.Bind(serializedObject);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, "Set Value Stack Traces")
-			{
-				style =
-				{
-					marginTop = 4
-				}
-			};
-			
-			isReadOnlyField.RegisterValueChangeCallback(evt =>
-			{
-				UpdateVisibility(evt.changedProperty.boolValue);
-			});
-			
+			isReadOnlyField.RegisterValueChangeCallback(evt => { UpdateVisibility(evt.changedProperty.boolValue); });
+
 			UpdateVisibility(isReadOnly.boolValue);
 			UpdateEnabledState();
 
@@ -89,9 +79,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(setEqualityCheckField);
 			root.Add(onValueChangingField);
 			root.Add(onValueChangedField);
-			root.Add(stackTraces);
-
-			return root;
 		}
 
 		private void UpdateVisibility(bool readOnly)
@@ -109,7 +96,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			valueField.SetEnabled(enabled);
 			isReadOnlyField.SetEnabled(enabled);
 		}
-		
+
 		private void OnPlayModeStateChanged(PlayModeStateChange obj)
 		{
 			UpdateEnabledState();
