@@ -16,6 +16,7 @@ jobs:
   tests:
     name: Run Unity 2021.3 tests
     runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-2021.3.10f1-base-1.0.1
     steps:
       # Checkout the repo
       - name: Checkout
@@ -80,6 +81,10 @@ jobs:
       # Generate the project solution
       - name: Generate Solution
         run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      - name: Check directory
+        run: |
+          ls
 
       # Get the test results from the artifacts
       - name: Get test reports
