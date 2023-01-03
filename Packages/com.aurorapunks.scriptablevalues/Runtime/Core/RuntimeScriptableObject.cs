@@ -37,6 +37,14 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Internal method for calling OnExitPlayMode in tests.
+		/// </summary>
+		internal void Test_ExitPlayMode()
+		{
+			OnExitPlayMode();
+		}
+
 		protected virtual void OnExitPlayMode() { }
 #endif
 	}

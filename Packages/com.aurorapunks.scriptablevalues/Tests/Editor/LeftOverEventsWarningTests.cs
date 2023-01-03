@@ -1,413 +1,334 @@
 ﻿using System;
-using System.Collections;
 using System.Text.RegularExpressions;
-using UnityEditor;
+using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.TestTools;
-using Object = UnityEngine.Object;
 
 namespace AuroraPunks.ScriptableValues.Tests.Editor
 {
-	public class LeftOverEventsWarningTests
+	public class LeftOverEventsWarningTests : BaseEditorTest
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
 			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
 			RegexOptions.Multiline);
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Bool()
+		[Test]
+		public void ScriptableValue_Bool()
 		{
-			yield return new LeftOverWarningTest<ScriptableBool>(2, i =>
+			TestLeftOverWarning<ScriptableBool>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Byte()
+		[Test]
+		public void ScriptableValue_Byte()
 		{
-			yield return new LeftOverWarningTest<ScriptableByte>(2, i =>
+			TestLeftOverWarning<ScriptableByte>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_SByte()
+		[Test]
+		public void ScriptableValue_SByte()
 		{
-			yield return new LeftOverWarningTest<ScriptableSByte>(2, i =>
+			TestLeftOverWarning<ScriptableSByte>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Short()
+		[Test]
+		public void ScriptableValue_Short()
 		{
-			yield return new LeftOverWarningTest<ScriptableShort>(2, i =>
+			TestLeftOverWarning<ScriptableShort>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_UShort()
+		[Test]
+		public void ScriptableValue_UShort()
 		{
-			yield return new LeftOverWarningTest<ScriptableUShort>(2, i =>
+			TestLeftOverWarning<ScriptableUShort>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Int()
+		[Test]
+		public void ScriptableValue_Int()
 		{
-			yield return new LeftOverWarningTest<ScriptableInt>(2, i =>
+			TestLeftOverWarning<ScriptableInt>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_UInt()
+		[Test]
+		public void ScriptableValue_UInt()
 		{
-			yield return new LeftOverWarningTest<ScriptableUInt>(2, i =>
+			TestLeftOverWarning<ScriptableUInt>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Long()
+		[Test]
+		public void ScriptableValue_Long()
 		{
-			yield return new LeftOverWarningTest<ScriptableLong>(2, i =>
+			TestLeftOverWarning<ScriptableLong>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_ULong()
+		[Test]
+		public void ScriptableValue_ULong()
 		{
-			yield return new LeftOverWarningTest<ScriptableULong>(2, i =>
+			TestLeftOverWarning<ScriptableULong>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Float()
+		[Test]
+		public void ScriptableValue_Float()
 		{
-			yield return new LeftOverWarningTest<ScriptableFloat>(2, i =>
+			TestLeftOverWarning<ScriptableFloat>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Double()
+		[Test]
+		public void ScriptableValue_Double()
 		{
-			yield return new LeftOverWarningTest<ScriptableDouble>(2, i =>
+			TestLeftOverWarning<ScriptableDouble>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_Decimal()
+		[Test]
+		public void ScriptableValue_Decimal()
 		{
-			yield return new LeftOverWarningTest<ScriptableDecimal>(2, i =>
+			TestLeftOverWarning<ScriptableDecimal>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableValue_String()
+		[Test]
+		public void ScriptableValue_String()
 		{
-			yield return new LeftOverWarningTest<ScriptableString>(2, i =>
+			TestLeftOverWarning<ScriptableString>(2, i =>
 			{
-				i.OnValueChanging += (value, newValue) => { };
-				i.OnValueChanged += (value, newValue) => { };
+				i.OnValueChanging += (_, _) => { };
+				i.OnValueChanged += (_, _) => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Bool()
+		[Test]
+		public void ScriptableEvent_Bool()
 		{
-			yield return new LeftOverWarningTest<ScriptableBoolEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableBoolEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Byte()
+		[Test]
+		public void ScriptableEvent_Byte()
 		{
-			yield return new LeftOverWarningTest<ScriptableByteEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableByteEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_SByte()
+		[Test]
+		public void ScriptableEvent_SByte()
 		{
-			yield return new LeftOverWarningTest<ScriptableSByteEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableSByteEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Short()
+		[Test]
+		public void ScriptableEvent_Short()
 		{
-			yield return new LeftOverWarningTest<ScriptableShortEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableShortEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_UShort()
+		[Test]
+		public void ScriptableEvent_UShort()
 		{
-			yield return new LeftOverWarningTest<ScriptableUShortEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableUShortEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Int()
+		[Test]
+		public void ScriptableEvent_Int()
 		{
-			yield return new LeftOverWarningTest<ScriptableIntEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableIntEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_UInt()
+		[Test]
+		public void ScriptableEvent_UInt()
 		{
-			yield return new LeftOverWarningTest<ScriptableUIntEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableUIntEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Long()
+		[Test]
+		public void ScriptableEvent_Long()
 		{
-			yield return new LeftOverWarningTest<ScriptableLongEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableLongEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_ULong()
+		[Test]
+		public void ScriptableEvent_ULong()
 		{
-			yield return new LeftOverWarningTest<ScriptableULongEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableULongEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Float()
+		[Test]
+		public void ScriptableEvent_Float()
 		{
-			yield return new LeftOverWarningTest<ScriptableFloatEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableFloatEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Double()
+		[Test]
+		public void ScriptableEvent_Double()
 		{
-			yield return new LeftOverWarningTest<ScriptableDoubleEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableDoubleEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_Decimal()
+		[Test]
+		public void ScriptableEvent_Decimal()
 		{
-			yield return new LeftOverWarningTest<ScriptableDecimalEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableDecimalEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent_String()
+		[Test]
+		public void ScriptableEvent_String()
 		{
-			yield return new LeftOverWarningTest<ScriptableStringEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
+			TestLeftOverWarning<ScriptableStringEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableEvent()
+		[Test]
+		public void ScriptablePool()
 		{
-			yield return new LeftOverWarningTest<ScriptableEvent>(1, i => { i.OnInvoked += (sender, arg) => { }; });
-		}
-
-		[UnityTest]
-		public IEnumerator ScriptableList_Events()
-		{
-			yield return new LeftOverWarningTest<TestScriptableList>(6, i =>
+			TestLeftOverWarning<ScriptableGameObjectPool>(4, i =>
 			{
-				i.OnAdded += i1 => { };
-				i.OnInserted += (i1, i2) => { };
-				i.OnAddedOrInserted += (i1, i2) => { };
-				i.OnSet += (i1, i2, arg3) => { };
-				i.OnRemoved += (i1, i2) => { };
+				i.OnCreateObject += _ => { };
+				i.OnDestroyObject += _ => { };
+				i.OnGetObject += _ => { };
+				i.OnReturnObject += _ => { };
+			});
+		}
+
+		[Test]
+		public void ScriptableList_Events()
+		{
+			TestLeftOverWarning<TestScriptableList>(6, i =>
+			{
+				i.OnAdded += _ => { };
+				i.OnInserted += (_, _) => { };
+				i.OnAddedOrInserted += (_, _) => { };
+				i.OnSet += (_, _, _) => { };
+				i.OnRemoved += (_, _) => { };
 				i.OnCleared += () => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableDictionary_Events()
+		[Test]
+		public void ScriptableDictionary_Events()
 		{
-			yield return new LeftOverWarningTest<TestScriptableDictionary>(4, i =>
+			TestLeftOverWarning<TestScriptableDictionary>(4, i =>
 			{
-				i.OnAdded += (i1, i2) => { };
-				i.OnSet += (i1, i2, arg3) => { };
-				i.OnRemoved += (i1, i2) => { };
+				i.OnAdded += (_, _) => { };
+				i.OnSet += (_, _, _) => { };
+				i.OnRemoved += (_, _) => { };
 				i.OnCleared += () => { };
 			});
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableList_Objects()
+		[Test]
+		public void ScriptableList_Objects()
 		{
-			TestScriptableList instance = ScriptableObject.CreateInstance<TestScriptableList>();
-			instance.hideFlags = HideFlags.DontSave;
+			TestScriptableList instance = CreateInstance<TestScriptableList>();
 			instance.name = "Instance";
-
-			yield return new EnterPlayMode(false);
 
 			instance.Add(10);
 
 			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable list {instance.name}. You should clear the list before leaving play mode.");
 
-			yield return new ExitPlayMode();
+			instance.Test_ExitPlayMode();
 		}
 
-		[UnityTest]
-		public IEnumerator ScriptableDictionary_Objects()
+		[Test]
+		public void ScriptableDictionary_Objects()
 		{
-			TestScriptableDictionary instance = ScriptableObject.CreateInstance<TestScriptableDictionary>();
-			instance.hideFlags = HideFlags.DontSave;
+			TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
 			instance.name = "Instance";
-
-			yield return new EnterPlayMode(false);
-
-			while (!EditorApplication.isPlaying)
-			{
-				yield return null;
-			}
-
-			Assert.IsTrue(EditorApplication.isPlaying);
 
 			instance.Add(10, 42);
 
 			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
 
-			yield return new ExitPlayMode();
-
-			while (EditorApplication.isPlaying)
-			{
-				yield return null;
-			}
-
-			Assert.IsFalse(EditorApplication.isPlaying);
-
-			yield return null;
+			instance.Test_ExitPlayMode();
 		}
 
-		[UnityTest]
+		[Test]
 		[TestMustExpectAllLogs]
-		public IEnumerator ScriptableDictionary_Objects_NoClear()
+		public void ScriptableList_Objects_NoClear()
 		{
-			TestScriptableDictionary instance = ScriptableObject.CreateInstance<TestScriptableDictionary>();
-			instance.hideFlags = HideFlags.DontSave;
+			TestScriptableList instance = CreateInstance<TestScriptableList>();
 			instance.name = "Instance";
 			instance.ClearOnStart = false;
 
-			yield return new EnterPlayMode(false);
+			instance.Add(10);
+
+			LogAssert.NoUnexpectedReceived();
+
+			instance.Test_ExitPlayMode();
+		}
+
+		[Test]
+		[TestMustExpectAllLogs]
+		public void ScriptableDictionary_Objects_NoClear()
+		{
+			TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
+			instance.name = "Instance";
+			instance.ClearOnStart = false;
 
 			instance.Add(10, 42);
 
 			LogAssert.NoUnexpectedReceived();
 
-			yield return new ExitPlayMode();
+			instance.Test_ExitPlayMode();
 		}
 
-		private class LeftOverWarningTest<T> : IEditModeTestYieldInstruction where T : RuntimeScriptableObject
+		private void TestLeftOverWarning<T>(int warningAmount, Action<T> subscribeToEvent) where T : RuntimeScriptableObject
 		{
-			private readonly int warningAmount;
-			private readonly Action<T> subscribeToEvent;
+			T instance = CreateInstance<T>();
+			instance.name = "Test Instance";
+			// Set hide flags to DontSave so it doesn't get deleted when exiting play mode.
+			instance.hideFlags = HideFlags.DontSave;
 
-			public bool ExpectDomainReload { get { return false; } }
-			public bool ExpectedPlaymodeState { get; private set; }
+			subscribeToEvent.Invoke(instance);
 
-			public LeftOverWarningTest(int warningAmount, Action<T> subscribeToEvent)
+			for (int i = 0; i < warningAmount; i++)
 			{
-				this.warningAmount = warningAmount;
-				this.subscribeToEvent = subscribeToEvent;
+				LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
 			}
 
-			public IEnumerator Perform()
-			{
-				T instance = ScriptableObject.CreateInstance<T>();
-				instance.name = "Test Instance";
-				// Set hide flags to DontSave so it doesn't get deleted when exiting play mode.
-				instance.hideFlags = HideFlags.DontSave;
-
-				Assert.IsFalse(Application.isPlaying, "Already in play mode when entering play mode.");
-
-				ExpectedPlaymodeState = true;
-				EditorApplication.isPlaying = true;
-
-				while (!Application.isPlaying)
-				{
-					yield return null;
-				}
-
-				try
-				{
-					Assert.IsTrue(Application.isPlaying, "Didn't enter play mode.");
-				}
-				catch (AssertionException)
-				{
-					Object.DestroyImmediate(instance);
-					EditorApplication.isPlaying = false;
-					yield break;
-				}
-
-				subscribeToEvent.Invoke(instance);
-
-				try
-				{
-					Assert.IsTrue(Application.isPlaying, "Not in play mode when exiting play mode.");
-					for (int i = 0; i < warningAmount; i++)
-					{
-						// LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
-					}
-				}
-				catch (AssertionException)
-				{
-					Object.DestroyImmediate(instance);
-					EditorApplication.isPlaying = false;
-					yield break;
-				}
-
-				ExpectedPlaymodeState = false;
-				EditorApplication.isPlaying = false;
-
-				while (Application.isPlaying)
-				{
-					yield return null;
-				}
-
-				try
-				{
-					Assert.IsFalse(Application.isPlaying, "Didn't exit play mode.");
-				}
-				catch (AssertionException)
-				{
-					Object.DestroyImmediate(instance);
-					EditorApplication.isPlaying = false;
-					yield break;
-				}
-
-				for (int i = 0; i < 10; i++)
-				{
-					yield return null;
-				}
-
-				Object.DestroyImmediate(instance);
-			
-				yield return null;
-			}
+			instance.Test_ExitPlayMode();
 		}
 	}
 }
