@@ -214,7 +214,7 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
    URL: `https://package.openupm.com`  
    Scopes:  
    - `com.openupm`  
-   - `com.aurorapunks.scriptablevalues`
+   - `com.aurorapunks.aurorascriptablevalues`
 2. Click apply and close the project settings.
 3. Open up the package manager.  
    Click in the menu bar Window → Package Manager
