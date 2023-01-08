@@ -24,7 +24,7 @@ namespace AuroraPunks.ScriptableValues
 		[Tooltip("If true, the list will be cleared on play mode start/game boot.")]
 		private bool clearOnStart = true;
 		[SerializeField]
-		private List<T> list = new List<T>();
+		internal List<T> list = new List<T>();
 
 		public T this[int index] { get { return list[index]; } set { SetValue(index, value); } }
 
