@@ -19,6 +19,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private readonly Color borderColorDark = new Color32(26, 26, 26, 255);
 		private readonly Color borderColorLight = new Color32(138, 138, 138, 255);
 
+		private readonly HelpBox disabledBox;
+
 		private readonly ListView stackTraceList;
 		private readonly ListView detailsList;
 
@@ -27,11 +29,14 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private readonly IStackTraceProvider target;
 
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
+		private readonly ToolbarToggle stackTraceToggle;
 
 		private Color BorderColor { get { return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight; } }
 
 		public StackTraceElement(IStackTraceProvider target, SerializedProperty collectStackTracesProperty, string title = "Stack Traces")
 		{
+			ScriptableValuesPreferences.OnCollectStackTracesChanged += OnGlobalCollectStackTracesChanged;
+
 			// Set the root as this element.
 			StackTraceElement root = this;
 
@@ -74,13 +79,14 @@ namespace AuroraPunks.ScriptableValues.Editor
 				}
 			};
 
-			ToolbarToggle stackTraceToggle = new ToolbarToggle
+			stackTraceToggle = new ToolbarToggle
 			{
 				text = "Collect Stack Traces",
 				value = collectStackTracesProperty.boolValue
 			};
 
 			stackTraceToggle.BindProperty(collectStackTracesProperty);
+			stackTraceToggle.RegisterValueChangedCallback(evt => { OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces); });
 
 			toolbar.Add(CreateToolbarLabel(title));
 			toolbar.Add(spacer);
@@ -113,6 +119,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 					minHeight = 100
 				}
 			};
+
+			disabledBox = new HelpBox("Stack traces are disabled. Enable them in the preferences.", HelpBoxMessageType.Info);
 
 			// Create the stack trace list.
 			stackTraceList = new ListView
@@ -173,6 +181,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			splitter.Add(detailsContainer);
 
 			// Add the stack trace list to its container.
+			stackTraceContainer.Add(disabledBox);
 			stackTraceContainer.Add(stackTraceList);
 
 			// Add empty details label.
@@ -183,6 +192,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 			// Set the target and subscribe to the target events.
 			this.target = target;
 			target.OnStackTraceAdded += OnStackTraceAdded;
+
+			OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces);
 		}
 
 		private void OnStackTraceAdded()
@@ -329,6 +340,31 @@ namespace AuroraPunks.ScriptableValues.Editor
 				// Open the frame in the code editor.
 				OpenStackFrame(frame);
 			}
+		}
+
+		/// <summary>
+		///     Called when the collect stack traces preference setting is changed.
+		/// </summary>
+		/// <param name="collectGlobal">If collect stack traces are enabled globally.</param>
+		private void OnGlobalCollectStackTracesChanged(bool collectGlobal)
+		{
+			string message = string.Empty;
+			if (!collectGlobal && !stackTraceToggle.value)
+			{
+				message = "Stack traces are disabled both on this object and globally. Enable them in preferences and on this object to collect them.";
+			}
+			else if (!collectGlobal)
+			{
+				message = "Stack traces are disabled globally. Enable them in preferences to collect them.";
+			}
+			else if (!stackTraceToggle.value)
+			{
+				message = "Stack traces are disabled on this object. Enable them to collect them.";
+			}
+
+			disabledBox.text = message;
+			// Only show the box if there's a message to show.
+			disabledBox.style.display = string.IsNullOrEmpty(message) ? DisplayStyle.None : DisplayStyle.Flex;
 		}
 
 		/// <summary>
@@ -488,6 +524,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 			{
 				target.OnStackTraceAdded -= OnStackTraceAdded;
 			}
+
+			ScriptableValuesPreferences.OnCollectStackTracesChanged -= OnGlobalCollectStackTracesChanged;
 		}
 	}
 }

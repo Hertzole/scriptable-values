@@ -1,15 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AuroraPunks.ScriptableValues.Settings
+namespace AuroraPunks.ScriptableValues.Editor
 {
 	internal sealed class ScriptableValuesPreferences : SettingsProvider
 	{
-		public static bool CollectStackTraces { get { return EditorPrefs.GetBool(COLLECT_STACK_TRACES_KEY, true); } set { EditorPrefs.SetBool(COLLECT_STACK_TRACES_KEY, value); } }
+		public static bool CollectStackTraces
+		{
+			get { return EditorPrefs.GetBool(COLLECT_STACK_TRACES_KEY, true); }
+			set
+			{
+				if (EditorPrefs.GetBool(COLLECT_STACK_TRACES_KEY, true) != value)
+				{
+					EditorPrefs.SetBool(COLLECT_STACK_TRACES_KEY, value);
+					OnCollectStackTracesChanged?.Invoke(value);
+				}
+			}
+		}
 
 		private ScriptableValuesPreferences(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords) { }
+
+		public static event Action<bool> OnCollectStackTracesChanged;
 
 		private const string COLLECT_STACK_TRACES_KEY = "AuroraPunks.ScriptableValues.CollectStackTraces";
 
