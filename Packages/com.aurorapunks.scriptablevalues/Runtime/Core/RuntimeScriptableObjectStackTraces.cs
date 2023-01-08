@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using UnityEngine;
+﻿using System.Diagnostics;
 #if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 using AuroraPunks.ScriptableValues.Debugging;
+using UnityEditor;
 #endif
 
 namespace AuroraPunks.ScriptableValues
@@ -13,22 +14,15 @@ namespace AuroraPunks.ScriptableValues
 		: IStackTraceProvider
 #endif
 	{
-#if UNITY_EDITOR
-		[SerializeField]
-		private bool collectStackTraces = true;
-
-		public bool CollectStackTraces { get { return collectStackTraces; } set { collectStackTraces = value; } }
-#endif
-		
 		[Conditional("UNITY_EDITOR")]
 		protected void AddStackTrace(int skipFrames = 0)
 		{
 #if UNITY_EDITOR
-			if (!collectStackTraces)
+			if (!collectStackTraces || !EditorPrefs.GetBool("AuroraPunks.ScriptableValues.CollectStackTraces", true))
 			{
 				return;
 			}
-			
+
 			// Always skip one frame because we don't want to include this current method.
 			StackTrace trace = new StackTrace(1 + skipFrames, true);
 
@@ -52,6 +46,11 @@ namespace AuroraPunks.ScriptableValues
 #endif
 		}
 #if UNITY_EDITOR
+		[SerializeField]
+		private bool collectStackTraces = true;
+
+		internal bool CollectStackTraces { get { return collectStackTraces; } set { collectStackTraces = value; } }
+
 		List<StackTraceEntry> IStackTraceProvider.Invocations { get; } = new List<StackTraceEntry>();
 		event Action IStackTraceProvider.OnStackTraceAdded { add { OnStackTraceAddedInternal += value; } remove { OnStackTraceAddedInternal -= value; } }
 
