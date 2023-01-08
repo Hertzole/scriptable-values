@@ -9,10 +9,9 @@ namespace AuroraPunks.ScriptableValues
 {
 	public abstract class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
+		private bool hasCreatedDefaultInspector;
 		private SerializedProperty collectStackTraces;
 		private StackTraceElement stackTraces;
-
-		private bool hasCreatedDefaultInspector;
 
 		protected virtual string StackTracesLabel { get { return "Invocation Stack Traces"; } }
 
@@ -54,29 +53,29 @@ namespace AuroraPunks.ScriptableValues
 
 			return root;
 		}
-		
+
 		protected void CreateDefaultInspectorGUI(VisualElement root)
 		{
 			if (hasCreatedDefaultInspector)
 			{
 				return;
 			}
-			
+
 			SerializedProperty iterator = serializedObject.GetIterator();
 			bool enterChildren = true;
 
-			List<SerializedProperty> ignoreProperties = new List<SerializedProperty>()
+			List<SerializedProperty> ignoreProperties = new List<SerializedProperty>
 			{
 				collectStackTraces
 			};
 
-			HashSet<string> ignorePropertyNames = new HashSet<string>()
+			HashSet<string> ignorePropertyNames = new HashSet<string>
 			{
 				"m_Script"
 			};
 
 			GetExcludingProperties(ignoreProperties);
-			
+
 			foreach (SerializedProperty property in ignoreProperties)
 			{
 				ignorePropertyNames.Add(property.propertyPath);
@@ -97,7 +96,7 @@ namespace AuroraPunks.ScriptableValues
 		}
 
 		protected virtual void CreateGUIBeforeStackTraces(VisualElement root) { }
-		
+
 		protected virtual void GetExcludingProperties(List<SerializedProperty> properties) { }
 	}
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -8,6 +10,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableList<>), true)]
 	public class ScriptableListEditor : RuntimeScriptableObjectEditor
 	{
+		private FieldInfo listFieldInfo;
+		private IList listValue;
 		private PropertyField setEqualityCheckField;
 		private PropertyField isReadOnlyField;
 		private PropertyField clearOnStartField;
@@ -23,6 +27,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		{
 			base.OnEnable();
 
+			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 		}
 
@@ -39,6 +44,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
 			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
 			list = serializedObject.FindProperty(nameof(list));
+
+			if (list == null)
+			{
+				listFieldInfo = target.GetType().GetField(nameof(ScriptableList<object>.list), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				listValue = listFieldInfo!.GetValue(target) as IList;
+			}
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
@@ -46,12 +57,31 @@ namespace AuroraPunks.ScriptableValues.Editor
 			setEqualityCheckField = new PropertyField(setEqualityCheck);
 			isReadOnlyField = new PropertyField(isReadOnly);
 			clearOnStartField = new PropertyField(clearOnStart);
-			listField = new PropertyField(list);
+
+			ListView listView = null;
+
+			if (list != null)
+			{
+				listField = new PropertyField(list);
+				listField.Bind(serializedObject);
+			}
+			else
+			{
+				listView = new ListView(listValue, EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, MakeListItem, BindListItem)
+				{
+					showBorder = true,
+					showFoldoutHeader = true,
+					showAddRemoveFooter = false,
+					showBoundCollectionSize = false,
+					reorderable = false,
+					reorderMode = ListViewReorderMode.Animated,
+					headerTitle = "List"
+				};
+			}
 
 			setEqualityCheckField.Bind(serializedObject);
 			isReadOnlyField.Bind(serializedObject);
 			clearOnStartField.Bind(serializedObject);
-			listField.Bind(serializedObject);
 
 			isReadOnlyField.RegisterValueChangeCallback(evt => { UpdateVisibility(evt.changedProperty.boolValue); });
 
@@ -63,8 +93,33 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(clearOnStartField);
 
 			CreateDefaultInspectorGUI(root);
-			
-			root.Add(listField);
+
+			if (list != null)
+			{
+				root.Add(listField);
+			}
+			else
+			{
+				root.Add(listView);
+			}
+		}
+
+		private static VisualElement MakeListItem()
+		{
+			DynamicValueField field = new DynamicValueField();
+			field.AddToClassList(TextElementField.alignedFieldUssClassName);
+			return field;
+		}
+
+		private void BindListItem(VisualElement element, int index)
+		{
+			if (!(element is DynamicValueField textField))
+			{
+				return;
+			}
+
+			textField.label = $"Element {index}";
+			textField.value = listValue[index];
 		}
 
 		private void UpdateVisibility(bool readOnly)
@@ -76,8 +131,8 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private void UpdateEnabledState()
 		{
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
-			isReadOnlyField.SetEnabled(enabled);
-			listField.SetEnabled(enabled);
+			isReadOnlyField?.SetEnabled(enabled);
+			listField?.SetEnabled(enabled);
 		}
 
 		private void OnPlayModeStateChanged(PlayModeStateChange obj)
@@ -90,7 +145,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 			properties.Add(setEqualityCheck);
 			properties.Add(isReadOnly);
 			properties.Add(clearOnStart);
-			properties.Add(list);
+			// If the list type can't be serialized, the list property will be null.
+			if (list != null)
+			{
+				properties.Add(list);
+			}
 		}
 	}
 }
