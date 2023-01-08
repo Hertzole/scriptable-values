@@ -74,7 +74,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 					showAddRemoveFooter = false,
 					showBoundCollectionSize = false,
 					reorderable = false,
-					reorderMode = ListViewReorderMode.Animated,
 					headerTitle = "List"
 				};
 			}
