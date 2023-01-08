@@ -105,7 +105,15 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private static VisualElement MakeListItem()
 		{
-			DynamicValueField field = new DynamicValueField();
+			DynamicValueField field = new DynamicValueField()
+			{
+				// If there's any types that can't be serialized, add a slight margin to the list items.
+				// For some reason, if we don't do this it will show a small scrollbar in the list.
+				style =
+				{
+					marginRight = 2
+				}
+			};
 			field.AddToClassList(TextElementField.alignedFieldUssClassName);
 			return field;
 		}

@@ -261,15 +261,22 @@ namespace AuroraPunks.ScriptableValues.Editor
 			UpdateErrorBox();
 		}
 
-		private static VisualElement MakeDictionaryItem()
+		private VisualElement MakeDictionaryItem()
 		{
 			VisualElement root = new VisualElement
 			{
 				style =
 				{
-					flexDirection = FlexDirection.Row
+					flexDirection = FlexDirection.Row,
 				}
 			};
+
+			// If there's any types that can't be serialized, add a slight margin to the list items.
+			// For some reason, if we don't do this it will show a small scrollbar in the list.
+			if (keys == null || values == null)
+			{
+				root.style.marginRight = 2;
+			}
 
 			VisualElement errorElement = new VisualElement
 			{
