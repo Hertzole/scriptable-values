@@ -80,11 +80,11 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			T oldValue = list[index];
 			list[index] = value;
 			OnSet?.Invoke(index, oldValue, value);
+			
+			AddStackTrace();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,12 +168,12 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			int index = Count;
 			list.Add(item);
 			OnAdded?.Invoke(item);
 			OnAddedOrInserted?.Invoke(index, item);
+			
+			AddStackTrace();
 		}
 
 		public void Insert(int index, T item)
@@ -184,11 +184,11 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.Insert(index, item);
 			OnInserted?.Invoke(index, item);
 			OnAddedOrInserted?.Invoke(index, item);
+			
+			AddStackTrace();
 		}
 
 		public bool Remove(T item)
@@ -204,11 +204,11 @@ namespace AuroraPunks.ScriptableValues
 			{
 				return false;
 			}
-			
-			AddStackTrace();
 
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
+			AddStackTrace();
+
 			return true;
 		}
 
@@ -219,12 +219,12 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
 				return;
 			}
-			
-			AddStackTrace();
 
 			T item = list[index];
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
+			
+			AddStackTrace();
 		}
 		
 		public int RemoveAll(Predicate<T> match)
@@ -263,11 +263,11 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
 				return;
 			}
-			
-			AddStackTrace();
 
 			list.Clear();
 			OnCleared?.Invoke();
+			
+			AddStackTrace();
 		}
 
 		public int IndexOf(T item)
@@ -292,10 +292,10 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be reversed at runtime.");
 				return;
 			}
-			
-			AddStackTrace();
 
 			list.Reverse();
+			
+			AddStackTrace();
 		}
 
 		public void Reverse(int index, int count)
@@ -306,9 +306,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.Reverse(index, count);
+			
+			AddStackTrace();
 		}
 
 		public void Sort()
@@ -319,9 +319,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.Sort();
+			
+			AddStackTrace();
 		}
 
 		public void Sort(IComparer<T> comparer)
@@ -331,10 +331,10 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
 				return;
 			}
-			
-			AddStackTrace();
 
 			list.Sort(0, Count, comparer);
+			
+			AddStackTrace();
 		}
 		
 		public void Sort(int index, int count, IComparer<T> comparer)
@@ -345,9 +345,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.Sort(index, count, comparer);
+			
+			AddStackTrace();
 		}
 
 		public void Sort(Comparison<T> comparison)
@@ -358,9 +358,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.Sort(comparison);
+			
+			AddStackTrace();
 		}
 
 		public T[] ToArray()
@@ -376,9 +376,9 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			list.TrimExcess();
+			
+			AddStackTrace();
 		}
 
 		public bool TrueForAll(Predicate<T> match)

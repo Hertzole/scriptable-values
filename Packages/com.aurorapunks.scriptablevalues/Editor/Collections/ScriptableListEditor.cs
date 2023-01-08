@@ -12,6 +12,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 	{
 		private FieldInfo listFieldInfo;
 		private IList listValue;
+		private ListView dynamicListView;
 		private PropertyField setEqualityCheckField;
 		private PropertyField isReadOnlyField;
 		private PropertyField clearOnStartField;
@@ -52,13 +53,18 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 		}
 
+		protected override void OnStackTraceAdded()
+		{
+			base.OnStackTraceAdded();
+
+			dynamicListView?.RefreshItems();
+		}
+
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
 			setEqualityCheckField = new PropertyField(setEqualityCheck);
 			isReadOnlyField = new PropertyField(isReadOnly);
 			clearOnStartField = new PropertyField(clearOnStart);
-
-			ListView listView = null;
 
 			if (list != null)
 			{
@@ -67,7 +73,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 			else
 			{
-				listView = new ListView(listValue, EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, MakeListItem, BindListItem)
+				dynamicListView = new ListView(listValue, EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, MakeListItem, BindListItem)
 				{
 					showBorder = true,
 					showFoldoutHeader = true,
@@ -99,13 +105,13 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 			else
 			{
-				root.Add(listView);
+				root.Add(dynamicListView);
 			}
 		}
 
 		private static VisualElement MakeListItem()
 		{
-			DynamicValueField field = new DynamicValueField()
+			DynamicValueField field = new DynamicValueField
 			{
 				// If there's any types that can't be serialized, add a slight margin to the list items.
 				// For some reason, if we don't do this it will show a small scrollbar in the list.
@@ -114,6 +120,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 					marginRight = 2
 				}
 			};
+
 			field.AddToClassList(TextElementField.alignedFieldUssClassName);
 			return field;
 		}
