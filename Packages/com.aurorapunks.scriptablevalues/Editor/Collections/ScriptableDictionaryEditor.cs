@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -9,8 +11,13 @@ namespace AuroraPunks.ScriptableValues.Editor
 	public class ScriptableDictionaryEditor : RuntimeScriptableObjectEditor
 	{
 		private bool previousIsValid = true;
-		private HelpBox errorBox;
+
+		
+		private IList keysValue;
+		private IList valuesValue;
+		
 		private ListView dictionaryListView;
+		private HelpBox errorBox;
 
 		private PropertyField isReadOnlyField;
 		private PropertyField setEqualityCheckElement;
@@ -49,6 +56,17 @@ namespace AuroraPunks.ScriptableValues.Editor
 			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
 			keys = serializedObject.FindProperty(nameof(keys));
 			values = serializedObject.FindProperty(nameof(values));
+
+			if (keys == null || values == null)
+			{
+				FieldInfo keysFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.keys), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				keysValue = keysFieldInfo!.GetValue(target) as IList;
+
+				FieldInfo valuesFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.values), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				valuesValue = valuesFieldInfo!.GetValue(target) as IList;
+
+				FixLists(keysValue, valuesValue);
+			}
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
@@ -63,24 +81,41 @@ namespace AuroraPunks.ScriptableValues.Editor
 			setEqualityCheckElement.Bind(serializedObject);
 			clearOnStartElement.Bind(serializedObject);
 
-			dictionaryListView = new ListView
+			if (keys != null && values != null)
 			{
-				showFoldoutHeader = true,
-				showAddRemoveFooter = true,
-				showBorder = true,
-				headerTitle = "Dictionary",
-				reorderMode = ListViewReorderMode.Animated,
-				reorderable = true,
-				makeItem = MakeDictionaryItem,
-				bindItem = BindDictionaryItem,
-				unbindItem = UnbindDictionaryItem,
-				virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
-			};
+				dictionaryListView = new ListView
+				{
+					showFoldoutHeader = true,
+					showAddRemoveFooter = true,
+					showBorder = true,
+					headerTitle = "Dictionary",
+					reorderMode = ListViewReorderMode.Animated,
+					reorderable = true,
+					makeItem = MakeDictionaryItem,
+					bindItem = BindDictionaryItem,
+					unbindItem = UnbindDictionaryItem,
+					virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
+				};
 
-			dictionaryListView.itemsAdded += OnItemsAdded;
-			dictionaryListView.itemsRemoved += OnItemsRemoved;
+				dictionaryListView.itemsAdded += OnItemsAdded;
+				dictionaryListView.itemsRemoved += OnItemsRemoved;
 
-			dictionaryListView.BindProperty(keys);
+				dictionaryListView.BindProperty(keys);
+			}
+			else
+			{
+				dictionaryListView = new ListView(keysValue, -1, MakeDictionaryItem, BindDictionaryItem)
+				{
+					headerTitle = "Dictionary",
+					showBorder = true,
+					showAddRemoveFooter = false,
+					showFoldoutHeader = true,
+					reorderable = false,
+					showBoundCollectionSize = false,
+					unbindItem = UnbindDictionaryItem,
+					virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
+				};
+			}
 
 			isReadOnlyField.RegisterValueChangeCallback(evt => UpdateVisibility());
 
@@ -92,9 +127,9 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(isReadOnlyField);
 			root.Add(setEqualityCheckElement);
 			root.Add(clearOnStartElement);
-			
+
 			CreateDefaultInspectorGUI(root);
-			
+
 			root.Add(dictionaryListView);
 		}
 
@@ -140,13 +175,13 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			UpdateErrorBox();
 		}
-		
+
 		private void OnItemsRemoved(IEnumerable<int> removedItems)
 		{
 			foreach (int removedItem in removedItems)
 			{
 				int oldCount = values.arraySize;
-				
+
 				values.DeleteArrayElementAtIndex(removedItem);
 
 				// We may need to delete twice because Unity thought it was a good idea to sometimes not remove the element
@@ -155,7 +190,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 				{
 					values.DeleteArrayElementAtIndex(removedItem);
 				}
-				
+
 				values.serializedObject.ApplyModifiedProperties();
 			}
 
@@ -164,25 +199,54 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private void BindDictionaryItem(VisualElement element, int index)
 		{
-			if (keys.arraySize <= index || values.arraySize <= index)
+			PropertyField keyPropertyField = element.Q<PropertyField>("key-element-property");
+			PropertyField valuePropertyField = element.Q<PropertyField>("value-element-property");
+			DynamicValueField keyDynamicField = element.Q<DynamicValueField>("key-element-dynamic");
+			DynamicValueField valueDynamicField = element.Q<DynamicValueField>("value-element-dynamic");
+
+			if (keys != null && values != null)
 			{
-				return;
+				if (keys.arraySize <= index || values.arraySize <= index)
+				{
+					return;
+				}
+
+				keyPropertyField.style.display = DisplayStyle.Flex;
+				valuePropertyField.style.display = DisplayStyle.Flex;
+				keyDynamicField.style.display = DisplayStyle.None;
+				valueDynamicField.style.display = DisplayStyle.None;
+
+				SerializedProperty key = keys.GetArrayElementAtIndex(index);
+				SerializedProperty value = values.GetArrayElementAtIndex(index);
+
+				keyPropertyField.label = string.Empty;
+				keyPropertyField.BindProperty(key);
+				valuePropertyField.label = string.Empty;
+				valuePropertyField.BindProperty(value);
+
+				VisualElement errorElement = element.Q<VisualElement>("error-element");
+				errorElement.SetVisibility(!dictionary.IsIndexValid(index));
+
+				keyPropertyField.RegisterCallback<SerializedPropertyChangeEvent, (int, VisualElement)>(OnKeyChanged, (index, errorElement));
 			}
-			
-			SerializedProperty key = keys.GetArrayElementAtIndex(index);
-			SerializedProperty value = values.GetArrayElementAtIndex(index);
+			else
+			{
+				keyPropertyField.style.display = DisplayStyle.None;
+				valuePropertyField.style.display = DisplayStyle.None;
+				keyDynamicField.style.display = DisplayStyle.Flex;
+				valueDynamicField.style.display = DisplayStyle.Flex;
 
-			PropertyField keyElement = element.Q<PropertyField>("key-element");
-			keyElement.label = string.Empty;
-			keyElement.BindProperty(key);
-			PropertyField valueElement = element.Q<PropertyField>("value-element");
-			valueElement.label = string.Empty;
-			valueElement.BindProperty(value);
+				object key = keysValue[index];
+				object value = valuesValue[index];
 
-			VisualElement errorElement = element.Q<VisualElement>("error-element");
-			errorElement.SetVisibility(!dictionary.IsIndexValid(index));
+				keyDynamicField.label = string.Empty;
+				keyDynamicField.value = key;
+				valueDynamicField.label = string.Empty;
+				valueDynamicField.value = value;
 
-			keyElement.RegisterCallback<SerializedPropertyChangeEvent, (int, VisualElement)>(OnKeyChanged, (index, errorElement));
+				VisualElement errorElement = element.Q<VisualElement>("error-element");
+				errorElement.SetVisibility(!dictionary.IsIndexValid(index));
+			}
 		}
 
 		private void UnbindDictionaryItem(VisualElement element, int index)
@@ -240,12 +304,22 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 			PropertyField keyElement = new PropertyField
 			{
-				name = "key-element"
+				name = "key-element-property"
+			};
+
+			DynamicValueField dynamicKeyField = new DynamicValueField
+			{
+				name = "key-element-dynamic"
 			};
 
 			PropertyField valueElement = new PropertyField
 			{
-				name = "value-element"
+				name = "value-element-property"
+			};
+
+			DynamicValueField dynamicValueField = new DynamicValueField
+			{
+				name = "value-element-dynamic"
 			};
 
 			root.Add(errorElement);
@@ -253,16 +327,46 @@ namespace AuroraPunks.ScriptableValues.Editor
 			root.Add(valueHolder);
 
 			keyHolder.Add(keyElement);
+			keyHolder.Add(dynamicKeyField);
 			valueHolder.Add(valueElement);
+			valueHolder.Add(dynamicValueField);
 
 			return root;
+		}
+
+		private static void FixLists(IList list1, IList list2)
+		{
+			if (list1.Count > list2.Count)
+			{
+				// Remove extra items from list1
+				for (int i = list1.Count - 1; i >= list2.Count; i--)
+				{
+					list1.RemoveAt(i);
+				}
+			}
+			else if (list2.Count > list1.Count)
+			{
+				// Remove extra items from list2
+				for (int i = list2.Count - 1; i >= list1.Count; i--)
+				{
+					list2.RemoveAt(i);
+				}
+			}
 		}
 
 		protected override void GetExcludingProperties(List<SerializedProperty> properties)
 		{
 			properties.Add(isReadOnly);
-			properties.Add(keys);
-			properties.Add(values);
+			if (keys != null)
+			{
+				properties.Add(keys);
+			}
+
+			if (values != null)
+			{
+				properties.Add(values);
+			}
+
 			properties.Add(setEqualityCheck);
 			properties.Add(clearOnStart);
 		}
