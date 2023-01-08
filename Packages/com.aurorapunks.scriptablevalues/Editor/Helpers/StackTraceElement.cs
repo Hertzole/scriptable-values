@@ -127,8 +127,13 @@ namespace AuroraPunks.ScriptableValues.Editor
 			};
 
 			// Subscribe to the stack trace list events.
+#if UNITY_2022_2_OR_NEWER
+			stackTraceList.selectionChanged += OnStackTraceListSelectionChanged; // When the selection is changed.
+			stackTraceList.itemsChosen += OnStackTraceListItemsChosen; // When an item is double clicked (aka chosen)
+#else
 			stackTraceList.onSelectionChange += OnStackTraceListSelectionChanged; // When the selection is changed.
 			stackTraceList.onItemsChosen += OnStackTraceListItemsChosen; // When an item is double clicked (aka chosen)
+#endif
 
 			// Create a label to show if no item is selected.
 			emptyDetailsLabel = new Label("Select a stack trace to view details.")
@@ -152,7 +157,11 @@ namespace AuroraPunks.ScriptableValues.Editor
 			};
 
 			// Subscribe to the details list events.
+#if UNITY_2022_2_OR_NEWER
+			detailsList.itemsChosen += OnDetailsListItemsChosen; // When an item is double clicked (aka chosen)
+#else
 			detailsList.onItemsChosen += OnDetailsListItemsChosen; // When an item is double clicked (aka chosen)
+#endif
 
 			// Add toolbar.
 			root.Add(toolbar);
