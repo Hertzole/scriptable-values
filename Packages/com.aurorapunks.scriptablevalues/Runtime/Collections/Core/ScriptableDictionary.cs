@@ -168,9 +168,7 @@ namespace AuroraPunks.ScriptableValues
 				{
 					return;
 				}
-
-				AddStackTrace();
-
+				
 				int valueIndex = values.IndexOf(oldValue);
 				if(valueIndex >= 0)
 				{
@@ -180,6 +178,8 @@ namespace AuroraPunks.ScriptableValues
 				dictionary[key] = value;
 				
 				OnSet?.Invoke(key, oldValue, value);
+				
+				AddStackTrace();
 			}
 			else
 			{
@@ -198,12 +198,12 @@ namespace AuroraPunks.ScriptableValues
 			bool result = dictionary.TryAdd(key, value);
 			if (result)
 			{
-				AddStackTrace();
-
 				keys.Add(key);
 				values.Add(value);
 				
 				OnAdded?.Invoke(key, value);
+				
+				AddStackTrace();
 			}
 
 			return result;
@@ -252,12 +252,12 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-
 			dictionary.TrimExcess();
 			
 			keys.TrimExcess();
 			values.TrimExcess();
+			
+			AddStackTrace();
 		}
 
 		public void TrimExcess(int capacity)
@@ -267,13 +267,13 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
 				return;
 			}
-
-			AddStackTrace();
-
+			
 			dictionary.TrimExcess(capacity);
 			
 			keys.TrimExcess();
 			values.TrimExcess();
+			
+			AddStackTrace();
 		}
 
 		bool IDictionary.Contains(object key)
@@ -329,15 +329,15 @@ namespace AuroraPunks.ScriptableValues
 				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
 				return;
 			}
-
-			AddStackTrace();
-
+			
 			dictionary.Clear();
 			
 			keys.Clear();
 			values.Clear();
 			
 			OnCleared?.Invoke();
+			
+			AddStackTrace();
 		}
 
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
@@ -370,14 +370,14 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 			
-			AddStackTrace();
-			
 			dictionary.Add(key, value);
 
 			keys.Add(key);
 			values.Add(value);
 			
 			OnAdded?.Invoke(key, value);
+			
+			AddStackTrace();
 		}
 
 		public bool ContainsKey(TKey key)

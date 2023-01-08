@@ -49,6 +49,18 @@ namespace AuroraPunks.ScriptableValues.Editor
 			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 		}
 
+		protected override void OnStackTraceAdded()
+		{
+			base.OnStackTraceAdded();
+
+			// If there's some type that can't be serialized, we need to update the dictionary list ourselves
+			// when something happens.
+			if (keys == null || values == null)
+			{
+				dictionaryListView.RefreshItems();
+			}
+		}
+
 		protected override void GatherProperties()
 		{
 			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
