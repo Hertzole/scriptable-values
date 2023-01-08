@@ -251,7 +251,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private void UnbindDictionaryItem(VisualElement element, int index)
 		{
-			PropertyField keyElement = element.Q<PropertyField>("key-element");
+			PropertyField keyElement = element.Q<PropertyField>("key-element-property");
 			keyElement.UnregisterCallback<SerializedPropertyChangeEvent, (int, VisualElement)>(OnKeyChanged);
 		}
 
