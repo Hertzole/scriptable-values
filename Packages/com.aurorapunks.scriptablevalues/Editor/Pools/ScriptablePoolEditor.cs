@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace AuroraPunks.ScriptableValues.Editor
@@ -8,13 +7,12 @@ namespace AuroraPunks.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptablePool<>), true)]
 	public class ScriptablePoolEditor : RuntimeScriptableObjectEditor
 	{
-		private Label countAllLabel;
-		private Label countActiveLabel;
-		private Label countInactiveLabel;
-
 		private PropertyInfo countAllProperty;
 		private PropertyInfo countActiveProperty;
 		private PropertyInfo countInactiveProperty;
+		private TextElementField countAllLabel;
+		private TextElementField countActiveLabel;
+		private TextElementField countInactiveLabel;
 
 		protected override void GatherProperties()
 		{
@@ -32,42 +30,39 @@ namespace AuroraPunks.ScriptableValues.Editor
 		{
 			if (countAllLabel != null)
 			{
-				countAllLabel.text = countAllProperty.GetValue(target).ToString();
+				countAllLabel.value = countAllProperty.GetValue(target).ToString();
 			}
 
 			if (countActiveLabel != null)
 			{
-				countActiveLabel.text = countActiveProperty.GetValue(target).ToString();
+				countActiveLabel.value = countActiveProperty.GetValue(target).ToString();
 			}
 
 			if (countInactiveLabel != null)
 			{
-				countInactiveLabel.text = countInactiveProperty.GetValue(target).ToString();
+				countInactiveLabel.value = countInactiveProperty.GetValue(target).ToString();
 			}
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			VisualElement countAll = CreateLabelField("Count All", out countAllLabel);
-			VisualElement countActive = CreateLabelField("Count Active", out countActiveLabel);
-			VisualElement countInactive = CreateLabelField("Count Inactive", out countInactiveLabel);
+			countAllLabel = CreateLabelField("Count All");
+			countActiveLabel = CreateLabelField("Count Active");
+			countInactiveLabel = CreateLabelField("Count Inactive");
 
-			root.Add(countAll);
-			root.Add(countActive);
-			root.Add(countInactive);
+			root.Add(countAllLabel);
+			root.Add(countActiveLabel);
+			root.Add(countInactiveLabel);
 
 			UpdateCounts();
 		}
 
-		private static VisualElement CreateLabelField(string labelText, out Label labelValue)
+		private static TextElementField CreateLabelField(string labelText)
 		{
-			PropertyField root = new PropertyField();
-			labelValue = new Label();
-			TextElementField textField = new TextElementField(labelText, labelValue);
-			textField.AddToClassList("unity-base-field__aligned");
-			root.Add(textField);
+			TextElementField field = new TextElementField(labelText);
+			field.AddToClassList(TextElementField.alignedFieldUssClassName);
 
-			return root;
+			return field;
 		}
 	}
 }
