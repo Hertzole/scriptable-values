@@ -34,11 +34,6 @@ namespace AuroraPunks.ScriptableValues
 				if (pool.Count > 0)
 				{
 					item = pool.Pop();
-					if (EqualityHelper.IsNull(item))
-					{
-						// The item was null and we should just move onto the next one.
-						continue;
-					}
 				}
 				else
 				{
