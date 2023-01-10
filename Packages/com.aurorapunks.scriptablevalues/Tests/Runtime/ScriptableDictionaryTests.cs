@@ -1280,9 +1280,9 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.values.Add(43);
 			dictionary.values.Add(44);
 
-			Assert.IsTrue(dictionary.IsIndexValid(0));
-			Assert.IsTrue(dictionary.IsIndexValid(1));
-			Assert.IsTrue(dictionary.IsIndexValid(2));
+			Assert.IsTrue(dictionary.IsIndexUnique(0));
+			Assert.IsTrue(dictionary.IsIndexUnique(1));
+			Assert.IsTrue(dictionary.IsIndexUnique(2));
 		}
 
 		[Test]
@@ -1300,7 +1300,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.values.Add(44);
 			dictionary.values.Add(5);
 
-			Assert.IsFalse(dictionary.IsIndexValid(0));
+			Assert.IsFalse(dictionary.IsIndexUnique(0));
 		}
 
 		[Test]
@@ -1308,7 +1308,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TestBaseScriptableDictionary baseDic = ScriptableObject.CreateInstance<TestBaseScriptableDictionary>();
 
-			Assert.IsFalse(baseDic.IsIndexValid(0));
+			Assert.IsFalse(baseDic.IsIndexUnique(0));
 		}
 
 		[Test]

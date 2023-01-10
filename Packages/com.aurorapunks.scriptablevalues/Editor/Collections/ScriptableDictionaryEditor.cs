@@ -237,7 +237,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 				valuePropertyField.BindProperty(value);
 
 				VisualElement errorElement = element.Q<VisualElement>("error-element");
-				errorElement.SetVisibility(!dictionary.IsIndexValid(index));
+				errorElement.SetVisibility(!dictionary.IsIndexUnique(index));
 
 				keyPropertyField.RegisterCallback<SerializedPropertyChangeEvent, (int, VisualElement)>(OnKeyChanged, (index, errorElement));
 			}
@@ -257,7 +257,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 				valueDynamicField.value = value;
 
 				VisualElement errorElement = element.Q<VisualElement>("error-element");
-				errorElement.SetVisibility(!dictionary.IsIndexValid(index));
+				errorElement.SetVisibility(!dictionary.IsIndexUnique(index));
 			}
 		}
 
@@ -269,7 +269,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		private void OnKeyChanged(SerializedPropertyChangeEvent evt, (int index, VisualElement errorElement) context)
 		{
-			context.errorElement.SetVisibility(!dictionary.IsIndexValid(context.index));
+			context.errorElement.SetVisibility(!dictionary.IsIndexUnique(context.index));
 			UpdateErrorBox();
 		}
 
