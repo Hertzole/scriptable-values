@@ -2,6 +2,9 @@
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     <see cref="ScriptableEvent{T}" /> with a <see cref="ushort"/> argument.
+	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable UShort Event", menuName = "Aurora Punks/Scriptable Values/Events/UShort Event", order = ORDER + 4)]
 #endif
