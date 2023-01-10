@@ -49,10 +49,10 @@ namespace AuroraPunks.ScriptableValues
 
 		object IDictionary.this[object key]
 		{
-			get { return IsValidType(key, out TKey newKey) ? dictionary[newKey] : default(object); }
+			get { return EqualityHelper.IsSameType(key, out TKey newKey) ? dictionary[newKey] : default(object); }
 			set
 			{
-				if (IsValidType(key, out TKey newKey) && IsValidType(value, out TValue newValue))
+				if (EqualityHelper.IsSameType(key, out TKey newKey) && EqualityHelper.IsSameType(value, out TValue newValue))
 				{
 					SetValue(newKey, newValue);
 				}
@@ -134,29 +134,6 @@ namespace AuroraPunks.ScriptableValues
 		/// Called when the dictionary is cleared.
 		/// </summary>
 		public event Action OnCleared;
-
-		/// <summary>
-		///     Helper method to check if the given object is the same type as the provided generic type.
-		/// </summary>
-		/// <param name="value">The object value to check.</param>
-		/// <param name="newValue">The value as the generic value.</param>
-		/// <typeparam name="TType">The type to match.</typeparam>
-		/// <returns>True if the value is the same type; otherwise false.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static bool IsValidType<TType>(object value, out TType newValue)
-		{
-			if (value is TType newValueT)
-			{
-				newValue = newValueT;
-				return true;
-			}
-			
-#if DEBUG
-			Debug.LogError($"{typeof(TType)} is not assignable from {value.GetType()}.");
-#endif
-			newValue = default;
-			return false;
-		}
 
 		/// <summary>
 		/// Checks if the dictionary is a valid dictionary by checking the keys and values.
@@ -395,7 +372,7 @@ namespace AuroraPunks.ScriptableValues
 		/// <returns>True if the key type is the same as the generic type and the dictionary contains the key; otherwise, false.</returns>
 		bool IDictionary.Contains(object key)
 		{
-			return IsValidType(key, out TKey newKey) && ContainsKey(newKey);
+			return EqualityHelper.IsSameType(key, out TKey newKey) && ContainsKey(newKey);
 		}
 
 		/// <summary>
@@ -412,7 +389,7 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="key">The key of the element to remove.</param>
 		void IDictionary.Remove(object key)
 		{
-			if (IsValidType(key, out TKey newKey))
+			if (EqualityHelper.IsSameType(key, out TKey newKey))
 			{
 				Remove(newKey);
 			}
@@ -425,7 +402,7 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="value">The value of the element to add.</param>
 		void IDictionary.Add(object key, object value)
 		{
-			if (IsValidType(key, out TKey newKey) && IsValidType(value, out TValue newValue))
+			if (EqualityHelper.IsSameType(key, out TKey newKey) && EqualityHelper.IsSameType(value, out TValue newValue))
 			{
 				Add(newKey, newValue);
 			}

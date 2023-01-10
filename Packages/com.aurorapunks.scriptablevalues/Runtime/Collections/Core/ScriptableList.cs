@@ -32,7 +32,7 @@ namespace AuroraPunks.ScriptableValues
 			get { return list[index]; }
 			set
 			{
-				if (IsValidType(value, out T newValue))
+				if (EqualityHelper.IsSameType(value, out T newValue))
 				{
 					SetValue(index, newValue);
 				}
@@ -125,31 +125,6 @@ namespace AuroraPunks.ScriptableValues
 			OnSet?.Invoke(index, oldValue, value);
 
 			AddStackTrace();
-		}
-
-		/// <summary>
-		///     Helper method to check if the given object is the same type as the provided generic type.
-		/// </summary>
-		/// <param name="value">The object value to check.</param>
-		/// <param name="newValue">The value as the generic value.</param>
-		/// <returns>True if the value is the same type; otherwise false.</returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static bool IsValidType(object value, out T newValue)
-		{
-			// Check the type of the value.
-			if (value is T newValueT)
-			{
-				// It's the same type, so we can set it.
-				newValue = newValueT;
-				return true;
-			}
-
-			// The value is not the same type, so we can't set it.
-#if DEBUG
-			Debug.LogError($"{typeof(T)} is not assignable from {value.GetType()}.");
-#endif
-			newValue = default;
-			return false;
 		}
 
 		/// <summary>
@@ -420,7 +395,7 @@ namespace AuroraPunks.ScriptableValues
 		int IList.Add(object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (IsValidType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T newValue))
 			{
 				Add(newValue);
 				return Count - 1;
@@ -438,7 +413,7 @@ namespace AuroraPunks.ScriptableValues
 		bool IList.Contains(object value)
 		{
 			// Check if the value is the same type as the generic type and then call the Contains method.
-			return IsValidType(value, out T newValue) && Contains(newValue);
+			return EqualityHelper.IsSameType(value, out T newValue) && Contains(newValue);
 		}
 
 		/// <summary>
@@ -450,7 +425,7 @@ namespace AuroraPunks.ScriptableValues
 		int IList.IndexOf(object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (IsValidType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T newValue))
 			{
 				return IndexOf(newValue);
 			}
@@ -467,7 +442,7 @@ namespace AuroraPunks.ScriptableValues
 		void IList.Insert(int index, object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (IsValidType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T newValue))
 			{
 				Insert(index, newValue);
 			}
@@ -480,7 +455,7 @@ namespace AuroraPunks.ScriptableValues
 		void IList.Remove(object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (IsValidType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T newValue))
 			{
 				Remove(newValue);
 			}
