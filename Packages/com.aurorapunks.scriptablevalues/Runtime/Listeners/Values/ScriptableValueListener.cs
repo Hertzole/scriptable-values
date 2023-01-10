@@ -60,17 +60,11 @@ namespace AuroraPunks.ScriptableValues
 	///     Base class for a component that listens to <see cref="ScriptableValue{T}" />.
 	/// </summary>
 	/// <typeparam name="TValue">The type to listen for.</typeparam>
-	public abstract class ScriptableValueListener<TValue> : MonoBehaviour
+	public abstract class ScriptableValueListener<TValue> : ScriptableListenerBase
 	{
 		[SerializeField]
 		[Tooltip("The value to listen to.")]
 		private ScriptableValue<TValue> targetValue = default;
-		[SerializeField]
-		[Tooltip("When listeners should start listening.")]
-		private StartListenEvents startListening = StartListenEvents.Awake;
-		[SerializeField]
-		[Tooltip("When listeners should stop listening.")]
-		private StopListenEvents stopListening = StopListenEvents.OnDestroy;
 		[SerializeField]
 		[Tooltip("When listeners should invoke their events.")]
 		private InvokeEvents invokeOn = InvokeEvents.Any;
@@ -98,22 +92,9 @@ namespace AuroraPunks.ScriptableValues
 		private UnityEvent<TValue, TValue> onValueChangedMultiple = new UnityEvent<TValue, TValue>();
 
 		/// <summary>
-		///     Is the listener currently listening to the target value?
-		/// </summary>
-		public bool IsListening { get; private set; }
-
-		/// <summary>
 		///     The value to listen to.
 		/// </summary>
 		public ScriptableValue<TValue> TargetValue { get { return targetValue; } set { SetTargetValue(value); } }
-		/// <summary>
-		///     When listeners should start listening.
-		/// </summary>
-		public StartListenEvents StartListening { get { return startListening; } set { startListening = value; } }
-		/// <summary>
-		///     When listeners should stop listening.
-		/// </summary>
-		public StopListenEvents StopListening { get { return stopListening; } set { stopListening = value; } }
 		/// <summary>
 		///     When listeners should invoke their events.
 		/// </summary>
@@ -148,56 +129,11 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public UnityEvent<TValue, TValue> OnValueChangedMultiple { get { return onValueChangedMultiple; } }
 
-		protected virtual void Awake()
+		/// <inheritdoc />
+		protected override void ToggleListening(bool listen)
 		{
-			IsListening = false;
-
-			if (!IsListening && startListening == StartListenEvents.Awake)
-			{
-				ToggleListening(true);
-			}
-		}
-
-		protected void Start()
-		{
-			if (!IsListening && startListening == StartListenEvents.Start)
-			{
-				ToggleListening(true);
-			}
-		}
-
-		protected virtual void OnEnable()
-		{
-			if (!IsListening && startListening == StartListenEvents.OnEnable)
-			{
-				ToggleListening(true);
-			}
-		}
-
-		protected virtual void OnDisable()
-		{
-			if (IsListening && stopListening == StopListenEvents.OnDisable)
-			{
-				ToggleListening(false);
-			}
-		}
-
-		protected virtual void OnDestroy()
-		{
-			if (IsListening && stopListening == StopListenEvents.OnDestroy)
-			{
-				ToggleListening(false);
-			}
-		}
-
-		/// <summary>
-		///     Toggles the listener on or off.
-		/// </summary>
-		/// <param name="listen">If the object should listen to the target value.</param>
-		protected virtual void ToggleListening(bool listen)
-		{
-			IsListening = listen;
-
+			base.ToggleListening(listen);
+			
 			// If the target value is null, just stop here.
 			if (targetValue == null)
 			{
