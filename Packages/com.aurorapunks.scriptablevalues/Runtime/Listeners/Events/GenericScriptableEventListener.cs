@@ -4,39 +4,73 @@ using UnityEngine.Events;
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     When listeners should invoke their events.
+	/// </summary>
 	public enum EventInvokeEvents
 	{
+		/// <summary>When any argument is specified.</summary>
 		Any = 0,
+		/// <summary>When the argument matches a specific value.</summary>
 		FromValue = 1,
-		ToValue = 2
+		/// <summary>When the argument matches a specific value.</summary>
+		ToValue = 2,
 	}
 
 	public abstract class ScriptableEventListener<TValue> : MonoBehaviour
 	{
 		[SerializeField]
+		[Tooltip("The event to listen to.")]
 		private ScriptableEvent<TValue> targetEvent = default;
 		[SerializeField]
+		[Tooltip("When the listener should start listening.")]
 		private StartListenEvents startListening = StartListenEvents.Awake;
 		[SerializeField]
+		[Tooltip("When the listener should stop listening.")]
 		private StopListenEvents stopListening = StopListenEvents.OnDestroy;
 		[SerializeField]
+		[Tooltip("When the listener should invoke its events.")]
 		private EventInvokeEvents invokeOn = EventInvokeEvents.Any;
 		[SerializeField]
+		[Tooltip("What the argument needs to have been for the event to be invoked.")]
 		private TValue fromValue = default;
 		[SerializeField]
+		[Tooltip("What the argument needs to be for the event to be invoked.")]
 		private TValue toValue = default;
 		[SerializeField]
+		[Tooltip("The event to invoke when the target event is raised.")]
 		private UnityEvent<TValue> onInvoked = new UnityEvent<TValue>();
 
 		public bool IsListening { get; private set; } = false;
 
+		/// <summary>
+		///   The event to listen to.
+		/// </summary>
 		public ScriptableEvent<TValue> TargetEvent { get { return targetEvent; } set { SetTargetEvent(value); } }
+		/// <summary>
+		///  When the listener should start listening.
+		/// </summary>
 		public StartListenEvents StartListening { get { return startListening; } set { startListening = value; } }
+		/// <summary>
+		///  When the listener should stop listening.
+		/// </summary>
 		public StopListenEvents StopListening { get { return stopListening; } set { stopListening = value; } }
+		/// <summary>
+		///  When the listener should invoke its events.
+		/// </summary>
 		public EventInvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
+		/// <summary>
+		///  What the argument needs to have been for the event to be invoked.
+		/// </summary>
 		public TValue FromValue { get { return fromValue; } set { fromValue = value; } }
+		/// <summary>
+		///  What the argument needs to be for the event to be invoked.
+		/// </summary>
 		public TValue ToValue { get { return toValue; } set { toValue = value; } }
 
+		/// <summary>
+		///  The event to invoke when the target event is raised.
+		/// </summary>
 		public UnityEvent<TValue> OnInvoked { get { return onInvoked; } }
 
 		protected virtual void Awake()
@@ -100,13 +134,19 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 		
+		/// <summary>
+		///     Sets the target event.
+		/// </summary>
+		/// <param name="newEvent">The new event.</param>
 		protected virtual void SetTargetEvent(ScriptableEvent<TValue> newEvent)
 		{
+			// If the event is the same, do nothing.
 			if (newEvent == targetEvent)
 			{
 				return;
 			}
 			
+			// If we're already listening to an event, stop listening to it.
 			if (targetEvent != null && IsListening)
 			{
 				targetEvent.OnInvoked -= OnEventInvoked;
@@ -114,12 +154,18 @@ namespace AuroraPunks.ScriptableValues
 			
 			targetEvent = newEvent;
 			
+			// If we're supposed to be listening to the new event, start listening to it.
 			if (targetEvent != null && IsListening)
 			{
 				targetEvent.OnInvoked += OnEventInvoked;
 			}
 		}
 
+		/// <summary>
+		/// Called when the target event is invoked.
+		/// </summary>
+		/// <param name="sender">The object that invoked the event.</param>
+		/// <param name="args">The arguments.</param>
 		private void OnEventInvoked(object sender, TValue args)
 		{
 			if (ShouldInvoke(invokeOn, targetEvent.PreviousArgs, args, fromValue, toValue))
@@ -128,6 +174,15 @@ namespace AuroraPunks.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		/// Determines if the event should be invoked.
+		/// </summary>
+		/// <param name="invokeOn"></param>
+		/// <param name="previousValue"></param>
+		/// <param name="newValue"></param>
+		/// <param name="fromValue"></param>
+		/// <param name="toValue"></param>
+		/// <returns>True if the event should be invoked; otherwise, false.</returns>
 		private static bool ShouldInvoke(EventInvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
 		{
 			switch (invokeOn)
