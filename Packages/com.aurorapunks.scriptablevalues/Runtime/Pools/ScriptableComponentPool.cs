@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     A scriptable object that holds a pool of <see cref="Component" />.
+	/// </summary>
+	/// <typeparam name="T">The type of <see cref="Component" />.</typeparam>
 	public abstract class ScriptableComponentPool<T> : ScriptablePool<T> where T : Component
 	{
 		[SerializeField]
@@ -31,7 +35,7 @@ namespace AuroraPunks.ScriptableValues
 			// Don't check for poolable here and it's done with components in OnGet.
 			OnGet(item);
 		}
-		
+
 		internal override void OnReturnInternal(T item)
 		{
 			// Don't check for poolable here and it's done with components in OnReturn.
@@ -56,7 +60,7 @@ namespace AuroraPunks.ScriptableValues
 			{
 				return;
 			}
-			
+
 			poolableBuffer.Clear();
 			item.GetComponentsInChildren(true, poolableBuffer);
 

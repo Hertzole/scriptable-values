@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     A scriptable object that holds a pool of <see cref="GameObject" />.
+	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Game Object Pool", menuName = "Aurora Punks/Scriptable Values/Pools/Game Object Pool", order = ORDER)]
 #endif
@@ -10,7 +13,7 @@ namespace AuroraPunks.ScriptableValues
 	{
 		[SerializeField]
 		private GameObject prefab = default;
-
+		
 		private readonly List<IPoolable> poolableBuffer = new List<IPoolable>(10);
 
 		public GameObject Prefab { get { return prefab; } set { prefab = value; } }
