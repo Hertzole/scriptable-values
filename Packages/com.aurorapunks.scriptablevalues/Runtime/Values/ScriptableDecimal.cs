@@ -2,6 +2,10 @@
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     <see cref="ScriptableValue{T}" /> with a decimal value.
+	/// </summary>
+	
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable Decimal", menuName = "Aurora Punks/Scriptable Values/Values/Decimal Value", order = ORDER + 10)]
 #endif

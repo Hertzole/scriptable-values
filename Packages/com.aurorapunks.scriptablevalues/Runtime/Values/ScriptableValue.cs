@@ -1,17 +1,14 @@
 using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     Base class for a ScriptableValue without a value.
+	/// </summary>
 	public abstract class ScriptableValue : RuntimeScriptableObject
 	{
-#if UNITY_EDITOR
-		// Used for the CreateAssetMenu attribute order.
-		internal const int ORDER = -1000;
-#endif
-		
 		[SerializeField]
 		[Tooltip("If read only, the value cannot be changed at runtime.")]
 		private bool isReadOnly = false;
@@ -21,7 +18,7 @@ namespace AuroraPunks.ScriptableValues
 		[SerializeField]
 		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
 		private bool setEqualityCheck = true;
-		
+
 		/// <summary>
 		///     If read only, the value cannot be changed at runtime.
 		/// </summary>
@@ -35,8 +32,17 @@ namespace AuroraPunks.ScriptableValues
 		///     old one.
 		/// </summary>
 		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+
+#if UNITY_EDITOR
+		// Used for the CreateAssetMenu attribute order.
+		internal const int ORDER = -1000;
+#endif
 	}
-	
+
+	/// <summary>
+	///     Base class for a ScriptableValue with a value.
+	/// </summary>
+	/// <typeparam name="T">The type of the value.</typeparam>
 	public abstract class ScriptableValue<T> : ScriptableValue
 	{
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
@@ -57,7 +63,7 @@ namespace AuroraPunks.ScriptableValues
 		// This is mainly use for OnValidate weirdness.
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
-		
+
 		/// <summary>
 		///     The current value. This can be changed at runtime.
 		/// </summary>
@@ -67,7 +73,7 @@ namespace AuroraPunks.ScriptableValues
 			set
 			{
 				AddStackTrace(1);
-				
+
 				SetValue(value, true);
 			}
 		}
@@ -89,38 +95,48 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public event OldNewValue<T> OnValueChanged;
 
-#if UNITY_INCLUDE_TESTS
-		internal bool ValueChangingHasSubscribers { get { return OnValueChanging != null; } }
-		internal bool ValueChangedHasSubscribers { get { return OnValueChanged != null; } }
-#endif
-		
+		/// <summary>
+		///     Returns the current value.
+		/// </summary>
+		/// <returns>The current value.</returns>
 		protected virtual T GetValue()
 		{
 			return value;
 		}
 
+		/// <summary>
+		///     Sets the current value to a new value.
+		/// </summary>
+		/// <param name="newValue">The new value that should be set.</param>
+		/// <param name="notify">If true, the OnValueChanging/Changed events are invoked.</param>
 		protected virtual void SetValue(T newValue, bool notify)
 		{
+			// If the game is playing, we don't want to set the value if it's read only.
 			if (Application.isPlaying && IsReadOnly)
 			{
 				Debug.LogError($"'{name}' is marked as read only and cannot be changed at runtime.");
 				return;
 			}
-			
+
+			// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
 			if (SetEqualityCheck && EqualityHelper.Equals(newValue, value))
 			{
 				return;
 			}
 
 			PreviousValue = temporaryValue;
+			// Invoke the OnValueChanging event if notify is true.
 			if (notify)
 			{
 				onValueChanging.Invoke(PreviousValue, newValue);
 				OnValueChanging?.Invoke(PreviousValue, newValue);
 			}
 
+			// Update the value.
 			value = newValue;
 			temporaryValue = newValue;
+
+			// Invoke the OnValueChanged event if notify is true.
 			if (notify)
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
@@ -148,6 +164,7 @@ namespace AuroraPunks.ScriptableValues
 			ResetStackTraces();
 #endif
 
+			// If the value should be reset and it isn't a read only value, we set the value to the default value.
 			if (ResetValueOnStart && !IsReadOnly)
 			{
 				value = DefaultValue;
@@ -155,9 +172,21 @@ namespace AuroraPunks.ScriptableValues
 				temporaryValue = DefaultValue;
 			}
 
+			// Remove all subscribers from events, just to make sure we don't have any leaks.
 			OnValueChanging = null;
 			OnValueChanged = null;
 		}
+
+#if UNITY_INCLUDE_TESTS
+		/// <summary>
+		///     A test only check to see if <see cref="OnValueChanging" /> has subscribers.
+		/// </summary>
+		internal bool ValueChangingHasSubscribers { get { return OnValueChanging != null; } }
+		/// <summary>
+		///     A test only check to see if <see cref="OnValueChanged" /> has subscribers.
+		/// </summary>
+		internal bool ValueChangedHasSubscribers { get { return OnValueChanged != null; } }
+#endif
 
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
@@ -187,13 +216,13 @@ namespace AuroraPunks.ScriptableValues
 				// We need to turn off the equality check in OnValidate to make sure the value is set and the events are invoked.
 				SetEqualityCheck = false;
 			}
-			
+
 			// If we can set the value, set it.
 			if (!equals)
 			{
 				SetValue(value, true);
 			}
-			
+
 			// Restore the original value.
 			SetEqualityCheck = originalSetEqualityCheck;
 		}

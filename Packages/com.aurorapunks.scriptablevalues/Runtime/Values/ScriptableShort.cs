@@ -2,6 +2,9 @@
 
 namespace AuroraPunks.ScriptableValues
 {
+	/// <summary>
+	///     <see cref="ScriptableValue{T}" /> with a short value.
+	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable Short", menuName = "Aurora Punks/Scriptable Values/Values/Short Value", order = ORDER + 2)]
 #endif
