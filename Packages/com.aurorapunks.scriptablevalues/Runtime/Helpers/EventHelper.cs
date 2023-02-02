@@ -9,10 +9,21 @@ using Debug = UnityEngine.Debug;
 
 namespace AuroraPunks.ScriptableValues.Helpers
 {
-	internal static class EventHelper
+	/// <summary>
+	///     Debug only helper methods for events.
+	/// </summary>
+	public static class EventHelper
 	{
+		/// <summary>
+		///     Helper method that warns if the given delegate has any subscribers left.
+		///     <para>This method is removed in non-debug builds, but you don't need to explicitly remove it yourself.</para>
+		/// </summary>
+		/// <param name="action">The delegate to check.</param>
+		/// <param name="parameterName">The name of the delegate that will be used in the message.</param>
+		/// <param name="targetObject">Optional target object to ping when the log is selected.</param>
+		/// <typeparam name="T">The type of the delegate.</typeparam>
 		[Conditional("DEBUG")]
-		internal static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object targetObject = null) where T : Delegate
+		public static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object targetObject = null) where T : Delegate
 		{
 #if DEBUG
 			if (action != null)

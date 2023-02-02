@@ -5,9 +5,9 @@ using UnityEngine;
 namespace AuroraPunks.ScriptableValues.Helpers
 {
 	/// <summary>
-	///     Internal helper methods for ScriptableValues.
+	///     Helper methods for ScriptableValues.
 	/// </summary>
-	internal static class EqualityHelper
+	public static class EqualityHelper
 	{
 		/// <summary>
 		///     Helper method for checking if two types are the same.
