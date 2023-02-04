@@ -23,45 +23,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		protected static readonly decimal[] decimals = { -69.420m, 69.420m, 0, 2, -2, decimal.One, decimal.Zero, decimal.MinusOne };
 		protected static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
 
-		[SetUp]
-		public void Setup()
-		{
-			OnSetup();
-		}
-
-		protected virtual void OnSetup() { }
-
-		[TearDown]
-		public void TearDown()
-		{
-			OnTearDown();
-
-			for (int i = 0; i < objects.Count; i++)
-			{
-				if (objects[i] == null)
-				{
-					continue;
-				}
-
-				if (objects[i] is GameObject go)
-				{
-					Object.DestroyImmediate(go);
-				}
-				else if (objects[i] is Component comp)
-				{
-					Object.DestroyImmediate(comp.gameObject);
-				}
-				else
-				{
-					Object.DestroyImmediate(objects[i]);
-				}
-			}
-
-			objects.Clear();
-		}
-
-		protected virtual void OnTearDown() { }
-		
 		protected T CreateInstance<T>() where T : ScriptableObject
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
