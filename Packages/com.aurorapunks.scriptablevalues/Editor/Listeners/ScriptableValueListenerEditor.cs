@@ -9,7 +9,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableValueListener<>), true)]
 	public class ScriptableValueListenerEditor : UnityEditor.Editor
 	{
-		private Label valueLabel;
 		private PropertyField valueField;
 		private PropertyField startListeningField;
 		private PropertyField stopListeningField;
@@ -34,16 +33,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private SerializedProperty onValueChangingMultiple;
 		private SerializedProperty onValueChangedMultiple;
 
-		private static readonly string[] valueFieldLabelClasses =
-		{
-			"unity-text-element",
-			"unity-label",
-			"unity-object-field-display__label"
-		};
-
-		[CanBeNull]
-		private Type valueType;
-
 		private readonly VisualElement[] spaces = new VisualElement[SPACES_COUNT];
 
 		private const int SPACES_COUNT = 4;
@@ -61,12 +50,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangedSingle = serializedObject.FindProperty(nameof(onValueChangedSingle));
 			onValueChangingMultiple = serializedObject.FindProperty(nameof(onValueChangingMultiple));
 			onValueChangedMultiple = serializedObject.FindProperty(nameof(onValueChangedMultiple));
-
-			Type baseType = target.GetType().BaseType;
-			if (baseType != null && baseType.GenericTypeArguments.Length > 0)
-			{
-				valueType = baseType.GenericTypeArguments[0];
-			}
 		}
 
 		public override VisualElement CreateInspectorGUI()
@@ -85,10 +68,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangingMultipleField = new PropertyField(onValueChangingMultiple);
 			onValueChangedMultipleField = new PropertyField(onValueChangedMultiple);
 
-			valueField.RegisterCallback<GeometryChangedEvent>(OnValueFieldGeometryChanged);
-
-			valueField.RegisterCallback<ChangeEvent<string>>(OnValueStringChanged);
-
 			valueField.Bind(serializedObject);
 			startListeningField.Bind(serializedObject);
 			stopListeningField.Bind(serializedObject);
@@ -102,9 +81,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangedMultipleField.Bind(serializedObject);
 
 			valueField.RegisterValueChangeCallback(_ => UpdateVisibility());
-
 			invokeOnField.RegisterValueChangeCallback(_ => UpdateVisibility());
-
 			invokeParametersField.RegisterValueChangeCallback(_ => UpdateVisibility());
 
 			for (int i = 0; i < SPACES_COUNT; i++)
@@ -113,7 +90,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			}
 
 			UpdateVisibility();
-			UpdateValueFieldLabel();
 
 			root.Add(valueField);
 			root.Add(spaces[0]);
@@ -159,33 +135,6 @@ namespace AuroraPunks.ScriptableValues.Editor
 			{
 				spaces[i].SetVisibility(hasValue);
 			}
-		}
-
-		private void OnValueFieldGeometryChanged(GeometryChangedEvent evt)
-		{
-			valueLabel ??= valueField.Q<Label>(classes: valueFieldLabelClasses);
-
-			UpdateValueFieldLabel();
-		}
-
-		private void OnValueStringChanged(ChangeEvent<string> evt)
-		{
-			// Because Unity is weird, we need to update the label here too if a string changes. 
-			// This fixes the issue where the label would not update when the component was first added.
-			if (evt.newValue.StartsWith("None") && valueLabel != null && valueType != null)
-			{
-				valueLabel.text = $"None (Scriptable Value<{valueType.Name}>)";
-			}
-		}
-
-		private void UpdateValueFieldLabel()
-		{
-			if (valueType == null || valueLabel == null || targetValue.objectReferenceValue != null)
-			{
-				return;
-			}
-
-			valueLabel.text = $"None (Scriptable Value<{valueType.Name}>)";
 		}
 
 		private static VisualElement GetSpace(float height = 8f)
