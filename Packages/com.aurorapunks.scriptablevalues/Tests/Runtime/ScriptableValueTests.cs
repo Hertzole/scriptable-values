@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Assert = UnityEngine.Assertions.Assert;
@@ -500,40 +501,177 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			TestSetValue_SameValue_NoEqualsCheck<ScriptableString, string>(value, value);
 		}
+		
+		// GameObject
 
-		private void TestSetValue<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>
+		[Test]
+		public void SetValue_ScriptableGameObject_FromNull()
 		{
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
+			var go = CreateGameObject();
+			
+			TestSetValue<ScriptableGameObject, GameObject>(go, null);
+		}
+		
+		[Test]
+		public void SetValue_ScriptableGameObject_ToNull()
+		{
+			var go = CreateGameObject();
+			
+			TestSetValue<ScriptableGameObject, GameObject>(null, go);
+		}
+
+		[Test]
+		public void SetValue_WithoutNotify_ScriptableBool_FromNull()
+		{
+			var go = CreateGameObject();
+			
+			TestSetValue_WithoutNotify<ScriptableGameObject, GameObject>(go, null);
+		}
+		
+		[Test]
+		public void SetValue_WithoutNotify_ScriptableBool_ToNull()
+		{
+			var go = CreateGameObject();
+			
+			TestSetValue_WithoutNotify<ScriptableGameObject, GameObject>(null, go);
+		}
+		
+		[Test]
+		public void SetValue_OnValidate_ScriptableGameObject([ValueSource(nameof(bools))] bool equalsCheck)
+		{
+			GameObject go = CreateGameObject();
+			
+			TestSetValue_OnValidate<ScriptableGameObject, GameObject>(equalsCheck, go, null);
+		}
+
+		[Test]
+		public void SetValue_ReadOnly_ScriptableGameObject()
+		{
+			GameObject go = CreateGameObject();
+
+			TestSetValue_ReadOnly<ScriptableGameObject, GameObject>(go);
+		}
+
+		[Test]
+		public void SetValue_SameValue_ScriptableString()
+		{
+			GameObject go = CreateGameObject();
+			
+			TestSetValue_SameValue<ScriptableGameObject, GameObject>(go, go);
+		}
+
+		[Test]
+		public void SetValue_SameValue_NoEqualsCheck_ScriptableGameObject()
+		{
+			GameObject go = CreateGameObject();
+
+			TestSetValue_SameValue_NoEqualsCheck<ScriptableGameObject, GameObject>(go, go);
+		}
+
+		[UnityTest]
+		public IEnumerator SetValue_WithoutNotify_ScriptableBool_Destroyed()
+		{
+			var instance = CreateInstance<ScriptableGameObject>();
+			instance.SetEqualityCheck = true;
 			instance.ResetValues();
-
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
-
-			TValue originalValue = instance.Value;
+			
+			var go = CreateGameObject();
+			GameObject expectedValue = go;
+			
+			var originalValue = instance.Value;
+			Debug.Log(originalValue);
 
 			bool valueChangingInvoked = false;
 			bool valueChangedInvoked = false;
 
-			instance.OnValueChanging += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangingInvoked = true;
-			};
+			instance.OnValueChanging += OnValueChanging;
+			instance.OnValueChanged += OnValueChanged;
 
-			instance.OnValueChanged += (oldValue, newValue) =>
+			instance.Value = go;
+
+			Assert.AreEqual(go, instance.Value, "Value should be the value being set.");
+			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
+			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
+
+			valueChangingInvoked = false;
+			valueChangedInvoked = false;
+			
+			Destroy(go);
+			expectedValue = null;
+			
+			yield return null;
+
+			Assert.IsNull(go);
+			
+			instance.Value = null;
+			
+			Assert.AreEqual(expectedValue, instance.Value, "Value should be the value being set.");
+			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
+			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
+
+			void OnValueChanging(GameObject oldValue, GameObject newValue)
 			{
 				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
+				Assert.AreEqual(expectedValue, newValue, "New value should be the value being set.");
+				valueChangingInvoked = true;
+			}
+			
+			void OnValueChanged(GameObject oldValue, GameObject newValue)
+			{
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+				Assert.AreEqual(expectedValue, newValue, "New value should be the value being set.");
 				valueChangedInvoked = true;
-			};
+			}
+		}
+
+		private TType TestSetValue<TType, TValue>(TValue value, TValue startValue = default, TType instance = null) where TType : ScriptableValue<TValue>
+		{
+			if (instance == null)
+			{
+				instance = CreateInstance<TType>();
+				instance.DefaultValue = startValue;
+				instance.ResetValueOnStart = true;
+				instance.SetEqualityCheck = true;
+				instance.ResetValues();
+				
+				Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
+			}
+
+			TValue originalValue = instance.Value;
+			Debug.Log(originalValue);
+
+			bool valueChangingInvoked = false;
+			bool valueChangedInvoked = false;
+
+			instance.OnValueChanging += OnValueChanging;
+			instance.OnValueChanged += OnValueChanged;
 
 			instance.Value = value;
+
+			Debug.Log(instance.Value);
 
 			Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
+			
+			instance.OnValueChanging -= OnValueChanging;
+			instance.OnValueChanged -= OnValueChanged;
+
+			return instance;
+			
+			void OnValueChanging(TValue oldValue, TValue newValue)
+			{
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+				Assert.AreEqual(value, newValue, "New value should be the value being set.");
+				valueChangingInvoked = true;
+			}
+			
+			void OnValueChanged(TValue oldValue, TValue newValue)
+			{
+				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+				Assert.AreEqual(value, newValue, "New value should be the value being set.");
+				valueChangedInvoked = true;
+			}
 		}
 
 		private void TestSetValue_WithoutNotify<TType, TValue>(TValue value, TValue startValue = default) where TType : ScriptableValue<TValue>

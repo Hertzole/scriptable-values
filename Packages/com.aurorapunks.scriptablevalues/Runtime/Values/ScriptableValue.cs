@@ -64,6 +64,8 @@ namespace AuroraPunks.ScriptableValues
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
 
+		private bool valueIsDefault;
+
 		/// <summary>
 		///     The current value. This can be changed at runtime.
 		/// </summary>
@@ -119,7 +121,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
-			if (SetEqualityCheck && EqualityHelper.Equals(newValue, value))
+			if (SetEqualityCheck && IsSameValue(newValue, value))
 			{
 				return;
 			}
@@ -136,12 +138,27 @@ namespace AuroraPunks.ScriptableValues
 			value = newValue;
 			temporaryValue = newValue;
 
+			valueIsDefault = EqualityHelper.Equals(value, default);
+
 			// Invoke the OnValueChanged event if notify is true.
 			if (notify)
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
 				OnValueChanged?.Invoke(PreviousValue, Value);
 			}
+		}
+		
+		protected bool IsSameValue(T newValue, T oldValue)
+		{
+			// If the new value is the default value and the old value isn't, we do allow setting a new value.
+			// This is because Unity objects can be destroyed, but this change is not communicated to the ScriptableValue.
+			// So if it previously existed but is now null and we want to set it to null, we should allow it.
+			if (EqualityHelper.Equals(newValue, default) && !valueIsDefault)
+			{
+				return false;
+			}
+
+			return EqualityHelper.Equals(oldValue, newValue);
 		}
 
 		/// <summary>
@@ -170,6 +187,7 @@ namespace AuroraPunks.ScriptableValues
 				value = DefaultValue;
 				PreviousValue = DefaultValue;
 				temporaryValue = DefaultValue;
+				valueIsDefault = EqualityHelper.Equals(value, default);
 			}
 
 			// Remove all subscribers from events, just to make sure we don't have any leaks.
