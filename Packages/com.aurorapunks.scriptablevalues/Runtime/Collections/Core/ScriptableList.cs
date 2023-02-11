@@ -390,7 +390,7 @@ namespace AuroraPunks.ScriptableValues
 		///     Adds the elements of the specified collection to the end of the list.
 		/// </summary>
 		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
-		/// <exception cref="ArgumentNullException">If collection is null.</exception>
+		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
 		public void AddRange(IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
@@ -409,11 +409,7 @@ namespace AuroraPunks.ScriptableValues
 				int count = c.Count;
 				if (count > 0)
 				{
-					// If the capacity is less than the current count + the number of items to add, increase the capacity.
-					if (list.Capacity < list.Count + count)
-					{
-						list.Capacity = list.Count + count;
-					}
+					ResizeIfNeeded(count);
 
 					// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
 					using (IEnumerator<T> en = c.GetEnumerator())
@@ -438,6 +434,74 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			AddStackTrace();
+		}
+
+		/// <summary>
+		///     Inserts the elements of a collection into the list at the specified index.
+		/// </summary>
+		/// <param name="index">The zero-based index at which the new elements should be inserted.</param>
+		/// <param name="collection">The collection whose elements should be inserted into the list.</param>
+		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     If <paramref name="index" /> is less than 0 or is greater than
+		///     <see cref="Count" />.
+		/// </exception>
+		public void InsertRange(int index, IEnumerable<T> collection)
+		{
+			ThrowHelper.ThrowIfNull(collection, nameof(collection));
+			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(collection));
+
+			// If the game is playing, we don't want to set the value if it's read only.
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be inserted to at runtime.");
+				return;
+			}
+
+			// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
+			// Otherwise, just insert the items as normal.
+			if (collection is ICollection<T> c)
+			{
+				int count = c.Count;
+				if (count > 0)
+				{
+					ResizeIfNeeded(count);
+				}
+
+				// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+				using (IEnumerator<T> en = c.GetEnumerator())
+				{
+					while (en.MoveNext())
+					{
+						Insert(index++, en.Current);
+					}
+				}
+			}
+			else
+			{
+				// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+				using (IEnumerator<T> en = collection.GetEnumerator())
+				{
+					while (en.MoveNext())
+					{
+						Insert(index++, en.Current);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		///     Resizes the list capacity by the specified amount, if needed. This can be used to avoid multiple resizes when
+		///     adding multiple items.
+		/// </summary>
+		/// <param name="count">The amount of resize by.</param>
+		private void ResizeIfNeeded(int count)
+		{
+			// If the capacity is less than the current count + the number of items to add, increase the capacity.
+			if (list.Capacity < list.Count + count)
+			{
+				list.Capacity = list.Count + count;
+			}
 		}
 
 		/// <summary>

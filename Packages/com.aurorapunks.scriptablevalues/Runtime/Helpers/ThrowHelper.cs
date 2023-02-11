@@ -15,5 +15,16 @@ namespace AuroraPunks.ScriptableValues.Helpers
 			}
 #endif
 		}
+
+		[Conditional("DEBUG")]
+		public static void ThrowIfOutOfRange(int index, int count, string name)
+		{
+#if DEBUG
+			if (index < 0 || index >= count)
+			{
+				throw new ArgumentOutOfRangeException(name, $"{name} is out of range.");
+			}
+#endif
+		}
 	}
 }
