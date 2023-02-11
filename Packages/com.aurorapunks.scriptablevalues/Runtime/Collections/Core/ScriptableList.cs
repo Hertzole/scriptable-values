@@ -441,6 +441,33 @@ namespace AuroraPunks.ScriptableValues
 		}
 
 		/// <summary>
+		///     Determines whether the list contains elements that match the conditions defined by the specified predicate.
+		/// </summary>
+		/// <param name="match">The predicate delegate that defines the conditions of the elements to search for.</param>
+		/// <returns>
+		///     True if the list contains one or more elements that match the conditions defined by the specified predicate;
+		///     otherwise, false.
+		/// </returns>
+		public bool Exists(Predicate<T> match)
+		{
+			return list.Exists(match);
+		}
+
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the first
+		///     occurrence within the entire list.
+		/// </summary>
+		/// <param name="match">The predicate delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The first element that matches the conditions defines by the specified predicate, if found; otherwise, the
+		///     default value for type <see cref="T" />
+		/// </returns>
+		public T Find(Predicate<T> match)
+		{
+			return list.Find(match);
+		}
+
+		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
 		/// <param name="value">The item to add.</param>
