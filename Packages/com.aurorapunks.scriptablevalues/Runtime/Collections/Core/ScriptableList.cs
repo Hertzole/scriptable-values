@@ -449,7 +449,13 @@ namespace AuroraPunks.ScriptableValues
 		public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
-			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(index));
+			
+#if DEBUG
+			if (index < 0 || index > list.Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} must be between 0 and {nameof(list.Count)} ({list.Count}).");
+			}
+#endif
 
 			// If the game is playing, we don't want to set the value if it's read only.
 			if (Application.isPlaying && isReadOnly)
@@ -506,8 +512,7 @@ namespace AuroraPunks.ScriptableValues
 		/// </exception>
 		public void RemoveRange(int index, int count)
 		{
-			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(index));
-
+#if DEBUG
 			if (count < 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be less than 0.");
@@ -517,6 +522,7 @@ namespace AuroraPunks.ScriptableValues
 			{
 				throw new ArgumentException("Count cannot be greater than the number of elements in the list.", nameof(count));
 			}
+#endif
 
 			// If the game is playing, we don't want to set the value if it's read only.
 			if (Application.isPlaying && isReadOnly)
