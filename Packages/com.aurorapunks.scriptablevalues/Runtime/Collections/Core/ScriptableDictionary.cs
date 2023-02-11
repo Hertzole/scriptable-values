@@ -134,6 +134,10 @@ namespace AuroraPunks.ScriptableValues
 		///     Called when the dictionary is cleared.
 		/// </summary>
 		public event Action OnCleared;
+		/// <summary>
+		///     Called when the dictionary is changed in any way.
+		/// </summary>
+		public event Action<DictionaryChangeType> OnChanged;
 
 		/// <summary>
 		///     Checks if the dictionary is a valid dictionary by checking the keys and values.
@@ -234,6 +238,7 @@ namespace AuroraPunks.ScriptableValues
 				dictionary[key] = value;
 
 				OnSet?.Invoke(key, oldValue, value);
+				OnChanged?.Invoke(DictionaryChangeType.Set);
 
 				AddStackTrace();
 			}
@@ -267,6 +272,7 @@ namespace AuroraPunks.ScriptableValues
 				values.Add(value);
 
 				OnAdded?.Invoke(key, value);
+				OnChanged?.Invoke(DictionaryChangeType.Added);
 
 				AddStackTrace();
 			}
@@ -343,6 +349,8 @@ namespace AuroraPunks.ScriptableValues
 			keys.TrimExcess();
 			values.TrimExcess();
 
+			OnChanged?.Invoke(DictionaryChangeType.Trimmed);
+
 			AddStackTrace();
 		}
 
@@ -363,6 +371,8 @@ namespace AuroraPunks.ScriptableValues
 
 			keys.TrimExcess();
 			values.TrimExcess();
+
+			OnChanged?.Invoke(DictionaryChangeType.Trimmed);
 
 			AddStackTrace();
 		}
@@ -500,6 +510,7 @@ namespace AuroraPunks.ScriptableValues
 			values.Clear();
 
 			OnCleared?.Invoke();
+			OnChanged?.Invoke(DictionaryChangeType.Cleared);
 
 			AddStackTrace();
 		}
@@ -560,6 +571,7 @@ namespace AuroraPunks.ScriptableValues
 			values.Add(value);
 
 			OnAdded?.Invoke(key, value);
+			OnChanged?.Invoke(DictionaryChangeType.Added);
 
 			AddStackTrace();
 		}
@@ -602,6 +614,7 @@ namespace AuroraPunks.ScriptableValues
 					AddStackTrace();
 
 					OnRemoved?.Invoke(key, oldItem);
+					OnChanged?.Invoke(DictionaryChangeType.Removed);
 				}
 			}
 

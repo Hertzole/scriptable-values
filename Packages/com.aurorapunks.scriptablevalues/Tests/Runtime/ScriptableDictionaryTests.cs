@@ -24,11 +24,19 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Add()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				addEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
 			};
 
 			dictionary.Add(0, 42);
@@ -41,13 +49,17 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsTrue(addEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Add_ReadOnly()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -59,17 +71,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Add_Object()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				addEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
 			};
 
 			IDictionary d = dictionary;
@@ -83,13 +104,17 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsTrue(addEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Add_Object_ReadOnly()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -102,6 +127,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -133,7 +159,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Add_KeyValuePair_ReadOnly()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -147,17 +176,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void TryAdd_Success()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				addEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
 			};
 
 			bool result = dictionary.TryAdd(0, 42);
@@ -171,14 +209,18 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsTrue(addEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void TryAdd_Failure()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			bool result = dictionary.TryAdd(0, 42);
 
@@ -191,13 +233,17 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void TryAdd_ReadOnly()
 		{
 			bool addEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -210,6 +256,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -218,12 +265,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, -1);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(-1, oldValue);
 				Assert.AreEqual(42, newValue);
 				setEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
 			};
 
 			dictionary[0] = 42;
@@ -237,6 +292,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsTrue(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -245,7 +301,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, -1);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -262,6 +321,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(-1, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -269,6 +329,8 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
@@ -277,6 +339,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 			};
 
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
+			};
 
 			dictionary[0] = 42;
 
@@ -290,6 +358,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -297,8 +366,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -312,6 +384,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -320,12 +393,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, 42);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, oldValue);
 				Assert.AreEqual(42, newValue);
 				setEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
 			};
 
 			dictionary.SetEqualityCheck = false;
@@ -340,6 +421,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsTrue(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -348,7 +430,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, 42);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
+			};
 
 			dictionary[0] = 42;
 
@@ -361,6 +451,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -369,7 +460,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, 42);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
+			};
 
 			IsReadOnly = true;
 
@@ -386,6 +485,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -394,12 +494,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, -1);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(-1, oldValue);
 				Assert.AreEqual(42, newValue);
 				setEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
 			};
 
 			IDictionary d = dictionary;
@@ -414,6 +522,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsTrue(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -422,7 +531,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, -1);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
+			};
 
 			IsReadOnly = true;
 
@@ -440,6 +557,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(-1, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -447,6 +565,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 			dictionary.OnAdded += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
@@ -455,6 +574,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 			};
 
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
+			};
 
 			IDictionary d = dictionary;
 			d[0] = 42;
@@ -469,6 +594,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -476,8 +602,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 			dictionary.OnAdded += (key, value) => { addEventInvoked = true; };
 			dictionary.OnSet += (key, oldValue, newValue) => { setEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Added, changeType);
+				changedEventInvoked = true;
+			};
 
 			IsReadOnly = true;
 
@@ -492,6 +625,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -500,12 +634,19 @@ namespace AuroraPunks.ScriptableValues.Tests
 			dictionary.Add(0, -1);
 
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 			dictionary.OnSet += (key, oldValue, newValue) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(-1, oldValue);
 				Assert.AreEqual(42, newValue);
 				setEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Set, changeType);
+				changedEventInvoked = true;
 			};
 
 			IDictionary d = dictionary;
@@ -522,18 +663,28 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(-1, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
+
 			dictionary.OnRemoved += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				removeEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
 			};
 
 			bool result = dictionary.Remove(0);
@@ -543,14 +694,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
+
 			dictionary.OnRemoved += (key, value) => { removeEventInvoked = true; };
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
+			};
 
 			IsReadOnly = true;
 
@@ -567,18 +728,28 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_Object()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
+
 			dictionary.OnRemoved += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				removeEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
 			};
 
 			IDictionary d = dictionary;
@@ -588,14 +759,22 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_Object_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnRemoved += (key, value) => { removeEventInvoked = true; };
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
+			};
 
 			IsReadOnly = true;
 
@@ -612,18 +791,27 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_KeyValuePair()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnRemoved += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				removeEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
 			};
 
 			ICollection<KeyValuePair<int, int>> d = dictionary;
@@ -634,18 +822,27 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_KeyValuePair_InvalidKey()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnRemoved += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				removeEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
 			};
 
 			ICollection<KeyValuePair<int, int>> d = dictionary;
@@ -660,18 +857,27 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_KeyValuePair_InvalidValue()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnRemoved += (key, value) =>
 			{
 				Assert.AreEqual(0, key);
 				Assert.AreEqual(42, value);
 				removeEventInvoked = true;
+			};
+
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Removed, changeType);
+				changedEventInvoked = true;
 			};
 
 			ICollection<KeyValuePair<int, int>> d = dictionary;
@@ -686,14 +892,18 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_KeyValuePair_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnRemoved += (key, value) => { removeEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -711,14 +921,22 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(42, dictionary.values[0]);
 			Assert.AreEqual(42, ((IReadOnlyDictionary<int, int>) dictionary)[0]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Clear()
 		{
 			bool clearEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnCleared += () => { clearEventInvoked = true; };
+			dictionary.OnChanged += changeType =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Cleared, changeType);
+				changedEventInvoked = true;
+			};
 
 			dictionary.Clear();
 
@@ -726,14 +944,18 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, dictionary.keys.Count);
 			Assert.AreEqual(0, dictionary.values.Count);
 			Assert.IsTrue(clearEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Clear_ReadOnly()
 		{
 			bool clearEventInvoked = false;
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.OnCleared += () => { clearEventInvoked = true; };
+			dictionary.OnChanged += changeType => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -745,6 +967,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, dictionary.keys.Count);
 			Assert.AreEqual(1, dictionary.values.Count);
 			Assert.IsFalse(clearEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -849,22 +1072,41 @@ namespace AuroraPunks.ScriptableValues.Tests
 		[Test]
 		public void TrimExcess()
 		{
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
+
+			dictionary.OnChanged += type =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Trimmed, type);
+				changedEventInvoked = true;
+			};
+
 			dictionary.TrimExcess();
+
 			Assert.AreEqual(3, dictionary.Count);
 			Assert.AreEqual(3, dictionary.keys.Count);
 			Assert.AreEqual(3, dictionary.values.Count);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void TrimExcess_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
 			IsReadOnly = true;
+
+			dictionary.OnChanged += type =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Trimmed, type);
+				changedEventInvoked = true;
+			};
 
 			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be trimmed at runtime.");
 
@@ -872,27 +1114,46 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, dictionary.Count);
 			Assert.AreEqual(3, dictionary.keys.Count);
 			Assert.AreEqual(3, dictionary.values.Count);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void TrimExcess_Capacity()
 		{
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
+
+			dictionary.OnChanged += type =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Trimmed, type);
+				changedEventInvoked = true;
+			};
+
 			dictionary.TrimExcess(3);
 			Assert.AreEqual(3, dictionary.Count);
 			Assert.AreEqual(3, dictionary.keys.Count);
 			Assert.AreEqual(3, dictionary.values.Count);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void TrimExcess_Capacity_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
 			IsReadOnly = true;
+
+			dictionary.OnChanged += type =>
+			{
+				Assert.AreEqual(DictionaryChangeType.Trimmed, type);
+				changedEventInvoked = true;
+			};
 
 			LogAssert.Expect(LogType.Error, $"{dictionary} is marked as read only and cannot be trimmed at runtime.");
 
@@ -900,6 +1161,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, dictionary.Count);
 			Assert.AreEqual(3, dictionary.keys.Count);
 			Assert.AreEqual(3, dictionary.values.Count);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
