@@ -449,7 +449,7 @@ namespace AuroraPunks.ScriptableValues
 		public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
-			
+
 #if DEBUG
 			if (index < 0 || index > list.Count)
 			{
@@ -505,6 +505,10 @@ namespace AuroraPunks.ScriptableValues
 		///     If <paramref name="index" /> is less than 0 or greater than
 		///     <see cref="Count" />.
 		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     If <paramref name="index" /> is less than 0 or greater than
+		///     <see cref="Count" />.
+		/// </exception>
 		/// <exception cref="ArgumentOutOfRangeException">If <paramref name="count" /> is less than 0.</exception>
 		/// <exception cref="ArgumentException">
 		///     If <paramref name="index" /> and <paramref name="count" /> do not denote a valid
@@ -513,6 +517,11 @@ namespace AuroraPunks.ScriptableValues
 		public void RemoveRange(int index, int count)
 		{
 #if DEBUG
+			if (index < 0 || index > list.Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} must be between 0 and {nameof(list.Count)} ({list.Count}).");
+			}
+
 			if (count < 0)
 			{
 				throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be less than 0.");
