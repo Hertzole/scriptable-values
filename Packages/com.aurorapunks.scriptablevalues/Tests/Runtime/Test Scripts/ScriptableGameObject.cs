@@ -2,5 +2,5 @@
 
 namespace AuroraPunks.ScriptableValues.Tests
 {
-	internal sealed class ScriptableGameObject : ScriptableValue<GameObject> { }
+	public sealed class ScriptableGameObject : ScriptableValue<GameObject> { }
 }
