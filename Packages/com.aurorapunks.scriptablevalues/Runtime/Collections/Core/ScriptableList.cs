@@ -98,6 +98,10 @@ namespace AuroraPunks.ScriptableValues
 		///     Called when the list is cleared.
 		/// </summary>
 		public event Action OnCleared;
+		/// <summary>
+		///     Called when the list is changed in any way.
+		/// </summary>
+		public event Action<ListChangeType> OnChanged;
 
 		/// <summary>
 		///     Sets the value at the given index.
@@ -122,6 +126,7 @@ namespace AuroraPunks.ScriptableValues
 			T oldValue = list[index];
 			list[index] = value;
 			OnSet?.Invoke(index, oldValue, value);
+			OnChanged?.Invoke(ListChangeType.Replaced);
 
 			AddStackTrace();
 		}
@@ -179,6 +184,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Reverse();
+			OnChanged?.Invoke(ListChangeType.Reversed);
 
 			AddStackTrace();
 		}
@@ -198,6 +204,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Reverse(index, count);
+			OnChanged?.Invoke(ListChangeType.Reversed);
 
 			AddStackTrace();
 		}
@@ -215,6 +222,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Sort();
+			OnChanged?.Invoke(ListChangeType.Sorted);
 
 			AddStackTrace();
 		}
@@ -236,6 +244,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Sort(comparer);
+			OnChanged?.Invoke(ListChangeType.Sorted);
 
 			AddStackTrace();
 		}
@@ -259,6 +268,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Sort(index, count, comparer);
+			OnChanged?.Invoke(ListChangeType.Sorted);
 
 			AddStackTrace();
 		}
@@ -277,6 +287,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.Sort(comparison);
+			OnChanged?.Invoke(ListChangeType.Sorted);
 
 			AddStackTrace();
 		}
@@ -303,6 +314,7 @@ namespace AuroraPunks.ScriptableValues
 			}
 
 			list.TrimExcess();
+			OnChanged?.Invoke(ListChangeType.Trimmed);
 
 			AddStackTrace();
 		}
@@ -359,6 +371,7 @@ namespace AuroraPunks.ScriptableValues
 			OnSet = null;
 			OnRemoved = null;
 			OnCleared = null;
+			OnChanged = null;
 
 			if (clearOnStart && !isReadOnly)
 			{
@@ -381,6 +394,7 @@ namespace AuroraPunks.ScriptableValues
 			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
 
 			list.TrimExcess();
 		}
@@ -710,6 +724,7 @@ namespace AuroraPunks.ScriptableValues
 			list.Add(item);
 			OnAdded?.Invoke(item);
 			OnAddedOrInserted?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Added);
 
 			AddStackTrace();
 		}
@@ -731,6 +746,7 @@ namespace AuroraPunks.ScriptableValues
 			list.Insert(index, item);
 			OnInserted?.Invoke(index, item);
 			OnAddedOrInserted?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Inserted);
 
 			AddStackTrace();
 		}
@@ -760,6 +776,7 @@ namespace AuroraPunks.ScriptableValues
 
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Removed);
 			AddStackTrace();
 
 			return true;
@@ -781,6 +798,7 @@ namespace AuroraPunks.ScriptableValues
 			T item = list[index];
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Removed);
 
 			AddStackTrace();
 		}
@@ -799,6 +817,7 @@ namespace AuroraPunks.ScriptableValues
 
 			list.Clear();
 			OnCleared?.Invoke();
+			OnChanged?.Invoke(ListChangeType.Cleared);
 
 			AddStackTrace();
 		}
