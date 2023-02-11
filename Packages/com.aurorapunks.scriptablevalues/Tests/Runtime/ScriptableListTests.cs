@@ -27,6 +27,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) =>
@@ -36,12 +37,19 @@ namespace AuroraPunks.ScriptableValues.Tests
 				Assert.AreEqual(1, item);
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Added, type);
+			};
+
 			list.Add(1);
 
 			Assert.AreEqual(1, list.Count);
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -50,9 +58,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 			IsReadOnly = true;
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
 
@@ -61,6 +71,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, list.Count);
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -68,6 +79,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) =>
@@ -75,6 +87,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 				addOrInsertEventInvoked = true;
 				Assert.AreEqual(0, index);
 				Assert.AreEqual(1, item);
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Added, type);
 			};
 
 			int result = ((IList) list).Add(1);
@@ -85,6 +103,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -93,9 +112,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 			IsReadOnly = true;
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
 
@@ -104,6 +125,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, list.Count);
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -121,9 +143,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			int addedCount = 0;
 			int addedOrInsertedCount = 0;
+			int changedCount = 0;
 
 			list.OnAdded += i =>
 			{
@@ -135,6 +159,13 @@ namespace AuroraPunks.ScriptableValues.Tests
 			{
 				addOrInsertEventInvoked = true;
 				addedOrInsertedCount++;
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				changedCount++;
+				Assert.AreEqual(ListChangeType.Added, type);
 			};
 
 			int[] array = { 1, 2, 3 };
@@ -147,8 +178,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, list[2]);
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 			Assert.AreEqual(array.Length, addedCount);
 			Assert.AreEqual(array.Length, addedOrInsertedCount);
+			Assert.AreEqual(array.Length, changedCount);
 		}
 
 		[Test]
@@ -156,9 +189,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			int addedCount = 0;
 			int addedOrInsertedCount = 0;
+			int changedCount = 0;
 
 			list.OnAdded += i =>
 			{
@@ -170,6 +205,13 @@ namespace AuroraPunks.ScriptableValues.Tests
 			{
 				addOrInsertEventInvoked = true;
 				addedOrInsertedCount++;
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				changedCount++;
+				Assert.AreEqual(ListChangeType.Added, type);
 			};
 
 			IEnumerable<int> array = Enumerable.Range(1, 3);
@@ -183,8 +225,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, list[2]);
 			Assert.IsTrue(addEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 			Assert.AreEqual(arrayLength, addedCount);
 			Assert.AreEqual(arrayLength, addedOrInsertedCount);
+			Assert.AreEqual(arrayLength, changedCount);
 		}
 
 		[Test]
@@ -193,9 +237,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 			IsReadOnly = true;
 			bool addEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.OnAdded += i => { addEventInvoked = true; };
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
 
@@ -206,6 +252,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(0, list.Count);
 			Assert.IsFalse(addEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -219,6 +266,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
@@ -236,6 +284,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 				Assert.AreEqual(3, item);
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Inserted, type);
+			};
+
 			list.Insert(1, 3);
 
 			Assert.AreEqual(3, list.Count);
@@ -244,6 +298,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[2]);
 			Assert.IsTrue(insertEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -251,12 +306,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnInserted += (index, item) => { insertEventInvoked = true; };
 
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -269,6 +327,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(insertEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -276,6 +335,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			IList l = list;
 			list.Add(1);
@@ -294,6 +354,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 				Assert.AreEqual(3, item);
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Inserted, type);
+			};
+
 			l.Insert(1, 3);
 
 			Assert.AreEqual(3, list.Count);
@@ -302,6 +368,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[2]);
 			Assert.IsTrue(insertEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
@@ -309,12 +376,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnInserted += (index, item) => { insertEventInvoked = true; };
 
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -327,6 +397,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(insertEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -342,12 +413,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 
 			int insertedCount = 0;
 			int addedOrInsertedCount = 0;
+			int changedCount = 0;
 
 			list.OnInserted += (index, item) =>
 			{
@@ -359,6 +432,13 @@ namespace AuroraPunks.ScriptableValues.Tests
 			{
 				addOrInsertEventInvoked = true;
 				addedOrInsertedCount++;
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				changedCount++;
+				Assert.AreEqual(ListChangeType.Inserted, type);
 			};
 
 			int[] items = { 3, 4, 5 };
@@ -373,8 +453,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[4]);
 			Assert.IsTrue(insertEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 			Assert.AreEqual(items.Length, insertedCount);
 			Assert.AreEqual(items.Length, addedOrInsertedCount);
+			Assert.AreEqual(items.Length, changedCount);
 		}
 
 		[Test]
@@ -382,12 +464,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 
 			int insertedCount = 0;
 			int addedOrInsertedCount = 0;
+			int changedCount = 0;
 
 			list.OnInserted += (index, item) =>
 			{
@@ -399,6 +483,13 @@ namespace AuroraPunks.ScriptableValues.Tests
 			{
 				addOrInsertEventInvoked = true;
 				addedOrInsertedCount++;
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				changedCount++;
+				Assert.AreEqual(ListChangeType.Inserted, type);
 			};
 
 			IEnumerable<int> items = Enumerable.Range(3, 3);
@@ -414,8 +505,10 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[4]);
 			Assert.IsTrue(insertEventInvoked);
 			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 			Assert.AreEqual(count, insertedCount);
 			Assert.AreEqual(count, addedOrInsertedCount);
+			Assert.AreEqual(count, changedCount);
 		}
 
 		[Test]
@@ -423,12 +516,15 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool insertEventInvoked = false;
 			bool addOrInsertEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnInserted += (index, item) => { insertEventInvoked = true; };
 
 			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -441,6 +537,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(insertEventInvoked);
 			Assert.IsFalse(addOrInsertEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -465,6 +562,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Set()
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) =>
@@ -475,19 +573,28 @@ namespace AuroraPunks.ScriptableValues.Tests
 				setEventInvoked = true;
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Replaced, type);
+			};
+
 			list[0] = 1;
 
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Set_ReadOnly()
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -497,17 +604,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.AreEqual(0, list[0]);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Set_SameValue([ValueSource(nameof(bools))] bool setEqualityCheck)
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.SetEqualityCheck = setEqualityCheck;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Replaced, type);
+			};
 
 			list[0] = 0;
 
@@ -516,10 +630,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 			if (setEqualityCheck)
 			{
 				Assert.IsFalse(setEventInvoked);
+				Assert.IsFalse(changedEventInvoked);
 			}
 			else
 			{
 				Assert.IsTrue(setEventInvoked);
+				Assert.IsTrue(changedEventInvoked);
 			}
 		}
 
@@ -527,9 +643,11 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Set_SameValue_ReadOnly()
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -539,12 +657,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.AreEqual(0, list[0]);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Set_Object()
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) =>
@@ -555,19 +675,28 @@ namespace AuroraPunks.ScriptableValues.Tests
 				setEventInvoked = true;
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Replaced, type);
+			};
+
 			((IList) list)[0] = 1;
 
 			Assert.AreEqual(1, ((IList) list)[0]);
 			Assert.IsTrue(setEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Set_Object_ReadOnly()
 		{
 			bool setEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -577,6 +706,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.AreEqual(0, ((IList) list)[0]);
 			Assert.IsFalse(setEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -591,6 +721,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Remove()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
@@ -599,6 +730,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 				removeEventInvoked = true;
 				Assert.AreEqual(1, index);
 				Assert.AreEqual(2, item);
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Removed, type);
 			};
 
 			bool removed = list.Remove(2);
@@ -607,16 +744,19 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(removed);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_None()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnRemoved += (index, item) => { removeEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			bool removed = list.Remove(3);
 
@@ -625,16 +765,19 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(removed);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnRemoved += (index, item) => { removeEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -647,12 +790,14 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(removed);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_Object()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			IList l = list;
 			list.Add(1);
@@ -664,22 +809,31 @@ namespace AuroraPunks.ScriptableValues.Tests
 				Assert.AreEqual(2, item);
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Removed, type);
+			};
+
 			l.Remove(2);
 
 			Assert.AreEqual(1, list.Count);
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Remove_Object_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			IList l = list;
 			list.Add(1);
 			list.Add(2);
 			list.OnRemoved += (index, item) => { removeEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -691,6 +845,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -705,6 +860,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void RemoveAt()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
@@ -715,21 +871,30 @@ namespace AuroraPunks.ScriptableValues.Tests
 				Assert.AreEqual(2, item);
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Removed, type);
+			};
+
 			list.RemoveAt(1);
 
 			Assert.AreEqual(1, list.Count);
 			Assert.AreEqual(1, list[0]);
 			Assert.IsTrue(removeEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void RemoveAt_ReadOnly()
 		{
 			bool removeEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnRemoved += (index, item) => { removeEventInvoked = true; };
+			list.OnChanged += type => { changedEventInvoked = true; };
 
 			IsReadOnly = true;
 
@@ -741,6 +906,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(removeEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -764,11 +930,17 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void RemoveAll()
 		{
 			int removeEventInvoked = 0;
+			int changedEventInvoked = 0;
 
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
 			list.OnRemoved += (index, item) => { removeEventInvoked++; };
+			list.OnChanged += type =>
+			{
+				changedEventInvoked++;
+				Assert.AreEqual(ListChangeType.Removed, type);
+			};
 
 			int removedCount = list.RemoveAll(i => i > 1);
 
@@ -776,17 +948,20 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.AreEqual(2, removeEventInvoked);
 			Assert.AreEqual(2, removedCount);
+			Assert.AreEqual(2, changedEventInvoked);
 		}
 
 		[Test]
 		public void RemoveAll_ReadOnly()
 		{
 			int removeEventInvoked = 0;
+			int changedEventInvoked = 0;
 
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
 			list.OnRemoved += (index, item) => { removeEventInvoked++; };
+			list.OnChanged += type => { changedEventInvoked++; };
 
 			IsReadOnly = true;
 
@@ -800,6 +975,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, list[2]);
 			Assert.AreEqual(0, removeEventInvoked);
 			Assert.AreEqual(0, removedCount);
+			Assert.AreEqual(0, changedEventInvoked);
 		}
 
 		[Test]
@@ -824,6 +1000,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool removeEventInvoked = false;
 			int removeCount = 0;
+			int changedEventInvoked = 0;
 
 			list.AddRange(Enumerable.Range(0, 100));
 
@@ -839,6 +1016,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 				removeCount++;
 			};
 
+			list.OnChanged += type =>
+			{
+				changedEventInvoked++;
+				Assert.AreEqual(ListChangeType.Removed, type);
+			};
+
 			list.RemoveRange(10, 20);
 
 			Assert.AreEqual(list.Count, 80);
@@ -850,6 +1033,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsTrue(removeEventInvoked);
 			Assert.AreEqual(20, removeCount);
+			Assert.AreEqual(20, changedEventInvoked);
 		}
 
 		[Test]
@@ -857,6 +1041,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 		{
 			bool removeEventInvoked = false;
 			int removeCount = 0;
+			int changedEventInvoked = 0;
 
 			list.AddRange(Enumerable.Range(0, 100));
 
@@ -870,6 +1055,12 @@ namespace AuroraPunks.ScriptableValues.Tests
 			{
 				removeEventInvoked = true;
 				removeCount++;
+			};
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked++;
+				Assert.AreEqual(ListChangeType.Removed, type);
 			};
 
 			IsReadOnly = true;
@@ -887,6 +1078,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.IsFalse(removeEventInvoked);
 			Assert.AreEqual(0, removeCount);
+			Assert.AreEqual(0, changedEventInvoked);
 		}
 
 		[Test]
@@ -921,25 +1113,38 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Clear()
 		{
 			bool clearEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnCleared += () => { clearEventInvoked = true; };
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Cleared, type);
+			};
 
 			list.Clear();
 
 			Assert.AreEqual(0, list.Count);
 			Assert.IsTrue(clearEventInvoked);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Clear_ReadOnly()
 		{
 			bool clearEventInvoked = false;
+			bool changedEventInvoked = false;
 
 			list.Add(1);
 			list.Add(2);
 			list.OnCleared += () => { clearEventInvoked = true; };
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Cleared, type);
+			};
 
 			IsReadOnly = true;
 
@@ -951,14 +1156,23 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.AreEqual(2, list[1]);
 			Assert.IsFalse(clearEventInvoked);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Reverse()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Reversed, type);
+			};
 
 			list.Reverse();
 
@@ -966,16 +1180,25 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, list[0]);
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(1, list[2]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Reverse_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Reversed, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be reversed at runtime.");
 
@@ -985,15 +1208,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[0]);
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(3, list[2]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Reverse_Range()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
 			list.Add(4);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Reversed, type);
+			};
 
 			list.Reverse(1, 2);
 
@@ -1002,15 +1234,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(3, list[1]);
 			Assert.AreEqual(2, list[2]);
 			Assert.AreEqual(4, list[3]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Reverse_Range_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(1);
 			list.Add(2);
 			list.Add(3);
 			list.Add(4);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Reversed, type);
+			};
 
 			IsReadOnly = true;
 
@@ -1023,15 +1264,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(3, list[2]);
 			Assert.AreEqual(4, list[3]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			list.Sort();
 
@@ -1041,17 +1291,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(3, list[2]);
 			Assert.AreEqual(5, list[3]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
@@ -1063,15 +1322,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(1, list[2]);
 			Assert.AreEqual(3, list[3]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_Comparer()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			list.Sort(Comparer<int>.Default);
 
@@ -1081,17 +1349,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(3, list[2]);
 			Assert.AreEqual(5, list[3]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_Comparer_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
@@ -1103,15 +1380,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(1, list[2]);
 			Assert.AreEqual(3, list[3]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_IndexCount()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			list.Sort(1, 2, Comparer<int>.Default);
 
@@ -1121,17 +1407,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(1, list[1]);
 			Assert.AreEqual(2, list[2]);
 			Assert.AreEqual(3, list[3]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_IndexCount_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
@@ -1143,15 +1438,24 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(1, list[2]);
 			Assert.AreEqual(3, list[3]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_Comparison()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			list.Sort((a, b) => a.CompareTo(b));
 
@@ -1161,17 +1465,26 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(3, list[2]);
 			Assert.AreEqual(5, list[3]);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void Sort_Comparison_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Sorted, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be sorted at runtime.");
 
@@ -1183,6 +1496,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			Assert.AreEqual(2, list[1]);
 			Assert.AreEqual(1, list[2]);
 			Assert.AreEqual(3, list[3]);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -1206,24 +1520,41 @@ namespace AuroraPunks.ScriptableValues.Tests
 		[Test]
 		public void TrimExcess()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Trimmed, type);
+			};
 
 			list.TrimExcess();
 
 			Assert.AreEqual(3, list.Count);
 			Assert.AreEqual(4, list.Capacity);
+			Assert.IsTrue(changedEventInvoked);
 		}
 
 		[Test]
 		public void TrimExcess_ReadOnly()
 		{
+			bool changedEventInvoked = false;
+
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 
 			IsReadOnly = true;
+
+			list.OnChanged += type =>
+			{
+				changedEventInvoked = true;
+				Assert.AreEqual(ListChangeType.Trimmed, type);
+			};
 
 			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be trimmed at runtime.");
 
@@ -1231,6 +1562,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 
 			Assert.AreEqual(3, list.Count);
 			Assert.AreEqual(4, list.Capacity);
+			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
@@ -1466,21 +1798,21 @@ namespace AuroraPunks.ScriptableValues.Tests
 			list.AddRange(Enumerable.Range(0, 100));
 			Assert.IsTrue(list.Exists(x => x == 22));
 		}
-		
+
 		[Test]
 		public void Exists_False()
 		{
 			list.AddRange(Enumerable.Range(0, 100));
 			Assert.IsFalse(list.Exists(x => x == 200));
 		}
-		
+
 		[Test]
 		public void Find_Success()
 		{
 			list.AddRange(Enumerable.Range(0, 100));
 			Assert.AreEqual(22, list.Find(x => x == 22));
 		}
-		
+
 		[Test]
 		public void Find_Failure()
 		{
