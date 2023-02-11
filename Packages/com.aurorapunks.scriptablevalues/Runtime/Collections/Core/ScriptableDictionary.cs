@@ -244,7 +244,8 @@ namespace AuroraPunks.ScriptableValues
 			}
 			else
 			{
-				Add(key, value);
+				AddFastPath(key, value);
+				AddStackTrace();
 			}
 		}
 
@@ -414,6 +415,23 @@ namespace AuroraPunks.ScriptableValues
 #endif
 
 		/// <summary>
+		///     Adds the specified key and value to the dictionary without checking read only status and without adding a stack
+		///     trace.
+		/// </summary>
+		/// <param name="key">The key of the element to add.</param>
+		/// <param name="value">The value of the element to add.</param>
+		private void AddFastPath(TKey key, TValue value)
+		{
+			dictionary.Add(key, value);
+
+			keys.Add(key);
+			values.Add(value);
+
+			OnAdded?.Invoke(key, value);
+			OnChanged?.Invoke(DictionaryChangeType.Added);
+		}
+
+		/// <summary>
 		///     Determines whether the dictionary contains the specified key.
 		/// </summary>
 		/// <param name="key">The key to check.</param>
@@ -565,13 +583,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			dictionary.Add(key, value);
-
-			keys.Add(key);
-			values.Add(value);
-
-			OnAdded?.Invoke(key, value);
-			OnChanged?.Invoke(DictionaryChangeType.Added);
+			AddFastPath(key, value);
 
 			AddStackTrace();
 		}
