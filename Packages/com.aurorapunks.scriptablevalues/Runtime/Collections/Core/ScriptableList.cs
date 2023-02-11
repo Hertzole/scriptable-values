@@ -449,7 +449,7 @@ namespace AuroraPunks.ScriptableValues
 		public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
-			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(collection));
+			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(index));
 
 			// If the game is playing, we don't want to set the value if it's read only.
 			if (Application.isPlaying && isReadOnly)
@@ -486,6 +486,51 @@ namespace AuroraPunks.ScriptableValues
 					{
 						Insert(index++, en.Current);
 					}
+				}
+			}
+		}
+
+		/// <summary>
+		///     Removes a range of elements from the list.
+		/// </summary>
+		/// <param name="index">The zero-based starting index of the range of elements to remove.</param>
+		/// <param name="count">The number of elements to remove.</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     If <paramref name="index" /> is less than 0 or greater than
+		///     <see cref="Count" />.
+		/// </exception>
+		/// <exception cref="ArgumentOutOfRangeException">If <paramref name="count" /> is less than 0.</exception>
+		/// <exception cref="ArgumentException">
+		///     If <paramref name="index" /> and <paramref name="count" /> do not denote a valid
+		///     range of elements.
+		/// </exception>
+		public void RemoveRange(int index, int count)
+		{
+			ThrowHelper.ThrowIfOutOfRange(index, list.Count, nameof(index));
+
+			if (count < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be less than 0.");
+			}
+
+			if (index + count > list.Count)
+			{
+				throw new ArgumentException("Count cannot be greater than the number of elements in the list.", nameof(count));
+			}
+
+			// If the game is playing, we don't want to set the value if it's read only.
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
+				return;
+			}
+
+			if (count > 0)
+			{
+				// Keep removing at the index until we've removed the specified amount.
+				for (int i = 0; i < count; i++)
+				{
+					RemoveAt(index);
 				}
 			}
 		}
