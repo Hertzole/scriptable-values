@@ -576,7 +576,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			list.OnChanged += type =>
 			{
 				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Replaced, type);
+				Assert.AreEqual(ListChangeType.Set, type);
 			};
 
 			list[0] = 1;
@@ -620,7 +620,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			list.OnChanged += type =>
 			{
 				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Replaced, type);
+				Assert.AreEqual(ListChangeType.Set, type);
 			};
 
 			list[0] = 0;
@@ -678,7 +678,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			list.OnChanged += type =>
 			{
 				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Replaced, type);
+				Assert.AreEqual(ListChangeType.Set, type);
 			};
 
 			((IList) list)[0] = 1;
