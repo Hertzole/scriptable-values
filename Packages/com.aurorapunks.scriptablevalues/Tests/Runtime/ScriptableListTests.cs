@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -113,6 +114,104 @@ namespace AuroraPunks.ScriptableValues.Tests
 			int result = ((IList) list).Add("invalid");
 
 			Assert.AreEqual(-1, result);
+		}
+
+		[Test]
+		public void AddRange_Collection()
+		{
+			bool addEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			int addedCount = 0;
+			int addedOrInsertedCount = 0;
+
+			list.OnAdded += i =>
+			{
+				addEventInvoked = true;
+				addedCount++;
+			};
+
+			list.OnAddedOrInserted += (index, item) =>
+			{
+				addOrInsertEventInvoked = true;
+				addedOrInsertedCount++;
+			};
+
+			int[] array = { 1, 2, 3 };
+
+			list.AddRange(array);
+
+			Assert.AreEqual(array.Length, list.Count);
+			Assert.AreEqual(1, list[0]);
+			Assert.AreEqual(2, list[1]);
+			Assert.AreEqual(3, list[2]);
+			Assert.IsTrue(addEventInvoked);
+			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.AreEqual(array.Length, addedCount);
+			Assert.AreEqual(array.Length, addedOrInsertedCount);
+		}
+
+		[Test]
+		public void AddRange_Enumerable()
+		{
+			bool addEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			int addedCount = 0;
+			int addedOrInsertedCount = 0;
+
+			list.OnAdded += i =>
+			{
+				addEventInvoked = true;
+				addedCount++;
+			};
+
+			list.OnAddedOrInserted += (index, item) =>
+			{
+				addOrInsertEventInvoked = true;
+				addedOrInsertedCount++;
+			};
+
+			IEnumerable<int> array = Enumerable.Range(1, 3);
+			int arrayLength = array.Count();
+
+			list.AddRange(array);
+
+			Assert.AreEqual(arrayLength, list.Count);
+			Assert.AreEqual(1, list[0]);
+			Assert.AreEqual(2, list[1]);
+			Assert.AreEqual(3, list[2]);
+			Assert.IsTrue(addEventInvoked);
+			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.AreEqual(arrayLength, addedCount);
+			Assert.AreEqual(arrayLength, addedOrInsertedCount);
+		}
+
+		[Test]
+		public void AddRange_Readonly()
+		{
+			IsReadOnly = true;
+			bool addEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			list.OnAdded += i => { addEventInvoked = true; };
+			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
+
+			int[] array = { 1, 2, 3 };
+
+			list.AddRange(array);
+
+			Assert.AreEqual(0, list.Count);
+			Assert.IsFalse(addEventInvoked);
+			Assert.IsFalse(addOrInsertEventInvoked);
+		}
+
+		[Test]
+		public void AddRange_Null()
+		{
+			NUnit.Framework.Assert.That(() => list.AddRange(null), Throws.ArgumentNullException);
 		}
 
 		[Test]
@@ -239,6 +338,130 @@ namespace AuroraPunks.ScriptableValues.Tests
 		}
 
 		[Test]
+		public void InsertRange_Collection()
+		{
+			bool insertEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			list.Add(1);
+			list.Add(2);
+
+			int insertedCount = 0;
+			int addedOrInsertedCount = 0;
+
+			list.OnInserted += (index, item) =>
+			{
+				insertEventInvoked = true;
+				insertedCount++;
+			};
+
+			list.OnAddedOrInserted += (index, item) =>
+			{
+				addOrInsertEventInvoked = true;
+				addedOrInsertedCount++;
+			};
+
+			int[] items = { 3, 4, 5 };
+
+			list.InsertRange(1, items);
+
+			Assert.AreEqual(5, list.Count);
+			Assert.AreEqual(1, list[0]);
+			Assert.AreEqual(3, list[1]);
+			Assert.AreEqual(4, list[2]);
+			Assert.AreEqual(5, list[3]);
+			Assert.AreEqual(2, list[4]);
+			Assert.IsTrue(insertEventInvoked);
+			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.AreEqual(items.Length, insertedCount);
+			Assert.AreEqual(items.Length, addedOrInsertedCount);
+		}
+
+		[Test]
+		public void InsertRange_Enumerable()
+		{
+			bool insertEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			list.Add(1);
+			list.Add(2);
+
+			int insertedCount = 0;
+			int addedOrInsertedCount = 0;
+
+			list.OnInserted += (index, item) =>
+			{
+				insertEventInvoked = true;
+				insertedCount++;
+			};
+
+			list.OnAddedOrInserted += (index, item) =>
+			{
+				addOrInsertEventInvoked = true;
+				addedOrInsertedCount++;
+			};
+
+			IEnumerable<int> items = Enumerable.Range(3, 3);
+			int count = items.Count();
+
+			list.InsertRange(1, items);
+
+			Assert.AreEqual(5, list.Count);
+			Assert.AreEqual(1, list[0]);
+			Assert.AreEqual(3, list[1]);
+			Assert.AreEqual(4, list[2]);
+			Assert.AreEqual(5, list[3]);
+			Assert.AreEqual(2, list[4]);
+			Assert.IsTrue(insertEventInvoked);
+			Assert.IsTrue(addOrInsertEventInvoked);
+			Assert.AreEqual(count, insertedCount);
+			Assert.AreEqual(count, addedOrInsertedCount);
+		}
+
+		[Test]
+		public void InsertRange_ReadOnly()
+		{
+			bool insertEventInvoked = false;
+			bool addOrInsertEventInvoked = false;
+
+			list.Add(1);
+			list.Add(2);
+			list.OnInserted += (index, item) => { insertEventInvoked = true; };
+
+			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
+
+			IsReadOnly = true;
+
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be inserted to at runtime.");
+
+			list.InsertRange(1, new[] { 3, 4, 5 });
+
+			Assert.AreEqual(2, list.Count);
+			Assert.AreEqual(1, list[0]);
+			Assert.AreEqual(2, list[1]);
+			Assert.IsFalse(insertEventInvoked);
+			Assert.IsFalse(addOrInsertEventInvoked);
+		}
+
+		[Test]
+		public void InsertRange_LessThanZero_InvalidIndex()
+		{
+			NUnit.Framework.Assert.That(() => list.InsertRange(-1, new[] { 1, 2, 3 }), Throws.TypeOf<ArgumentOutOfRangeException>());
+		}
+
+		[Test]
+		public void InsertRange_GreatherThanCount_InvalidIndex()
+		{
+			NUnit.Framework.Assert.That(() => list.InsertRange(1, new[] { 1, 2, 3 }), Throws.TypeOf<ArgumentOutOfRangeException>());
+		}
+
+		[Test]
+		public void InsertRange_Null()
+		{
+			NUnit.Framework.Assert.That(() => list.InsertRange(0, null), Throws.TypeOf<ArgumentNullException>());
+		}
+
+		[Test]
 		public void Set()
 		{
 			bool setEventInvoked = false;
@@ -282,7 +505,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			bool setEventInvoked = false;
 
 			list.SetEqualityCheck = setEqualityCheck;
-			
+
 			list.Add(0);
 			list.OnSet += (index, oldValue, newValue) => { setEventInvoked = true; };
 
@@ -594,6 +817,104 @@ namespace AuroraPunks.ScriptableValues.Tests
 			}
 
 			Assert.IsNotNull(exception);
+		}
+
+		[Test]
+		public void RemoveRange()
+		{
+			bool removeEventInvoked = false;
+			int removeCount = 0;
+
+			list.AddRange(Enumerable.Range(0, 100));
+
+			Assert.AreEqual(list.Count, 100);
+			for (int i = 0; i < list.Count; i++)
+			{
+				Assert.AreEqual(i, list[i]);
+			}
+
+			list.OnRemoved += (index, item) =>
+			{
+				removeEventInvoked = true;
+				removeCount++;
+			};
+
+			list.RemoveRange(10, 20);
+
+			Assert.AreEqual(list.Count, 80);
+
+			for (int i = 0; i < 20; i++)
+			{
+				Assert.AreEqual(30 + i, list[i + 10]);
+			}
+
+			Assert.IsTrue(removeEventInvoked);
+			Assert.AreEqual(20, removeCount);
+		}
+
+		[Test]
+		public void RemoveRange_ReadOnly()
+		{
+			bool removeEventInvoked = false;
+			int removeCount = 0;
+
+			list.AddRange(Enumerable.Range(0, 100));
+
+			Assert.AreEqual(list.Count, 100);
+			for (int i = 0; i < list.Count; i++)
+			{
+				Assert.AreEqual(i, list[i]);
+			}
+
+			list.OnRemoved += (index, item) =>
+			{
+				removeEventInvoked = true;
+				removeCount++;
+			};
+
+			IsReadOnly = true;
+
+			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be removed from at runtime.");
+
+			list.RemoveRange(10, 20);
+
+			Assert.AreEqual(list.Count, 100);
+
+			for (int i = 0; i < 100; i++)
+			{
+				Assert.AreEqual(i, list[i]);
+			}
+
+			Assert.IsFalse(removeEventInvoked);
+			Assert.AreEqual(0, removeCount);
+		}
+
+		[Test]
+		public void RemoveRange_CountLessThanZero()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			NUnit.Framework.Assert.That(() => list.RemoveRange(0, -1), Throws.TypeOf<ArgumentOutOfRangeException>());
+		}
+
+		[Test]
+		public void RemoveRange_IndexLessThanZero()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			NUnit.Framework.Assert.That(() => list.RemoveRange(-1, 1), Throws.TypeOf<ArgumentOutOfRangeException>());
+		}
+
+		[Test]
+		public void RemoveRange_IndexPlusCountGreaterThanCount()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			NUnit.Framework.Assert.That(() => list.RemoveRange(50, 51), Throws.TypeOf<ArgumentException>());
+		}
+
+		[Test]
+		public void RemoveRange_IndexGreaterThanCount()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			NUnit.Framework.Assert.That(() => list.RemoveRange(101, 1), Throws.TypeOf<ArgumentOutOfRangeException>());
 		}
 
 		[Test]
@@ -1137,6 +1458,34 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void SyncRoot()
 		{
 			Assert.AreEqual(list, ((IList) list).SyncRoot);
+		}
+
+		[Test]
+		public void Exists_True()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			Assert.IsTrue(list.Exists(x => x == 22));
+		}
+		
+		[Test]
+		public void Exists_False()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			Assert.IsFalse(list.Exists(x => x == 200));
+		}
+		
+		[Test]
+		public void Find_Success()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			Assert.AreEqual(22, list.Find(x => x == 22));
+		}
+		
+		[Test]
+		public void Find_Failure()
+		{
+			list.AddRange(Enumerable.Range(0, 100));
+			Assert.AreEqual(0, list.Find(x => x == 200));
 		}
 	}
 }
