@@ -430,7 +430,7 @@ namespace AuroraPunks.ScriptableValues
 					{
 						while (en.MoveNext())
 						{
-							Add(en.Current);
+							AddFastPath(en.Current);
 						}
 					}
 				}
@@ -442,7 +442,7 @@ namespace AuroraPunks.ScriptableValues
 				{
 					while (en.MoveNext())
 					{
-						Add(en.Current);
+						AddFastPath(en.Current);
 					}
 				}
 			}
@@ -493,7 +493,7 @@ namespace AuroraPunks.ScriptableValues
 				{
 					while (en.MoveNext())
 					{
-						Insert(index++, en.Current);
+						InsertFastPath(index++, en.Current);
 					}
 				}
 			}
@@ -504,10 +504,12 @@ namespace AuroraPunks.ScriptableValues
 				{
 					while (en.MoveNext())
 					{
-						Insert(index++, en.Current);
+						InsertFastPath(index++, en.Current);
 					}
 				}
 			}
+
+			AddStackTrace();
 		}
 
 		/// <summary>
@@ -559,9 +561,11 @@ namespace AuroraPunks.ScriptableValues
 				// Keep removing at the index until we've removed the specified amount.
 				for (int i = 0; i < count; i++)
 				{
-					RemoveAt(index);
+					RemoveAtFastPath(index);
 				}
 			}
+
+			AddStackTrace();
 		}
 
 		/// <summary>
@@ -603,6 +607,45 @@ namespace AuroraPunks.ScriptableValues
 		public T Find(Predicate<T> match)
 		{
 			return list.Find(match);
+		}
+
+		/// <summary>
+		///     Adds an item to the list without checking if the list is read only and without adding a stack trace.
+		/// </summary>
+		/// <param name="item">The item to add.</param>
+		private void AddFastPath(T item)
+		{
+			int index = Count;
+			list.Add(item);
+			OnAdded?.Invoke(item);
+			OnAddedOrInserted?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Added);
+		}
+
+		/// <summary>
+		///     Inserts an item into the list without checking if it's read only and without adding a stack trace.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="item"></param>
+		private void InsertFastPath(int index, T item)
+		{
+			list.Insert(index, item);
+			OnInserted?.Invoke(index, item);
+			OnAddedOrInserted?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Inserted);
+		}
+
+		/// <summary>
+		///     Removes the element at the specified index of the list without checking if the list is read only and without adding
+		///     a stack trace.
+		/// </summary>
+		/// <param name="index">The index of the element to remove.</param>
+		private void RemoveAtFastPath(int index)
+		{
+			T item = list[index];
+			list.RemoveAt(index);
+			OnRemoved?.Invoke(index, item);
+			OnChanged?.Invoke(ListChangeType.Removed);
 		}
 
 		/// <summary>
@@ -720,11 +763,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			int index = Count;
-			list.Add(item);
-			OnAdded?.Invoke(item);
-			OnAddedOrInserted?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Added);
+			AddFastPath(item);
 
 			AddStackTrace();
 		}
@@ -743,10 +782,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			list.Insert(index, item);
-			OnInserted?.Invoke(index, item);
-			OnAddedOrInserted?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Inserted);
+			InsertFastPath(index, item);
 
 			AddStackTrace();
 		}
@@ -774,9 +810,7 @@ namespace AuroraPunks.ScriptableValues
 				return false;
 			}
 
-			list.RemoveAt(index);
-			OnRemoved?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Removed);
+			RemoveAtFastPath(index);
 			AddStackTrace();
 
 			return true;
@@ -795,10 +829,7 @@ namespace AuroraPunks.ScriptableValues
 				return;
 			}
 
-			T item = list[index];
-			list.RemoveAt(index);
-			OnRemoved?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Removed);
+			RemoveAtFastPath(index);
 
 			AddStackTrace();
 		}
