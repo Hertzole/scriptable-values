@@ -22,9 +22,9 @@
 		/// </summary>
 		Cleared = 3,
 		/// <summary>
-		///     Called when an item is replaced in the list using the indexer.
+		///     Called when an item is set in the list using the indexer.
 		/// </summary>
-		Replaced = 4,
+		Set = 4,
 		/// <summary>
 		///     Called when the list is reversed.
 		/// </summary>

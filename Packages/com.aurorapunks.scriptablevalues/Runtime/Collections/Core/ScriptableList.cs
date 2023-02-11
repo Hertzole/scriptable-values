@@ -126,7 +126,7 @@ namespace AuroraPunks.ScriptableValues
 			T oldValue = list[index];
 			list[index] = value;
 			OnSet?.Invoke(index, oldValue, value);
-			OnChanged?.Invoke(ListChangeType.Replaced);
+			OnChanged?.Invoke(ListChangeType.Set);
 
 			AddStackTrace();
 		}
