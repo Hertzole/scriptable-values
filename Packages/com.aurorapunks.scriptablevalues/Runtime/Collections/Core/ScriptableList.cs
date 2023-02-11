@@ -387,6 +387,60 @@ namespace AuroraPunks.ScriptableValues
 #endif
 
 		/// <summary>
+		///     Adds the elements of the specified collection to the end of the list.
+		/// </summary>
+		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
+		/// <exception cref="ArgumentNullException">If collection is null.</exception>
+		public void AddRange(IEnumerable<T> collection)
+		{
+			ThrowHelper.ThrowIfNull(collection, nameof(collection));
+
+			// If the game is playing, we don't want to set the value if it's read only.
+			if (Application.isPlaying && isReadOnly)
+			{
+				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
+				return;
+			}
+
+			// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
+			// Otherwise, just add the items as normal.
+			if (collection is ICollection<T> c)
+			{
+				int count = c.Count;
+				if (count > 0)
+				{
+					// If the capacity is less than the current count + the number of items to add, increase the capacity.
+					if (list.Capacity < list.Count + count)
+					{
+						list.Capacity = list.Count + count;
+					}
+
+					// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+					using (IEnumerator<T> en = c.GetEnumerator())
+					{
+						while (en.MoveNext())
+						{
+							Add(en.Current);
+						}
+					}
+				}
+			}
+			else
+			{
+				// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+				using (IEnumerator<T> en = collection.GetEnumerator())
+				{
+					while (en.MoveNext())
+					{
+						Add(en.Current);
+					}
+				}
+			}
+
+			AddStackTrace();
+		}
+
+		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
 		/// <param name="value">The item to add.</param>
