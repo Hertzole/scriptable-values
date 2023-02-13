@@ -45,19 +45,21 @@ namespace AuroraPunks.ScriptableValues
 
 		// We must override the base class' invoke method to ensure that the event is invoked with the correct arguments.
 		/// <summary>
+		///     Invokes the event with the scriptable object as the sender.
+		/// </summary>
+		public new void Invoke()
+		{
+			InvokeInternal(this, currentArgs, 1);
+		}
+
+		// We must override the base class' invoke method to ensure that the event is invoked with the correct arguments.
+		/// <summary>
 		///     Invokes the event with the specified sender.
 		/// </summary>
 		/// <param name="sender">The object that invoked the event.</param>
 		public new void Invoke(object sender)
 		{
-			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
-			AddStackTrace(1);
-
-			PreviousArgs = currentArgs;
-			currentArgs = default;
-
-			OnInvoked?.Invoke(sender, currentArgs);
-			onInvokedWithArgs.Invoke(currentArgs);
+			InvokeInternal(sender, currentArgs, 1);
 		}
 
 		/// <summary>
@@ -67,8 +69,19 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="args">The argument to send with the event.</param>
 		public void Invoke(object sender, T args)
 		{
-			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
-			AddStackTrace(1);
+			InvokeInternal(sender, args, 1);
+		}
+
+		/// <summary>
+		///     Invokes the event with the specified sender and argument.
+		/// </summary>
+		/// <param name="sender">The object that invoked the event.</param>
+		/// <param name="args">The argument to send with the event.</param>
+		/// <param name="skipFrames">How many frames of stack trace to skip.</param>
+		private void InvokeInternal(object sender, T args, int skipFrames)
+		{
+			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
+			AddStackTrace(1 + skipFrames);
 
 			PreviousArgs = currentArgs;
 			currentArgs = args;
@@ -133,7 +146,7 @@ namespace AuroraPunks.ScriptableValues
 		/// </summary>
 		public void Invoke()
 		{
-			Invoke(this);
+			InvokeInternal(this, 1);
 		}
 
 		/// <summary>
@@ -142,8 +155,18 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="sender">The object that invoked the event.</param>
 		public void Invoke(object sender)
 		{
-			// Skip a frame to avoid the Invoke method itself being included in the stack trace.
-			AddStackTrace(1);
+			InvokeInternal(sender, 1);
+		}
+
+		/// <summary>
+		///     Invokes the event with the specified sender and argument.
+		/// </summary>
+		/// <param name="sender">The object that invoked the event.</param>
+		/// <param name="skipFrames">How many frames of stack trace to skip.</param>
+		private void InvokeInternal(object sender, int skipFrames)
+		{
+			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
+			AddStackTrace(1 + skipFrames);
 
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
