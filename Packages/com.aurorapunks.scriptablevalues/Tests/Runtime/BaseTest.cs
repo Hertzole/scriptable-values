@@ -22,6 +22,28 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public static readonly double[] doubles = { -69.420, 69.420, 0, 2, -2 };
 		public static readonly decimal[] decimals = { -69.420m, 69.420m, 0, 2, -2, decimal.One, decimal.Zero, decimal.MinusOne };
 		public static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
+		
+		public static readonly InvokeEvents[] valueInvokes =
+		{
+			InvokeEvents.Any,
+			InvokeEvents.FromValue,
+			InvokeEvents.ToValue,
+			InvokeEvents.FromValueToValue
+		};
+
+		public static readonly InvokeParameters[] invokeParameters =
+		{
+			InvokeParameters.Single,
+			InvokeParameters.Multiple,
+			InvokeParameters.Both
+		};
+		
+		public static readonly EventInvokeEvents[] eventInvokes =
+		{
+			EventInvokeEvents.Any,
+			EventInvokeEvents.FromValue,
+			EventInvokeEvents.ToValue
+		};
 
 		protected T CreateInstance<T>() where T : ScriptableObject
 		{

@@ -8,33 +8,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 	{
 		private static TValue[] values;
 
-		public static TValue[] StaticsValue
-		{
-			get
-			{
-				if (values == null)
-				{
-					Type baseType = typeof(BaseTest);
-					FieldInfo[] fields = baseType.GetFields(BindingFlags.Static | BindingFlags.Public);
-
-					foreach (FieldInfo field in fields)
-					{
-						// We don't care about non-array fields
-						if (!field.FieldType.IsArray)
-						{
-							continue;
-						}
-
-						if (field.FieldType.GetElementType() == typeof(TValue))
-						{
-							values = (TValue[]) field.GetValue(null);
-						}
-					}
-				}
-
-				return values;
-			}
-		}
+		public static TValue[] StaticsValue { get { return TestHelper.FindValues(typeof(BaseTest), ref values); } }
 
 		[Test]
 		public void SetValue([ValueSource(nameof(StaticsValue))] TValue value)

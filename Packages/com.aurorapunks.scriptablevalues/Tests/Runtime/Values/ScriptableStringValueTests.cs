@@ -1,4 +1,4 @@
-﻿namespace AuroraPunks.ScriptableValues.Tests.Values
+namespace AuroraPunks.ScriptableValues.Tests.Values
 {
 	public class ScriptableStringValueTests : ScriptableValueTest<ScriptableString, string>
 	{
