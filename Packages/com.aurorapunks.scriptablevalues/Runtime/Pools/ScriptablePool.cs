@@ -176,6 +176,38 @@ namespace AuroraPunks.ScriptableValues
 		/// <param name="item">The object that was returned to the pool.</param>
 		protected virtual void OnReturn(T item) { }
 
+		protected override void OnStart()
+		{
+			// Remove any subscribers that are left over from play mode.
+			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
+			ClearSubscribers();
+		}
+		
+		/// <summary>
+		///     Removes any subscribers from the event.
+		/// </summary>
+		/// <param name="warnIfLeftOver">
+		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     The warning will only be printed in the editor and debug builds.
+		/// </param>
+		public void ClearSubscribers(bool warnIfLeftOver = false)
+		{
+#if DEBUG
+			if (warnIfLeftOver)
+			{
+				EventHelper.WarnIfLeftOverSubscribers(OnCreateObject, nameof(OnCreateObject), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnDestroyObject, nameof(OnDestroyObject), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnGetObject, nameof(OnGetObject), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnReturnObject, nameof(OnReturnObject), this);
+			}
+#endif
+
+			OnCreateObject = null;
+			OnDestroyObject = null;
+			OnGetObject = null;
+			OnReturnObject = null;
+		}
+
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{

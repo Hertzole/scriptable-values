@@ -61,6 +61,18 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 				i.OnChanged += type => { };
 			}, i => i.ClearSubscribers(true));
 		}
+		
+		[Test]
+		public void ScriptablePool()
+		{
+			TestClearing<TestClassScriptablePool>(4, i =>
+			{
+				i.OnGetObject += i1 => { };
+				i.OnReturnObject += i1 => { };
+				i.OnDestroyObject += i1 => { };
+				i.OnCreateObject += i1 => { };
+			}, i => i.ClearSubscribers(true));
+		}
 
 		private void TestClearing<T>(int warnings, Action<T> subscribe, Action<T> clear) where T : RuntimeScriptableObject
 		{
