@@ -21,7 +21,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		protected void InvokeWithoutSender()
 		{
 			TType instance = CreateInstance<TType>();
-			instance.ResetValues();
 
 			bool eventInvoked = false;
 
@@ -35,7 +34,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		protected void InvokeWithSender()
 		{
 			TType instance = CreateInstance<TType>();
-			instance.ResetValues();
 
 			GameObject sender = CreateGameObject("sender");
 
@@ -44,8 +42,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 			instance.OnInvoked += (eventSender, eventArgs) =>
 			{
 				Assert.AreEqual(sender, eventSender);
-
-				Debug.Log("On invoked");
 
 				eventInvoked = true;
 			};

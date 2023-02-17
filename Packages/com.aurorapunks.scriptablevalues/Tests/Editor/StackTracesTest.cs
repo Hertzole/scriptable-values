@@ -314,7 +314,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			invoke.Invoke(instance);
 
 			Assert.IsTrue(instance.Invocations.Count > 0, "No stack traces have been added.");
-			instance.ResetValues();
+			instance.Test_OnStart();
 			Assert.AreEqual(0, instance.Invocations.Count, "Stack traces were not cleared.");
 		}
 

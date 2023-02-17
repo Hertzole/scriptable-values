@@ -20,7 +20,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			instance.OnCleared += () => { clearedWasInvoked = true; };
 			instance.OnSet += (_, _, _) => { setWasInvoked = true; };
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			instance.Add(0, 1);
 			instance.Remove(0);
@@ -45,7 +45,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			instance.IsReadOnly = isReadOnly;
 			instance.ClearOnStart = clearOnStart;
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			if (!isReadOnly && clearOnStart)
 			{
@@ -82,7 +82,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			instance.OnInserted += (_, _) => { insertedWasInvoked = true; };
 			instance.OnAddedOrInserted += (_, _) => { addedOrInsertedWasInvoked = true; };
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			instance.Add(0);
 			instance[0] = 1;
@@ -110,7 +110,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			instance.IsReadOnly = isReadOnly;
 			instance.ClearOnStart = clearOnStart;
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			if (!isReadOnly && clearOnStart)
 			{

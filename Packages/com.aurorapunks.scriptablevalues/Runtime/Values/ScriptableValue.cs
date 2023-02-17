@@ -60,11 +60,11 @@ namespace AuroraPunks.ScriptableValues
 		[Tooltip("Called after the current value is set.")]
 		private UnityEvent<T, T> onValueChanged = new UnityEvent<T, T>();
 
+		private bool valueIsDefault;
+
 		// This is mainly use for OnValidate weirdness.
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
-
-		private bool valueIsDefault;
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -147,7 +147,7 @@ namespace AuroraPunks.ScriptableValues
 				OnValueChanged?.Invoke(PreviousValue, Value);
 			}
 		}
-		
+
 		protected bool IsSameValue(T newValue, T oldValue)
 		{
 			// If the new value is the default value and the old value isn't, we do allow setting a new value.
@@ -172,10 +172,7 @@ namespace AuroraPunks.ScriptableValues
 			SetValue(newValue, false);
 		}
 
-		/// <summary>
-		///     Resets the value to the default value and removes all event listeners.
-		/// </summary>
-		public override void ResetValues()
+		protected override void OnStart()
 		{
 #if UNITY_EDITOR
 			ResetStackTraces();
@@ -184,13 +181,42 @@ namespace AuroraPunks.ScriptableValues
 			// If the value should be reset and it isn't a read only value, we set the value to the default value.
 			if (ResetValueOnStart && !IsReadOnly)
 			{
-				value = DefaultValue;
-				PreviousValue = DefaultValue;
-				temporaryValue = DefaultValue;
-				valueIsDefault = EqualityHelper.Equals(value, default);
+				ResetValue();
 			}
 
-			// Remove all subscribers from events, just to make sure we don't have any leaks.
+			// Remove any subscribers that are left over from play mode.
+			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
+			ClearSubscribers();
+		}
+
+		/// <summary>
+		///     Resets the value to the default value.
+		/// </summary>
+		public void ResetValue()
+		{
+			value = DefaultValue;
+			PreviousValue = DefaultValue;
+			temporaryValue = DefaultValue;
+			valueIsDefault = EqualityHelper.Equals(value, default);
+		}
+
+		/// <summary>
+		///     Removes any subscribers from the event.
+		/// </summary>
+		/// <param name="warnIfLeftOver">
+		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     The warning will only be printed in the editor and debug builds.
+		/// </param>
+		public void ClearSubscribers(bool warnIfLeftOver = false)
+		{
+#if DEBUG
+			if (warnIfLeftOver)
+			{
+				EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
+			}
+#endif
+
 			OnValueChanging = null;
 			OnValueChanged = null;
 		}

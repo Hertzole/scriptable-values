@@ -94,7 +94,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			Assert.IsTrue(instance.ValueChangingHasSubscribers);
 			Assert.IsTrue(instance.ValueChangedHasSubscribers);
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			Assert.IsFalse(instance.ValueChangingHasSubscribers);
 			Assert.IsFalse(instance.ValueChangedHasSubscribers);

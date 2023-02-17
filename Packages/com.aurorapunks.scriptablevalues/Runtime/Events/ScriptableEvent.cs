@@ -91,14 +91,35 @@ namespace AuroraPunks.ScriptableValues
 		}
 
 		/// <inheritdoc />
-		public override void ResetValues()
+		protected override void OnStart()
 		{
-			base.ResetValues();
-
+#if UNITY_EDITOR
+			ResetStackTraces();
+#endif
+			
 			// Remove any subscribers that are left over from play mode.
-			OnInvoked = null;
-
+			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
+			ClearSubscribers();
 			PreviousArgs = default;
+		}
+
+		/// <summary>
+		///     Removes any subscribers from the event.
+		/// </summary>
+		/// <param name="warnIfLeftOver">
+		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     The warning will only be printed in the editor and debug builds.
+		/// </param>
+		public override void ClearSubscribers(bool warnIfLeftOver = false)
+		{
+#if DEBUG
+			if (warnIfLeftOver)
+			{
+				EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+			}
+#endif
+
+			OnInvoked = null;
 		}
 
 #if UNITY_EDITOR
@@ -171,13 +192,35 @@ namespace AuroraPunks.ScriptableValues
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
 		}
-
+		
 		/// <inheritdoc />
-		public override void ResetValues()
+		protected override void OnStart()
 		{
+#if UNITY_EDITOR
 			ResetStackTraces();
-
+#endif
+			
 			// Remove any subscribers that are left over from play mode.
+			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
+			ClearSubscribers();
+		}
+		
+		/// <summary>
+		///     Removes any subscribers from the event.
+		/// </summary>
+		/// <param name="warnIfLeftOver">
+		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     The warning will only be printed in the editor and debug builds.
+		/// </param>
+		public virtual void ClearSubscribers(bool warnIfLeftOver = false)
+		{
+#if DEBUG
+			if (warnIfLeftOver)
+			{
+				EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+			}
+#endif
+
 			OnInvoked = null;
 		}
 

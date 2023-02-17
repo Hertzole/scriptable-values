@@ -379,21 +379,47 @@ namespace AuroraPunks.ScriptableValues
 		}
 
 		/// <inheritdoc />
-		public override void ResetValues()
+		protected override void OnStart()
 		{
+#if UNITY_EDITOR
 			ResetStackTraces();
-
-			OnAdded = null;
-			OnSet = null;
-			OnRemoved = null;
-			OnCleared = null;
-
+#endif
+			
+			ClearSubscribers();
+			
 			if (!isReadOnly && clearOnStart)
 			{
 				dictionary.Clear();
 				keys.Clear();
 				values.Clear();
 			}
+		}
+		
+		/// <summary>
+		///     Removes any subscribers from the event.
+		/// </summary>
+		/// <param name="warnIfLeftOver">
+		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     The warning will only be printed in the editor and debug builds.
+		/// </param>
+		public void ClearSubscribers(bool warnIfLeftOver = false)
+		{
+#if DEBUG
+			if (warnIfLeftOver)
+			{
+				EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+				EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
+			}
+#endif
+
+			OnAdded = null;
+			OnSet = null;
+			OnRemoved = null;
+			OnCleared = null;
+			OnChanged = null;
 		}
 
 #if UNITY_EDITOR

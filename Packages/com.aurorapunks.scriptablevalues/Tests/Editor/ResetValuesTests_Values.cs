@@ -96,7 +96,7 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 
 			Assert.AreEqual(newValue, instance.Value);
 
-			instance.ResetValues();
+			instance.Test_OnStart();
 
 			Assert.AreEqual(initialValue, instance.Value);
 		}

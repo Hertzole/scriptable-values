@@ -77,13 +77,12 @@ namespace AuroraPunks.ScriptableValues.Tests.Values
 		{
 			ScriptableGameObject instance = CreateInstance<ScriptableGameObject>();
 			instance.SetEqualityCheck = true;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			GameObject go = CreateGameObject();
 			GameObject expectedValue = go;
 
 			GameObject originalValue = instance.Value;
-			Debug.Log(originalValue);
 
 			bool valueChangingInvoked = false;
 			bool valueChangedInvoked = false;

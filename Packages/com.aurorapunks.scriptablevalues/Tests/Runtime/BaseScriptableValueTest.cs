@@ -14,7 +14,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 				instance.DefaultValue = startValue;
 				instance.ResetValueOnStart = true;
 				instance.SetEqualityCheck = true;
-				instance.ResetValues();
+				instance.ResetValue();
 
 				Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 			}
@@ -58,7 +58,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			TType instance = CreateInstance<TType>();
 			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
@@ -81,7 +81,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			TType instance = CreateInstance<TType>();
 			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			instance.IsReadOnly = true;
 
@@ -110,7 +110,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			TType instance = CreateInstance<TType>();
 			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			instance.SetEqualityCheck = true;
 
@@ -137,7 +137,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			TType instance = CreateInstance<TType>();
 			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			instance.SetEqualityCheck = false;
 
@@ -175,7 +175,7 @@ namespace AuroraPunks.ScriptableValues.Tests
 			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
 			instance.SetEqualityCheck = equalsCheck;
-			instance.ResetValues();
+			instance.ResetValue();
 
 			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 

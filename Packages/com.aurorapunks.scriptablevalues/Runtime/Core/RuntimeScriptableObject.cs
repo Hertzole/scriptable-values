@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine.TestTools;
 #endif
 
 namespace AuroraPunks.ScriptableValues
@@ -19,15 +21,24 @@ namespace AuroraPunks.ScriptableValues
 #if UNITY_EDITOR
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 #else
-            ResetValues();
+            OnStart();
 #endif
 		}
 
+#if UNITY_EDITOR
 		/// <summary>
 		///     Resets the values of the scriptable object.
 		///     <para>Automatically called when the game is started, both in the editor and in the build.</para>
 		/// </summary>
+		[Obsolete("Use OnStart instead for initialization logic that should be called when the game starts.", true)]
+		[ExcludeFromCoverage]
 		public virtual void ResetValues() { }
+#endif
+
+		/// <summary>
+		///     Called when the game starts.
+		/// </summary>
+		protected virtual void OnStart() { }
 
 #if UNITY_EDITOR
 		/// <summary>
@@ -47,7 +58,7 @@ namespace AuroraPunks.ScriptableValues
 			switch (state)
 			{
 				case PlayModeStateChange.ExitingEditMode:
-					ResetValues();
+					OnStart();
 					break;
 				case PlayModeStateChange.EnteredEditMode:
 					OnExitPlayMode();
@@ -61,6 +72,14 @@ namespace AuroraPunks.ScriptableValues
 		internal void Test_ExitPlayMode()
 		{
 			OnExitPlayMode();
+		}
+
+		/// <summary>
+		///     Internal method for calling OnStart in tests.
+		/// </summary>
+		internal void Test_OnStart()
+		{
+			OnStart();
 		}
 
 		/// <summary>

@@ -45,10 +45,9 @@ namespace AuroraPunks.ScriptableValues.Tests.Editor
 			public bool HasBeenReset { get; private set; } = false;
 			public bool HasExitedPlayMode { get; private set; } = false;
 
-			public override void ResetValues()
+			protected override void OnStart()
 			{
-				base.ResetValues();
-				;
+				base.OnStart();
 				HasBeenReset = true;
 				HasExitedPlayMode = false;
 			}

@@ -14,7 +14,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		public void Invoke_WithoutSender()
 		{
 			TType instance = CreateInstance<TType>();
-			instance.ResetValues();
 
 			bool eventInvoked = false;
 
@@ -34,7 +33,6 @@ namespace AuroraPunks.ScriptableValues.Tests
 		private void InvokeWithArgAndSender(TValue args) 
 		{
 			TType instance = CreateInstance<TType>();
-			instance.ResetValues();
 
 			GameObject sender = CreateGameObject("sender");
 
