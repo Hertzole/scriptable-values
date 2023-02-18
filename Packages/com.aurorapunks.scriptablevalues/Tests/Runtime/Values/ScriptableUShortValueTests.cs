@@ -1,3 +1,7 @@
+using System;
+using AuroraPunks.ScriptableValues;
+using UnityEngine;
+
 namespace AuroraPunks.ScriptableValues.Tests.Values
 {
 	public class ScriptableUShortValueTests : ScriptableValueTest<ScriptableUShort, ushort>
