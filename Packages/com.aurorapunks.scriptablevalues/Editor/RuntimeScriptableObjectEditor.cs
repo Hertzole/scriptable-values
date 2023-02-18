@@ -78,6 +78,11 @@ namespace AuroraPunks.ScriptableValues
 
 			foreach (SerializedProperty property in ignoreProperties)
 			{
+				if (property == null || string.IsNullOrEmpty(property.propertyPath))
+				{
+					continue;
+				}
+				
 				ignorePropertyNames.Add(property.propertyPath);
 			}
 

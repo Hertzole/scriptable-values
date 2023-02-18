@@ -40,16 +40,23 @@ namespace AuroraPunks.ScriptableValues.Editor
 		{
 			VisualElement root = new VisualElement();
 
-			PropertyField editorInvokeValueField = new PropertyField(editorInvokeValue, "Invoke Value");
-			editorInvokeValueField.Bind(serializedObject);
-			root.Add(editorInvokeValueField);
-
-			Button invokeButton = new Button(() => { OnClickInvoke(GetInvokeValue()); })
+			if (editorInvokeValue != null)
 			{
-				text = "Invoke With Args"
-			};
+				PropertyField editorInvokeValueField = new PropertyField(editorInvokeValue, "Invoke Value");
+				editorInvokeValueField.Bind(serializedObject);
+				root.Add(editorInvokeValueField);
 
-			root.Add(invokeButton);
+				Button invokeButton = new Button(() => { OnClickInvoke(GetInvokeValue()); })
+				{
+					text = "Invoke With Args"
+				};
+
+				root.Add(invokeButton);
+			}
+			else
+			{
+				root.Add(new HelpBox("Type is not serializable and can not be invoked from the inspector.", HelpBoxMessageType.Info));
+			}
 
 			return root;
 		}

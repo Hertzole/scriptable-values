@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -26,11 +27,16 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		protected override string StackTracesLabel { get { return "Set Value Stack Traces"; } }
 
+		private FieldInfo valueFieldInfo;
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
 
+			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+			
+			valueFieldInfo = target.GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 
 		protected override void OnDisable()
@@ -54,7 +60,20 @@ namespace AuroraPunks.ScriptableValues.Editor
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			valueField = new PropertyField(value);
+			TextElementField valueLabel = null;
+			
+			if (value == null || string.IsNullOrEmpty(value.propertyPath))
+			{
+				valueLabel = new TextElementField("Value")
+				{
+					value = valueFieldInfo.GetValue(target).ToString()
+				};
+				valueLabel.AddToClassList(TextElementField.alignedFieldUssClassName);
+			}
+			else
+			{
+				valueField = new PropertyField(value);
+			}
 			isReadOnlyField = new PropertyField(isReadOnly);
 			defaultValueField = new PropertyField(defaultValue);
 			resetValueOnStartField = new PropertyField(resetValueOnStart);
@@ -62,7 +81,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 			onValueChangingField = new PropertyField(onValueChanging);
 			onValueChangedField = new PropertyField(onValueChanged);
 
-			valueField.Bind(serializedObject);
+			valueField?.Bind(serializedObject);
 			isReadOnlyField.Bind(serializedObject);
 			defaultValueField.Bind(serializedObject);
 			resetValueOnStartField.Bind(serializedObject);
@@ -75,7 +94,14 @@ namespace AuroraPunks.ScriptableValues.Editor
 			UpdateVisibility(isReadOnly.boolValue);
 			UpdateEnabledState();
 
-			root.Add(valueField);
+			if (valueField != null)
+			{
+				root.Add(valueField);
+			}
+			else
+			{
+				root.Add(valueLabel);
+			}
 			root.Add(isReadOnlyField);
 			root.Add(defaultValueField);
 			root.Add(resetValueOnStartField);
@@ -99,7 +125,7 @@ namespace AuroraPunks.ScriptableValues.Editor
 		private void UpdateEnabledState()
 		{
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
-			valueField.SetEnabled(enabled);
+			valueField?.SetEnabled(enabled);
 			isReadOnlyField.SetEnabled(enabled);
 		}
 
