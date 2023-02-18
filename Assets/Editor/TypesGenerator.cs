@@ -1,0 +1,521 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace AuroraPunks.ScriptableValues.Editor.Internal
+{
+	public sealed class TypesGenerator : EditorWindow
+	{
+		private string fullPath;
+		private TextField testsPathField;
+		private TextField eventsPathField;
+		private TextField eventListenersPathField;
+		private TextField valuesPathField;
+		private TextField valueListenersPathField;
+
+		private static readonly Type[] typesToGenerate =
+		{
+			typeof(byte),
+			typeof(sbyte),
+			typeof(short),
+			typeof(ushort),
+			typeof(int),
+			typeof(uint),
+			typeof(long),
+			typeof(ulong),
+			typeof(float),
+			typeof(double),
+			typeof(decimal),
+			typeof(bool),
+			typeof(string),
+			typeof(char),
+			typeof(Color),
+			typeof(Color32),
+			typeof(Vector2),
+			typeof(Vector3),
+			typeof(Vector4),
+			typeof(Vector2Int),
+			typeof(Vector3Int),
+			typeof(Quaternion),
+			typeof(Rect),
+			typeof(RectInt),
+			typeof(Bounds),
+			typeof(BoundsInt)
+		};
+
+		private const string BASE_KEY = "AuroraPunks.ScriptableValues.Editor.TypesGenerator.";
+		private const string PATH_KEY = BASE_KEY + "Path";
+		private const string EVENTS_PATH_KEY = BASE_KEY + "EventsPath";
+		private const string EVENT_LISTENERS_PATH_KEY = BASE_KEY + "EventListenersPath";
+		private const string VALUES_PATH_KEY = BASE_KEY + "ValuesPath";
+		private const string VALUE_LISTENERS_PATH_KEY = BASE_KEY + "ValueListenersPath";
+
+		private void CreateGUI()
+		{
+			ScrollView root = new ScrollView(ScrollViewMode.Vertical)
+			{
+				style =
+				{
+					paddingTop = 4
+				}
+			};
+
+			rootVisualElement.Add(root);
+
+			fullPath = EditorPrefs.GetString(PATH_KEY, string.Empty);
+
+			testsPathField = new TextField("Path")
+			{
+				value = ShortenPath(fullPath)
+			};
+
+			Button testPathBrowseButton = new Button(OnClickBrowseTestPath)
+			{
+				text = "Browse Path",
+				style =
+				{
+					marginTop = 8
+				}
+			};
+
+			// Events
+
+			eventsPathField = new TextField("Events Path")
+			{
+				value = EditorPrefs.GetString(EVENTS_PATH_KEY, "Events"),
+				style =
+				{
+					marginTop = 16
+				}
+			};
+
+			// Event listeners
+
+			eventListenersPathField = new TextField("Event Listeners Path")
+			{
+				value = EditorPrefs.GetString(EVENT_LISTENERS_PATH_KEY, "Event Listeners")
+			};
+
+			// Values
+
+			valuesPathField = new TextField("Values Path")
+			{
+				value = EditorPrefs.GetString(VALUES_PATH_KEY, "Values")
+			};
+
+			// Value listeners
+
+			valueListenersPathField = new TextField("Value Listeners Path")
+			{
+				value = EditorPrefs.GetString(VALUE_LISTENERS_PATH_KEY, "Value Listeners")
+			};
+
+			Button generateButton = new Button(OnClickGenerate)
+			{
+				text = "Generate",
+				style =
+				{
+					marginTop = 16
+				}
+			};
+
+			root.Add(testsPathField);
+			root.Add(testPathBrowseButton);
+			root.Add(eventsPathField);
+			root.Add(eventListenersPathField);
+			root.Add(valuesPathField);
+			root.Add(valueListenersPathField);
+			root.Add(generateButton);
+		}
+
+		[MenuItem("Tools/Types Generator")]
+		public static void ShowWindow()
+		{
+			TypesGenerator window = GetWindow<TypesGenerator>("Types Generator");
+			window.Show();
+		}
+
+		private void OnClickBrowseTestPath()
+		{
+			string path = EditorUtility.OpenFolderPanel("Select Types Folder", string.IsNullOrEmpty(fullPath) ? "Assets" : fullPath, "");
+			if (string.IsNullOrEmpty(path))
+			{
+				return;
+			}
+
+			fullPath = path;
+			EditorPrefs.SetString(PATH_KEY, path);
+			testsPathField.value = ShortenPath(path);
+		}
+
+		private void OnClickGenerate()
+		{
+			EditorPrefs.SetString(PATH_KEY, fullPath);
+			EditorPrefs.SetString(EVENTS_PATH_KEY, eventsPathField.value);
+			EditorPrefs.SetString(EVENT_LISTENERS_PATH_KEY, eventListenersPathField.value);
+			EditorPrefs.SetString(VALUES_PATH_KEY, valuesPathField.value);
+			EditorPrefs.SetString(VALUE_LISTENERS_PATH_KEY, valueListenersPathField.value);
+
+			GenerateValues(Path.Combine(fullPath, valuesPathField.value));
+			GenerateEvents(Path.Combine(fullPath, eventsPathField.value));
+			GenerateValueListeners(Path.Combine(fullPath, valueListenersPathField.value));
+			GenerateEventListeners(Path.Combine(fullPath, eventListenersPathField.value));
+
+			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+		}
+
+		private static void GenerateValues(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			int index = 0;
+			foreach (Type type in typesToGenerate)
+			{
+				string namespaceName = null;
+				string name = GetBetterName(type);
+
+				if (!TryGetValidType(type, out string typeName))
+				{
+					typeName = type.Name;
+					namespaceName = type.Namespace;
+				}
+
+				sb.Clear();
+
+				if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "UnityEngine")
+				{
+					sb.AppendLine($"using {namespaceName};");
+				}
+
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+
+				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("{");
+				sb.AppendLine("\t/// <summary>");
+				sb.AppendLine($"\t///     <see cref=\"ScriptableValue{{T}}\" /> with a <see cref=\"{typeName}\"/> value.");
+				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine("#if UNITY_EDITOR");
+				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)}\", menuName = \"Aurora Punks/Scriptable Values/Values/{name} Value\", order = ORDER + {index})]");
+				sb.AppendLine("#endif");
+				sb.AppendLine($"\tpublic sealed class Scriptable{name} : ScriptableValue<{typeName}> {{ }}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"Scriptable{name}.cs"), sb.ToString());
+				index++;
+			}
+		}
+
+		private static void GenerateEvents(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			int index = 1;
+			foreach (Type type in typesToGenerate)
+			{
+				string namespaceName = null;
+				string name = GetBetterName(type);
+
+				if (!TryGetValidType(type, out string typeName))
+				{
+					typeName = type.Name;
+					namespaceName = type.Namespace;
+				}
+
+				sb.Clear();
+
+				if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "UnityEngine")
+				{
+					sb.AppendLine($"using {namespaceName};");
+				}
+
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+
+				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("{");
+				sb.AppendLine("\t/// <summary>");
+				sb.AppendLine($"\t///     <see cref=\"ScriptableEvent{{T}}\" /> with a <see cref=\"{typeName}\"/> argument.");
+				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine("#if UNITY_EDITOR");
+				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)} Events\", menuName = \"Aurora Punks/Scriptable Values/Events/{name} Events\", order = ORDER + {index})]");
+				sb.AppendLine("#endif");
+				sb.AppendLine($"\tpublic sealed class Scriptable{name}Event : ScriptableEvent<{typeName}> {{ }}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"Scriptable{name}Event.cs"), sb.ToString());
+				index++;
+			}
+		}
+
+		private static void GenerateValueListeners(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			int index = 1000;
+			foreach (Type type in typesToGenerate)
+			{
+				string namespaceName = null;
+				string name = GetBetterName(type);
+
+				if (!TryGetValidType(type, out string typeName))
+				{
+					typeName = type.Name;
+					namespaceName = type.Namespace;
+				}
+
+				sb.Clear();
+
+				if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "UnityEngine")
+				{
+					sb.AppendLine($"using {namespaceName};");
+				}
+
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+
+				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("{");
+				sb.AppendLine("\t/// <summary>");
+				sb.AppendLine("\t///     A <see cref=\"ScriptableValueListener{TValue}\" /> that listens to a <see cref=\"ScriptableValue{TValue}\" /> with a");
+				sb.AppendLine($"\t///     type of <see cref=\"{typeName}\" /> and invokes an <see cref=\"UnityEngine.Events.UnityEvent\" /> when the value changes.");
+				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine("#if UNITY_EDITOR");
+				sb.AppendLine($"\t[AddComponentMenu(\"Scriptable Values/Listeners/Values/Scriptable {name} Listener\", {index})]");
+				sb.AppendLine("#endif");
+				sb.AppendLine($"\tpublic sealed class Scriptable{name}Listener : ScriptableValueListener<{typeName}> {{ }}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"Scriptable{name}Listener.cs"), sb.ToString());
+				index++;
+			}
+		}
+
+		private static void GenerateEventListeners(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			int index = 1100;
+			foreach (Type type in typesToGenerate)
+			{
+				string namespaceName = null;
+				string name = GetBetterName(type);
+
+				if (!TryGetValidType(type, out string typeName))
+				{
+					typeName = type.Name;
+					namespaceName = type.Namespace;
+				}
+
+				sb.Clear();
+
+				if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "UnityEngine")
+				{
+					sb.AppendLine($"using {namespaceName};");
+				}
+
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+
+				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("{");
+				sb.AppendLine("\t/// <summary>");
+				sb.AppendLine("\t///     A <see cref=\"ScriptableEventListener{TValue}\" /> that listens to a <see cref=\"ScriptableEvent{TValue}\" /> with a");
+				sb.AppendLine($"\t///     type of <see cref=\"{typeName}\" /> and invokes an <see cref=\"UnityEngine.Events.UnityEvent\" /> when the event is invoked.");
+				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine("#if UNITY_EDITOR");
+				sb.AppendLine($"\t[AddComponentMenu(\"Scriptable Values/Listeners/Values/Scriptable {name} Listener\", {index})]");
+				sb.AppendLine("#endif");
+				sb.AppendLine($"\tpublic sealed class Scriptable{name}EventListener : ScriptableEventListener<{typeName}> {{ }}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"Scriptable{name}EventListener.cs"), sb.ToString());
+				index++;
+			}
+		}
+
+		private static void CreateTestFile(string path, string content)
+		{
+			if (!Directory.Exists(Path.GetDirectoryName(path)))
+			{
+				Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+			}
+
+			File.WriteAllText(path, content);
+		}
+
+		private static string ShortenPath(string path)
+		{
+			return path.Replace(Application.dataPath.Substring(0, Application.dataPath.Length - 6), string.Empty);
+		}
+
+		private static Type GetMatchingType(TypeCache.TypeCollection types, Type type)
+		{
+			return types.FirstOrDefault(x => x.BaseType != null && x.BaseType.GenericTypeArguments.Length > 0 && x.BaseType.GenericTypeArguments[0] == type);
+		}
+
+		private static bool TryGetValidType(Type type, out string typeName)
+		{
+			if (type == typeof(byte))
+			{
+				typeName = "byte";
+				return true;
+			}
+
+			if (type == typeof(sbyte))
+			{
+				typeName = "sbyte";
+				return true;
+			}
+
+			if (type == typeof(short))
+			{
+				typeName = "short";
+				return true;
+			}
+
+			if (type == typeof(ushort))
+			{
+				typeName = "ushort";
+				return true;
+			}
+
+			if (type == typeof(int))
+			{
+				typeName = "int";
+				return true;
+			}
+
+			if (type == typeof(uint))
+			{
+				typeName = "uint";
+				return true;
+			}
+
+			if (type == typeof(long))
+			{
+				typeName = "long";
+				return true;
+			}
+
+			if (type == typeof(ulong))
+			{
+				typeName = "ulong";
+				return true;
+			}
+
+			if (type == typeof(float))
+			{
+				typeName = "float";
+				return true;
+			}
+
+			if (type == typeof(double))
+			{
+				typeName = "double";
+				return true;
+			}
+
+			if (type == typeof(decimal))
+			{
+				typeName = "decimal";
+				return true;
+			}
+
+			if (type == typeof(bool))
+			{
+				typeName = "bool";
+				return true;
+			}
+
+			if (type == typeof(string))
+			{
+				typeName = "string";
+				return true;
+			}
+
+			typeName = null;
+			return false;
+		}
+
+		private static string GetBetterName(Type type)
+		{
+			if (type == typeof(byte))
+			{
+				return "Byte";
+			}
+
+			if (type == typeof(sbyte))
+			{
+				return "SByte";
+			}
+
+			if (type == typeof(short))
+			{
+				return "Short";
+			}
+
+			if (type == typeof(ushort))
+			{
+				return "UShort";
+			}
+
+			if (type == typeof(int))
+			{
+				return "Int";
+			}
+
+			if (type == typeof(uint))
+			{
+				return "UInt";
+			}
+
+			if (type == typeof(long))
+			{
+				return "Long";
+			}
+
+			if (type == typeof(ulong))
+			{
+				return "ULong";
+			}
+
+			if (type == typeof(float))
+			{
+				return "Float";
+			}
+
+			if (type == typeof(double))
+			{
+				return "Double";
+			}
+
+			if (type == typeof(decimal))
+			{
+				return "Decimal";
+			}
+
+			if (type == typeof(bool))
+			{
+				return "Bool";
+			}
+
+			if (type == typeof(string))
+			{
+				return "String";
+			}
+
+			return type.Name;
+		}
+
+		private static TypeCache.TypeCollection GetScriptableValues()
+		{
+			return TypeCache.GetTypesDerivedFrom<ScriptableValue>();
+		}
+
+		private static TypeCache.TypeCollection GetScriptableEvents()
+		{
+			return TypeCache.GetTypesDerivedFrom<ScriptableEvent>();
+		}
+	}
+}

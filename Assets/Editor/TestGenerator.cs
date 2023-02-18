@@ -155,6 +155,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 
 				sb.Clear();
 				
+				sb.AppendLine("using System;");
+				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+	
 				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.Values");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}ValueTests : ScriptableValueTest<{type.Name}, {typeName}>");
@@ -168,6 +173,37 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				else if (typeName == "string")
 				{
 					sb.AppendLine("\t\t\treturn value + \"1\";");
+				}
+				else if (typeName == "Vector2" || typeName == "Vector3" || typeName == "Vector4"){
+					sb.AppendLine($"\t\t\treturn ({typeName}) (value * 1.25f);");
+				}
+				else if (typeName == "Quaternion")
+				{
+					sb.AppendLine($"\t\t\treturn ({typeName}) (value * Quaternion.Euler(0, 180, 0));");
+				}
+				else if (typeName == "Vector2Int")
+				{
+					sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector2Int(99, 99));");
+				}
+				else if (typeName == "Vector3Int")
+				{
+					sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector3Int(99, 99, 99));");
+				}
+				else if (typeName == "Bounds")
+				{
+					sb.AppendLine("\t\t\treturn new Bounds(value.center + new Vector3(99, 99, 99), value.size + new Vector3(99, 99, 99));");
+				}
+				else if (typeName == "BoundsInt")
+				{
+					sb.AppendLine("\t\t\treturn new BoundsInt(value.position + new Vector3Int(99, 99, 99), value.size + new Vector3Int(99, 99, 99));");
+				}
+				else if (typeName == "Color32" || typeName == "Color")
+				{
+					sb.AppendLine("\t\t\treturn Color.blue;");
+				}
+				else if (typeName == "Rect" || typeName == "RectInt")
+				{
+					sb.AppendLine($"\t\t\treturn new {typeName}(1, 2, 3, 4);");
 				}
 				else
 				{
@@ -193,6 +229,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 
 				sb.Clear();
 				
+				sb.AppendLine("using System;");
+				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+				
 				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.Events");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}Tests : ScriptableEventTest<{type.Name}, {typeName}> {{ }}");
@@ -214,6 +255,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 
 				sb.Clear();
 				
+				sb.AppendLine("using System;");
+				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+				
 				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.ValueListeners");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}ValueTests : ValueListenerTest<{type.Name}, {GetMatchingType(values, type.BaseType.GenericTypeArguments[0]).Name}, {typeName}> {{ }}");
@@ -234,6 +280,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				}
 
 				sb.Clear();
+				
+				sb.AppendLine("using System;");
+				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
 				
 				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.EventListeners");
 				sb.AppendLine("{");
@@ -266,6 +317,12 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 
 		private static bool TryGetValidType(Type type, out string typeName)
 		{
+			if (type == typeof(GameObject))
+			{
+				typeName = null;
+				return false;
+			}
+			
 			if (type == typeof(byte))
 			{
 				typeName = "byte";
@@ -344,8 +401,8 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				return true;
 			}
 
-			typeName = null;
-			return false;
+			typeName = type.Name;
+			return true;
 		}
 
 		private static TypeCache.TypeCollection GetScriptableValues()
