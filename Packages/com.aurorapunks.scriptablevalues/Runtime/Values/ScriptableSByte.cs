@@ -3,7 +3,7 @@
 namespace AuroraPunks.ScriptableValues
 {
 	/// <summary>
-	///     <see cref="ScriptableValue{T}" /> with a sbyte value.
+	///     <see cref="ScriptableValue{T}" /> with a <see cref="byte"/> value.
 	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable SByte", menuName = "Aurora Punks/Scriptable Values/Values/SByte Value", order = ORDER + 1)]

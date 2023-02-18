@@ -3,7 +3,7 @@
 namespace AuroraPunks.ScriptableValues
 {
 	/// <summary>
-	///     <see cref="ScriptableValue{T}" /> with a float value.
+	///     <see cref="ScriptableValue{T}" /> with a <see cref="float"/> value.
 	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable Float", menuName = "Aurora Punks/Scriptable Values/Values/Float Value", order = ORDER + 8)]

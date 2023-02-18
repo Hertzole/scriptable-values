@@ -3,7 +3,7 @@
 namespace AuroraPunks.ScriptableValues
 {
 	/// <summary>
-	///     <see cref="ScriptableValue{T}" /> with a decimal value.
+	///     <see cref="ScriptableValue{T}" /> with a <see cref="decimal"/> value.
 	/// </summary>
 	
 #if UNITY_EDITOR

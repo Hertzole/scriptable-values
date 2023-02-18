@@ -3,7 +3,7 @@ using UnityEngine;
 namespace AuroraPunks.ScriptableValues
 {
 	/// <summary>
-	///     <see cref="ScriptableValue{T}" /> with a ulong value.
+	///     <see cref="ScriptableValue{T}" /> with a <see cref="ulong"/> value.
 	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Scriptable ULong", menuName = "Aurora Punks/Scriptable Values/Values/ULong Value", order = ORDER + 7)]
