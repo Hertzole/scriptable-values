@@ -16,6 +16,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 		private TextField eventListenersPathField;
 		private TextField valuesPathField;
 		private TextField valueListenersPathField;
+		private TextField addressablesPathField;
 
 		private static readonly Type[] typesToGenerate =
 		{
@@ -53,6 +54,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 		private const string EVENT_LISTENERS_PATH_KEY = BASE_KEY + "EventListenersPath";
 		private const string VALUES_PATH_KEY = BASE_KEY + "ValuesPath";
 		private const string VALUE_LISTENERS_PATH_KEY = BASE_KEY + "ValueListenersPath";
+		private const string ADDRESSABLES_PATH_KEY = BASE_KEY + "AddressablesPath";
 
 		private void CreateGUI()
 		{
@@ -113,6 +115,13 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 			{
 				value = EditorPrefs.GetString(VALUE_LISTENERS_PATH_KEY, "Value Listeners")
 			};
+			
+			// Addressables
+			
+			addressablesPathField = new TextField("Addressables Path")
+			{
+				value = EditorPrefs.GetString(ADDRESSABLES_PATH_KEY, "Addressables")
+			};
 
 			Button generateButton = new Button(OnClickGenerate)
 			{
@@ -129,6 +138,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 			root.Add(eventListenersPathField);
 			root.Add(valuesPathField);
 			root.Add(valueListenersPathField);
+			root.Add(addressablesPathField);
 			root.Add(generateButton);
 		}
 
@@ -159,11 +169,13 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 			EditorPrefs.SetString(EVENT_LISTENERS_PATH_KEY, eventListenersPathField.value);
 			EditorPrefs.SetString(VALUES_PATH_KEY, valuesPathField.value);
 			EditorPrefs.SetString(VALUE_LISTENERS_PATH_KEY, valueListenersPathField.value);
+			EditorPrefs.SetString(ADDRESSABLES_PATH_KEY, addressablesPathField.value);
 
 			GenerateValues(Path.Combine(fullPath, valuesPathField.value));
 			GenerateEvents(Path.Combine(fullPath, eventsPathField.value));
 			GenerateValueListeners(Path.Combine(fullPath, valueListenersPathField.value));
 			GenerateEventListeners(Path.Combine(fullPath, eventListenersPathField.value));
+			GenerateAddressables(Path.Combine(fullPath, addressablesPathField.value));
 
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
@@ -240,7 +252,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.AppendLine($"\t///     <see cref=\"ScriptableEvent{{T}}\" /> with a <see cref=\"{typeName}\"/> argument.");
 				sb.AppendLine("\t/// </summary>");
 				sb.AppendLine("#if UNITY_EDITOR");
-				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)} Events\", menuName = \"Aurora Punks/Scriptable Values/Events/{name} Events\", order = ORDER + {index})]");
+				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)} Event\", menuName = \"Aurora Punks/Scriptable Values/Events/{name} Event\", order = ORDER + {index})]");
 				sb.AppendLine("#endif");
 				sb.AppendLine($"\tpublic sealed class Scriptable{name}Event : ScriptableEvent<{typeName}> {{ }}");
 				sb.AppendLine("}");
@@ -332,6 +344,52 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				CreateTestFile(Path.Combine(path, $"Scriptable{name}EventListener.cs"), sb.ToString());
 				index++;
 			}
+		}
+		
+		private static void GenerateAddressables(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			
+			// Values
+			foreach (Type type in typesToGenerate)
+			{
+				string name = GetBetterName(type);
+				GenerateAddressablesType(sb, $"Scriptable{name}");
+				CreateTestFile(Path.Combine(path, "Values", $"AssetReferenceScriptable{name}.cs"), sb.ToString());
+			}
+			
+			// Events
+			foreach (Type type in typesToGenerate)
+			{
+				string name = GetBetterName(type);
+				GenerateAddressablesType(sb, $"Scriptable{name}Event");
+				CreateTestFile(Path.Combine(path, "Events", $"AssetReferenceScriptable{name}Event.cs"), sb.ToString());
+			}
+		}
+
+		private static void GenerateAddressablesType(StringBuilder sb, string typeName)
+		{
+			sb.Clear();
+
+			sb.AppendLine("#if AURORA_SV_ADDRESSABLES");
+			sb.AppendLine("using System;");
+			sb.AppendLine("using UnityEngine.AddressableAssets;\n");
+			sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+			sb.AppendLine("{");
+			sb.AppendLine("\t/// <summary>");
+			sb.AppendLine($"\t///     <see cref=\"{typeName}\" /> only asset reference.");
+			sb.AppendLine("\t/// </summary>");
+			sb.AppendLine("\t[Serializable]");
+			sb.AppendLine($"\tpublic sealed class AssetReference{typeName} : AssetReferenceT<{typeName}>");
+			sb.AppendLine("\t{");
+			sb.AppendLine("\t\t/// <summary>");
+			sb.AppendLine($"\t\t///     Constructs a new reference to a <see cref=\"AssetReference{typeName}\" />.");
+			sb.AppendLine("\t\t/// </summary>");
+			sb.AppendLine("\t\t/// <param name=\"guid\">The object guid.</param>");
+			sb.AppendLine($"\t\tpublic AssetReference{typeName}(string guid) : base(guid) {{ }}");
+			sb.AppendLine("\t}");
+			sb.AppendLine("}");
+			sb.AppendLine("#endif");
 		}
 
 		private static void CreateTestFile(string path, string content)
