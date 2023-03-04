@@ -357,8 +357,12 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				GenerateAddressablesType(sb, $"Scriptable{name}");
 				CreateTestFile(Path.Combine(path, "Values", $"AssetReferenceScriptable{name}.cs"), sb.ToString());
 			}
-			
+
 			// Events
+			
+			GenerateAddressablesType(sb, "ScriptableEvent");
+			CreateTestFile(Path.Combine(path, "Events", "AssetReferenceScriptableEvent.cs"), sb.ToString());
+			
 			foreach (Type type in typesToGenerate)
 			{
 				string name = GetBetterName(type);
