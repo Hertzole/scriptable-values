@@ -1,12 +1,4 @@
-# Aurora Scriptable Values
-
-[![openupm](https://img.shields.io/npm/v/com.aurorapunks.aurorascriptablevalues?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.aurorapunks.aurorascriptablevalues/)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Aurora-Punks_aurora-scriptable-values&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Aurora-Punks_aurora-scriptable-values)
+# Scriptable Values
 
 ## ❓ What is this?
 
@@ -206,23 +198,8 @@ public class PlayersUI : MonoBehaviour
 
 Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. It may support older versions but they are currently untested.
 
-### OpenUPM (Recommended)
-1. Add the OpenUPM reigstry.   
-   Click in the menu bar Edit → Project Settings... → Package Manager
-   Add a new scoped registry with the following parameters:  
-   Name: `OpenUPM`  
-   URL: `https://package.openupm.com`  
-   Scopes:  
-   - `com.openupm`  
-   - `com.aurorapunks.aurorascriptablevalues`
-2. Click apply and close the project settings.
-3. Open up the package manager.  
-   Click in the menu bar Window → Package Manager
-4. Select `Packages: My Registries` in the menu bar of the package manager window.
-5. You should see `Aurora Scriptable Values` under the `Aurora Punks` section (or `Other` section). Click on it and then press Install in the bottom right corner.
-
 ### Unity package manager through git
 1. Open up the Unity package manager
 2. Click on the plus icon in the top left and "Add package from git url"
-3. Paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#package`  
-   You can also paste in `https://github.com/Aurora-Punks/aurora-scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
+3. Paste in `https://github.com/Hertzole/scriptable-values.git#package`  
+   You can also paste in `https://github.com/Hertzole/scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
