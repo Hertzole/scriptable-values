@@ -1,0 +1,14 @@
+{
+  "name": "se.hertzole.scriptable-values",
+  "version": "1.1.0",
+  "displayName": "Scriptable Values",
+  "description": "Set up games using Scriptable Objects.",
+  "unity": "2021.3",
+  "unityRelease": "0f1",
+  "keywords": [
+    "scriptableobject",
+    "scriptable",
+    "object",
+    "values"
+  ]
+}

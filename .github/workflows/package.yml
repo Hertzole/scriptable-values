@@ -45,4 +45,4 @@ jobs:
         git tag -a ${{ steps.previoustag.outputs.tag }}-upm -m "${{ steps.previoustag.outputs.tag }}"
         git push origin ${{ steps.previoustag.outputs.tag }}-upm 
       env:
-        PKG_ROOT: "Packages/com.aurorapunks.scriptablevalues"
+        PKG_ROOT: "Packages/se.hertzole.scriptable-values"

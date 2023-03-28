@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AuroraPunks.ScriptableValues.Editor.Internal
+namespace Hertzole.ScriptableValues.Editor.Internal
 {
 	public sealed class TypesGenerator : EditorWindow
 	{
@@ -48,7 +48,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 			typeof(BoundsInt)
 		};
 
-		private const string BASE_KEY = "AuroraPunks.ScriptableValues.Editor.TypesGenerator.";
+		private const string BASE_KEY = "Hertzole.ScriptableValues.Editor.TypesGenerator.";
 		private const string PATH_KEY = BASE_KEY + "Path";
 		private const string EVENTS_PATH_KEY = BASE_KEY + "EventsPath";
 		private const string EVENT_LISTENERS_PATH_KEY = BASE_KEY + "EventListenersPath";
@@ -205,13 +205,13 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("namespace Hertzole.ScriptableValues");
 				sb.AppendLine("{");
 				sb.AppendLine("\t/// <summary>");
 				sb.AppendLine($"\t///     <see cref=\"ScriptableValue{{T}}\" /> with a <see cref=\"{typeName}\"/> value.");
 				sb.AppendLine("\t/// </summary>");
 				sb.AppendLine("#if UNITY_EDITOR");
-				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)}\", menuName = \"Aurora Punks/Scriptable Values/Values/{name} Value\", order = ORDER + {index})]");
+				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)}\", menuName = \"Hertzole/Scriptable Values/Values/{name} Value\", order = ORDER + {index})]");
 				sb.AppendLine("#endif");
 				sb.AppendLine($"\tpublic sealed class Scriptable{name} : ScriptableValue<{typeName}> {{ }}");
 				sb.AppendLine("}");
@@ -246,13 +246,13 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("namespace Hertzole.ScriptableValues");
 				sb.AppendLine("{");
 				sb.AppendLine("\t/// <summary>");
 				sb.AppendLine($"\t///     <see cref=\"ScriptableEvent{{T}}\" /> with a <see cref=\"{typeName}\"/> argument.");
 				sb.AppendLine("\t/// </summary>");
 				sb.AppendLine("#if UNITY_EDITOR");
-				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)} Event\", menuName = \"Aurora Punks/Scriptable Values/Events/{name} Event\", order = ORDER + {index})]");
+				sb.AppendLine($"\t[CreateAssetMenu(fileName = \"New Scriptable {ObjectNames.NicifyVariableName(name)} Event\", menuName = \"Hertzole/Scriptable Values/Events/{name} Event\", order = ORDER + {index})]");
 				sb.AppendLine("#endif");
 				sb.AppendLine($"\tpublic sealed class Scriptable{name}Event : ScriptableEvent<{typeName}> {{ }}");
 				sb.AppendLine("}");
@@ -287,7 +287,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("namespace Hertzole.ScriptableValues");
 				sb.AppendLine("{");
 				sb.AppendLine("\t/// <summary>");
 				sb.AppendLine("\t///     A <see cref=\"ScriptableValueListener{TValue}\" /> that listens to a <see cref=\"ScriptableValue{TValue}\" /> with a");
@@ -329,7 +329,7 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+				sb.AppendLine("namespace Hertzole.ScriptableValues");
 				sb.AppendLine("{");
 				sb.AppendLine("\t/// <summary>");
 				sb.AppendLine("\t///     A <see cref=\"ScriptableEventListener{TValue}\" /> that listens to a <see cref=\"ScriptableEvent{TValue}\" /> with a");
@@ -375,10 +375,10 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 		{
 			sb.Clear();
 
-			sb.AppendLine("#if AURORA_SV_ADDRESSABLES");
+			sb.AppendLine("#if SCRIPTABLE_VALUES_ADDRESSABLES");
 			sb.AppendLine("using System;");
 			sb.AppendLine("using UnityEngine.AddressableAssets;\n");
-			sb.AppendLine("namespace AuroraPunks.ScriptableValues");
+			sb.AppendLine("namespace Hertzole.ScriptableValues");
 			sb.AppendLine("{");
 			sb.AppendLine("\t/// <summary>");
 			sb.AppendLine($"\t///     <see cref=\"{typeName}\" /> only asset reference.");

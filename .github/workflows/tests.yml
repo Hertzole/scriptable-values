@@ -39,7 +39,7 @@ jobs:
         with:
           testMode: playmode
           checkName: Play mode test results
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
       # Run edit mode tests
       - name: Edit mode tests
@@ -48,7 +48,7 @@ jobs:
         with:
           testMode: editmode
           checkName: Edit mode test results
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+AuroraPunks.ScriptableValues'
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
       # Upload test results
       - name: Upload play mode results
@@ -135,12 +135,12 @@ jobs:
           ls
           ls Coverage
           ./dotnet-sonarscanner begin \
-           /o:"aurora-punks" \
-           /k:"Aurora-Punks_aurora-scriptable-values" \
+           /o:"hertzole" \
+           /k:"scriptable-values" \
            /d:sonar.host.url=https://sonarcloud.io \
            /d:sonar.verbose=false \
            /d:sonar.login=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
            /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/workspace-opencov/EditMode/TestCoverageResults_0000.xml
-          dotnet build aurora-scriptable-values.sln
+          dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN

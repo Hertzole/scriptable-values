@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace AuroraPunks.ScriptableValues.Editor.Internal
+namespace Hertzole.ScriptableValues.Editor.Internal
 {
 	public sealed class TestGenerator : EditorWindow
 	{
@@ -18,11 +18,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 		private TextField valuesPathField;
 		private TextField valueListenersPathField;
 
-		private const string TESTS_PATH_KEY = "AuroraPunks.ScriptableValues.Editor.TestGenerator.TestsPath";
-		private const string EVENTS_PATH_KEY = "AuroraPunks.ScriptableValues.Editor.TestGenerator.EventsPath";
-		private const string EVENT_LISTENERS_PATH_KEY = "AuroraPunks.ScriptableValues.Editor.TestGenerator.EventListenersPath";
-		private const string VALUES_PATH_KEY = "AuroraPunks.ScriptableValues.Editor.TestGenerator.ValuesPath";
-		private const string VALUE_LISTENERS_PATH_KEY = "AuroraPunks.ScriptableValues.Editor.TestGenerator.ValueListenersPath";
+		private const string TESTS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.TestsPath";
+		private const string EVENTS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.EventsPath";
+		private const string EVENT_LISTENERS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.EventListenersPath";
+		private const string VALUES_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.ValuesPath";
+		private const string VALUE_LISTENERS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.ValueListenersPath";
 
 		private void CreateGUI()
 		{
@@ -156,11 +156,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.Clear();
 				
 				sb.AppendLine("using System;");
-				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using Hertzole.ScriptableValues;");
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 	
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.Values");
+				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.Values");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}ValueTests : ScriptableValueTest<{type.Name}, {typeName}>");
 				sb.AppendLine("\t{");
@@ -230,11 +230,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.Clear();
 				
 				sb.AppendLine("using System;");
-				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using Hertzole.ScriptableValues;");
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 				
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.Events");
+				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.Events");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}Tests : ScriptableEventTest<{type.Name}, {typeName}> {{ }}");
 				sb.AppendLine("}");
@@ -256,11 +256,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.Clear();
 				
 				sb.AppendLine("using System;");
-				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using Hertzole.ScriptableValues;");
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 				
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.ValueListeners");
+				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.ValueListeners");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}ValueTests : ValueListenerTest<{type.Name}, {GetMatchingType(values, type.BaseType.GenericTypeArguments[0]).Name}, {typeName}> {{ }}");
 				sb.AppendLine("}");
@@ -282,11 +282,11 @@ namespace AuroraPunks.ScriptableValues.Editor.Internal
 				sb.Clear();
 				
 				sb.AppendLine("using System;");
-				sb.AppendLine("using AuroraPunks.ScriptableValues;");
+				sb.AppendLine("using Hertzole.ScriptableValues;");
 				sb.AppendLine("using UnityEngine;");
 				sb.AppendLine();
 				
-				sb.AppendLine("namespace AuroraPunks.ScriptableValues.Tests.EventListeners");
+				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.EventListeners");
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}Tests : GenericEventListenerTest<{type.Name}, {GetMatchingType(events, type.BaseType.GenericTypeArguments[0]).Name}, {typeName}> {{ }}");
 				sb.AppendLine("}");

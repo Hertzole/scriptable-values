@@ -38,4 +38,4 @@ jobs:
         git commit -am "Packaged project"
         git push -f -u origin dev-package
       env:
-        PKG_ROOT: "Packages/com.aurorapunks.scriptablevalues"
+        PKG_ROOT: "Packages/se.hertzole.scriptable-values"
