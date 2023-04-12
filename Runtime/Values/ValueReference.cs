@@ -17,6 +17,10 @@ namespace Hertzole.ScriptableValues
 #endif
 	}
 
+	/// <summary>
+	///     Allows you to reference a ScriptableValue or a constant value.
+	/// </summary>
+	/// <typeparam name="T">The type that the value should be.</typeparam>
 	[Serializable]
 	public class ValueReference<T>
 	{
@@ -78,6 +82,7 @@ namespace Hertzole.ScriptableValues
 						{
 							AssetHandle.Result.Value = value;
 						}
+
 						break;
 #endif
 					default:
