@@ -66,13 +66,23 @@ namespace Hertzole.ScriptableValues.Editor
 			{
 				valueLabel = new TextElementField("Value")
 				{
-					value = valueFieldInfo.GetValue(target).ToString()
+					value = valueFieldInfo.GetValue(target).ToString(),
+					style =
+					{
+						marginBottom = 16
+					}
 				};
 				valueLabel.AddToClassList(TextElementField.alignedFieldUssClassName);
 			}
 			else
 			{
-				valueField = new PropertyField(value);
+				valueField = new PropertyField(value)
+				{
+					style =
+					{
+						marginBottom = 16
+					}
+				};
 			}
 			isReadOnlyField = new PropertyField(isReadOnly);
 			defaultValueField = new PropertyField(defaultValue);
