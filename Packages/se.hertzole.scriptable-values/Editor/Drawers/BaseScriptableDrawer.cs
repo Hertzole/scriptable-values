@@ -32,7 +32,7 @@ namespace Hertzole.ScriptableValues
 				noneString = $"None ({ObjectNames.NicifyVariableName(GetNameWithoutGenericArity(fieldInfo.FieldType))}<{string.Join(", ", types.Select(x => x.Name))}>)";
 			}
 
-			field = new ObjectField(property.displayName)
+			field = new ObjectField(preferredLabel)
 			{
 				tooltip = property.tooltip,
 				objectType = fieldInfo.FieldType
