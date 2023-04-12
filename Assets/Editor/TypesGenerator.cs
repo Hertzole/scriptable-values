@@ -17,6 +17,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 		private TextField valuesPathField;
 		private TextField valueListenersPathField;
 		private TextField addressablesPathField;
+		private TextField valueReferencesPathField;
 
 		private static readonly Type[] typesToGenerate =
 		{
@@ -55,6 +56,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 		private const string VALUES_PATH_KEY = BASE_KEY + "ValuesPath";
 		private const string VALUE_LISTENERS_PATH_KEY = BASE_KEY + "ValueListenersPath";
 		private const string ADDRESSABLES_PATH_KEY = BASE_KEY + "AddressablesPath";
+		private const string VALUE_REFERENCES_PATH = BASE_KEY + "ValueReferencesPath";
 
 		private void CreateGUI()
 		{
@@ -116,6 +118,13 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 				value = EditorPrefs.GetString(VALUE_LISTENERS_PATH_KEY, "Value Listeners")
 			};
 			
+			// Value references
+			
+			valueReferencesPathField = new TextField("Value References Path")
+			{
+				value = EditorPrefs.GetString(VALUE_REFERENCES_PATH, "Value References")
+			};
+			
 			// Addressables
 			
 			addressablesPathField = new TextField("Addressables Path")
@@ -138,6 +147,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			root.Add(eventListenersPathField);
 			root.Add(valuesPathField);
 			root.Add(valueListenersPathField);
+			root.Add(valueReferencesPathField);
 			root.Add(addressablesPathField);
 			root.Add(generateButton);
 		}
@@ -170,10 +180,12 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			EditorPrefs.SetString(VALUES_PATH_KEY, valuesPathField.value);
 			EditorPrefs.SetString(VALUE_LISTENERS_PATH_KEY, valueListenersPathField.value);
 			EditorPrefs.SetString(ADDRESSABLES_PATH_KEY, addressablesPathField.value);
+			EditorPrefs.SetString(VALUE_REFERENCES_PATH, valueReferencesPathField.value);
 
 			GenerateValues(Path.Combine(fullPath, valuesPathField.value));
 			GenerateEvents(Path.Combine(fullPath, eventsPathField.value));
 			GenerateValueListeners(Path.Combine(fullPath, valueListenersPathField.value));
+			GenerateValueReferences(Path.Combine(fullPath, valueReferencesPathField.value));
 			GenerateEventListeners(Path.Combine(fullPath, eventListenersPathField.value));
 			GenerateAddressables(Path.Combine(fullPath, addressablesPathField.value));
 
@@ -301,6 +313,54 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 
 				CreateTestFile(Path.Combine(path, $"Scriptable{name}Listener.cs"), sb.ToString());
 				index++;
+			}
+		}
+
+		private static void GenerateValueReferences(string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (Type type in typesToGenerate)
+			{
+				string namespaceName = null;
+				string name = GetBetterName(type);
+
+				if (!TryGetValidType(type, out string typeName))
+				{
+					typeName = type.Name;
+					namespaceName = type.Namespace;
+				}
+
+				sb.Clear();
+
+				bool hasNamespace = false;
+
+				if (!string.IsNullOrEmpty(namespaceName) && namespaceName != "UnityEngine")
+				{
+					sb.AppendLine($"using {namespaceName};");
+					hasNamespace = true;
+				}
+
+				if (!string.IsNullOrEmpty(type.Namespace))
+				{
+					sb.AppendLine($"using {type.Namespace};");
+					hasNamespace = true;
+				}
+
+				if (hasNamespace)
+				{
+					sb.AppendLine();
+				}
+
+				sb.AppendLine("namespace Hertzole.ScriptableValues");
+				sb.AppendLine("{");
+				sb.AppendLine("\t/// <summary>");
+				sb.AppendLine($"\t///     A <see cref=\"ValueReference{{TValue}}\" /> with a type of <see cref=\"{typeName}\" />");
+				sb.AppendLine($"\t///     that allows you to reference a <see cref=\"ScriptableValue{{{type.Name}}}\" /> or a constant value.");
+				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine($"\tpublic sealed class {name}Reference : ValueReference<{typeName}> {{ }}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"{name}Reference.cs"), sb.ToString());
 			}
 		}
 
@@ -493,6 +553,12 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			if (type == typeof(string))
 			{
 				typeName = "string";
+				return true;
+			}
+
+			if (type == typeof(char))
+			{
+				typeName = "char";
 				return true;
 			}
 
