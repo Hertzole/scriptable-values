@@ -53,14 +53,21 @@ namespace Hertzole.ScriptableValues
 			menuButton.RegisterCallback<PointerDownEvent, SerializedProperty>((_, prop) => { CreateMenu(prop, true); }, typeProperty);
 
 			menuButton.Bind(property.serializedObject);
+			
+			string label =
+#if UNITY_2022_2_OR_NEWER
+				preferredLabel;
+#else
+				property.displayName;
+#endif
 
-			constantField = new PropertyField(property.FindPropertyRelative("constantValue"), preferredLabel);
-			referenceField = new PropertyField(property.FindPropertyRelative("referenceValue"), preferredLabel);
+			constantField = new PropertyField(property.FindPropertyRelative("constantValue"), label);
+			referenceField = new PropertyField(property.FindPropertyRelative("referenceValue"), label);
 
 			valueContainer.Add(constantField);
 			valueContainer.Add(referenceField);
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			addressableField = new PropertyField(property.FindPropertyRelative("addressableReference"), preferredLabel);
+			addressableField = new PropertyField(property.FindPropertyRelative("addressableReference"), label);
 			valueContainer.Add(addressableField);
 #endif
 
