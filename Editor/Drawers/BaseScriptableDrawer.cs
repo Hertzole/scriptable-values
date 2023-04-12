@@ -2,7 +2,9 @@
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace Hertzole.ScriptableValues
 {
@@ -20,6 +22,16 @@ namespace Hertzole.ScriptableValues
 			"unity-label",
 			"unity-object-field-display__label"
 		};
+
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
+			EditorGUI.BeginChangeCheck();
+			Object obj = EditorGUI.ObjectField(position, label, property.objectReferenceValue, fieldInfo.FieldType, true);
+			if (EditorGUI.EndChangeCheck())
+			{
+				property.objectReferenceValue = obj;
+			}
+		}
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
