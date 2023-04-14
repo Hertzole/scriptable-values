@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues
 {
-	[CustomPropertyDrawer(typeof(ValueReference<>))]
+	[CustomPropertyDrawer(typeof(ValueReference<>), true)]
 	public sealed class ValueReferenceDrawer : PropertyDrawer
 	{
 		private static GUIContent icon;
