@@ -357,6 +357,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 				sb.AppendLine($"\t///     A <see cref=\"ValueReference{{TValue}}\" /> with a type of <see cref=\"{typeName}\" />");
 				sb.AppendLine($"\t///     that allows you to reference a <see cref=\"ScriptableValue{{{type.Name}}}\" /> or a constant value.");
 				sb.AppendLine("\t/// </summary>");
+				sb.AppendLine("\t[System.Serializable]");
 				sb.AppendLine($"\tpublic sealed class {name}Reference : ValueReference<{typeName}> {{ }}");
 				sb.AppendLine("}");
 
