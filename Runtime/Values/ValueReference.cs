@@ -36,7 +36,7 @@ namespace Hertzole.ScriptableValues
 		private AssetReferenceT<ScriptableValue<T>> addressableReference = default;
 #endif
 		[SerializeField]
-		private ValueReferenceType valueType = ValueReferenceType.Constant;
+		private ValueReferenceType valueType = ValueReferenceType.Reference;
 
 		public T Value
 		{
