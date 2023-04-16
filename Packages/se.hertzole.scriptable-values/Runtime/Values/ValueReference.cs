@@ -22,6 +22,9 @@ namespace Hertzole.ScriptableValues
 	/// </summary>
 	/// <typeparam name="T">The type that the value should be.</typeparam>
 	[Serializable]
+#if ODIN_INSPECTOR
+	[Sirenix.OdinInspector.DrawWithUnity]
+#endif
 	public class ValueReference<T>
 	{
 		[SerializeField]
