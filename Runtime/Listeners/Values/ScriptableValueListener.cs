@@ -55,7 +55,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>Invoke with both single and multiple parameters..</summary>
 		Both = 3
 	}
-
+	
 	/// <summary>
 	///     Base class for a component that listens to <see cref="ScriptableValue{T}" />.
 	/// </summary>

@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="string" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable String Listener", 1112)]
+	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable String Event Listener", 1112)]
 #endif
 	public sealed class ScriptableStringEventListener : ScriptableEventListener<string> { }
 }
