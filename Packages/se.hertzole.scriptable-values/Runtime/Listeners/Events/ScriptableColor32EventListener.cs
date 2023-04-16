@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="Color32" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Color32 Listener", 1115)]
+	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Color32 Event Listener", 1115)]
 #endif
 	public sealed class ScriptableColor32EventListener : ScriptableEventListener<Color32> { }
 }

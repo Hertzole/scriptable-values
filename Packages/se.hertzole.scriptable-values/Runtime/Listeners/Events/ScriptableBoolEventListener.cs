@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="bool" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Bool Listener", 1111)]
+	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Bool Event Listener", 1111)]
 #endif
 	public sealed class ScriptableBoolEventListener : ScriptableEventListener<bool> { }
 }

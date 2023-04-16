@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="Vector2Int" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Vector2Int Listener", 1119)]
+	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Vector2Int Event Listener", 1119)]
 #endif
 	public sealed class ScriptableVector2IntEventListener : ScriptableEventListener<Vector2Int> { }
 }

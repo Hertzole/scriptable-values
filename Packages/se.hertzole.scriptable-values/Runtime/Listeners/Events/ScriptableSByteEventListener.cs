@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="sbyte" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable SByte Listener", 1101)]
+	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable SByte Event Listener", 1101)]
 #endif
 	public sealed class ScriptableSByteEventListener : ScriptableEventListener<sbyte> { }
 }

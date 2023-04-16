@@ -397,7 +397,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 				sb.AppendLine($"\t///     type of <see cref=\"{typeName}\" /> and invokes an <see cref=\"UnityEngine.Events.UnityEvent\" /> when the event is invoked.");
 				sb.AppendLine("\t/// </summary>");
 				sb.AppendLine("#if UNITY_EDITOR");
-				sb.AppendLine($"\t[AddComponentMenu(\"Scriptable Values/Listeners/Values/Scriptable {name} Listener\", {index})]");
+				sb.AppendLine($"\t[AddComponentMenu(\"Scriptable Values/Listeners/Values/Scriptable {name} Event Listener\", {index})]");
 				sb.AppendLine("#endif");
 				sb.AppendLine($"\tpublic sealed class Scriptable{name}EventListener : ScriptableEventListener<{typeName}> {{ }}");
 				sb.AppendLine("}");
