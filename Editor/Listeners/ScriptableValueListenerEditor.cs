@@ -1,13 +1,15 @@
-﻿using System;
-using JetBrains.Annotations;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
+	// This editor is mainly used for Odin Inspector to understand that it shouldn't override this inspector.
+	[CustomEditor(typeof(ScriptableListenerBase), true)]
+	public class ScriptableValueListenerBaseEditor : UnityEditor.Editor { }
+	
 	[CustomEditor(typeof(ScriptableValueListener<>), true)]
-	public class ScriptableValueListenerEditor : UnityEditor.Editor
+	public class ScriptableValueListenerEditor : ScriptableValueListenerBaseEditor
 	{
 		private PropertyField valueField;
 		private PropertyField startListeningField;

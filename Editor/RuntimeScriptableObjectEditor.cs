@@ -5,9 +5,11 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Hertzole.ScriptableValues
+namespace Hertzole.ScriptableValues.Editor
 {
-	public abstract class RuntimeScriptableObjectEditor : UnityEditor.Editor
+	// This attribute is mainly used for Odin Inspector to understand that it shouldn't override this inspector.
+	[CustomEditor(typeof(RuntimeScriptableObject), true)]
+	public class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
 		private bool hasCreatedDefaultInspector;
 		private SerializedProperty collectStackTraces;

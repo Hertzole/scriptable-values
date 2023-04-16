@@ -43,6 +43,9 @@ namespace Hertzole.ScriptableValues
 	///     Base class for a ScriptableValue with a value.
 	/// </summary>
 	/// <typeparam name="T">The type of the value.</typeparam>
+#if ODIN_INSPECTOR
+	[Sirenix.OdinInspector.DrawWithUnity]
+#endif
 	public abstract class ScriptableValue<T> : ScriptableValue
 	{
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
