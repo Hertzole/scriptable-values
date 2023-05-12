@@ -317,6 +317,8 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(1, instance.CountAll);
 			Assert.AreEqual(1, instance.CountActive);
 			Assert.AreEqual(0, instance.CountInactive);
+			
+			instance.Clear();
 		}
 
 		private void Return_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -328,6 +330,8 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(1, instance.CountAll);
 			Assert.AreEqual(0, instance.CountActive);
 			Assert.AreEqual(1, instance.CountInactive);
+		
+			instance.Clear();
 		}
 
 		private void Get_ReturnSame_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -355,6 +359,8 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(0, instance.CountInactive);
 
 			Assert.AreEqual(value, value2);
+		
+			instance.Clear();
 		}
 
 		private void Get_InvokesEvent_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -374,6 +380,8 @@ namespace Hertzole.ScriptableValues.Tests
 
 			Assert.IsTrue(eventInvoked);
 			Assert.AreEqual(testClass, eventObject);
+		
+			instance.Clear();
 		}
 
 		private void Return_InvokesEvent_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -395,6 +403,8 @@ namespace Hertzole.ScriptableValues.Tests
 
 			Assert.IsTrue(eventInvoked);
 			Assert.AreEqual(testClass, eventObject);
+		
+			instance.Clear();
 		}
 
 		private void Create_InvokesEvent_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -424,6 +434,8 @@ namespace Hertzole.ScriptableValues.Tests
 			instance.Get();
 
 			Assert.IsFalse(eventInvoked);
+		
+			instance.Clear();
 		}
 
 		private void Clear_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -473,6 +485,8 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(0, instance.CountAll);
 			Assert.AreEqual(0, instance.CountActive);
 			Assert.AreEqual(0, instance.CountInactive);
+		
+			instance.Clear();
 		}
 
 		private void Get_Poolable_Test<TType, TValue>(Func<TValue, bool> checkPooledState) where TType : ScriptablePool<TValue> where TValue : class
@@ -482,6 +496,8 @@ namespace Hertzole.ScriptableValues.Tests
 			TValue value = instance.Get();
 
 			Assert.IsFalse(checkPooledState.Invoke(value));
+		
+			instance.Clear();
 		}
 
 		private void Return_Poolable_Test<TType, TValue>(Func<TValue, bool> checkPooledState) where TType : ScriptablePool<TValue> where TValue : class
@@ -493,6 +509,8 @@ namespace Hertzole.ScriptableValues.Tests
 			instance.Return(value);
 
 			Assert.IsTrue(checkPooledState.Invoke(value));
+		
+			instance.Clear();
 		}
 
 		private void Return_Null_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : class
@@ -522,6 +540,8 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(0, instance.CountInactive);
 
 			Assert.IsTrue(createEventInvoked);
+		
+			instance.Clear();
 		}
 
 		private void Get_IsActive_Test<TType, TValue>(Func<TValue, bool> checkActiveState) where TType : ScriptablePool<TValue> where TValue : class
@@ -540,6 +560,8 @@ namespace Hertzole.ScriptableValues.Tests
 			instance.Get();
 
 			Assert.IsTrue(checkActiveState.Invoke(value));
+		
+			instance.Clear();
 		}
 
 		private void Return_IsInactive_Test<TType, TValue>(Func<TValue, bool> checkActiveState) where TType : ScriptablePool<TValue> where TValue : class
@@ -559,6 +581,8 @@ namespace Hertzole.ScriptableValues.Tests
 			instance.Return(value);
 
 			Assert.IsFalse(checkActiveState.Invoke(value));
+		
+			instance.Clear();
 		}
 
 		private void Get_DestroyedObjects_Test<TType, TValue>() where TType : ScriptablePool<TValue> where TValue : Object
@@ -578,6 +602,8 @@ namespace Hertzole.ScriptableValues.Tests
 			value = instance.Get();
 
 			Assert.IsNotNull(value);
+		
+			instance.Clear();
 		}
 
 		private T CreatePoolInstance<T>() where T : ScriptableObject
