@@ -93,7 +93,7 @@ namespace Hertzole.ScriptableValues
 				}
 			}
 		}
-
+		
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangedInternal;
 
@@ -149,8 +149,36 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		public ValueReference()
+		{
+			valueType = ValueReferenceType.Reference;
+			constantValue = default;
+			referenceValue = null;
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			addressableReference = null;
+#endif
+		}
+
+		public ValueReference(T constantValue)
+		{
+			valueType = ValueReferenceType.Constant;
+			this.constantValue = constantValue;
+		}
+
+		public ValueReference(ScriptableValue<T> referenceValue)
+		{
+			valueType = ValueReferenceType.Reference;
+			this.referenceValue = referenceValue;
+		}
+
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
+		
+		public ValueReference(AssetReferenceT<ScriptableValue<T>> addressableReference)
+		{
+			valueType = ValueReferenceType.Addressable;
+			this.addressableReference = addressableReference;
+		}
 
 		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>> onLoaded = null)
 		{
