@@ -94,8 +94,8 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChangedInternal;
+		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
+		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangedInternal;
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
 		{
