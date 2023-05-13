@@ -14,6 +14,9 @@ namespace Hertzole.ScriptableValues
 		///     Constructs a new reference to a <see cref="AssetReferenceScriptableRect" />.
 		/// </summary>
 		/// <param name="guid">The object guid.</param>
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+		[UnityEngine.TestTools.ExcludeFromCoverage]
+#endif
 		public AssetReferenceScriptableRect(string guid) : base(guid) { }
 	}
 }
