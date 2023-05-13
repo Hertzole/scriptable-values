@@ -14,6 +14,9 @@ namespace Hertzole.ScriptableValues
 		///     Constructs a new reference to a <see cref="AssetReferenceScriptableBoundsIntEvent" />.
 		/// </summary>
 		/// <param name="guid">The object guid.</param>
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+		[UnityEngine.TestTools.ExcludeFromCoverage]
+#endif
 		public AssetReferenceScriptableBoundsIntEvent(string guid) : base(guid) { }
 	}
 }
