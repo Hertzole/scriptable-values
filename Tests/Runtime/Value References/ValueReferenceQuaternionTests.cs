@@ -1,10 +1,9 @@
 using System;
-using Hertzole.ScriptableValues;
 using UnityEngine;
 
-namespace Hertzole.ScriptableValues.Tests.Values
+namespace Hertzole.ScriptableValues.Tests.ValueReferences
 {
-	public class ScriptableQuaternionValueTests : ScriptableValueTest<ScriptableQuaternion, Quaternion>
+	public sealed class ValueReferenceQuaternionTests : BaseValueReferenceTest<ScriptableQuaternion, Quaternion>
 	{
 		protected override Quaternion MakeDifferentValue(Quaternion value)
 		{

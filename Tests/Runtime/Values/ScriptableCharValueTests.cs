@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Hertzole.ScriptableValues.Tests.Values
 {
-	public class ScriptableCharValueTests : ScriptableValueTest<ScriptableChar, Char>
+	public class ScriptableCharValueTests : ScriptableValueTest<ScriptableChar, char>
 	{
-		protected override Char MakeDifferentValue(Char value)
+		protected override char MakeDifferentValue(char value)
 		{
-			return (Char) (value - 1);
+			return (char) (value - 1);
 		}
 	}
 }

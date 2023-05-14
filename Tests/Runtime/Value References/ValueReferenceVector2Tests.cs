@@ -1,10 +1,9 @@
 using System;
-using Hertzole.ScriptableValues;
 using UnityEngine;
 
-namespace Hertzole.ScriptableValues.Tests.Values
+namespace Hertzole.ScriptableValues.Tests.ValueReferences
 {
-	public class ScriptableVector2ValueTests : ScriptableValueTest<ScriptableVector2, Vector2>
+	public sealed class ValueReferenceVector2Tests : BaseValueReferenceTest<ScriptableVector2, Vector2>
 	{
 		protected override Vector2 MakeDifferentValue(Vector2 value)
 		{
