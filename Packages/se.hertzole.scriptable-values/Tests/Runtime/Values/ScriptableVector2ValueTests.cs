@@ -8,6 +8,11 @@ namespace Hertzole.ScriptableValues.Tests.Values
 	{
 		protected override Vector2 MakeDifferentValue(Vector2 value)
 		{
+			if (value == Vector2.zero)
+			{
+				return Vector2.one;
+			}
+
 			return (Vector2) (value * 1.25f);
 		}
 	}

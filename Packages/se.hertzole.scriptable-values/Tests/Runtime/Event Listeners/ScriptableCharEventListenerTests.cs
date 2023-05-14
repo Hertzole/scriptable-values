@@ -4,5 +4,5 @@ using UnityEngine;
 
 namespace Hertzole.ScriptableValues.Tests.EventListeners
 {
-	public class ScriptableCharEventListenerTests : GenericEventListenerTest<ScriptableCharEventListener, ScriptableCharEvent, Char> { }
+	public class ScriptableCharEventListenerTests : GenericEventListenerTest<ScriptableCharEventListener, ScriptableCharEvent, char> { }
 }

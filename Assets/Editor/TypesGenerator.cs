@@ -451,6 +451,9 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			sb.AppendLine($"\t\t///     Constructs a new reference to a <see cref=\"AssetReference{typeName}\" />.");
 			sb.AppendLine("\t\t/// </summary>");
 			sb.AppendLine("\t\t/// <param name=\"guid\">The object guid.</param>");
+			sb.AppendLine("#if UNITY_EDITOR || UNITY_INCLUDE_TESTS");
+			sb.AppendLine("\t\t[UnityEngine.TestTools.ExcludeFromCoverage]");
+			sb.AppendLine("#endif");
 			sb.AppendLine($"\t\tpublic AssetReference{typeName}(string guid) : base(guid) {{ }}");
 			sb.AppendLine("\t}");
 			sb.AppendLine("}");

@@ -17,12 +17,14 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 		private TextField eventListenersPathField;
 		private TextField valuesPathField;
 		private TextField valueListenersPathField;
+		private TextField valueReferencesPathField;
 
 		private const string TESTS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.TestsPath";
 		private const string EVENTS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.EventsPath";
 		private const string EVENT_LISTENERS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.EventListenersPath";
 		private const string VALUES_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.ValuesPath";
 		private const string VALUE_LISTENERS_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.ValueListenersPath";
+		private const string VALUE_REFERENCES_PATH_KEY = "Hertzole.ScriptableValues.Editor.TestGenerator.ValueReferencesPath";
 
 		private void CreateGUI()
 		{
@@ -83,6 +85,13 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			{
 				value = EditorPrefs.GetString(VALUE_LISTENERS_PATH_KEY, "Value Listeners")
 			};
+			
+			// Value references
+			
+			valueReferencesPathField = new TextField("Value References Path")
+			{
+				value = EditorPrefs.GetString(VALUE_REFERENCES_PATH_KEY, "Value References")
+			};
 
 			Button generateButton = new Button(OnClickGenerate)
 			{
@@ -99,6 +108,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			root.Add(eventListenersPathField);
 			root.Add(valuesPathField);
 			root.Add(valueListenersPathField);
+			root.Add(valueReferencesPathField);
 			root.Add(generateButton);
 		}
 
@@ -129,6 +139,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			EditorPrefs.SetString(EVENT_LISTENERS_PATH_KEY, eventListenersPathField.value);
 			EditorPrefs.SetString(VALUES_PATH_KEY, valuesPathField.value);
 			EditorPrefs.SetString(VALUE_LISTENERS_PATH_KEY, valueListenersPathField.value);
+			EditorPrefs.SetString(VALUE_REFERENCES_PATH_KEY, valueReferencesPathField.value);
 
 			TypeCache.TypeCollection values = GetScriptableValues();
 			TypeCache.TypeCollection events = GetScriptableEvents();
@@ -139,6 +150,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			GenerateEvents(events, Path.Combine(fullPath, eventsPathField.value));
 			GenerateValueListeners(valueListeners, values, Path.Combine(fullPath, valueListenersPathField.value));
 			GenerateEventListeners(eventListeners, events, Path.Combine(fullPath, eventListenersPathField.value));
+			GenerateValueReferences(values, Path.Combine(fullPath, valueReferencesPathField.value));
 			
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
@@ -164,52 +176,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 				sb.AppendLine("{");
 				sb.AppendLine($"\tpublic class {type.Name}ValueTests : ScriptableValueTest<{type.Name}, {typeName}>");
 				sb.AppendLine("\t{");
-				sb.AppendLine($"\t\tprotected override {typeName} MakeDifferentValue({typeName} value)");
-				sb.AppendLine("\t\t{");
-				if (typeName == "bool")
-				{
-					sb.AppendLine("\t\t\treturn !value;");
-				}
-				else if (typeName == "string")
-				{
-					sb.AppendLine("\t\t\treturn value + \"1\";");
-				}
-				else if (typeName == "Vector2" || typeName == "Vector3" || typeName == "Vector4"){
-					sb.AppendLine($"\t\t\treturn ({typeName}) (value * 1.25f);");
-				}
-				else if (typeName == "Quaternion")
-				{
-					sb.AppendLine($"\t\t\treturn ({typeName}) (value * Quaternion.Euler(0, 180, 0));");
-				}
-				else if (typeName == "Vector2Int")
-				{
-					sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector2Int(99, 99));");
-				}
-				else if (typeName == "Vector3Int")
-				{
-					sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector3Int(99, 99, 99));");
-				}
-				else if (typeName == "Bounds")
-				{
-					sb.AppendLine("\t\t\treturn new Bounds(value.center + new Vector3(99, 99, 99), value.size + new Vector3(99, 99, 99));");
-				}
-				else if (typeName == "BoundsInt")
-				{
-					sb.AppendLine("\t\t\treturn new BoundsInt(value.position + new Vector3Int(99, 99, 99), value.size + new Vector3Int(99, 99, 99));");
-				}
-				else if (typeName == "Color32" || typeName == "Color")
-				{
-					sb.AppendLine("\t\t\treturn Color.blue;");
-				}
-				else if (typeName == "Rect" || typeName == "RectInt")
-				{
-					sb.AppendLine($"\t\t\treturn new {typeName}(1, 2, 3, 4);");
-				}
-				else
-				{
-					sb.AppendLine($"\t\t\treturn ({typeName}) (value - 1);");
-				}
-				sb.AppendLine("\t\t}");
+				AppendMakeDifferentValue(sb, typeName);
 				sb.AppendLine("\t}");
 				sb.AppendLine("}");
 
@@ -269,7 +236,7 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			}
 		}
 		
-		private static void GenerateEventListeners(IEnumerable<Type> types, TypeCache.TypeCollection events, string path)
+		private static void GenerateEventListeners(IEnumerable<Type> types, TypeCache.TypeCollection values, string path)
 		{
 			StringBuilder sb = new StringBuilder();
 			foreach (Type type in types)
@@ -288,11 +255,106 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 				
 				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.EventListeners");
 				sb.AppendLine("{");
-				sb.AppendLine($"\tpublic class {type.Name}Tests : GenericEventListenerTest<{type.Name}, {GetMatchingType(events, type.BaseType.GenericTypeArguments[0]).Name}, {typeName}> {{ }}");
+				sb.AppendLine($"\tpublic class {type.Name}Tests : GenericEventListenerTest<{type.Name}, {GetMatchingType(values, type.BaseType.GenericTypeArguments[0]).Name}, {typeName}> {{ }}");
 				sb.AppendLine("}");
 
 				CreateTestFile(Path.Combine(path, $"{type.Name}Tests.cs"), sb.ToString());
 			}
+		}
+		
+		private static void GenerateValueReferences(TypeCache.TypeCollection values, string path)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (Type type in values)
+			{
+				if(type.BaseType == null || type.BaseType.GenericTypeArguments.Length == 0 || !TryGetValidType(type.BaseType.GenericTypeArguments[0], out string typeName))
+				{
+					continue;
+				}
+
+				var letters = typeName.ToCharArray();
+				letters[0] = char.ToUpper(letters[0]);
+				string formattedTypeName = new string(letters);
+
+				sb.Clear();
+				
+				sb.AppendLine("using System;");
+				sb.AppendLine("using UnityEngine;");
+				sb.AppendLine();
+				
+				sb.AppendLine("namespace Hertzole.ScriptableValues.Tests.ValueReferences");
+				sb.AppendLine("{");
+				sb.AppendLine($"\tpublic sealed class ValueReference{formattedTypeName}Tests : BaseValueReferenceTest<{type.Name}, {typeName}>");
+				sb.AppendLine("\t{");
+				AppendMakeDifferentValue(sb, typeName);
+				sb.AppendLine("\t}");
+				sb.AppendLine("}");
+
+				CreateTestFile(Path.Combine(path, $"ValueReference{formattedTypeName}Tests.cs"), sb.ToString());
+			}
+		}
+
+		private static void AppendMakeDifferentValue(StringBuilder sb, string typeName)
+		{
+			sb.AppendLine($"\t\tprotected override {typeName} MakeDifferentValue({typeName} value)");
+			sb.AppendLine("\t\t{");
+			if (typeName == "bool")
+			{
+				sb.AppendLine("\t\t\treturn !value;");
+			}
+			else if (typeName == "string")
+			{
+				sb.AppendLine("\t\t\treturn value + \"1\";");
+			}
+			else if (typeName == "Vector2" || typeName == "Vector3" || typeName == "Vector4")
+			{
+				string vectorType = typeName == "Vector2" ? "Vector2" : typeName == "Vector3" ? "Vector3" : "Vector4";
+			
+				sb.AppendLine($"\t\t\tif (value == {vectorType}.zero)");
+				sb.AppendLine("\t\t\t{");
+				sb.AppendLine($"\t\t\t\treturn {vectorType}.one;");
+				sb.AppendLine("\t\t\t}");
+				sb.AppendLine();
+				sb.AppendLine($"\t\t\treturn ({typeName}) (value * 1.25f);");
+			}
+			else if (typeName == "Quaternion")
+			{
+				sb.AppendLine("\t\t\tif (value.x == 0f && value.y == 0f && value.z == 0f && value.w == 0f)");
+				sb.AppendLine("\t\t\t{");
+				sb.AppendLine("\t\t\t\treturn Quaternion.Euler(0, 180, 0);");
+				sb.AppendLine("\t\t\t}");
+				sb.AppendLine();
+				sb.AppendLine($"\t\t\treturn ({typeName}) (value * Quaternion.Euler(0, 180, 0));");
+			}
+			else if (typeName == "Vector2Int")
+			{
+				sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector2Int(99, 99));");
+			}
+			else if (typeName == "Vector3Int")
+			{
+				sb.AppendLine($"\t\t\treturn ({typeName}) (value + new Vector3Int(99, 99, 99));");
+			}
+			else if (typeName == "Bounds")
+			{
+				sb.AppendLine("\t\t\treturn new Bounds(value.center + new Vector3(99, 99, 99), value.size + new Vector3(99, 99, 99));");
+			}
+			else if (typeName == "BoundsInt")
+			{
+				sb.AppendLine("\t\t\treturn new BoundsInt(value.position + new Vector3Int(99, 99, 99), value.size + new Vector3Int(99, 99, 99));");
+			}
+			else if (typeName == "Color32" || typeName == "Color")
+			{
+				sb.AppendLine("\t\t\treturn Color.blue;");
+			}
+			else if (typeName == "Rect" || typeName == "RectInt")
+			{
+				sb.AppendLine($"\t\t\treturn new {typeName}(1, 2, 3, 4);");
+			}
+			else
+			{
+				sb.AppendLine($"\t\t\treturn ({typeName}) (value - 1);");
+			}
+			sb.AppendLine("\t\t}");
 		}
 
 		private static void CreateTestFile(string path, string content)
@@ -398,6 +460,12 @@ namespace Hertzole.ScriptableValues.Editor.Internal
 			if (type == typeof(string))
 			{
 				typeName = "string";
+				return true;
+			}
+
+			if (type == typeof(char))
+			{
+				typeName = "char";
 				return true;
 			}
 
