@@ -28,15 +28,15 @@ namespace Hertzole.ScriptableValues
 	public class ValueReference<T>
 	{
 		[SerializeField]
-		private T constantValue = default;
+		internal T constantValue = default;
 		[SerializeField]
-		private ScriptableValue<T> referenceValue = default;
+		internal ScriptableValue<T> referenceValue = default;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		[SerializeField]
-		private AssetReferenceT<ScriptableValue<T>> addressableReference = default;
+		internal AssetReferenceT<ScriptableValue<T>> addressableReference = default;
 #endif
 		[SerializeField]
-		private ValueReferenceType valueType = ValueReferenceType.Reference;
+		internal ValueReferenceType valueType = ValueReferenceType.Reference;
 
 		public T Value
 		{
@@ -55,7 +55,8 @@ namespace Hertzole.ScriptableValues
 							return AssetHandle.Result.Value;
 						}
 
-						throw new InvalidOperationException($"Addressable asset is not loaded yet. Make sure you've called {nameof(LoadAddressableAssetAsync)} before trying to access the value.");
+						throw new InvalidOperationException(
+							$"Addressable asset is not loaded yet. Make sure you've called {nameof(LoadAddressableAssetAsync)} before trying to access the value.");
 #endif
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -88,12 +89,10 @@ namespace Hertzole.ScriptableValues
 
 						break;
 #endif
-					default:
-						throw new ArgumentOutOfRangeException();
 				}
 			}
 		}
-		
+
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangedInternal;
 
@@ -105,6 +104,12 @@ namespace Hertzole.ScriptableValues
 				{
 					referenceValue.OnValueChanging += value;
 				}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+				{
+					AssetHandle.Result.OnValueChanging += value;
+				}
+#endif
 				else
 				{
 					OnValueChangingInternal += value;
@@ -116,6 +121,12 @@ namespace Hertzole.ScriptableValues
 				{
 					referenceValue.OnValueChanging -= value;
 				}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+				{
+					AssetHandle.Result.OnValueChanging -= value;
+				}
+#endif
 				else
 				{
 					OnValueChangingInternal -= value;
@@ -131,6 +142,12 @@ namespace Hertzole.ScriptableValues
 				{
 					referenceValue.OnValueChanged += value;
 				}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+				{
+					AssetHandle.Result.OnValueChanged += value;
+				}
+#endif
 				else
 				{
 					OnValueChangedInternal += value;
@@ -142,6 +159,12 @@ namespace Hertzole.ScriptableValues
 				{
 					referenceValue.OnValueChanged -= value;
 				}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+				{
+					AssetHandle.Result.OnValueChanged -= value;
+				}
+#endif
 				else
 				{
 					OnValueChangedInternal -= value;
@@ -173,7 +196,7 @@ namespace Hertzole.ScriptableValues
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
-		
+
 		public ValueReference(AssetReferenceT<ScriptableValue<T>> addressableReference)
 		{
 			valueType = ValueReferenceType.Addressable;
@@ -204,6 +227,7 @@ namespace Hertzole.ScriptableValues
 			if (AssetHandle.IsValid())
 			{
 				Addressables.Release(AssetHandle);
+				referenceValue = null;
 			}
 		}
 #endif
