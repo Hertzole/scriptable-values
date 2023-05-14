@@ -1,5 +1,11 @@
 # Scriptable Values
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=coverage)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=bugs)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+
 ## ❓ What is this?
 
 Scriptable Values allow you to use scriptable objects for reactive values, events, and collections instead of normal C# events and singletons.
@@ -203,3 +209,7 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
 2. Click on the plus icon in the top left and "Add package from git url"
 3. Paste in `https://github.com/Hertzole/scriptable-values.git#package`  
    You can also paste in `https://github.com/Hertzole/scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
+   
+## ♥ Support
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I4IHAK)
