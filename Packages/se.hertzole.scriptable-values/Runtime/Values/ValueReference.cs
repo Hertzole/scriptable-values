@@ -36,7 +36,12 @@ namespace Hertzole.ScriptableValues
 		internal AssetReferenceT<ScriptableValue<T>> addressableReference = default;
 #endif
 		[SerializeField]
-		internal ValueReferenceType valueType = ValueReferenceType.Reference;
+		internal ValueReferenceType valueType;
+
+#if UNITY_EDITOR
+		[NonSerialized]
+		internal T oldValue;
+#endif
 
 		public T Value
 		{
@@ -195,13 +200,35 @@ namespace Hertzole.ScriptableValues
 		}
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
-
 		public ValueReference(AssetReferenceT<ScriptableValue<T>> addressableReference)
 		{
 			valueType = ValueReferenceType.Addressable;
 			this.addressableReference = addressableReference;
 		}
+#endif
+
+#if UNITY_EDITOR
+		internal void SetPreviousValue()
+		{
+			oldValue = Value;
+		}
+
+		internal void SetEditorValue()
+		{
+			if (!Application.isPlaying || EqualityHelper.Equals(oldValue, Value))
+			{
+				return;
+			}
+
+			OnValueChangingInternal?.Invoke(oldValue, Value);
+			OnValueChangedInternal?.Invoke(oldValue, Value);
+
+			oldValue = Value;
+		}
+#endif
+
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
 
 		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>> onLoaded = null)
 		{
