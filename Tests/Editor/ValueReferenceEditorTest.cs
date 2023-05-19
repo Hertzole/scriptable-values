@@ -19,8 +19,12 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 				eventInvoked = true;
 			};
 			
+			reference.SetPreviousValue();
+
 			reference.Value = 1;
 			
+			reference.SetEditorValue();
+
 			Assert.IsTrue(eventInvoked);
 		}
 		
@@ -35,7 +39,11 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 				eventInvoked = true;
 			};
 			
+			reference.SetPreviousValue();
+			
 			reference.Value = 0;
+			
+			reference.SetEditorValue();
 			
 			Assert.IsFalse(eventInvoked);
 		}
@@ -54,7 +62,11 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 				eventInvoked = true;
 			};
 			
+			reference.SetPreviousValue();
+
 			reference.Value = 1;
+			
+			reference.SetEditorValue();
 			
 			Assert.IsTrue(eventInvoked);
 		}
@@ -70,7 +82,11 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 				eventInvoked = true;
 			};
 			
+			reference.SetPreviousValue();
+			
 			reference.Value = 0;
+			
+			reference.SetEditorValue();
 			
 			Assert.IsFalse(eventInvoked);
 		}
