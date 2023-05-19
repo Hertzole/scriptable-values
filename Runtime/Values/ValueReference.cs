@@ -64,7 +64,7 @@ namespace Hertzole.ScriptableValues
 							$"Addressable asset is not loaded yet. Make sure you've called {nameof(LoadAddressableAssetAsync)} before trying to access the value.");
 #endif
 					default:
-						throw new ArgumentOutOfRangeException();
+						throw new ArgumentOutOfRangeException(nameof(valueType), $"No supported value type for {valueType}.");
 				}
 			}
 			set
