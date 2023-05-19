@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -16,8 +17,29 @@ namespace Hertzole.ScriptableValues
 		private PropertyField constantField;
 		private PropertyField addressableField;
 
+		private SerializedProperty targetProperty;
+
+		private object targetObject;
+
+		private object TargetObject
+		{
+			get { return targetObject ??= fieldInfo.GetValue(targetProperty.serializedObject.targetObject); }
+		}
+
+		private MethodInfo SetPreviousValueMethod
+		{
+			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetPreviousValue), BindingFlags.Instance | BindingFlags.NonPublic); }
+		}
+
+		private MethodInfo SetEditorValueMethod
+		{
+			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetEditorValue), BindingFlags.Instance | BindingFlags.NonPublic); }
+		}
+
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
+			targetProperty = property;
+
 			icon ??= EditorGUIUtility.IconContent("AnimationWrapModeMenu");
 
 			VisualElement root = new VisualElement
@@ -53,7 +75,7 @@ namespace Hertzole.ScriptableValues
 			menuButton.RegisterCallback<PointerDownEvent, SerializedProperty>((_, prop) => { CreateMenu(prop, true); }, typeProperty);
 
 			menuButton.Bind(property.serializedObject);
-			
+
 			string label =
 #if UNITY_2022_2_OR_NEWER
 				preferredLabel;
@@ -75,6 +97,10 @@ namespace Hertzole.ScriptableValues
 			root.Add(menuButton);
 
 			RefreshFields();
+
+			SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
+
+			constantField.RegisterValueChangeCallback(evt => { SetEditorValueMethod.Invoke(TargetObject, Array.Empty<object>()); });
 
 			return root;
 		}
@@ -101,7 +127,20 @@ namespace Hertzole.ScriptableValues
 			switch (type)
 			{
 				case ValueReferenceType.Constant:
+					targetProperty = property;
+
+					SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
+
+					EditorGUI.BeginChangeCheck();
+
 					EditorGUI.PropertyField(rect, property.FindPropertyRelative("constantValue"), label, true);
+
+					if (EditorGUI.EndChangeCheck())
+					{
+						property.serializedObject.ApplyModifiedProperties();
+						SetEditorValueMethod.Invoke(TargetObject, Array.Empty<object>());
+					}
+
 					break;
 				case ValueReferenceType.Reference:
 					EditorGUI.PropertyField(rect, property.FindPropertyRelative("referenceValue"), label, true);
