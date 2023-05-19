@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 
 namespace Hertzole.ScriptableValues
@@ -46,6 +47,8 @@ namespace Hertzole.ScriptableValues
 
 		protected override void OnGet(GameObject item)
 		{
+			ThrowHelper.ThrowIfNull(item, nameof(item));
+			
 			item.gameObject.SetActive(true);
 
 			poolableBuffer.Clear();

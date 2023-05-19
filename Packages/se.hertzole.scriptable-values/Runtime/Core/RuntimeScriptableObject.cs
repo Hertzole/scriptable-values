@@ -55,14 +55,13 @@ namespace Hertzole.ScriptableValues
 		/// <param name="state">The new play mode state.</param>
 		private void OnPlayModeStateChanged(PlayModeStateChange state)
 		{
-			switch (state)
+			if (state == PlayModeStateChange.ExitingEditMode)
 			{
-				case PlayModeStateChange.ExitingEditMode:
-					OnStart();
-					break;
-				case PlayModeStateChange.EnteredEditMode:
-					OnExitPlayMode();
-					break;
+				OnStart();
+			}
+			else if (state == PlayModeStateChange.EnteredEditMode)
+			{
+				OnExitPlayMode();
 			}
 		}
 
