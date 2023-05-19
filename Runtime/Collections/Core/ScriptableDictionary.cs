@@ -299,6 +299,8 @@ namespace Hertzole.ScriptableValues
 		/// <returns>True if the key was found; otherwise, false.</returns>
 		public bool TryFindKey(Predicate<TKey> predicate, out TKey key)
 		{
+			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
+			
 			foreach (TKey dictionaryKey in dictionary.Keys)
 			{
 				if (predicate(dictionaryKey))
@@ -320,6 +322,8 @@ namespace Hertzole.ScriptableValues
 		/// <returns>True if the key was found; otherwise, false.</returns>
 		public bool TryFindValue(Predicate<TValue> predicate, out TValue value)
 		{
+			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
+			
 			foreach (TValue dictionaryValue in dictionary.Values)
 			{
 				if (predicate(dictionaryValue))
