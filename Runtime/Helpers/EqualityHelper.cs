@@ -66,6 +66,8 @@ namespace Hertzole.ScriptableValues.Helpers
 				return true;
 			}
 
+			ThrowHelper.ThrowIfNull(value, nameof(value));
+
 #if DEBUG
 			Debug.LogError($"{typeof(TType)} is not assignable from {value.GetType()}.");
 #endif

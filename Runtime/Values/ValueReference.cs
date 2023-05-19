@@ -45,57 +45,8 @@ namespace Hertzole.ScriptableValues
 
 		public T Value
 		{
-			get
-			{
-				switch (valueType)
-				{
-					case ValueReferenceType.Constant:
-						return constantValue;
-					case ValueReferenceType.Reference:
-						return referenceValue.Value;
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-					case ValueReferenceType.Addressable:
-						if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
-						{
-							return AssetHandle.Result.Value;
-						}
-
-						throw new InvalidOperationException(
-							$"Addressable asset is not loaded yet. Make sure you've called {nameof(LoadAddressableAssetAsync)} before trying to access the value.");
-#endif
-					default:
-						throw new ArgumentOutOfRangeException(nameof(valueType), $"No supported value type for {valueType}.");
-				}
-			}
-			set
-			{
-				T previousValue = Value;
-				if (EqualityHelper.Equals(previousValue, value))
-				{
-					return;
-				}
-
-				switch (valueType)
-				{
-					case ValueReferenceType.Constant:
-						OnValueChangingInternal?.Invoke(previousValue, value);
-						constantValue = value;
-						OnValueChangedInternal?.Invoke(previousValue, value);
-						break;
-					case ValueReferenceType.Reference:
-						referenceValue.Value = value;
-						break;
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-					case ValueReferenceType.Addressable:
-						if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
-						{
-							AssetHandle.Result.Value = value;
-						}
-
-						break;
-#endif
-				}
-			}
+			get { return GetValue(); }
+			set { SetValue(value); }
 		}
 
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
@@ -206,6 +157,59 @@ namespace Hertzole.ScriptableValues
 			this.addressableReference = addressableReference;
 		}
 #endif
+
+		private T GetValue()
+		{
+			switch (valueType)
+			{
+				case ValueReferenceType.Constant:
+					return constantValue;
+				case ValueReferenceType.Reference:
+					return referenceValue.Value;
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				case ValueReferenceType.Addressable:
+					if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
+					{
+						return AssetHandle.Result.Value;
+					}
+
+					throw new InvalidOperationException(
+						$"Addressable asset is not loaded yet. Make sure you've called {nameof(LoadAddressableAssetAsync)} before trying to access the value.");
+#endif
+				default:
+					throw new ArgumentOutOfRangeException(nameof(valueType), $"No supported value type for {valueType}.");
+			}
+		}
+
+		private void SetValue(T value)
+		{
+			T previousValue = Value;
+			if (EqualityHelper.Equals(previousValue, value))
+			{
+				return;
+			}
+
+			switch (valueType)
+			{
+				case ValueReferenceType.Constant:
+					OnValueChangingInternal?.Invoke(previousValue, value);
+					constantValue = value;
+					OnValueChangedInternal?.Invoke(previousValue, value);
+					break;
+				case ValueReferenceType.Reference:
+					referenceValue.Value = value;
+					break;
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				case ValueReferenceType.Addressable:
+					if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
+					{
+						AssetHandle.Result.Value = value;
+					}
+
+					break;
+#endif
+			}
+		}
 
 #if UNITY_EDITOR
 		internal void SetPreviousValue()
