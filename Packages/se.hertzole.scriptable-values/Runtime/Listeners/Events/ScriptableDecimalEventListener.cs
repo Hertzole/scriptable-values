@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="decimal" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Decimal Event Listener", 1110)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Decimal Event Listener", 1110)]
 #endif
 	public sealed class ScriptableDecimalEventListener : ScriptableEventListener<decimal> { }
 }
