@@ -214,7 +214,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 		internal void SetPreviousValue()
 		{
-			oldValue = Value;
+			oldValue = constantValue;
 		}
 
 		internal void SetEditorValue()
