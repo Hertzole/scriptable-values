@@ -21,6 +21,7 @@ You also don't need to care about values being saved between sessions as they ar
 - Scriptable objects for values, events, lists, dictionaries, and pools
 - Value reference type for easily picking between a constant value and a scriptable object reference
 - Automatically collect stack traces to see where your values are set from
+- Value and event listeners for easily hooking up events in the editor for when value changes/events are invoked
 
 ## 📦 Installation
 
