@@ -30,7 +30,7 @@ namespace Hertzole.ScriptableValues
 				Destroy(item.gameObject);
 			}
 		}
-
+		
 		internal override void OnGetInternal(T item)
 		{
 			// Don't check for poolable here and it's done with components in OnGet.

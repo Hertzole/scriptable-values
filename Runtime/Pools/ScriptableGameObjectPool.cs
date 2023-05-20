@@ -35,13 +35,13 @@ namespace Hertzole.ScriptableValues
 
 		internal override void OnGetInternal(GameObject item)
 		{
-			// Don't check for poolable here and it's done with components in OnGet.
+			// Don't check for poolable here as it's done with components in OnGet.
 			OnGet(item);
 		}
 
 		internal override void OnReturnInternal(GameObject item)
 		{
-			// Don't check for poolable here and it's done with components in OnReturn.
+			// Don't check for poolable here as it's done with components in OnReturn.
 			OnReturn(item);
 		}
 
