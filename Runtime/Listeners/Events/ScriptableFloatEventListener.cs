@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="float" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Float Event Listener", 1108)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Float Event Listener", 1108)]
 #endif
 	public sealed class ScriptableFloatEventListener : ScriptableEventListener<float> { }
 }

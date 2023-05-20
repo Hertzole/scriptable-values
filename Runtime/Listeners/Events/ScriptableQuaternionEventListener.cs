@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="Quaternion" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Quaternion Event Listener", 1121)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Quaternion Event Listener", 1121)]
 #endif
 	public sealed class ScriptableQuaternionEventListener : ScriptableEventListener<Quaternion> { }
 }

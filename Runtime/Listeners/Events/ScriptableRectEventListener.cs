@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="Rect" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Rect Event Listener", 1122)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Rect Event Listener", 1122)]
 #endif
 	public sealed class ScriptableRectEventListener : ScriptableEventListener<Rect> { }
 }

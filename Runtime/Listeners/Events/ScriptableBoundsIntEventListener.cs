@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="BoundsInt" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable BoundsInt Event Listener", 1125)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable BoundsInt Event Listener", 1125)]
 #endif
 	public sealed class ScriptableBoundsIntEventListener : ScriptableEventListener<BoundsInt> { }
 }

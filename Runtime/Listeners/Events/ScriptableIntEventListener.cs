@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues
 	///     type of <see cref="int" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
 	/// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Values/Scriptable Int Event Listener", 1104)]
+	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Int Event Listener", 1104)]
 #endif
 	public sealed class ScriptableIntEventListener : ScriptableEventListener<int> { }
 }
