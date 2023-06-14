@@ -16,11 +16,6 @@ namespace Hertzole.ScriptableValues
 
 		private T currentValue;
 
-		public object GetSerializedType()
-		{
-			return null;
-		}
-
 		partial void OnValueChanging(T previousValue, T newValue)
 		{
 			if (!IsRegistered)
@@ -75,6 +70,11 @@ namespace Hertzole.ScriptableValues
 		{
 			base.Reset();
 			valueChanged = false;
+		}
+
+		public object GetSerializedType()
+		{
+			return null;
 		}
 	}
 }
