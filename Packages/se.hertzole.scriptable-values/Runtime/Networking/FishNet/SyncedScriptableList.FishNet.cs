@@ -13,11 +13,6 @@ namespace Hertzole.ScriptableValues
 	{
 		private readonly SyncList<T> syncList = new SyncList<T>();
 
-		public object GetSerializedType()
-		{
-			return null;
-		}
-
 		protected override void Registered()
 		{
 			syncList.InitializeInstance(NetworkBehaviour, byte.MaxValue - SyncIndex, Settings.WritePermission, Settings.ReadPermission, Settings.SendRate,
@@ -126,6 +121,11 @@ namespace Hertzole.ScriptableValues
 		partial void OnDisposed()
 		{
 			syncList.OnChange -= OnSyncListChanged;
+		}
+		
+		public object GetSerializedType()
+		{
+			return null;
 		}
 	}
 }
