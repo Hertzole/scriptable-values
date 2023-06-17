@@ -35,7 +35,10 @@ namespace Hertzole.ScriptableValues
 		public T PreviousArgs { get; private set; }
 
 #if UNITY_INCLUDE_TESTS
-		internal new bool InvokedHasSubscribers { get { return OnInvoked != null; } }
+		internal new bool InvokedHasSubscribers
+		{
+			get { return OnInvoked != null; }
+		}
 #endif
 
 		/// <summary>
@@ -73,6 +76,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Invokes the event with the specified argument. The sender will be the scriptable object.
+		/// </summary>
+		/// <param name="args">The argument to send with the event.</param>
+		public void Invoke(T args)
+		{
+			InvokeInternal(this, args, 1);
+		}
+
+		/// <summary>
 		///     Invokes the event with the specified sender and argument.
 		/// </summary>
 		/// <param name="sender">The object that invoked the event.</param>
@@ -96,7 +108,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-			
+
 			// Remove any subscribers that are left over from play mode.
 			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
 			ClearSubscribers();
@@ -149,7 +161,10 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     A test only check to see if the event has any subscribers.
 		/// </summary>
-		internal bool InvokedHasSubscribers { get { return OnInvoked != null; } }
+		internal bool InvokedHasSubscribers
+		{
+			get { return OnInvoked != null; }
+		}
 #endif
 
 #if UNITY_EDITOR
@@ -192,19 +207,19 @@ namespace Hertzole.ScriptableValues
 			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
 		}
-		
+
 		/// <inheritdoc />
 		protected override void OnStart()
 		{
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-			
+
 			// Remove any subscribers that are left over from play mode.
 			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
 			ClearSubscribers();
 		}
-		
+
 		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
