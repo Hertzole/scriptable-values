@@ -10,5 +10,10 @@
     "scriptable",
     "object",
     "values"
-  ]
+  ],
+  "author": {
+    "name": "Hertzole",
+    "email": "contact@hertzole.se",
+    "url": "https://www.hertzole.se"
+  }
 }
