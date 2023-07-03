@@ -1,4 +1,4 @@
-﻿#if (FISHNET)
+﻿#if (FISHNET || SCRIPTABLE_VALUES_NGO)
 #define SCRIPTABLE_VALUES_NETWORKING
 #endif
 
@@ -75,6 +75,11 @@ namespace Hertzole.ScriptableValues
 		public object GetSerializedType()
 		{
 			return null;
+		}
+
+		public void Dispose()
+		{
+			DisposeScriptableValue();
 		}
 	}
 }
