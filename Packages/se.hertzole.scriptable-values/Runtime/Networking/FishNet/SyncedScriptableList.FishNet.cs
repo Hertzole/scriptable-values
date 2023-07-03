@@ -118,8 +118,9 @@ namespace Hertzole.ScriptableValues
 			syncList.Clear();
 		}
 
-		partial void OnDisposed()
+		public void Dispose()
 		{
+			DisposeTargetList();
 			syncList.OnChange -= OnSyncListChanged;
 		}
 		

@@ -35,18 +35,6 @@ namespace Hertzole.ScriptableValues
 			SetDirty(true);
 		}
 
-		private void OnNetworkVariableChanged(T previousValue, T newValue)
-		{
-			InitializeIfNeeded();
-
-			if (GetBehaviour().IsServer)
-			{
-				return;
-			}
-
-			targetValue.Value = newValue;
-		}
-
 		public override void SetDirty(bool isDirty)
 		{
 			InitializeIfNeeded();
