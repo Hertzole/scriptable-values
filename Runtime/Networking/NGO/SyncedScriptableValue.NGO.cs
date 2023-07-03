@@ -3,6 +3,7 @@
 #endif
 
 #if SCRIPTABLE_VALUES_NETWORKING && SCRIPTABLE_VALUES_NGO
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,27 +11,58 @@ namespace Hertzole.ScriptableValues
 {
 	partial class SyncedScriptableValue<T> : NetworkVariableBase
 	{
-		private bool hasInitialized;
+		private bool hasInitializedNetworkVariable;
+		private bool didSet;
 
-		private readonly NetworkVariable<T> networkVariable;
+		private NetworkVariable<T> networkVariable;
+
+		private bool IsSpawned
+		{
+			get { return GetBehaviour() != null && GetBehaviour().IsSpawned; }
+		}
+		
+		private bool CanWrite
+		{
+			get { return CanClientWrite(GetBehaviour().NetworkManager.LocalClientId); }
+		}
 
 		public SyncedScriptableValue(NetworkVariableReadPermission readPerm = DefaultReadPerm, NetworkVariableWritePermission writePerm = DefaultWritePerm)
 			: base(readPerm, writePerm)
 		{
-			hasInitialized = false;
+			hasInitializedNetworkVariable = false;
+		}
 
-			networkVariable = new NetworkVariable<T>(readPerm: readPerm, writePerm: writePerm);
+		partial void OnInitialized()
+		{
+			networkVariable = new NetworkVariable<T>(targetValue.Value, ReadPerm, WritePerm);
+
+			if (IsSpawned && GetBehaviour().IsServer)
+			{
+				SetDirty(true);
+			}
 		}
 
 		partial void OnValueChanging(T previousValue, T newValue)
 		{
-			InitializeIfNeeded();
-			
-			if (GetBehaviour() == null || !GetBehaviour().IsSpawned)
+			if (!isInitialized || !IsSpawned)
 			{
 				return;
 			}
 
+			InitializeIfNeeded();
+
+			if (didSet)
+			{
+				didSet = false;
+				return;
+			}
+
+			if (!CanWrite)
+			{
+				throw new InvalidOperationException("Cannot change the value. Client does not have write permission.");
+			}
+
+			didSet = true;
 			networkVariable.Value = newValue;
 			SetDirty(true);
 		}
@@ -44,40 +76,59 @@ namespace Hertzole.ScriptableValues
 
 		public override void WriteDelta(FastBufferWriter writer)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+			
 			InitializeIfNeeded();
 
 			networkVariable.WriteDelta(writer);
+			didSet = false;
 		}
 
 		public override void WriteField(FastBufferWriter writer)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+            
 			InitializeIfNeeded();
 
 			networkVariable.WriteField(writer);
+			didSet = false;
 		}
 
 		public override void ReadField(FastBufferReader reader)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+            
 			InitializeIfNeeded();
 
 			networkVariable.ReadField(reader);
 
-			if (GetBehaviour() != null && !GetBehaviour().IsServer)
-			{
-				targetValue.Value = networkVariable.Value;
-			}
+			didSet = true;
+			targetValue.Value = networkVariable.Value;
 		}
 
 		public override void ReadDelta(FastBufferReader reader, bool keepDirtyDelta)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+            
 			InitializeIfNeeded();
 
 			networkVariable.ReadDelta(reader, keepDirtyDelta);
-			
-			if (GetBehaviour() != null && !GetBehaviour().IsServer)
-			{
-				targetValue.Value = networkVariable.Value;
-			}
+
+			didSet = true;
+			targetValue.Value = networkVariable.Value;
+			Debug.Log($"Read delta {targetValue.Value} {networkVariable.Value}");
 		}
 
 		public override void Dispose()
@@ -85,18 +136,19 @@ namespace Hertzole.ScriptableValues
 			base.Dispose();
 
 			DisposeScriptableValue();
-			networkVariable.Dispose();
+
+			networkVariable?.Dispose();
 		}
 
 		private void InitializeIfNeeded()
 		{
-			if (hasInitialized)
+			if (hasInitializedNetworkVariable)
 			{
 				return;
 			}
 
 			networkVariable.Initialize(GetBehaviour());
-			hasInitialized = true;
+			hasInitializedNetworkVariable = true;
 		}
 	}
 }
