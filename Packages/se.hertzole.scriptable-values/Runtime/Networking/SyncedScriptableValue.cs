@@ -1,4 +1,4 @@
-﻿#if (FISHNET)
+﻿#if (FISHNET || SCRIPTABLE_VALUES_NGO)
 #define SCRIPTABLE_VALUES_NETWORKING
 #endif
 
@@ -20,7 +20,7 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnValueChanging(T previousValue, T newValue);
 
-		public void Dispose()
+		private void DisposeScriptableValue()
 		{
 			targetValue.OnValueChanging -= OnValueChanging;
 		}
