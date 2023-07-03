@@ -22,6 +22,7 @@ You also don't need to care about values being saved between sessions as they ar
 - Value reference type for easily picking between a constant value and a scriptable object reference
 - Automatically collect stack traces to see where your values are set from
 - Value and event listeners for easily hooking up events in the editor for when value changes/events are invoked
+- Networking support for [FishNet](https://assetstore.unity.com/packages/tools/network/fish-net-networking-evolved-207815) and [Netcode for GameObjects](https://docs-multiplayer.unity3d.com/) (developer branch only currently!)
 
 ## 📦 Installation
 
@@ -334,6 +335,100 @@ public class PauseManager : MonoBehaviour
         isPaused.Value = !isPaused.Value;
         timescale.Value = isPaused.Value ? 0f : 1f;
     }
+}
+```
+
+## 🌐 Networking Support
+
+You can automatically sync scriptable values, lists, and dictionaries over the network. All of the networking solutions follow the same setup.
+
+### FishNet
+```cs
+public ScriptableInt intValue;
+public ScriptableIntList list;
+public ScriptableIntDictionary dictionary;
+
+[SyncObject]
+private readonly SyncedScriptableValue<int> syncedInt = new SyncedScriptableValue<int>();
+[SyncObject]
+private readonly SyncedScriptableList<int> syncedList = new SyncedScriptableList<int>();
+[SyncObject]
+private readonly SyncedScriptableDictionary<int, int> syncedDictionary = new SyncedScriptableDictionary<int, int>();
+
+void Awake()
+{
+    // Always initialize the synced objects as early as possible!
+    syncedInt.Initialize(intValue);
+    syncedList.Initialize(list);
+    syncedDictionary.Initialize(dictionary);
+}
+
+void OnDestroy()
+{
+    // It's important to dispose the synced objects when you're done with them!
+    syncedInt.Dispose();
+    syncedList.Dispose();
+    syncedDictionary.Dispose();
+}
+
+void OnEnable()
+{
+    // To listen to events, you always go to the source scriptable object.
+    intValue.OnValueChanged += OnIntValueChanged;
+}
+
+void OnDisable()
+{
+    intValue.OnValueChanged -= OnIntValueChanged;
+}
+
+void SetValue(int value)
+{
+    // To set a value, you always go to the source object.
+    // Only the server can set values.
+    intValue.Value = value;
+}
+```
+
+### Netcode for GameObjects
+```cs
+public ScriptableInt intValue;
+public ScriptableIntList list;
+// Dictionary is currently not supported.
+
+private readonly SyncedScriptableValue<int> syncedInt = new SyncedScriptableValue<int>();
+private readonly SyncedScriptableList<int> syncedList = new SyncedScriptableList<int>();
+
+void Awake()
+{
+    // Always initialize the synced objects as early as possible!
+    syncedInt.Initialize(intValue);
+    syncedList.Initialize(list);
+}
+
+void OnDestroy()
+{
+    // It's important to dispose the synced objects when you're done with them!
+    syncedInt.Dispose();
+    syncedList.Dispose();
+}
+
+void OnEnable()
+{
+    // To listen to events, you always go to the source scriptable object.
+    intValue.OnValueChanged += OnIntValueChanged;
+}
+
+void OnDisable()
+{
+    intValue.OnValueChanged -= OnIntValueChanged;
+}
+
+void SetValue(int value)
+{
+    // To set a value, you always go to the source object.
+    // Only the server can set values.
+    intValue.Value = value;
 }
 ```
    
