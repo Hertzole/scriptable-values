@@ -1,4 +1,4 @@
-﻿#if (FISHNET)
+﻿#if (FISHNET || SCRIPTABLE_VALUES_NGO)
 #define SCRIPTABLE_VALUES_NETWORKING
 #endif
 
@@ -36,18 +36,14 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnInitialized();
 
-		public void Dispose()
+		private void DisposeTargetList()
 		{
 			targetList.OnAdded -= OnAdded;
 			targetList.OnRemoved -= OnRemoved;
 			targetList.OnInserted -= OnInserted;
 			targetList.OnSet -= OnSet;
 			targetList.OnCleared -= OnCleared;
-
-			OnDisposed();
 		}
-
-		partial void OnDisposed();
 	}
 }
 #endif
