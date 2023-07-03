@@ -5,7 +5,6 @@
 #if SCRIPTABLE_VALUES_NETWORKING && SCRIPTABLE_VALUES_NGO
 using System;
 using Unity.Netcode;
-using UnityEngine;
 
 namespace Hertzole.ScriptableValues
 {
@@ -13,14 +12,15 @@ namespace Hertzole.ScriptableValues
 	{
 		private bool hasInitializedNetworkVariable;
 		private bool didSet;
+		private bool forceIsSpawned;
 
 		private NetworkVariable<T> networkVariable;
 
 		private bool IsSpawned
 		{
-			get { return GetBehaviour() != null && GetBehaviour().IsSpawned; }
+			get { return GetBehaviour() != null && (forceIsSpawned || GetBehaviour().IsSpawned); }
 		}
-		
+
 		private bool CanWrite
 		{
 			get { return CanClientWrite(GetBehaviour().NetworkManager.LocalClientId); }
@@ -35,6 +35,8 @@ namespace Hertzole.ScriptableValues
 		partial void OnInitialized()
 		{
 			networkVariable = new NetworkVariable<T>(targetValue.Value, ReadPerm, WritePerm);
+
+			InitializeIfNeeded();
 
 			if (IsSpawned && GetBehaviour().IsServer)
 			{
@@ -80,7 +82,7 @@ namespace Hertzole.ScriptableValues
 			{
 				return;
 			}
-			
+
 			InitializeIfNeeded();
 
 			networkVariable.WriteDelta(writer);
@@ -93,7 +95,7 @@ namespace Hertzole.ScriptableValues
 			{
 				return;
 			}
-            
+
 			InitializeIfNeeded();
 
 			networkVariable.WriteField(writer);
@@ -106,13 +108,16 @@ namespace Hertzole.ScriptableValues
 			{
 				return;
 			}
-            
+
 			InitializeIfNeeded();
 
 			networkVariable.ReadField(reader);
 
 			didSet = true;
+			// We're forcing the spawned state here because it will say it isn't spawned, but if we can read, it is spawned.
+			forceIsSpawned = true;
 			targetValue.Value = networkVariable.Value;
+			forceIsSpawned = false;
 		}
 
 		public override void ReadDelta(FastBufferReader reader, bool keepDirtyDelta)
@@ -121,14 +126,13 @@ namespace Hertzole.ScriptableValues
 			{
 				return;
 			}
-            
+
 			InitializeIfNeeded();
 
 			networkVariable.ReadDelta(reader, keepDirtyDelta);
 
 			didSet = true;
 			targetValue.Value = networkVariable.Value;
-			Debug.Log($"Read delta {targetValue.Value} {networkVariable.Value}");
 		}
 
 		public override void Dispose()
@@ -147,7 +151,14 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			networkVariable.Initialize(GetBehaviour());
+			NetworkBehaviour behaviour = GetBehaviour();
+
+			if (behaviour == null)
+			{
+				return;
+			}
+
+			networkVariable.Initialize(behaviour);
 			hasInitializedNetworkVariable = true;
 		}
 	}

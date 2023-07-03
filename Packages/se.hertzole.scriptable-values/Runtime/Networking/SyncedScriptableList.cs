@@ -4,15 +4,20 @@
 
 #if SCRIPTABLE_VALUES_NETWORKING
 using System;
+using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
 	public sealed partial class SyncedScriptableList<T> : IDisposable
 	{
+		private bool isInitialized;
+
 		private ScriptableList<T> targetList;
 
 		public void Initialize(ScriptableList<T> list)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+
 			targetList = list;
 
 			targetList.OnAdded += OnAdded;
@@ -20,6 +25,8 @@ namespace Hertzole.ScriptableValues
 			targetList.OnInserted += OnInserted;
 			targetList.OnSet += OnSet;
 			targetList.OnCleared += OnCleared;
+
+			isInitialized = true;
 
 			OnInitialized();
 		}
@@ -38,11 +45,17 @@ namespace Hertzole.ScriptableValues
 
 		private void DisposeTargetList()
 		{
-			targetList.OnAdded -= OnAdded;
-			targetList.OnRemoved -= OnRemoved;
-			targetList.OnInserted -= OnInserted;
-			targetList.OnSet -= OnSet;
-			targetList.OnCleared -= OnCleared;
+			if (targetList != null)
+			{
+				targetList.OnAdded -= OnAdded;
+				targetList.OnRemoved -= OnRemoved;
+				targetList.OnInserted -= OnInserted;
+				targetList.OnSet -= OnSet;
+				targetList.OnCleared -= OnCleared;
+				targetList = null;
+			}
+
+			isInitialized = false;
 		}
 	}
 }

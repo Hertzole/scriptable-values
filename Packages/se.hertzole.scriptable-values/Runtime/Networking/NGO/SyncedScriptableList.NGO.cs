@@ -5,34 +5,52 @@ namespace Hertzole.ScriptableValues
 {
 	partial class SyncedScriptableList<T> : NetworkVariableBase where T : unmanaged, IEquatable<T>
 	{
-		private bool hasInitialized;
+		private bool hasInitializedNetworkList;
 		private bool didAdd;
 		private bool didRemove;
 		private bool didInsert;
 		private bool didSet;
 		private bool didClear;
+		private bool forceIsSpawned;
 
 		private NetworkList<T> networkList;
 
+		private bool IsSpawned
+		{
+			get { return GetBehaviour() != null && (forceIsSpawned || GetBehaviour().IsSpawned); }
+		}
+
 		private bool CanWrite
 		{
-			get { return GetBehaviour() != null && GetBehaviour().IsSpawned && CanClientWrite(GetBehaviour().NetworkManager.LocalClientId); }
+			get { return CanClientWrite(GetBehaviour().NetworkManager.LocalClientId); }
 		}
 
 		public SyncedScriptableList(NetworkVariableReadPermission readPerm = DefaultReadPerm, NetworkVariableWritePermission writePerm = DefaultWritePerm) :
 			base(readPerm, writePerm)
 		{
-			hasInitialized = false;
+			hasInitializedNetworkList = false;
 		}
 
 		partial void OnInitialized()
 		{
-			networkList = new NetworkList<T>(null, ReadPerm, WritePerm);
+			networkList = new NetworkList<T>(targetList.list, ReadPerm, WritePerm);
 			networkList.OnListChanged += OnNetworkListChanged;
+
+			if (IsSpawned && GetBehaviour().IsServer)
+			{
+				SetDirty(true);
+			}
+
+			InitializeIfNeeded();
 		}
 
 		partial void OnAdded(T item)
 		{
+			if (!isInitialized || !IsSpawned)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			if (didAdd)
@@ -54,6 +72,11 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnRemoved(int index, T item)
 		{
+			if (!isInitialized || !IsSpawned)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			if (didRemove)
@@ -75,6 +98,11 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnInserted(int index, T item)
 		{
+			if (!isInitialized || !IsSpawned)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			if (didInsert)
@@ -95,6 +123,11 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnSet(int index, T oldItem, T newItem)
 		{
+			if (!isInitialized || !IsSpawned)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			if (didSet)
@@ -115,6 +148,11 @@ namespace Hertzole.ScriptableValues
 
 		partial void OnCleared()
 		{
+			if (!isInitialized || !IsSpawned)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			if (didClear)
@@ -234,6 +272,11 @@ namespace Hertzole.ScriptableValues
 
 		public override void WriteDelta(FastBufferWriter writer)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			networkList.WriteDelta(writer);
@@ -241,6 +284,11 @@ namespace Hertzole.ScriptableValues
 
 		public override void WriteField(FastBufferWriter writer)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			networkList.WriteField(writer);
@@ -248,9 +296,16 @@ namespace Hertzole.ScriptableValues
 
 		public override void ReadField(FastBufferReader reader)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			networkList.ReadField(reader);
+			// We're forcing the spawned state here because it will say it isn't spawned, but if we can read, it is spawned.
+			forceIsSpawned = true;
 			OnNetworkListChanged(new NetworkListEvent<T>
 			{
 				Type = NetworkListEvent<T>.EventType.Full,
@@ -258,10 +313,17 @@ namespace Hertzole.ScriptableValues
 				PreviousValue = default,
 				Value = default
 			});
+
+			forceIsSpawned = false;
 		}
 
 		public override void ReadDelta(FastBufferReader reader, bool keepDirtyDelta)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+
 			InitializeIfNeeded();
 
 			networkList.ReadDelta(reader, keepDirtyDelta);
@@ -282,13 +344,20 @@ namespace Hertzole.ScriptableValues
 
 		private void InitializeIfNeeded()
 		{
-			if (hasInitialized)
+			if (hasInitializedNetworkList)
 			{
 				return;
 			}
 
-			networkList.Initialize(GetBehaviour());
-			hasInitialized = true;
+			NetworkBehaviour behaviour = GetBehaviour();
+
+			if (behaviour == null)
+			{
+				return;
+			}
+
+			networkList.Initialize(behaviour);
+			hasInitializedNetworkList = true;
 		}
 	}
 }
