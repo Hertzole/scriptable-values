@@ -15,17 +15,6 @@ namespace Hertzole.ScriptableValues
 
 		private readonly SyncList<T> syncList = new SyncList<T>();
 
-		[Flags]
-		private enum DidOperationFlags
-		{
-			None = 0,
-			Add = 1,
-			Insert = 2,
-			Set = 4,
-			Remove = 8,
-			Clear = 16
-		}
-
 		protected override void Registered()
 		{
 			syncList.InitializeInstance(NetworkBehaviour, byte.MaxValue - SyncIndex, Settings.WritePermission, Settings.ReadPermission, Settings.SendRate,

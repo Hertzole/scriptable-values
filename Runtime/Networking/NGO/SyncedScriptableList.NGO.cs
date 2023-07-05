@@ -11,12 +11,9 @@ namespace Hertzole.ScriptableValues
 	partial class SyncedScriptableList<T> : NetworkVariableBase where T : unmanaged, IEquatable<T>
 	{
 		private bool hasInitializedNetworkList;
-		private bool didAdd;
-		private bool didRemove;
-		private bool didInsert;
-		private bool didSet;
-		private bool didClear;
 		private bool forceIsSpawned;
+
+		private DidOperationFlags didOperation;
 
 		private NetworkList<T> networkList;
 
@@ -58,9 +55,9 @@ namespace Hertzole.ScriptableValues
 
 			InitializeIfNeeded();
 
-			if (didAdd)
+			if ((didOperation & DidOperationFlags.Add) != 0)
 			{
-				didAdd = false;
+				didOperation &= ~DidOperationFlags.Add;
 				return;
 			}
 
@@ -69,8 +66,7 @@ namespace Hertzole.ScriptableValues
 				throw new InvalidOperationException("Cannot add to the list. Client does not have write permission.");
 			}
 
-			didAdd = true;
-
+			didOperation |= DidOperationFlags.Add;
 			networkList.Add(item);
 			SetDirty(true);
 		}
@@ -84,9 +80,9 @@ namespace Hertzole.ScriptableValues
 
 			InitializeIfNeeded();
 
-			if (didRemove)
+			if ((didOperation & DidOperationFlags.Remove) != 0)
 			{
-				didRemove = false;
+				didOperation &= ~DidOperationFlags.Remove;
 				return;
 			}
 
@@ -95,8 +91,7 @@ namespace Hertzole.ScriptableValues
 				throw new InvalidOperationException("Cannot remove from the list. Client does not have write permission.");
 			}
 
-			didRemove = true;
-
+			didOperation |= DidOperationFlags.Remove;
 			networkList.RemoveAt(index);
 			SetDirty(true);
 		}
@@ -110,9 +105,9 @@ namespace Hertzole.ScriptableValues
 
 			InitializeIfNeeded();
 
-			if (didInsert)
+			if ((didOperation & DidOperationFlags.Insert) != 0)
 			{
-				didInsert = false;
+				didOperation &= ~DidOperationFlags.Insert;
 				return;
 			}
 
@@ -121,7 +116,7 @@ namespace Hertzole.ScriptableValues
 				throw new InvalidOperationException("Cannot insert into the list. Client does not have write permission.");
 			}
 
-			didInsert = true;
+			didOperation |= DidOperationFlags.Insert;
 			networkList.Insert(index, item);
 			SetDirty(true);
 		}
@@ -135,9 +130,9 @@ namespace Hertzole.ScriptableValues
 
 			InitializeIfNeeded();
 
-			if (didSet)
+			if ((didOperation & DidOperationFlags.Set) != 0)
 			{
-				didSet = false;
+				didOperation &= ~DidOperationFlags.Set;
 				return;
 			}
 
@@ -146,7 +141,7 @@ namespace Hertzole.ScriptableValues
 				throw new InvalidOperationException("Cannot set the list item. Client does not have write permission.");
 			}
 
-			didSet = true;
+			didOperation |= DidOperationFlags.Set;
 			networkList[index] = newItem;
 			SetDirty(true);
 		}
@@ -160,9 +155,9 @@ namespace Hertzole.ScriptableValues
 
 			InitializeIfNeeded();
 
-			if (didClear)
+			if ((didOperation & DidOperationFlags.Clear) != 0)
 			{
-				didClear = false;
+				didOperation &= ~DidOperationFlags.Clear;
 				return;
 			}
 
@@ -171,7 +166,7 @@ namespace Hertzole.ScriptableValues
 				throw new InvalidOperationException("Cannot clear the list. Client does not have write permission.");
 			}
 
-			didClear = true;
+			didOperation |= DidOperationFlags.Clear;
 			networkList.Clear();
 			SetDirty(true);
 		}
@@ -181,78 +176,77 @@ namespace Hertzole.ScriptableValues
 			switch (changeEvent.Type)
 			{
 				case NetworkListEvent<T>.EventType.Add:
-					if (didAdd)
+					if ((didOperation & DidOperationFlags.Add) != 0)
 					{
-						didAdd = false;
+						didOperation &= ~DidOperationFlags.Add;
 						return;
 					}
 
-					didAdd = true;
+					didOperation |= DidOperationFlags.Add;
 					targetList.Add(changeEvent.Value);
 					break;
 				case NetworkListEvent<T>.EventType.Insert:
-					if (didInsert)
+					if ((didOperation & DidOperationFlags.Insert) != 0)
 					{
-						didInsert = false;
+						didOperation &= ~DidOperationFlags.Insert;
 						return;
 					}
 
-					didInsert = true;
+					didOperation |= DidOperationFlags.Insert;
 					targetList.Insert(changeEvent.Index, changeEvent.Value);
 					break;
 				case NetworkListEvent<T>.EventType.Remove:
-					if (didRemove)
+					if ((didOperation & DidOperationFlags.Remove) != 0)
 					{
-						didRemove = false;
+						didOperation &= ~DidOperationFlags.Remove;
 						return;
 					}
 
-					didRemove = true;
+					didOperation |= DidOperationFlags.Remove;
 					targetList.Remove(changeEvent.Value);
 					break;
 				case NetworkListEvent<T>.EventType.RemoveAt:
-					if (didRemove)
+					if ((didOperation & DidOperationFlags.RemoveAt) != 0)
 					{
-						didRemove = false;
+						didOperation &= ~DidOperationFlags.RemoveAt;
 						return;
 					}
 
-					didRemove = true;
-
+					didOperation |= DidOperationFlags.RemoveAt;
 					targetList.RemoveAt(changeEvent.Index);
 					break;
 				case NetworkListEvent<T>.EventType.Value:
-					if (didSet)
+					if ((didOperation & DidOperationFlags.Set) != 0)
 					{
-						didSet = false;
+						didOperation &= ~DidOperationFlags.Set;
 						return;
 					}
 
-					didSet = true;
+					didOperation |= DidOperationFlags.Set;
 					targetList[changeEvent.Index] = changeEvent.Value;
 					break;
 				case NetworkListEvent<T>.EventType.Clear:
-					if (didClear)
+					if ((didOperation & DidOperationFlags.Clear) != 0)
 					{
-						didClear = false;
+						didOperation &= ~DidOperationFlags.Clear;
 						return;
 					}
 
-					didClear = true;
+					didOperation |= DidOperationFlags.Clear;
 					targetList.Clear();
 					break;
 				case NetworkListEvent<T>.EventType.Full:
-					if (didClear)
+					if ((didOperation & DidOperationFlags.Clear) != 0)
 					{
-						didClear = false;
+						didOperation &= ~DidOperationFlags.Clear;
 						return;
 					}
 
-					didClear = true;
+					didOperation |= DidOperationFlags.Clear;
 					targetList.Clear();
 					for (int i = 0; i < networkList.Count; i++)
 					{
-						didAdd = true;
+						didOperation |= DidOperationFlags.Add;
 						targetList.Add(networkList[i]);
 					}
 
