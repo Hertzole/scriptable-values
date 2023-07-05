@@ -1,4 +1,9 @@
-﻿using System;
+﻿#if (FISHNET || SCRIPTABLE_VALUES_NGO)
+#define SCRIPTABLE_VALUES_NETWORKING
+#endif
+
+#if SCRIPTABLE_VALUES_NETWORKING && SCRIPTABLE_VALUES_NGO
+using System;
 using Unity.Netcode;
 
 namespace Hertzole.ScriptableValues
@@ -361,3 +366,4 @@ namespace Hertzole.ScriptableValues
 		}
 	}
 }
+#endif
