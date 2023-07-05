@@ -36,7 +36,7 @@ namespace Hertzole.ScriptableValues
 
 		public override void WriteFull(PooledWriter writer)
 		{
-			if (!valueChanged)
+			if (!isInitialized || !valueChanged)
 			{
 				return;
 			}
@@ -48,6 +48,11 @@ namespace Hertzole.ScriptableValues
 
 		public override void WriteDelta(PooledWriter writer, bool resetSyncTick = true)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+            
 			base.WriteDelta(writer, resetSyncTick);
 
 			writer.Write(currentValue);
@@ -56,6 +61,11 @@ namespace Hertzole.ScriptableValues
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override void Read(PooledReader reader, bool asServer)
 		{
+			if (!isInitialized)
+			{
+				return;
+			}
+			
 			bool asClientAndHost = !asServer && NetworkManager.IsServer;
 
 			T newValue = reader.Read<T>();
