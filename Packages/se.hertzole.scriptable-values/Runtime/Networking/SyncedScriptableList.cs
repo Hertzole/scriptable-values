@@ -13,6 +13,18 @@ namespace Hertzole.ScriptableValues
 		private bool isInitialized;
 
 		private ScriptableList<T> targetList;
+		
+		[Flags]
+		private enum DidOperationFlags
+		{
+			None = 0,
+			Add = 1,
+			Insert = 2,
+			Set = 4,
+			Remove = 8,
+			RemoveAt = 16,
+			Clear = 32
+		}
 
 		public void Initialize(ScriptableList<T> list)
 		{
