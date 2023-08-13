@@ -64,9 +64,11 @@ namespace Hertzole.ScriptableValues.Editor
 			
 			if (value == null || string.IsNullOrEmpty(value.propertyPath))
 			{
+				object currentValue = valueFieldInfo.GetValue(target);
+				
 				valueLabel = new TextElementField("Value")
 				{
-					value = valueFieldInfo.GetValue(target).ToString(),
+					value = currentValue == null ? "null" : currentValue.ToString(),
 					style =
 					{
 						marginBottom = 16
