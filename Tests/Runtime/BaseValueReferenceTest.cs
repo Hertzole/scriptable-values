@@ -255,6 +255,79 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(gotError);
 		}
 
+		[Test]
+		public void SetValueWithoutNotify_Constant()
+		{
+			bool eventInvoked = false;
+			
+			ValueReference<TValue> instance = new ValueReference<TValue>(default(TValue));
+			instance.OnValueChanged += ValueChanged;
+			
+			instance.SetValueWithoutNotify(MakeDifferentValue(default));
+
+			Assert.AreEqual(MakeDifferentValue(default), instance.constantValue);
+			Assert.AreEqual(MakeDifferentValue(default), instance.Value);
+			Assert.IsFalse(eventInvoked);
+
+			eventInvoked = false;
+			
+			instance.OnValueChanged -= ValueChanged;
+
+			TValue differentValue = MakeDifferentValue(instance.Value);
+			
+			instance.SetValueWithoutNotify(differentValue);
+			
+			Assert.AreEqual(differentValue, instance.constantValue);
+			Assert.AreEqual(differentValue, instance.Value);
+			Assert.IsFalse(eventInvoked);
+			
+			void ValueChanged(TValue previousValue, TValue newValue)
+			{
+				Assert.AreEqual(MakeDifferentValue(default), previousValue);
+				Assert.AreEqual(MakeDifferentValue(default), newValue);
+				eventInvoked = true;
+			}
+		}
+		
+		[Test]
+		public void SetValueWithoutNotify_Reference()
+		{
+			bool eventInvoked = false;
+			
+			TType scriptableValue = CreateInstance<TType>();
+			scriptableValue.Value = default;
+			
+			ValueReference<TValue> instance = new ValueReference<TValue>(scriptableValue);
+			instance.OnValueChanged += ValueChanged;
+			
+			instance.SetValueWithoutNotify(MakeDifferentValue(default));
+
+			Assert.AreEqual(default, instance.constantValue);
+			Assert.AreEqual(MakeDifferentValue(default), instance.Value);
+			Assert.AreEqual(MakeDifferentValue(default), scriptableValue.Value);
+			Assert.IsFalse(eventInvoked);
+
+			eventInvoked = false;
+			
+			instance.OnValueChanged -= ValueChanged;
+
+			TValue differentValue = MakeDifferentValue(instance.Value);
+			
+			instance.SetValueWithoutNotify(differentValue);
+			
+			Assert.AreEqual(default, instance.constantValue);
+			Assert.AreEqual(differentValue, instance.Value);
+			Assert.AreEqual(differentValue, scriptableValue.Value);
+			Assert.IsFalse(eventInvoked);
+			
+			void ValueChanged(TValue previousValue, TValue newValue)
+			{
+				Assert.AreEqual(MakeDifferentValue(default), previousValue);
+				Assert.AreEqual(MakeDifferentValue(default), newValue);
+				eventInvoked = true;
+			}
+		}
+
 		protected abstract TValue MakeDifferentValue(TValue value);
 	}
 }
