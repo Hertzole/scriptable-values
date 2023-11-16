@@ -46,7 +46,7 @@ namespace Hertzole.ScriptableValues
 		public T Value
 		{
 			get { return GetValue(); }
-			set { SetValue(value); }
+			set { SetValue(value, true); }
 		}
 
 		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
@@ -181,7 +181,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		private void SetValue(T value)
+		private void SetValue(T value, bool notify)
 		{
 			T previousValue = Value;
 			if (EqualityHelper.Equals(previousValue, value))
@@ -192,23 +192,49 @@ namespace Hertzole.ScriptableValues
 			switch (valueType)
 			{
 				case ValueReferenceType.Constant:
-					OnValueChangingInternal?.Invoke(previousValue, value);
+					if (notify)
+					{
+						OnValueChangingInternal?.Invoke(previousValue, value);
+					}
 					constantValue = value;
-					OnValueChangedInternal?.Invoke(previousValue, value);
+
+					if (notify)
+					{
+						OnValueChangedInternal?.Invoke(previousValue, value);
+					}
 					break;
 				case ValueReferenceType.Reference:
-					referenceValue.Value = value;
+					if (notify)
+					{
+						referenceValue.Value = value;
+					}
+					else
+					{
+						referenceValue.SetValueWithoutNotify(value);
+					}
 					break;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 				case ValueReferenceType.Addressable:
 					if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
 					{
-						AssetHandle.Result.Value = value;
+						if (notify)
+						{
+							AssetHandle.Result.Value = value;
+						}
+						else
+						{
+							AssetHandle.Result.SetValueWithoutNotify(value);
+						}
 					}
 
 					break;
 #endif
 			}
+		}
+		
+		public void SetValueWithoutNotify(T value)
+		{
+			SetValue(value, false);
 		}
 
 #if UNITY_EDITOR
