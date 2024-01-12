@@ -320,7 +320,7 @@ public class ScriptableIntValuePool : ScriptableObjectPool<ScriptableInt>
 
 ![Value reference](https://github.com/Hertzole/scriptable-values/assets/5569364/7fcc6a1e-3108-4df3-87c7-5ed5383abdc9)
 
-Value reference is a special type that allows you you to pick in the inspector if you want a constant value in the inspector or a scriptable value reference (and even a addressable reference if you have addressables installed!). Meanwhile, in your code, you only interact with a single `Value` property and you don't need to care what type it is. 
+Value reference is a special type that allows you to pick in the inspector if you want a constant value in the inspector or a scriptable value reference (and even a addressable reference if you have addressables installed!). Meanwhile, in your code, you only interact with a single `Value` property and you don't need to care what type it is. 
 
 #### Value Reference Usage
 
@@ -335,100 +335,6 @@ public class PauseManager : MonoBehaviour
         isPaused.Value = !isPaused.Value;
         timescale.Value = isPaused.Value ? 0f : 1f;
     }
-}
-```
-
-## 🌐 Networking Support
-
-You can automatically sync scriptable values, lists, and dictionaries over the network. All of the networking solutions follow the same setup.
-
-### FishNet
-```cs
-public ScriptableInt intValue;
-public ScriptableIntList list;
-public ScriptableIntDictionary dictionary;
-
-[SyncObject]
-private readonly SyncedScriptableValue<int> syncedInt = new SyncedScriptableValue<int>();
-[SyncObject]
-private readonly SyncedScriptableList<int> syncedList = new SyncedScriptableList<int>();
-[SyncObject]
-private readonly SyncedScriptableDictionary<int, int> syncedDictionary = new SyncedScriptableDictionary<int, int>();
-
-void Awake()
-{
-    // Always initialize the synced objects as early as possible!
-    syncedInt.Initialize(intValue);
-    syncedList.Initialize(list);
-    syncedDictionary.Initialize(dictionary);
-}
-
-void OnDestroy()
-{
-    // It's important to dispose the synced objects when you're done with them!
-    syncedInt.Dispose();
-    syncedList.Dispose();
-    syncedDictionary.Dispose();
-}
-
-void OnEnable()
-{
-    // To listen to events, you always go to the source scriptable object.
-    intValue.OnValueChanged += OnIntValueChanged;
-}
-
-void OnDisable()
-{
-    intValue.OnValueChanged -= OnIntValueChanged;
-}
-
-void SetValue(int value)
-{
-    // To set a value, you always go to the source object.
-    // Only the server can set values.
-    intValue.Value = value;
-}
-```
-
-### Netcode for GameObjects
-```cs
-public ScriptableInt intValue;
-public ScriptableIntList list;
-// Dictionary is currently not supported.
-
-private readonly SyncedScriptableValue<int> syncedInt = new SyncedScriptableValue<int>();
-private readonly SyncedScriptableList<int> syncedList = new SyncedScriptableList<int>();
-
-void Awake()
-{
-    // Always initialize the synced objects as early as possible!
-    syncedInt.Initialize(intValue);
-    syncedList.Initialize(list);
-}
-
-void OnDestroy()
-{
-    // It's important to dispose the synced objects when you're done with them!
-    syncedInt.Dispose();
-    syncedList.Dispose();
-}
-
-void OnEnable()
-{
-    // To listen to events, you always go to the source scriptable object.
-    intValue.OnValueChanged += OnIntValueChanged;
-}
-
-void OnDisable()
-{
-    intValue.OnValueChanged -= OnIntValueChanged;
-}
-
-void SetValue(int value)
-{
-    // To set a value, you always go to the source object.
-    // Only the server can set values.
-    intValue.Value = value;
 }
 ```
    
