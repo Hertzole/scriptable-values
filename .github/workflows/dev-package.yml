@@ -20,15 +20,26 @@ jobs:
         if [[ -d "Assets/Samples" ]]; then
           mv "Assets/Samples" /tmp/example
         fi
-        mv README.md /tmp/README.md
+        if [[ -f "README.md" ]]; then
+          mv README.md /tmp/README.md
+        fi
+        if [[ -f "LICENSE.md" ]]; then
+          mv LICENSE.md /tmp/LICENSE.md
+        fi
         git checkout dev-package
         if [[ -d "/tmp/example" ]]; then
           mkdir "Samples~"
           mv /tmp/example/* "Samples~/"
           git add "Samples~"
         fi
-        mv /tmp/README.md README.md
-        git add README.md
+        if [[ -f "/tmp/LICENSE.md" ]]; then
+          mv /tmp/LICENSE.md LICENSE.md
+          git add LICENSE.md
+        fi
+        if [[ -f "/tmp/README.md" ]]; then
+          mv /tmp/README.md README.md
+          git add README.md
+        fi
         if [[ -d "Tests" ]]; then
           rm -rf Tests
           rm -f Tests.meta
