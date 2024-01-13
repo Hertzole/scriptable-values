@@ -5,7 +5,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests.Editor
 {
-	public class EqualityHelperTests : BaseEditorTest
+	public class EqualityHelperTests : BaseTest
 	{
 		[Test]
 		public void NonUnityObject_Equals()
