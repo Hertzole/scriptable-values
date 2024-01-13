@@ -10,61 +10,64 @@ on:
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
 jobs:
   # Run the Unity tests
   tests:
     name: Run Unity 2021.3 tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        unity-version:
+          - 2021.3.34f1
+          - 2022.1.24f1
+          - 2022.2.21f1
+          - 2022.3.17f1
+          - 2023.1.20f1
+          - 2023.2.5f1
     steps:
       # Checkout the repo
       - name: Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4.1.1
         with:
           lfs: true
+          fetch-depth: 0
 
       # Cache library folder for faster tests
       - name: Cache library
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.3.3
         with:
           path: Library
-          key: LibraryFolder
+          key: Library-${{ matrix.unity-version }}
           restore-keys: |
-            LibraryFolder
+            Library-
 
-      # Run play mode tests
-      - name: Play mode tests
-        uses: game-ci/unity-test-runner@main # Must be on main until a fix regarding character limit is published
-        id: playmode_tests
+      # Run tests
+      - name: Run tests
+        uses: game-ci/unity-test-runner@v4
+        id: tests
         with:
-          testMode: playmode
-          checkName: Play mode test results
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
-
-      # Run edit mode tests
-      - name: Edit mode tests
-        uses: game-ci/unity-test-runner@main # Must be on main until a fix regarding character limit is published
-        id: editmode_tests
-        with:
-          testMode: editmode
-          checkName: Edit mode test results
+          unityVersion: ${{ matrix.unity-version }}
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
       # Upload test results
-      - name: Upload play mode results
-        uses: actions/upload-artifact@v3
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Test results
-          path: ${{ steps.playmode_tests.outputs.coveragePath }}
+          path: ${{ steps.tests.outputs.artifactsPath }}
 
-      # Upload test coverage results
-      - name: Upload edit mode results
-        uses: actions/upload-artifact@v3
+      # Upload coverage results
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Coverage results
-          path: ${{ steps.playmode_tests.outputs.coveragePath }}
+          path: ${{ steps.tests.outputs.coveragePath }}
 
   sonarscan:
     needs: [tests]
@@ -81,41 +84,47 @@ jobs:
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
 
       - name: Checkout repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4.1.1
+        with:
+          lfs: true
+          fetch-depth: 0
 
       - name: Cache library
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.3.3
         with:
           path: Library
-          key: LibraryFolder
+          key: Library-Scanner
           restore-keys: |
-            LibraryFolder
+            Library-Scanner
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            6.0.x
+            8.x
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Install scanner
-        run: |
-          dotnet tool install dotnet-sonarscanner --tool-path . --version 5.4.0
-          apt update
-          apt install -y openjdk-11-jre-headless
+        run: dotnet tool install --global dotnet-sonarscanner --version 6.0.0
 
       - name: Generate Solution
-        run: unity-editor -nographics -logFile /dev/stdout -customBuildName runtime-options-manager -projectPath . -executeMethod GitTools.Solution.Sync -quit
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
 
-      # Get the test results from the artifacts
+      # Get the coverage results from the artifacts
       - name: Get test reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Test results
           path: Tests
       
       # Get the test coverage results from the artifacts
       - name: Get test coverage
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Coverage results
           path: Coverage
@@ -132,15 +141,13 @@ jobs:
           FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ls
-          ls Coverage
-          ./dotnet-sonarscanner begin \
+          dotnet-sonarscanner begin \
            /o:"hertzole" \
            /k:"scriptable-values" \
            /d:sonar.host.url=https://sonarcloud.io \
            /d:sonar.verbose=false \
-           /d:sonar.login=$SONAR_TOKEN \
+           /d:sonar.token=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
            /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/workspace-opencov/EditMode/TestCoverageResults_0000.xml
           dotnet build scriptable-values.sln
-          ./dotnet-sonarscanner end /d:sonar.login=$SONAR_TOKEN
+          dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
