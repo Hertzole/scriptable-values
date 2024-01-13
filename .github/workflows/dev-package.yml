@@ -26,6 +26,9 @@ jobs:
         if [[ -f "LICENSE.md" ]]; then
           mv LICENSE.md /tmp/LICENSE.md
         fi
+        if [[ -f "CHANGELOG.md" ]]; then
+          mv CHANGELOG.md /tmp/CHANGELOG.md
+        fi
         git checkout dev-package
         if [[ -d "/tmp/example" ]]; then
           mkdir "Samples~"
@@ -39,6 +42,10 @@ jobs:
         if [[ -f "/tmp/README.md" ]]; then
           mv /tmp/README.md README.md
           git add README.md
+        fi
+        if [[ -f "/tmp/CHANGELOG.md" ]]; then
+          mv /tmp/CHANGELOG.md CHANGELOG.md
+          git add CHANGELOG.md
         fi
         if [[ -d "Tests" ]]; then
           rm -rf Tests
