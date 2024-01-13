@@ -197,10 +197,25 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void ResetValue()
 		{
+			T previousValue = value;
+			bool isSameValue = EqualityHelper.Equals(value, DefaultValue);
+
+			if (!isSameValue)
+			{
+				onValueChanging.Invoke(previousValue, DefaultValue);
+				OnValueChanging?.Invoke(previousValue, DefaultValue);
+			}
+			
 			value = DefaultValue;
 			PreviousValue = DefaultValue;
 			temporaryValue = DefaultValue;
 			valueIsDefault = EqualityHelper.Equals(value, default);
+
+			if (!isSameValue)
+			{
+				onValueChanged.Invoke(previousValue, DefaultValue);
+				OnValueChanged?.Invoke(previousValue, DefaultValue);
+			}
 		}
 
 		/// <summary>
