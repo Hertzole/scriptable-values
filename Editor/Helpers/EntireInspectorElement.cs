@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
@@ -11,30 +11,38 @@ namespace Hertzole.ScriptableValues.Editor
 		public EntireInspectorElement()
 		{
 			style.flexGrow = 1;
+			style.minHeight = 440;
 
-			RegisterCallback<GeometryChangedEvent, VisualElement>((_, root) =>
+			RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, element) =>
 			{
 				// Only do this if the view port is null to save resources.
-				if (contentViewport == null)
+				if (element.contentViewport == null)
 				{
-					VisualElement editorElement = FindParent(root, "EditorElement");
+					VisualElement editorElement = FindParent(element, "EditorElement");
 					if (editorElement != null)
 					{
-						imguiContainer = editorElement.Q<IMGUIContainer>();
-						if (imguiContainer != null)
+						element.imguiContainer = editorElement.Q<IMGUIContainer>();
+						if (element.imguiContainer != null)
 						{
-							contentViewport = FindParent<TemplateContainer>(root);
+							element.contentViewport = FindParent<VisualElement>(element, "unity-content-viewport");
+							Assert.IsNotNull(element.contentViewport);
+
+							element.contentViewport.RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, args) => { args.UpdateHeight(); },
+								element);
+							
+							UpdateHeight();
 						}
 					}
 				}
-
-				// The viewport exists.
-				if (contentViewport != null && imguiContainer != null)
-				{
-					// Update the root size to match the entire inspector.
-					root.style.height = contentViewport.resolvedStyle.height - imguiContainer.resolvedStyle.height - 32;
-				}
 			}, this);
+		}
+
+		private void UpdateHeight()
+		{
+			if (contentViewport != null && imguiContainer != null)
+			{
+				style.height = contentViewport.resolvedStyle.height - imguiContainer.resolvedStyle.height - 16;
+			}
 		}
 
 		private static VisualElement FindParent(VisualElement element, string typeName)
@@ -57,7 +65,7 @@ namespace Hertzole.ScriptableValues.Editor
 			VisualElement parent = element;
 			do
 			{
-				parent = parent.parent;
+				parent = parent.hierarchy.parent;
 				if (parent != null && parent.GetType() == typeof(T))
 				{
 					if (!string.IsNullOrEmpty(name) && parent.name != name)
