@@ -90,6 +90,33 @@ namespace Hertzole.ScriptableValues.Tests
 
 			instance.ReleaseAddressableAsset();
 		}
+		
+		[UnityTest]
+		public IEnumerator SetValueWithoutNotify_Addressable([ValueSource(nameof(StaticsValue))] TValue value)
+		{
+			AsyncOperationHandle<IList<IResourceLocation>> locationHandle = Addressables.LoadResourceLocationsAsync("TestObject");
+			yield return locationHandle;
+
+			string guid = GetAddressableGuid(locationHandle.Result);
+			Addressables.Release(locationHandle);
+
+			ValueReference<TValue> instance = new ValueReference<TValue>(new AssetReferenceT<ScriptableValue<TValue>>(guid));
+			Assert.AreEqual(ValueReferenceType.Addressable, instance.valueType);
+			
+			instance.OnValueChanged += (previousValue, newValue) => { NUnit.Framework.Assert.Fail("OnValueChanged should not be invoked."); };
+			instance.OnValueChanging += (previousValue, newValue) => { NUnit.Framework.Assert.Fail("OnValueChanging should not be invoked."); };
+
+			loadHandle = instance.LoadAddressableAssetAsync();
+			yield return loadHandle;
+
+			instance.SetValueWithoutNotify(value);
+
+			Assert.AreEqual(default, instance.constantValue);
+			Assert.AreEqual(value, instance.Value);
+			Assert.AreEqual(value, instance.AssetHandle.Result.Value);
+
+			instance.ReleaseAddressableAsset();
+		}
 
 		[UnityTest]
 		public IEnumerator SetValue_Addressable_NotLoaded([ValueSource(nameof(StaticsValue))] TValue value)
