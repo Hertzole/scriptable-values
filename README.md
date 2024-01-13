@@ -15,14 +15,13 @@ You also don't need to care about values being saved between sessions as they ar
 
 ## ✨ Features
 
-- Supports fast enter play mode
+- Supports fast enter-play mode
 - Automatically resets values to default values
 - Scriptable values and events for most standard C# and Unity types
 - Scriptable objects for values, events, lists, dictionaries, and pools
 - Value reference type for easily picking between a constant value and a scriptable object reference
 - Automatically collect stack traces to see where your values are set from
 - Value and event listeners for easily hooking up events in the editor for when value changes/events are invoked
-- Networking support for [FishNet](https://assetstore.unity.com/packages/tools/network/fish-net-networking-evolved-207815) and [Netcode for GameObjects](https://docs-multiplayer.unity3d.com/) (developer branch only currently!)
 
 ## 📦 Installation
 
@@ -31,9 +30,11 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
 ### OpenUPM (recommended)
 
 If you have the OpenUPM CLI tool installed, you can add the package with this command:  
-`openupm add se.hertzole.scriptable-values`
+```bash
+openupm add se.hertzole.scriptable-values
+```
 
-Otherwise follow these instructions:
+Otherwise, follow these instructions:
 
 1. Open Edit/Project Settings/Package Manager
 2. Add a new Scoped Registry (or edit the existing OpenUPM entry)   
@@ -44,21 +45,20 @@ Otherwise follow these instructions:
 4. Open Window/Package Manager
 5. Click `+`
 6. Select `Add package by name...` or `Add package from git URL...`
-7. Paste `se.hertzole.scriptable-values` into name 
+7. Paste `se.hertzole.scriptable-values` into the name field 
 8. Click `Add`
 
 ### Unity package manager through git
 1. Open up the Unity package manager
-2. Click on the plus icon in the top left and "Add package from git url"
+2. Click on the plus icon in the top left and "Add package from git URL"
 3. Paste in `https://github.com/Hertzole/scriptable-values.git#package`  
-   You can also paste in `https://github.com/Hertzole/scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
+   You can also use `https://github.com/Hertzole/scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
 
 ## 🛠 Usage
 
 ### Scriptable Values
 
 ![Scriptable value](https://github.com/Hertzole/scriptable-values/assets/5569364/241cdba9-222f-46dd-b09a-70dd63891014)
-
 
 Scriptable Values allow you to have a single value across multiple objects and listen to its changing events.  
 There are scriptable values for all primitive C# values and most standard Unity types that you can use out of the box, but it's not difficult to create your own.
