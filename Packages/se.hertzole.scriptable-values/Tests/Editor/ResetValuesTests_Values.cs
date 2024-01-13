@@ -85,6 +85,9 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 
 		private void ScriptableValueReset<TType, TValue>(TValue initialValue, TValue newValue) where TType : ScriptableValue<TValue>
 		{
+			bool changingInvoked = false;
+			bool changedInvoked = false;
+			
 			TType instance = CreateInstance<TType>();
 
 			instance.Value = initialValue;
@@ -95,8 +98,23 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			instance.Value = newValue;
 
 			Assert.AreEqual(newValue, instance.Value);
+			
+			instance.OnValueChanging += (_, newChangedValue) =>
+			{
+				changingInvoked = true;
+				Assert.AreEqual(initialValue, newChangedValue);
+			};
+			
+			instance.OnValueChanged += (_, newChangedValue) =>
+			{
+				changedInvoked = true;
+				Assert.AreEqual(initialValue, newChangedValue);
+			};
 
 			instance.Test_OnStart();
+			
+			Assert.IsTrue(changingInvoked);
+			Assert.IsTrue(changedInvoked);
 
 			Assert.AreEqual(initialValue, instance.Value);
 		}
