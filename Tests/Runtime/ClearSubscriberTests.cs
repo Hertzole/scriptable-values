@@ -6,7 +6,7 @@ using UnityEngine.TestTools;
 
 namespace Hertzole.ScriptableValues.Tests.Editor
 {
-	public class ClearSubscriberTests : BaseEditorTest
+	public class ClearSubscriberTests : BaseTest
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
 			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
@@ -61,7 +61,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 				i.OnChanged += type => { };
 			}, i => i.ClearSubscribers(true));
 		}
-		
+
 		[Test]
 		public void ScriptablePool()
 		{
