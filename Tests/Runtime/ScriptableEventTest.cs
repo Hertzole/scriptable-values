@@ -29,6 +29,12 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			InvokeWithArgAndSender(value);
 		}
+		
+		[Test]
+		public void Invoke_WithArgOnly([ValueSource(nameof(StaticsValue))] TValue value)
+		{
+			InvokeWithArgsOnly(value);
+		}
 
 		private void InvokeWithArgAndSender(TValue args) 
 		{
@@ -47,6 +53,25 @@ namespace Hertzole.ScriptableValues.Tests
 			};
 
 			instance.Invoke(sender, args);
+
+			Assert.IsTrue(eventInvoked, "OnInvoked should be invoked.");
+		}
+
+		private void InvokeWithArgsOnly(TValue args)
+		{
+			TType instance = CreateInstance<TType>();
+
+			bool eventInvoked = false;
+
+			instance.OnInvoked += (eventSender, eventArgs) =>
+			{
+				Assert.AreEqual(args, eventArgs);
+				Assert.AreEqual(instance, eventSender);
+
+				eventInvoked = true;
+			};
+
+			instance.Invoke(args);
 
 			Assert.IsTrue(eventInvoked, "OnInvoked should be invoked.");
 		}
