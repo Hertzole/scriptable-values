@@ -66,7 +66,7 @@ jobs:
       - name: Fix paths
         run: |
           chmod +x ./ci/fix_paths.sh
-          ./ci/fix_paths.sh ${{ steps.tests.outputs.artifactsPath }}
+          ./ci/fix_paths.sh ${{ steps.tests.outputs.coveragePath }}
 
       # Upload coverage results
       - name: Upload test results
