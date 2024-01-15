@@ -103,7 +103,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            8.x
+            6.x
 
       - name: Install Java
         uses: actions/setup-java@v4
