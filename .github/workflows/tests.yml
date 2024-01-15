@@ -65,6 +65,7 @@ jobs:
       # We need to remove the github/workspace/ path.
       - name: Fix paths
         run: |
+          chmod +x ./ci/fix_paths.sh
           ./ci/fix_paths.sh ${{ steps.tests.outputs.artifactsPath }}
 
       # Upload coverage results
