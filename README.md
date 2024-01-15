@@ -1,11 +1,18 @@
-# Scriptable Values
-
-[![openupm](https://img.shields.io/npm/v/se.hertzole.scriptable-values?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/se.hertzole.scriptable-values/)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=coverage)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=bugs)](https://sonarcloud.io/summary/new_code?id=scriptable-values)
+<div align="center">
+     <img src="https://github.com/Hertzole/scriptable-values/assets/5569364/1d5ed9ee-4025-4136-b111-73d94affd22b">
+     <br>
+     <img src="https://img.shields.io/github/actions/workflow/status/Hertzole/scriptable-values/tests.yml?style=flat&logo=Unity&label=Unity%20tests" alt="Unity tests workflow status">
+     <a href="https://openupm.com/packages/se.hertzole.scriptable-values/"><img src="https://img.shields.io/npm/v/se.hertzole.scriptable-values?label=openupm&registry_uri=https://package.openupm.com" alt="OpenUPM"></a>
+     <br>
+     <a href="https://github.com/sponsors/Hertzole"><img src="https://img.shields.io/badge/Sponsor_me-GitHub-%23EA4AAA?style=flat&logo=githubsponsors" alt="Sponsor me on github badge"></a>
+     <a href="https://ko-fi.com/Hertzole"><img src="https://img.shields.io/badge/Support_me-Ko--fi-%23FF5E5B?style=flat&logo=ko-fi" alt="Support me on ko-fi badge"></a>
+     <br>
+     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=alert_status" alt="Quality gate status"></a>
+     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=coverage" alt="Code coverage"></a>
+     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=code_smells" alt="Code smells"></a>
+     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=sqale_rating" alt="Maintainability rating"></a>
+     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=bugs" alt="Bugs"></a>
+</div>
 
 ## ❓ What is this?
 
@@ -29,7 +36,8 @@ Scriptable Values supports all Unity versions from **Unity 2021.3** and onward. 
 
 ### OpenUPM (recommended)
 
-If you have the OpenUPM CLI tool installed, you can add the package with this command:  
+If you have the OpenUPM CLI tool installed, you can add the package with this command:
+
 ```bash
 openupm add se.hertzole.scriptable-values
 ```
