@@ -61,6 +61,12 @@ jobs:
           name: Test results - ${{ matrix.unity-version }}
           path: ${{ steps.tests.outputs.artifactsPath }}
 
+      # The test results have a different path than what SonarQube can read.
+      # We need to remove the github/workspace/ path.
+      - name: Fix paths
+        run: |
+          ./ci/fix_paths.sh ${{ steps.tests.outputs.artifactsPath }}
+
       # Upload coverage results
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -129,13 +135,6 @@ jobs:
           name: Coverage results - 2021.3.34f1
           path: Coverage
 
-      # The test results have a different path than what SonarQube can read.
-      # We need to remove the github/workspace/ path.
-      - name: Fix paths
-        run: |
-          sed -i 's/\/github\/workspace\///g' Coverage/workspace-opencov/PlayMode/TestCoverageResults_0000.xml
-          sed -i 's/\/github\/workspace\///g' Coverage/workspace-opencov/EditMode/TestCoverageResults_0000.xml
-
       - name: SonarQube analysis
         env:
           FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
@@ -148,6 +147,6 @@ jobs:
            /d:sonar.verbose=false \
            /d:sonar.token=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=Tests/editmode.xml,Tests/playmode.xml \
-           /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/PlayMode/TestCoverageResults_0000.xml,Coverage/workspace-opencov/EditMode/TestCoverageResults_0000.xml
+           /d:sonar.cs.opencover.reportsPaths=Coverage/**.xml
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
