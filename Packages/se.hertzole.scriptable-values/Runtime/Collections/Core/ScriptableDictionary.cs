@@ -27,13 +27,18 @@ namespace Hertzole.ScriptableValues
 	/// </summary>
 	/// <typeparam name="TKey">The key of the dictionary.</typeparam>
 	/// <typeparam name="TValue">The value of the dictionary.</typeparam>
-	public abstract class ScriptableDictionary<TKey, TValue> : ScriptableDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, IDictionary where TKey : notnull
+	public abstract class ScriptableDictionary<TKey, TValue> : ScriptableDictionary,
+		ISerializationCallbackReceiver,
+		IDictionary<TKey, TValue>,
+		IReadOnlyDictionary<TKey, TValue>,
+		IDictionary where TKey : notnull
 	{
 		[SerializeField]
 		[Tooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
 		private bool isReadOnly = false;
 		[SerializeField]
-		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
+		[Tooltip(
+			"If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
 		[SerializeField]
 		[Tooltip("If true, the dictionary will be cleared on play mode start/game boot.")]
@@ -58,7 +63,11 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public TValue this[TKey key] { get { return dictionary[key]; } set { SetValue(key, value); } }
+		public TValue this[TKey key]
+		{
+			get { return dictionary[key]; }
+			set { SetValue(key, value); }
+		}
 
 		/// <summary>
 		///     Gets or sets the <see cref="IEqualityComparer{T}" /> that is used to determine equality of keys for the dictionary.
@@ -72,7 +81,8 @@ namespace Hertzole.ScriptableValues
 				// Make sure it's a new comparer than the old one.
 				if (!EqualityComparer<IEqualityComparer<TKey>>.Default.Equals(dictionary.Comparer, value))
 				{
-					Dictionary<TKey, TValue> newDictionary = value == null ? new Dictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary, value);
+					Dictionary<TKey, TValue> newDictionary =
+						value == null ? new Dictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary, value);
 
 					dictionary = newDictionary;
 				}
@@ -83,40 +93,92 @@ namespace Hertzole.ScriptableValues
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
-		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+		public bool SetEqualityCheck
+		{
+			get { return setEqualityCheck; }
+			set { setEqualityCheck = value; }
+		}
 		/// <summary>
 		///     If true, the dictionary will be cleared on play mode start/game boot.
 		/// </summary>
-		public bool ClearOnStart { get { return clearOnStart; } set { clearOnStart = value; } }
-
-		bool IDictionary.IsFixedSize { get { return isReadOnly; } }
-		bool ICollection.IsSynchronized { get { return false; } }
-		object ICollection.SyncRoot { get { return this; } }
-		ICollection IDictionary.Values { get { return dictionary.Values; } }
-		ICollection IDictionary.Keys { get { return dictionary.Keys; } }
-
-		/// <summary>
-		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
-		/// </summary>
-		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
-
-		/// <summary>
-		///     Gets the number of key/value pairs contained in the dictionary.
-		/// </summary>
-		public int Count { get { return dictionary.Count; } }
+		public bool ClearOnStart
+		{
+			get { return clearOnStart; }
+			set { clearOnStart = value; }
+		}
 
 		/// <summary>
 		///     Gets a collection containing the keys in the dictionary.
 		/// </summary>
-		public ICollection<TKey> Keys { get { return dictionary.Keys; } }
+		public Dictionary<TKey, TValue>.KeyCollection Keys
+		{
+			get { return dictionary.Keys; }
+		}
 
 		/// <summary>
 		///     Gets a collection containing the values in the dictionary.
 		/// </summary>
-		public ICollection<TValue> Values { get { return dictionary.Values; } }
+		public Dictionary<TKey, TValue>.ValueCollection Values
+		{
+			get { return dictionary.Values; }
+		}
 
-		IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys { get { return dictionary.Keys; } }
-		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values { get { return dictionary.Values; } }
+		bool IDictionary.IsFixedSize
+		{
+			get { return isReadOnly; }
+		}
+		bool ICollection.IsSynchronized
+		{
+			get { return false; }
+		}
+		object ICollection.SyncRoot
+		{
+			get { return this; }
+		}
+		ICollection IDictionary.Values
+		{
+			get { return dictionary.Values; }
+		}
+		ICollection IDictionary.Keys
+		{
+			get { return dictionary.Keys; }
+		}
+
+		/// <summary>
+		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
+		/// </summary>
+		public bool IsReadOnly
+		{
+			get { return isReadOnly; }
+			set { isReadOnly = value; }
+		}
+
+		/// <summary>
+		///     Gets the number of key/value pairs contained in the dictionary.
+		/// </summary>
+		public int Count
+		{
+			get { return dictionary.Count; }
+		}
+
+		ICollection<TKey> IDictionary<TKey, TValue>.Keys
+		{
+			get { return dictionary.Keys; }
+		}
+
+		ICollection<TValue> IDictionary<TKey, TValue>.Values
+		{
+			get { return dictionary.Values; }
+		}
+
+		IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
+		{
+			get { return dictionary.Keys; }
+		}
+		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values
+		{
+			get { return dictionary.Values; }
+		}
 
 		/// <summary>
 		///     Called when an item was added. Gives you the key and value of the newly added item.
@@ -300,7 +362,7 @@ namespace Hertzole.ScriptableValues
 		public bool TryFindKey(Predicate<TKey> predicate, out TKey key)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
-			
+
 			foreach (TKey dictionaryKey in dictionary.Keys)
 			{
 				if (predicate(dictionaryKey))
@@ -323,7 +385,7 @@ namespace Hertzole.ScriptableValues
 		public bool TryFindValue(Predicate<TValue> predicate, out TValue value)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
-			
+
 			foreach (TValue dictionaryValue in dictionary.Values)
 			{
 				if (predicate(dictionaryValue))
@@ -388,9 +450,9 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 			ResetStackTraces();
 #endif
-			
+
 			ClearSubscribers();
-			
+
 			if (!isReadOnly && clearOnStart)
 			{
 				dictionary.Clear();
@@ -398,7 +460,7 @@ namespace Hertzole.ScriptableValues
 				values.Clear();
 			}
 		}
-		
+
 		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
@@ -459,6 +521,15 @@ namespace Hertzole.ScriptableValues
 
 			OnAdded?.Invoke(key, value);
 			OnChanged?.Invoke(DictionaryChangeType.Added);
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the dictionary.
+		/// </summary>
+		/// <returns>A enumerator for the dictionary.</returns>
+		public Dictionary<TKey, TValue>.Enumerator GetEnumerator()
+		{
+			return dictionary.GetEnumerator();
 		}
 
 		/// <summary>
@@ -694,6 +765,7 @@ namespace Hertzole.ScriptableValues
 
 			// Update the dictionary with the serialized keys and values.
 			dictionary.Clear();
+			dictionary.EnsureCapacity(keys.Count);
 
 			for (int i = 0; i < keys.Count; i++)
 			{

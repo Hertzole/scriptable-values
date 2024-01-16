@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
+using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -12,7 +15,11 @@ namespace Hertzole.ScriptableValues.Tests
 	{
 		private TestScriptableDictionary dictionary;
 
-		public bool IsReadOnly { get { return dictionary.IsReadOnly; } set { dictionary.IsReadOnly = value; } }
+		public bool IsReadOnly
+		{
+			get { return dictionary.IsReadOnly; }
+			set { dictionary.IsReadOnly = value; }
+		}
 
 		protected override void OnSetup()
 		{
@@ -1165,12 +1172,147 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void GetKeyValuePairEnumerator()
+		public void GetEnumerator_IEnumerable()
 		{
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
-			IEnumerator<KeyValuePair<int, int>> enumerator = ((ICollection<KeyValuePair<int, int>>) dictionary).GetEnumerator();
+
+			// This generates garbage because of boxing.
+			NUnit.Framework.Assert.That(() =>
+			{
+				IEnumerator enumerator = ((IEnumerable) dictionary).GetEnumerator();
+				if (enumerator is IDisposable d)
+				{
+					d.Dispose();
+				}
+			}, Is.AllocatingGCMemory());
+
+			IEnumerator enumerator = ((IEnumerable) dictionary).GetEnumerator();
+
+			try
+			{
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(0, ((KeyValuePair<int, int>) enumerator.Current!).Key);
+				Assert.AreEqual(42, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(1, ((KeyValuePair<int, int>) enumerator.Current).Key);
+				Assert.AreEqual(43, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(2, ((KeyValuePair<int, int>) enumerator.Current).Key);
+				Assert.AreEqual(44, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsFalse(enumerator.MoveNext());
+			}
+
+			catch (AssertionException) { }
+			finally
+			{
+				if (enumerator is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
+			}
+		}
+
+		[Test]
+		public void GetEnumerator_IEnumerableGeneric()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+
+			// This generates garbage because of boxing.
+			NUnit.Framework.Assert.That(() =>
+			{
+				IEnumerator<KeyValuePair<int, int>> enumerator = ((IEnumerable<KeyValuePair<int, int>>) dictionary).GetEnumerator();
+				enumerator.Dispose();
+			}, Is.AllocatingGCMemory());
+
+			IEnumerator enumerator = ((IEnumerable) dictionary).GetEnumerator();
+
+			try
+			{
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(0, ((KeyValuePair<int, int>) enumerator.Current!).Key);
+				Assert.AreEqual(42, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(1, ((KeyValuePair<int, int>) enumerator.Current).Key);
+				Assert.AreEqual(43, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(2, ((KeyValuePair<int, int>) enumerator.Current).Key);
+				Assert.AreEqual(44, ((KeyValuePair<int, int>) enumerator.Current).Value);
+				Assert.IsFalse(enumerator.MoveNext());
+			}
+
+			catch (AssertionException) { }
+			finally
+			{
+				if (enumerator is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
+			}
+		}
+
+		[Test]
+		public void GetEnumerator_IDictionary()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+
+			// This generates garbage because of boxing.
+			NUnit.Framework.Assert.That(() =>
+			{
+				IDictionaryEnumerator enumerator = ((IDictionary) dictionary).GetEnumerator();
+
+				if (enumerator is IDisposable d)
+				{
+					d.Dispose();
+				}
+			}, Is.AllocatingGCMemory());
+
+			IDictionaryEnumerator enumerator = ((IDictionary) dictionary).GetEnumerator();
+
+			try
+			{
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(0, enumerator.Key);
+				Assert.AreEqual(42, enumerator.Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(1, enumerator.Key);
+				Assert.AreEqual(43, enumerator.Value);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(2, enumerator.Key);
+				Assert.AreEqual(44, enumerator.Value);
+				Assert.IsFalse(enumerator.MoveNext());
+			}
+
+			catch (AssertionException) { }
+			finally
+			{
+				if (enumerator is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
+			}
+		}
+
+		[Test]
+		public void GetEnumerator()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+
+			// This does not generate garbage because of the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				Dictionary<int, int>.Enumerator enumerator = dictionary.GetEnumerator();
+				enumerator.Dispose();
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
+
+			Dictionary<int, int>.Enumerator enumerator = dictionary.GetEnumerator();
 
 			try
 			{
@@ -1185,6 +1327,7 @@ namespace Hertzole.ScriptableValues.Tests
 				Assert.AreEqual(44, enumerator.Current.Value);
 				Assert.IsFalse(enumerator.MoveNext());
 			}
+
 			catch (AssertionException) { }
 			finally
 			{
@@ -1193,43 +1336,68 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void GetEnumerator()
+		public void ForEach_NoAlloc()
 		{
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
-			IEnumerator enumerator = ((IEnumerable) dictionary).GetEnumerator();
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(0, ((KeyValuePair<int, int>) enumerator.Current!).Key);
-			Assert.AreEqual(42, ((KeyValuePair<int, int>) enumerator.Current).Value);
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(1, ((KeyValuePair<int, int>) enumerator.Current).Key);
-			Assert.AreEqual(43, ((KeyValuePair<int, int>) enumerator.Current).Value);
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(2, ((KeyValuePair<int, int>) enumerator.Current).Key);
-			Assert.AreEqual(44, ((KeyValuePair<int, int>) enumerator.Current).Value);
-			Assert.IsFalse(enumerator.MoveNext());
+			// This does not generate garbage because of the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				int keySum = 0;
+				int valueSum = 0;
+
+				foreach (KeyValuePair<int, int> pair in dictionary)
+				{
+					keySum += pair.Key;
+					valueSum += pair.Value;
+				}
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
 		}
 
 		[Test]
-		public void GetEnumerator_Object()
+		public void ForEach_Keys_NoAlloc()
 		{
 			dictionary.Add(0, 42);
 			dictionary.Add(1, 43);
 			dictionary.Add(2, 44);
-			IDictionaryEnumerator enumerator = ((IDictionary) dictionary).GetEnumerator();
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(0, enumerator.Key);
-			Assert.AreEqual(42, enumerator.Value);
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(1, enumerator.Key);
-			Assert.AreEqual(43, enumerator.Value);
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(2, enumerator.Key);
-			Assert.AreEqual(44, enumerator.Value);
-			Assert.IsFalse(enumerator.MoveNext());
+			// Mostly here to just make sure Keys gets created. Or else it will caught as gc alloc in the foreach.
+			Assert.AreEqual(3, dictionary.Keys.Count);
+
+			// This does not generate garbage because of the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				int keySum = 0;
+
+				foreach (int key in dictionary.Keys)
+				{
+					keySum += key;
+				}
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
+		}
+
+		[Test]
+		public void ForEach_Values_NoAlloc()
+		{
+			dictionary.Add(0, 42);
+			dictionary.Add(1, 43);
+			dictionary.Add(2, 44);
+
+			// Mostly here to just make sure Values gets created. Or else it will caught as gc alloc in the foreach.
+			Assert.AreEqual(3, dictionary.Values.Count);
+
+			// This does not generate garbage because of the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				int valueSum = 0;
+
+				foreach (int value in dictionary.Values)
+				{
+					valueSum += value;
+				}
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
 		}
 
 		[Test]
