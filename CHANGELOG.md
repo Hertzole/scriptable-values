@@ -8,7 +8,6 @@
 
 - Fixed scriptable value editor breaking if the value is null
 - Fixed scriptable value editor having the wrong height in newer Unity versions
-- Fixed OnValueChanged not being invoked when resetting the value on a scriptable value
 - Fixed the package not having an author
 
 ## [1.2.0] - 2023-05-20
