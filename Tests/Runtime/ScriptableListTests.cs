@@ -1721,7 +1721,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void CopyTo()
+		public void CopyTo_Index()
 		{
 			list.Add(1);
 			list.Add(2);
@@ -1729,6 +1729,21 @@ namespace Hertzole.ScriptableValues.Tests
 
 			int[] array = new int[3];
 			list.CopyTo(array, 0);
+
+			Assert.AreEqual(1, array[0]);
+			Assert.AreEqual(2, array[1]);
+			Assert.AreEqual(3, array[2]);
+		}
+
+		[Test]
+		public void CopyTo()
+		{
+			list.Add(1);
+			list.Add(2);
+			list.Add(3);
+
+			int[] array = new int[3];
+			list.CopyTo(array);
 
 			Assert.AreEqual(1, array[0]);
 			Assert.AreEqual(2, array[1]);
