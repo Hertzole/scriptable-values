@@ -822,6 +822,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		/// Returns an enumerator that iterates through the list.
+		/// </summary>
+		/// <returns>A enumerator for the list.</returns>
+		public List<T>.Enumerator GetEnumerator()
+		{
+			return list.GetEnumerator();
+		}
+
+		/// <summary>
 		///     Adds an item to the list.
 		/// </summary>
 		/// <param name="item">The item to add.</param>

@@ -5,8 +5,10 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
+using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -1608,6 +1610,13 @@ namespace Hertzole.ScriptableValues.Tests
 			list.Add(1);
 			list.Add(3);
 
+			// This generates garbage due to boxing.
+			NUnit.Framework.Assert.That(() =>
+			{
+				var enumerator = ((IList<int>) list).GetEnumerator();
+				enumerator.Dispose();
+			}, Is.AllocatingGCMemory());
+			
 			IEnumerator<int> enumerator = ((IList<int>) list).GetEnumerator();
 
 			try
@@ -1640,22 +1649,103 @@ namespace Hertzole.ScriptableValues.Tests
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
+			
+			// This generates garbage due to boxing.
+			NUnit.Framework.Assert.That(() =>
+			{
+				var enumerator = ((IList) list).GetEnumerator();
+				if (enumerator is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
+			}, Is.AllocatingGCMemory());
 
 			IEnumerator enumerator = ((IList) list).GetEnumerator();
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(5, enumerator.Current);
+			try
+			{
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(5, enumerator.Current);
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(2, enumerator.Current);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(2, enumerator.Current);
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(1, enumerator.Current);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(1, enumerator.Current);
 
-			Assert.IsTrue(enumerator.MoveNext());
-			Assert.AreEqual(3, enumerator.Current);
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(3, enumerator.Current);
 
-			Assert.IsFalse(enumerator.MoveNext());
+				Assert.IsFalse(enumerator.MoveNext());
+			}
+			catch (AssertionException) { }
+			finally
+			{
+				if (enumerator is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
+			}
+		}
+
+		[Test]
+		public void GetEnumerator()
+		{
+			list.Add(5);
+			list.Add(2);
+			list.Add(1);
+			list.Add(3);
+
+			// This does not generate garbage due to the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				List<int>.Enumerator enumerator = list.GetEnumerator();
+				enumerator.Dispose();
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
+
+			List<int>.Enumerator enumerator = list.GetEnumerator();
+
+			try
+			{
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(5, enumerator.Current);
+
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(2, enumerator.Current);
+
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(1, enumerator.Current);
+
+				Assert.IsTrue(enumerator.MoveNext());
+				Assert.AreEqual(3, enumerator.Current);
+
+				Assert.IsFalse(enumerator.MoveNext());
+			}
+			catch (AssertionException) { }
+			finally
+			{
+				enumerator.Dispose();
+			}
+		}
+		
+		[Test]
+		public void ForEach_NoAlloc()
+		{
+			list.Add(5);
+			list.Add(2);
+			list.Add(1);
+			list.Add(3);
+
+			// This does not generate garbage due to the pure struct.
+			NUnit.Framework.Assert.That(() =>
+			{
+				int sum = 0;
+
+				foreach (int i in list)
+				{
+					sum += i;
+				}
+			}, NUnit.Framework.Is.Not.AllocatingGCMemory());
 		}
 
 		[Test]
