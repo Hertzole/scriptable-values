@@ -11,8 +11,10 @@
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        ""
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [
@@ -20,11 +22,6 @@
             "name": "com.unity.addressables",
             "expression": "",
             "define": "SCRIPTABLE_VALUES_ADDRESSABLES"
-        },
-        {
-            "name": "com.unity.netcode.gameobjects",
-            "expression": "",
-            "define": "SCRIPTABLE_VALUES_NGO"
         }
     ],
     "noEngineReferences": false
