@@ -954,5 +954,14 @@ namespace Hertzole.ScriptableValues
 		{
 			list.CopyTo(array, arrayIndex);
 		}
+		
+		/// <summary>
+		///     Copies the entire list to a compatible one-dimensional array.
+		/// </summary>
+		/// <param name="array">The array destination.</param>
+		public void CopyTo(T[] array)
+		{
+			list.CopyTo(array);
+		}
 	}
 }
