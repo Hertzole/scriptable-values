@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Assert = UnityEngine.Assertions.Assert;
 
-namespace Hertzole.ScriptableValues.Tests.Editor
+namespace Hertzole.ScriptableValues.Tests
 {
 	public class EqualityHelperTests : BaseTest
 	{

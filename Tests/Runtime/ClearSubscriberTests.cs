@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Hertzole.ScriptableValues.Tests.Editor
+namespace Hertzole.ScriptableValues.Tests
 {
 	public class ClearSubscriberTests : BaseTest
 	{
