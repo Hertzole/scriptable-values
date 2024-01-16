@@ -1819,5 +1819,15 @@ namespace Hertzole.ScriptableValues.Tests
 			list.AddRange(Enumerable.Range(0, 100));
 			Assert.AreEqual(0, list.Find(x => x == 200));
 		}
+		
+		[Test]
+		public void EnsureCapacity()
+		{
+			list.EnsureCapacity(100);
+			Assert.AreEqual(100, list.Capacity);
+			
+			list.EnsureCapacity(50);
+			Assert.AreEqual(100, list.Capacity);
+		}
 	}
 }
