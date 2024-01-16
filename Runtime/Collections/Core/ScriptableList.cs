@@ -16,7 +16,8 @@ namespace Hertzole.ScriptableValues
 		[Tooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
 		private bool isReadOnly = false;
 		[SerializeField]
-		[Tooltip("If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
+		[Tooltip(
+			"If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
 		[SerializeField]
 		[Tooltip("If true, the list will be cleared on play mode start/game boot.")]
@@ -24,7 +25,11 @@ namespace Hertzole.ScriptableValues
 		[SerializeField]
 		internal List<T> list = new List<T>();
 
-		public T this[int index] { get { return list[index]; } set { SetValue(index, value); } }
+		public T this[int index]
+		{
+			get { return list[index]; }
+			set { SetValue(index, value); }
+		}
 
 		object IList.this[int index]
 		{
@@ -41,32 +46,59 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the total number of elements the internal data structure can hold without resizing.
 		/// </summary>
-		public int Capacity { get { return list.Capacity; } }
+		public int Capacity
+		{
+			get { return list.Capacity; }
+		}
 
 		/// <summary>
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
-		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+		public bool SetEqualityCheck
+		{
+			get { return setEqualityCheck; }
+			set { setEqualityCheck = value; }
+		}
 		/// <summary>
 		///     If true, the list will be cleared on play mode start/game boot.
 		/// </summary>
-		public bool ClearOnStart { get { return clearOnStart; } set { clearOnStart = value; } }
+		public bool ClearOnStart
+		{
+			get { return clearOnStart; }
+			set { clearOnStart = value; }
+		}
 
 		// Is this List synchronized (thread-safe)?
-		bool ICollection.IsSynchronized { get { return false; } }
+		bool ICollection.IsSynchronized
+		{
+			get { return false; }
+		}
 		// Synchronization root for this object.
-		object ICollection.SyncRoot { get { return this; } }
+		object ICollection.SyncRoot
+		{
+			get { return this; }
+		}
 
-		bool IList.IsFixedSize { get { return isReadOnly; } }
+		bool IList.IsFixedSize
+		{
+			get { return isReadOnly; }
+		}
 		/// <summary>
 		///     If read only, the list cannot be changed at runtime and won't be cleared on start.
 		/// </summary>
-		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
+		public bool IsReadOnly
+		{
+			get { return isReadOnly; }
+			set { isReadOnly = value; }
+		}
 		/// <summary>
 		///     Gets the number of elements contained in the list.
 		/// </summary>
-		public int Count { get { return list.Count; } }
+		public int Count
+		{
+			get { return list.Count; }
+		}
 #if UNITY_EDITOR
 		// Used in the CreateAssetMenu attribute.
 		internal const int ORDER = ScriptableEvent.ORDER + 50;
@@ -360,6 +392,18 @@ namespace Hertzole.ScriptableValues
 			return false;
 		}
 
+		/// <summary>
+		///     Ensures that the list has at least the specified capacity.
+		/// </summary>
+		/// <param name="capacity">The minimum capacity to ensure.</param>
+		public void EnsureCapacity(int capacity)
+		{
+			if (list.Capacity < capacity)
+			{
+				list.Capacity = capacity;
+			}
+		}
+
 		/// <inheritdoc />
 		protected override void OnStart()
 		{
@@ -368,13 +412,13 @@ namespace Hertzole.ScriptableValues
 #endif
 
 			ClearSubscribers();
-			
+
 			if (clearOnStart && !isReadOnly)
 			{
 				list.Clear();
 			}
 		}
-		
+
 		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
