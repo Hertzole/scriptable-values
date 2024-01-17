@@ -1,8 +1,6 @@
-using System;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEngine.TestTools;
 #endif
 
 namespace Hertzole.ScriptableValues
