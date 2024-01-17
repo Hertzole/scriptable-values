@@ -25,16 +25,6 @@ namespace Hertzole.ScriptableValues
 #endif
 		}
 
-#if UNITY_EDITOR
-		/// <summary>
-		///     Resets the values of the scriptable object.
-		///     <para>Automatically called when the game is started, both in the editor and in the build.</para>
-		/// </summary>
-		[Obsolete("Use OnStart instead for initialization logic that should be called when the game starts.", true)]
-		[ExcludeFromCoverage]
-		public virtual void ResetValues() { }
-#endif
-
 		/// <summary>
 		///     Called when the game starts.
 		/// </summary>
