@@ -181,7 +181,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		private void SetValue(T value, bool notify)
+		private void SetValue(in T value, in bool notify)
 		{
 			T previousValue = Value;
 			if (EqualityHelper.Equals(previousValue, value))
@@ -192,46 +192,63 @@ namespace Hertzole.ScriptableValues
 			switch (valueType)
 			{
 				case ValueReferenceType.Constant:
-					if (notify)
-					{
-						OnValueChangingInternal?.Invoke(previousValue, value);
-					}
-					constantValue = value;
-
-					if (notify)
-					{
-						OnValueChangedInternal?.Invoke(previousValue, value);
-					}
+					SetValueConstant(value, previousValue, notify);
 					break;
 				case ValueReferenceType.Reference:
-					if (notify)
-					{
-						referenceValue.Value = value;
-					}
-					else
-					{
-						referenceValue.SetValueWithoutNotify(value);
-					}
+					SetValueReference(value, notify);
 					break;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 				case ValueReferenceType.Addressable:
-					if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
-					{
-						if (notify)
-						{
-							AssetHandle.Result.Value = value;
-						}
-						else
-						{
-							AssetHandle.Result.SetValueWithoutNotify(value);
-						}
-					}
-
+					SetValueAddressable(value, notify);
 					break;
 #endif
 			}
 		}
-		
+
+		private void SetValueConstant(in T value, in T previousValue, in bool notify)
+		{
+			if (notify)
+			{
+				OnValueChangingInternal?.Invoke(previousValue, value);
+			}
+
+			constantValue = value;
+
+			if (notify)
+			{
+				OnValueChangedInternal?.Invoke(previousValue, value);
+			}
+		}
+
+		private void SetValueReference(in T value, in bool notify)
+		{
+			if (notify)
+			{
+				referenceValue.Value = value;
+			}
+			else
+			{
+				referenceValue.SetValueWithoutNotify(value);
+			}
+		}
+
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+		private void SetValueAddressable(in T value, in bool notify)
+		{
+			if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
+			{
+				if (notify)
+				{
+					AssetHandle.Result.Value = value;
+				}
+				else
+				{
+					AssetHandle.Result.SetValueWithoutNotify(value);
+				}
+			}
+		}
+#endif
+
 		public void SetValueWithoutNotify(T value)
 		{
 			SetValue(value, false);
