@@ -1,8 +1,9 @@
-## [1.3.0] - Unreleased
+## [1.3.0] - 2024-01-17
 
 ### Added
 
 - Added `SetValueWithoutNotify` to `ValueReference<T>` to allow you to set the value without invoking the change event
+- Added `EnsureCapacity` to `ScriptableList<T>`
 
 ### Fixed
 
@@ -10,6 +11,10 @@
 - Fixed scriptable value editor having the wrong height in newer Unity versions
 - Fixed the package not having an author
 - Fixed allocation when using `foreach` on scriptable lists and dictionaries
+
+### Removed
+
+- Removed obsolete `ResetValues` from `RuntimeScriptableObject`
 
 ## [1.2.0] - 2023-05-20
 
