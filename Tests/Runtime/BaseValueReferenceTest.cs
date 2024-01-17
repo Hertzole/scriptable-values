@@ -226,7 +226,7 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				TValue temp = instance.Value;
 			}
-			catch (ArgumentOutOfRangeException)
+			catch (NotSupportedException)
 			{
 				gotError = true;
 			}
@@ -247,7 +247,7 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				instance.Value = MakeDifferentValue(default);
 			}
-			catch (ArgumentOutOfRangeException)
+			catch (NotSupportedException)
 			{
 				gotError = true;
 			}
