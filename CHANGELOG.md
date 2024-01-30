@@ -1,3 +1,9 @@
+## [1.3.1] - 2024-01-30
+
+### Fixed
+
+- Fixed Odin inspector compatibility
+
 ## [1.3.0] - 2024-01-17
 
 ### Added
