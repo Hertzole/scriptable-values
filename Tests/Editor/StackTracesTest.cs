@@ -18,6 +18,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			base.OnSetup();
 
 			originalCollectStackTraces = ScriptableValuesPreferences.CollectStackTraces;
+			ScriptableValuesPreferences.CollectStackTraces = true;
 		}
 
 		protected override void OnTearDown()
