@@ -4,6 +4,7 @@ using UnityEngine.Events;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
+using Debug = UnityEngine.Debug;
 
 #if !SCRIPTABLE_VALUES_RUNTIME_BINDING
 using System.Runtime.CompilerServices;
