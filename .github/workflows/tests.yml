@@ -24,28 +24,22 @@ jobs:
       fail-fast: false
       matrix:
         unity-version:
-          - 2021.3.34f1
-          - 2022.1.24f1
-          - 2022.2.21f1
-          - 2022.3.17f1
-          - 2023.1.20f1
-          - 2023.2.5f1
+          - 2021
+          - 6000
     steps:
       # Checkout the repo
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
       # Cache library folder for faster tests
       - name: Cache library
-        uses: actions/cache@v3.3.3
+        uses: actions/cache@v4
         with:
           path: Library
           key: Library-${{ matrix.unity-version }}
-          restore-keys: |
-            Library-
 
       # Run tests
       - name: Run tests
@@ -75,7 +69,7 @@ jobs:
     needs: [tests]
     name: SonarScan
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-2021.3.34f1-base-3.0.1
+    container: unityci/editor:ubuntu-6000.0.32f1-base-3.1.0
     steps:
       - name: Activate Unity
         continue-on-error: true
@@ -86,13 +80,13 @@ jobs:
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
 
       - name: Checkout repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
           lfs: true
           fetch-depth: 0
 
       - name: Cache library
-        uses: actions/cache@v3.3.3
+        uses: actions/cache@v4
         with:
           path: Library
           key: Library-Scanner
@@ -121,14 +115,14 @@ jobs:
       - name: Get test reports
         uses: actions/download-artifact@v4
         with:
-          name: Test results - 2021.3.34f1
+          name: Test results - 6000
           path: Tests
       
       # Get the test coverage results from the artifacts
       - name: Get test coverage
         uses: actions/download-artifact@v4
         with:
-          name: Coverage results - 2021.3.34f1
+          name: Coverage results - 6000
           path: Coverage
 
       # The test results have a different path than what SonarQube can read.
