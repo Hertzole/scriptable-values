@@ -12,7 +12,7 @@ namespace Hertzole.ScriptableValues
 	{
 		/// <summary>
 		///     Subscribes to play mode state changed to listen for play mode events.
-		///     <para>When the game is built, it calls the <see cref="ResetValues" /> method.</para>
+		///     <para>When the game is built, it calls the <see cref="OnStart" /> method.</para>
 		/// </summary>
 		private void OnEnable()
 		{
