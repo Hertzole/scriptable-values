@@ -24,8 +24,10 @@ jobs:
       fail-fast: false
       matrix:
         unity-version:
-          - 2021
-          - 6000
+          - 2021.3.45f1
+          - 2022.3.55f1
+          - 2023.2.20f1
+          - 6000.0.32f1
     steps:
       # Checkout the repo
       - name: Checkout
@@ -115,14 +117,14 @@ jobs:
       - name: Get test reports
         uses: actions/download-artifact@v4
         with:
-          name: Test results - 6000
+          name: Test results - 6000.0.32f1
           path: Tests
       
       # Get the test coverage results from the artifacts
       - name: Get test coverage
         uses: actions/download-artifact@v4
         with:
-          name: Coverage results - 6000
+          name: Coverage results - 6000.0.32f1
           path: Coverage
 
       # The test results have a different path than what SonarQube can read.
