@@ -7,6 +7,7 @@ using Unity.Properties;
 
 #if !SCRIPTABLE_VALUES_RUNTIME_BINDING
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 #endif
 
 namespace Hertzole.ScriptableValues
