@@ -4,7 +4,7 @@ using UnityEngine.TestTools;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class BaseScriptableValueTest<TType, TValue> : BaseRuntimeTest where TType : ScriptableValue<TValue>
+	public abstract partial class BaseScriptableValueTest<TType, TValue> : BaseRuntimeTest where TType : ScriptableValue<TValue>
 	{
 		protected TType TestSetValue(TValue value, TValue startValue = default, TType instance = null)
 		{
@@ -205,5 +205,7 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
+		
+		protected abstract TValue MakeDifferentValue(TValue value);
 	}
 }

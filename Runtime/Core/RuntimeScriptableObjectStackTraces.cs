@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Hertzole.ScriptableValues.Debugging;
 using UnityEditor;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
 #endif
 
 namespace Hertzole.ScriptableValues
@@ -47,8 +50,11 @@ namespace Hertzole.ScriptableValues
 		}
 #if UNITY_EDITOR
 		[SerializeField]
-		private bool collectStackTraces = true;
-
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool collectStackTraces = true;
+		
 		internal bool CollectStackTraces { get { return collectStackTraces; } set { collectStackTraces = value; } }
 
 		List<StackTraceEntry> IStackTraceProvider.Invocations { get; } = new List<StackTraceEntry>();

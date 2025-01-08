@@ -9,6 +9,9 @@
   "documentationUrl": "https://github.com/Hertzole/scriptable-values/blob/master/README.md",
   "licensesUrl": "https://github.com/Hertzole/scriptable-values/blob/master/LICENSE.md",
   "hideInEditor": false,
+  "dependencies": {
+    "com.unity.modules.uielements": "1.0.0"
+  },
   "keywords": [
     "scriptableobject",
     "scriptable",

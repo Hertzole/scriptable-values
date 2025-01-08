@@ -126,5 +126,10 @@ namespace Hertzole.ScriptableValues.Tests.Values
 				valueChangedInvoked = true;
 			}
 		}
+
+		protected override GameObject MakeDifferentValue(GameObject value)
+		{
+			return CreateGameObject();
+		}
 	}
 }

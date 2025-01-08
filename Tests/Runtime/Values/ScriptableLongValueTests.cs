@@ -8,7 +8,7 @@ namespace Hertzole.ScriptableValues.Tests.Values
 	{
 		protected override long MakeDifferentValue(long value)
 		{
-			return (long) (value - 1);
+			return value ^ 31;
 		}
 	}
 }
