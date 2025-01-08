@@ -45,7 +45,5 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			TestSetValue_SameValue_NoEqualsCheck(value, value);
 		}
-
-		protected abstract TValue MakeDifferentValue(TValue value);
 	}
 }

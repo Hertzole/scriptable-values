@@ -8,7 +8,7 @@ namespace Hertzole.ScriptableValues.Tests.Values
 	{
 		protected override ulong MakeDifferentValue(ulong value)
 		{
-			return (ulong) (value - 1);
+			return value ^ 31;
 		}
 	}
 }

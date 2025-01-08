@@ -1,41 +1,104 @@
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
+
+#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
+using System.Runtime.CompilerServices;
+#endif
 
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
 	///     Base class for a ScriptableValue without a value.
 	/// </summary>
-	public abstract class ScriptableValue : RuntimeScriptableObject
+	public abstract partial class ScriptableValue : RuntimeScriptableObject
 	{
 		[SerializeField]
 		[Tooltip("If read only, the value cannot be changed at runtime.")]
-		private bool isReadOnly = false;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool isReadOnly = false;
 		[SerializeField]
 		[Tooltip("If true, the value will be reset to the default value on play mode start/game boot.")]
-		private bool resetValueOnStart = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool resetValueOnStart = true;
 		[SerializeField]
 		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
-		private bool setEqualityCheck = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool setEqualityCheck = true;
 
 		/// <summary>
 		///     If read only, the value cannot be changed at runtime.
 		/// </summary>
-		public bool IsReadOnly { get { return isReadOnly; } set { isReadOnly = value; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public bool IsReadOnly
+		{
+			get { return isReadOnly; }
+			set
+			{
+				if (isReadOnly != value)
+				{
+					isReadOnly = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
 		/// <summary>
 		///     If true, the value will be reset to the default value on play mode start/game boot.
 		/// </summary>
-		public bool ResetValueOnStart { get { return resetValueOnStart; } set { resetValueOnStart = value; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public bool ResetValueOnStart
+		{
+			get { return resetValueOnStart; }
+			set
+			{
+				if (resetValueOnStart != value)
+				{
+					resetValueOnStart = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
 		/// <summary>
 		///     If true, an equality check will be run before setting the value to make sure the new value is not the same as the
 		///     old one.
 		/// </summary>
-		public bool SetEqualityCheck { get { return setEqualityCheck; } set { setEqualityCheck = value; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public bool SetEqualityCheck
+		{
+			get { return setEqualityCheck; }
+			set
+			{
+				if (setEqualityCheck != value)
+				{
+					setEqualityCheck = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
 
 #if UNITY_EDITOR
 		// Used for the CreateAssetMenu attribute order.
 		internal const int ORDER = -1000;
+#endif
+
+#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
+		[Conditional("SCRIPTABLE_VALUES_RUNTIME_BINDING")]
+		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { }
 #endif
 	}
 
@@ -46,24 +109,38 @@ namespace Hertzole.ScriptableValues
 #if ODIN_INSPECTOR
 	[Sirenix.OdinInspector.DrawWithUnity]
 #endif
-	public abstract class ScriptableValue<T> : ScriptableValue
+	public abstract partial class ScriptableValue<T> : ScriptableValue
 	{
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
 
 		[SerializeField]
 		[Tooltip("The current value. This can be changed at runtime.")]
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
 		internal T value = default;
 		[SerializeField]
 		[Tooltip("The default value. This is used when the value is reset.")]
-		private T defaultValue = default;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal T defaultValue = default;
 		[SerializeField]
 		[Tooltip("Called before the current value is set.")]
-		private UnityEvent<T, T> onValueChanging = new UnityEvent<T, T>();
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal UnityEvent<T, T> onValueChanging = new UnityEvent<T, T>();
 		[SerializeField]
 		[Tooltip("Called after the current value is set.")]
-		private UnityEvent<T, T> onValueChanged = new UnityEvent<T, T>();
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal UnityEvent<T, T> onValueChanged = new UnityEvent<T, T>();
 
 		private bool valueIsDefault;
+
+		private T previousValue;
 
 		// This is mainly use for OnValidate weirdness.
 		// We need to have another value that is the value right before it gets modified.
@@ -72,6 +149,9 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     The current value. This can be changed at runtime.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public T Value
 		{
 			get { return GetValue(); }
@@ -85,11 +165,39 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     The previous value before the current value was set.
 		/// </summary>
-		public T PreviousValue { get; private set; }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public T PreviousValue
+		{
+			get { return previousValue; }
+			internal set
+			{
+				if (!EqualityHelper.Equals(previousValue, value))
+				{
+					previousValue = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
 		/// <summary>
 		///     The default value. This is used when the value is reset.
 		/// </summary>
-		public T DefaultValue { get { return defaultValue; } set { defaultValue = value; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public T DefaultValue
+		{
+			get { return defaultValue; }
+			set
+			{
+				if (!EqualityHelper.Equals(defaultValue, value))
+				{
+					defaultValue = value;
+					NotifyPropertyChanged();
+				}
+			}
+		}
 
 		/// <summary>
 		///     Called before the current value is set.
@@ -140,6 +248,8 @@ namespace Hertzole.ScriptableValues
 			// Update the value.
 			value = newValue;
 			temporaryValue = newValue;
+
+			NotifyPropertyChanged(nameof(Value));
 
 			valueIsDefault = EqualityHelper.Equals(value, default);
 
@@ -228,11 +338,17 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     A test only check to see if <see cref="OnValueChanging" /> has subscribers.
 		/// </summary>
-		internal bool ValueChangingHasSubscribers { get { return OnValueChanging != null; } }
+		internal bool ValueChangingHasSubscribers
+		{
+			get { return OnValueChanging != null; }
+		}
 		/// <summary>
 		///     A test only check to see if <see cref="OnValueChanged" /> has subscribers.
 		/// </summary>
-		internal bool ValueChangedHasSubscribers { get { return OnValueChanged != null; } }
+		internal bool ValueChangedHasSubscribers
+		{
+			get { return OnValueChanged != null; }
+		}
 #endif
 
 #if UNITY_EDITOR
