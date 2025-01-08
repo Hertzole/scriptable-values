@@ -51,22 +51,6 @@ jobs:
           unityVersion: ${{ matrix.unity-version }}
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
-      # Upload test results
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Test results - ${{ matrix.unity-version }}
-          path: ${{ steps.tests.outputs.artifactsPath }}
-
-      # Upload coverage results
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Coverage results - ${{ matrix.unity-version }}
-          path: ${{ steps.tests.outputs.coveragePath }}
-
   sonarscan:
     needs: [tests]
     name: SonarScan
@@ -110,38 +94,19 @@ jobs:
       - name: Install scanner
         run: dotnet tool install dotnet-sonarscanner --tool-path . --version 6.0.0
 
-      - name: Generate Solution
-        run: |
-          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
-          ls
-
-      # Get the coverage results from the artifacts
-      - name: Get test reports
-        uses: actions/download-artifact@v4
+      - name: Run tests
+        uses: game-ci/unity-test-runner@v4
+        id: tests
         with:
-          name: Test results - 6000.0.32f1
-          path: Tests
-      
-      # Get the test coverage results from the artifacts
-      - name: Get test coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: Coverage results - 6000.0.32f1
-          path: Coverage
+          unityVersion: auto
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
       # The test results have a different path than what SonarQube can read.
       # We need to remove the github/workspace/ path.
       - name: Fix paths
         run: |
           chmod +x ./ci/fix_paths.sh
-          ./ci/fix_paths.sh Coverage
-
-      # For now, just upload the fixed paths
-      - name: Upload fixed paths
-        uses: actions/upload-artifact@v4
-        with:
-          name: Fixed paths
-          path: Coverage
+          ./ci/fix_paths.sh ${{ steps.tests.outputs.coveragePath }}
 
       - name: SonarQube analysis
         env:
@@ -154,7 +119,7 @@ jobs:
            /d:sonar.host.url=https://sonarcloud.io \
            /d:sonar.verbose=false \
            /d:sonar.token=$SONAR_TOKEN \
-           /d:sonar.cs.nunit.reportsPaths=Tests/**.xml \
-           /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/**.xml
+           /d:sonar.cs.nunit.reportsPaths=${{ steps.tests.outputs.artifactsPath }}/**.xml \
+           /d:sonar.cs.opencover.reportsPaths=${{ steps.tests.outputs.coveragePath }}/workspace-opencov/**.xml
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
