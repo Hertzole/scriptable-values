@@ -1,12 +1,11 @@
-﻿using System;
+﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Properties;
-using UnityEngine;
 using UnityEngine.UIElements;
 
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
 namespace Hertzole.ScriptableValues.Tests
 {
 	partial class BaseScriptableValueTest<TType, TValue>
@@ -70,13 +69,13 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			AssertHashCodeCHanged(nameof(ScriptableValue<TType>.PreviousValue), default, MakeDifferentValue(default));
 		}
-		
+
 		[Test]
 		public void Binding_DefaultValue_InvokesPropertyChanged()
 		{
 			AssertNotifyPropertyChangedCalled(nameof(ScriptableValue<TType>.DefaultValue), default, MakeDifferentValue(default));
 		}
-		
+
 		[Test]
 		public void Binding_DefaultValue_ChangesHashCode()
 		{
