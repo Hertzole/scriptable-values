@@ -111,7 +111,7 @@ jobs:
         run: dotnet tool install dotnet-sonarscanner --tool-path . --version 6.0.0
 
       - name: Generate Solution
-        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
+        run: unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod UnityEditor.SyncVS.SyncSolution -quit
 
       # Get the coverage results from the artifacts
       - name: Get test reports
