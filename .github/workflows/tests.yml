@@ -112,7 +112,7 @@ jobs:
 
       - name: Generate Solution
         run: |
-          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod UnityEditor.SyncVS.SyncSolution -quit
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod GitTools.Solution.Sync -quit
           ls
 
       # Get the coverage results from the artifacts
