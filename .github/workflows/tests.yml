@@ -92,12 +92,16 @@ jobs:
           unityVersion: auto
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
+      # Copy coverage files to a new path so we can fix the paths.
+      - name: Copy coverage files
+        run: cp -r ${{ steps.tests.outputs.coveragePath }} Coverage
+
       # The test results have a different path than what SonarQube can read.
       # We need to remove the github/workspace/ path.
       - name: Fix paths
         run: |
           chmod +x ./ci/fix_paths.sh
-          ./ci/fix_paths.sh ${{ steps.tests.outputs.coveragePath }}
+          ./ci/fix_paths.sh Coverage
 
       - name: SonarQube analysis
         env:
@@ -111,6 +115,6 @@ jobs:
            /d:sonar.verbose=false \
            /d:sonar.token=$SONAR_TOKEN \
            /d:sonar.cs.nunit.reportsPaths=${{ steps.tests.outputs.artifactsPath }}/**.xml \
-           /d:sonar.cs.opencover.reportsPaths=${{ steps.tests.outputs.coveragePath }}/workspace-opencov/**.xml
+           /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/**.xml
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
