@@ -92,6 +92,9 @@ jobs:
           unityVersion: auto
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
+      - name: Ls
+        run: ls
+
       # Copy coverage files to a new path so we can fix the paths.
       - name: Copy coverage files
         run: cp -r ${{ steps.tests.outputs.coveragePath }} Coverage
