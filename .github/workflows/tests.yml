@@ -110,10 +110,13 @@ jobs:
           pattern: 'Coverage results - *'
           path: Coverage
 
+      - name: LS
+        run: ls -R 
+
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
-          reports: "${{ steps.download-coverage.outputs.download-path }}/**.xml"
+          reports: "${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
           targetdir: "CoverageReport"
           reporttypes: "Html;Badges"
 
