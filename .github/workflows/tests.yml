@@ -112,7 +112,7 @@ jobs:
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
-          reports: "Coverage/**.xml"
+          reports: "./Coverage/**.xml"
           targetdir: "CoverageReport"
           reporttypes: "Html;Badges"
 
