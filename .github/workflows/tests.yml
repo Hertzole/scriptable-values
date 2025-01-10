@@ -51,6 +51,22 @@ jobs:
           unityVersion: ${{ matrix.unity-version }}
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
 
+      # Upload test results
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test results - ${{ matrix.unity-version }}
+          path: ${{ steps.tests.outputs.artifactsPath }}
+
+      # Upload coverage results
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Coverage results - ${{ matrix.unity-version }}
+          path: ${{ steps.tests.outputs.coveragePath }}
+
   sonarscan:
     needs: [tests]
     name: SonarScan
@@ -85,19 +101,30 @@ jobs:
       - name: Install scanner
         run: dotnet tool install dotnet-sonarscanner --tool-path . --version 6.0.0
 
-      - name: Run tests
-        uses: game-ci/unity-test-runner@v4
-        id: tests
+      - name: Generate Solution
+        run: |
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
+          ls
+
+      # Download the coverage results
+      - name: Download coverage results
+        uses: actions/download-artifact@v4
         with:
-          unityVersion: auto
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
+          pattern: 'Coverage results - *'
+          path: Coverage
 
-      - name: Ls
-        run: ls
+      - name: Generate report
+        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        with:
+          reports: "Coverage/**.xml"
+          targetdir: "CoverageReport"
+          reporttypes: "Html;Badges"
 
-      # Copy coverage files to a new path so we can fix the paths.
-      - name: Copy coverage files
-        run: cp -r ${{ steps.tests.outputs.coveragePath }} Coverage
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: CoverageReport
 
       # The test results have a different path than what SonarQube can read.
       # We need to remove the github/workspace/ path.
@@ -116,8 +143,6 @@ jobs:
            /k:"scriptable-values" \
            /d:sonar.host.url=https://sonarcloud.io \
            /d:sonar.verbose=false \
-           /d:sonar.token=$SONAR_TOKEN \
-           /d:sonar.cs.nunit.reportsPaths=${{ steps.tests.outputs.artifactsPath }}/**.xml \
-           /d:sonar.cs.opencover.reportsPaths=Coverage/workspace-opencov/**.xml
+           /d:sonar.token=$SONAR_TOKEN 
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
