@@ -93,27 +93,14 @@ jobs:
           dotnet-version: |
             8.x
 
-      - name: Install Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      # - name: Install Java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: 'temurin'
+      #     java-version: '21'
 
       - name: Install scanner
-        run: dotnet tool install dotnet-sonarscanner --tool-path . --version 6.0.0
-
-      - name: Activate Unity
-        continue-on-error: true
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        run: |
-          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
-          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
-
-      - name: Generate Solution
-        run: |
-          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
-          ls
+        run: dotnet tool install dotnet-sonarscanner --tool-path .
 
       # Download the coverage results
       - name: Download coverage results
@@ -134,6 +121,19 @@ jobs:
         with:
           name: coverage-report
           path: CoverageReport
+
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+
+      - name: Generate Solution
+        run: |
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
+          ls
 
       # The test results have a different path than what SonarQube can read.
       # We need to remove the github/workspace/ path.
