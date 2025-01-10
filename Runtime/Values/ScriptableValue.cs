@@ -1,15 +1,10 @@
-using Hertzole.ScriptableValues.Helpers;
-using UnityEngine;
-using UnityEngine.Events;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
+using Hertzole.ScriptableValues.Helpers;
+using UnityEngine;
+using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
-
-#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
-#endif
 
 namespace Hertzole.ScriptableValues
 {
@@ -96,11 +91,6 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 		// Used for the CreateAssetMenu attribute order.
 		internal const int ORDER = -1000;
-#endif
-
-#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
-		[Conditional("SCRIPTABLE_VALUES_RUNTIME_BINDING")]
-		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { }
 #endif
 	}
 

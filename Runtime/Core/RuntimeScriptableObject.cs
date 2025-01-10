@@ -3,6 +3,11 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
+#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
+#endif
+
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
@@ -27,6 +32,11 @@ namespace Hertzole.ScriptableValues
 		///     Called when the game starts.
 		/// </summary>
 		protected virtual void OnStart() { }
+		
+#if !SCRIPTABLE_VALUES_RUNTIME_BINDING
+		[Conditional("SCRIPTABLE_VALUES_RUNTIME_BINDING")]
+		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { }
+#endif
 
 #if UNITY_EDITOR
 		/// <summary>
