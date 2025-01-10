@@ -102,6 +102,14 @@ jobs:
       - name: Install scanner
         run: dotnet tool install dotnet-sonarscanner --tool-path . --version 6.0.0
 
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+
       - name: Generate Solution
         run: |
           unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
