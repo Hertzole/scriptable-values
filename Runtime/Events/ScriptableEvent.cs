@@ -12,7 +12,7 @@ namespace Hertzole.ScriptableValues
 	public abstract class ScriptableEvent<T> : ScriptableEvent
 	{
 		[SerializeField]
-		[Tooltip("Called when the event is invoked.")]
+		[EditorTooltip("Called when the event is invoked.")]
 		private UnityEvent<T> onInvokedWithArgs = new UnityEvent<T>();
 
 #if UNITY_EDITOR // This does not need to be included in the build as it's only used in the editor.
@@ -154,7 +154,7 @@ namespace Hertzole.ScriptableValues
 	public class ScriptableEvent : RuntimeScriptableObject
 	{
 		[SerializeField]
-		[Tooltip("Called when the event is invoked.")]
+		[EditorTooltip("Called when the event is invoked.")]
 		private UnityEvent onInvoked = new UnityEvent();
 
 #if UNITY_INCLUDE_TESTS

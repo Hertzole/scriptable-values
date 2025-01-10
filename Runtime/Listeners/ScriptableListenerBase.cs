@@ -5,10 +5,10 @@ namespace Hertzole.ScriptableValues
 	public abstract class ScriptableListenerBase : MonoBehaviour
 	{
 		[SerializeField]
-		[Tooltip("When listeners should start listening.")]
+		[EditorTooltip("When listeners should start listening.")]
 		private StartListenEvents startListening = StartListenEvents.Awake;
 		[SerializeField]
-		[Tooltip("When listeners should stop listening.")]
+		[EditorTooltip("When listeners should stop listening.")]
 		private StopListenEvents stopListening = StopListenEvents.OnDestroy;
 		
 		/// <summary>

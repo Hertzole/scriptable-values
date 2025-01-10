@@ -20,19 +20,19 @@ namespace Hertzole.ScriptableValues
 	public abstract class ScriptableEventListener<TValue> : ScriptableListenerBase
 	{
 		[SerializeField]
-		[Tooltip("The event to listen to.")]
+		[EditorTooltip("The event to listen to.")]
 		private ScriptableEvent<TValue> targetEvent = default;
 		[SerializeField]
-		[Tooltip("When the listener should invoke its events.")]
+		[EditorTooltip("When the listener should invoke its events.")]
 		private EventInvokeEvents invokeOn = EventInvokeEvents.Any;
 		[SerializeField]
-		[Tooltip("What the argument needs to have been for the event to be invoked.")]
+		[EditorTooltip("What the argument needs to have been for the event to be invoked.")]
 		private TValue fromValue = default;
 		[SerializeField]
-		[Tooltip("What the argument needs to be for the event to be invoked.")]
+		[EditorTooltip("What the argument needs to be for the event to be invoked.")]
 		private TValue toValue = default;
 		[SerializeField]
-		[Tooltip("The event to invoke when the target event is raised.")]
+		[EditorTooltip("The event to invoke when the target event is raised.")]
 		private UnityEvent<TValue> onInvoked = new UnityEvent<TValue>();
 
 		/// <summary>

@@ -63,32 +63,32 @@ namespace Hertzole.ScriptableValues
 	public abstract class ScriptableValueListener<TValue> : ScriptableListenerBase
 	{
 		[SerializeField]
-		[Tooltip("The value to listen to.")]
+		[EditorTooltip("The value to listen to.")]
 		private ScriptableValue<TValue> targetValue = default;
 		[SerializeField]
-		[Tooltip("When listeners should invoke their events.")]
+		[EditorTooltip("When listeners should invoke their events.")]
 		private InvokeEvents invokeOn = InvokeEvents.Any;
 		[SerializeField]
-		[Tooltip("What the old value needs to be for the event to be invoked.")]
+		[EditorTooltip("What the old value needs to be for the event to be invoked.")]
 		private TValue fromValue = default;
 		[SerializeField]
-		[Tooltip("What the new value needs to be for the event to be invoked.")]
+		[EditorTooltip("What the new value needs to be for the event to be invoked.")]
 		private TValue toValue = default;
 
 		[SerializeField]
-		[Tooltip("How many parameters listeners should use when invoking their events.")]
+		[EditorTooltip("How many parameters listeners should use when invoking their events.")]
 		private InvokeParameters invokeParameters = InvokeParameters.Single;
 		[SerializeField]
-		[Tooltip("The event to invoke when the value is changing.")]
+		[EditorTooltip("The event to invoke when the value is changing.")]
 		private UnityEvent<TValue> onValueChangingSingle = new UnityEvent<TValue>();
 		[SerializeField]
-		[Tooltip("The event to invoke when the value has changed.")]
+		[EditorTooltip("The event to invoke when the value has changed.")]
 		private UnityEvent<TValue> onValueChangedSingle = new UnityEvent<TValue>();
 		[SerializeField]
-		[Tooltip("The event to invoke when the value is changing.")]
+		[EditorTooltip("The event to invoke when the value is changing.")]
 		private UnityEvent<TValue, TValue> onValueChangingMultiple = new UnityEvent<TValue, TValue>();
 		[SerializeField]
-		[Tooltip("The event to invoke when the value has changed.")]
+		[EditorTooltip("The event to invoke when the value has changed.")]
 		private UnityEvent<TValue, TValue> onValueChangedMultiple = new UnityEvent<TValue, TValue>();
 
 		/// <summary>

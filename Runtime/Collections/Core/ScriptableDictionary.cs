@@ -34,14 +34,14 @@ namespace Hertzole.ScriptableValues
 		IDictionary where TKey : notnull
 	{
 		[SerializeField]
-		[Tooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
+		[EditorTooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
 		private bool isReadOnly = false;
 		[SerializeField]
-		[Tooltip(
+		[EditorTooltip(
 			"If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
 		private bool setEqualityCheck = true;
 		[SerializeField]
-		[Tooltip("If true, the dictionary will be cleared on play mode start/game boot.")]
+		[EditorTooltip("If true, the dictionary will be cleared on play mode start/game boot.")]
 		private bool clearOnStart = true;
 
 		[SerializeField]
