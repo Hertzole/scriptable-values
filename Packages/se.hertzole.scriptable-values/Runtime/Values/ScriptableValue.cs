@@ -19,19 +19,19 @@ namespace Hertzole.ScriptableValues
 	public abstract partial class ScriptableValue : RuntimeScriptableObject
 	{
 		[SerializeField]
-		[Tooltip("If read only, the value cannot be changed at runtime.")]
+		[EditorTooltip("If read only, the value cannot be changed at runtime.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
 		internal bool isReadOnly = false;
 		[SerializeField]
-		[Tooltip("If true, the value will be reset to the default value on play mode start/game boot.")]
+		[EditorTooltip("If true, the value will be reset to the default value on play mode start/game boot.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
 		internal bool resetValueOnStart = true;
 		[SerializeField]
-		[Tooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
+		[EditorTooltip("If true, an equality check will be run before setting the value to make sure the new value is not the same as the old one.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
@@ -116,25 +116,25 @@ namespace Hertzole.ScriptableValues
 		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
 
 		[SerializeField]
-		[Tooltip("The current value. This can be changed at runtime.")]
+		[EditorTooltip("The current value. This can be changed at runtime.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
 		internal T value = default;
 		[SerializeField]
-		[Tooltip("The default value. This is used when the value is reset.")]
+		[EditorTooltip("The default value. This is used when the value is reset.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
 		internal T defaultValue = default;
 		[SerializeField]
-		[Tooltip("Called before the current value is set.")]
+		[EditorTooltip("Called before the current value is set.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
 		internal UnityEvent<T, T> onValueChanging = new UnityEvent<T, T>();
 		[SerializeField]
-		[Tooltip("Called after the current value is set.")]
+		[EditorTooltip("Called after the current value is set.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif

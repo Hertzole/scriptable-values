@@ -13,10 +13,10 @@ namespace Hertzole.ScriptableValues
 	public class ScriptableEventListener : ScriptableListenerBase
 	{
 		[SerializeField]
-		[Tooltip("The event to listen to.")]
+		[EditorTooltip("The event to listen to.")]
 		private ScriptableEvent targetEvent = default;
 		[SerializeField]
-		[Tooltip("The event to invoke when the target event is raised.")]
+		[EditorTooltip("The event to invoke when the target event is raised.")]
 		private UnityEvent onInvoked = new UnityEvent();
 
 		/// <summary>
