@@ -74,7 +74,7 @@ namespace Hertzole.ScriptableValues.Tests
 				return properties.Contains(name);
 			}
 
-			protected override void VisitProperty<TContainer, TValue>(Property<TContainer, TValue> property, ref TContainer container, ref TValue value)
+			protected override void VisitProperty<TContainer, TV>(Property<TContainer, TV> property, ref TContainer container, ref TV value)
 			{
 				base.VisitProperty(property, ref container, ref value);
 				properties.Add(property.Name);
