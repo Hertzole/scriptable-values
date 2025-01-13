@@ -4,7 +4,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public abstract class BaseScriptableEventTest<TType> : BaseRuntimeTest where TType : ScriptableEvent
+	public abstract partial class BaseScriptableEventTest<TType> : BaseRuntimeTest where TType : ScriptableEvent
 	{
 		[Test]
 		public void Invoke()
