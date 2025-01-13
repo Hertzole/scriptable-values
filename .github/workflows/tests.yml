@@ -111,7 +111,7 @@ jobs:
           path: Coverage
 
       - name: LS
-        run: ls -R 
+        run: ls -R
 
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
@@ -156,6 +156,7 @@ jobs:
            /k:"scriptable-values" \
            /d:sonar.host.url=https://sonarcloud.io \
            /d:sonar.verbose=false \
-           /d:sonar.token=$SONAR_TOKEN 
+           /d:sonar.token=$SONAR_TOKEN \
+           /d:sonar.cs.opencover.reportsPaths="${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
