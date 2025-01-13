@@ -117,13 +117,13 @@ jobs:
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
           reports: "${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
-          targetdir: "CoverageReport"
+          targetdir: "CoverageReport/coverage"
           reporttypes: "Html;Badges"
 
       - name: Upload report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
+        id: upload_report
         with:
-          name: coverage-report
           path: CoverageReport
 
       - name: Activate Unity
@@ -160,3 +160,19 @@ jobs:
            /d:sonar.cs.opencover.reportsPaths="${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
           dotnet build scriptable-values.sln
           ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
+
+  deploy_pages:
+    needs: [sonarscan]
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
