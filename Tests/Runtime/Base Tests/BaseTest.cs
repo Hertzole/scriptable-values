@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
-using Assert = UnityEngine.Assertions.Assert;
+using Object = UnityEngine.Object;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public abstract class BaseTest
+	public abstract partial class BaseTest
 	{
 		protected readonly List<Object> objects = new List<Object>();
 
@@ -20,7 +21,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public static readonly ulong[] ulongs = { ulong.MinValue, ulong.MaxValue, 0 };
 		public static readonly float[] floats = { -69.420f, 69.420f, 0 };
 		public static readonly double[] doubles = { -69.420, 69.420, 0 };
-		public static readonly decimal[] decimals = { -69.420m, 69.420m, 0};
+		public static readonly decimal[] decimals = { -69.420m, 69.420m, 0 };
 		public static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
 		public static readonly char[] chars = { char.MinValue, char.MaxValue, 'a' };
 		public static readonly Color[] colors = { Color.black, Color.white };
@@ -35,7 +36,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public static readonly RectInt[] rectsInt = { new RectInt(0, 0, 0, 0), new RectInt(-1, -1, 1, 1) };
 		public static readonly Bounds[] bounds = { new Bounds(Vector3.zero, Vector3.one), new Bounds(Vector3.one, Vector3.one) };
 		public static readonly BoundsInt[] boundsInt = { new BoundsInt(Vector3Int.zero, Vector3Int.one), new BoundsInt(Vector3Int.one, Vector3Int.one) };
-		
+
 		public static readonly InvokeEvents[] valueInvokes =
 		{
 			InvokeEvents.Any,
@@ -50,7 +51,7 @@ namespace Hertzole.ScriptableValues.Tests
 			InvokeParameters.Multiple,
 			InvokeParameters.Both
 		};
-		
+
 		public static readonly EventInvokeEvents[] eventInvokes =
 		{
 			EventInvokeEvents.Any,
@@ -101,6 +102,154 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			objects.Remove(obj);
 			Object.Destroy(obj);
+		}
+
+		protected T MakeDifferentValue<T>(T value)
+		{
+			if (typeof(T) == typeof(bool))
+			{
+				return ConvertAndSetValue<T, bool>(value, oldValue => !oldValue);
+			}
+
+			if (typeof(T) == typeof(BoundsInt))
+			{
+				return ConvertAndSetValue<T, BoundsInt>(value, oldValue => new BoundsInt(oldValue.min + Vector3Int.one, oldValue.size + Vector3Int.back));
+			}
+
+			if (typeof(T) == typeof(Bounds))
+			{
+				return ConvertAndSetValue<T, Bounds>(value, oldValue => new Bounds(oldValue.min + Vector3.one, oldValue.size + Vector3.back));
+			}
+
+			if (typeof(T) == typeof(byte))
+			{
+				return ConvertAndSetValue<T, byte>(value, oldValue => (byte) (oldValue + 1));
+			}
+
+			if (typeof(T) == typeof(char))
+			{
+				return ConvertAndSetValue<T, char>(value, oldValue => (char) (oldValue + 1));
+			}
+
+			if (typeof(T) == typeof(Color32))
+			{
+				return ConvertAndSetValue<T, Color32>(value,
+					oldValue => new Color32((byte) (oldValue.r + 1), (byte) (oldValue.g + 1), (byte) (oldValue.b + 1), (byte) (oldValue.a + 1)));
+			}
+
+			if (typeof(T) == typeof(Color))
+			{
+				return ConvertAndSetValue<T, Color>(value, oldValue => new Color(oldValue.r + 0.1f, oldValue.g + 0.25f, oldValue.b + 0.75f, oldValue.a + 1));
+			}
+
+			if (typeof(T) == typeof(decimal))
+			{
+				return ConvertAndSetValue<T, decimal>(value, oldValue => oldValue + 1);
+			}
+
+			if (typeof(T) == typeof(double))
+			{
+				return ConvertAndSetValue<T, double>(value, oldValue => oldValue + 1);
+			}
+
+			if (typeof(T) == typeof(float))
+			{
+				return ConvertAndSetValue<T, float>(value, oldValue => oldValue + 1);
+			}
+
+			if (typeof(T) == typeof(GameObject))
+			{
+				return ConvertAndSetValue<T, GameObject>(value, oldValue => CreateGameObject());
+			}
+
+			if (typeof(T) == typeof(int))
+			{
+				return ConvertAndSetValue<T, int>(value, oldValue => oldValue + 1);
+			}
+
+			if (typeof(T) == typeof(long))
+			{
+				return ConvertAndSetValue<T, long>(value, oldValue => oldValue + 1);
+			}
+
+			if (typeof(T) == typeof(Quaternion))
+			{
+				return ConvertAndSetValue<T, Quaternion>(value, oldValue => Quaternion.Euler(oldValue.eulerAngles + Vector3.one));
+			}
+
+			if (typeof(T) == typeof(RectInt))
+			{
+				return ConvertAndSetValue<T, RectInt>(value, oldValue => new RectInt(oldValue.position + Vector2Int.one, oldValue.size + Vector2Int.one));
+			}
+
+			if (typeof(T) == typeof(Rect))
+			{
+				return ConvertAndSetValue<T, Rect>(value, oldValue => new Rect(oldValue.position + Vector2.one, oldValue.size + Vector2.one));
+			}
+
+			if (typeof(T) == typeof(sbyte))
+			{
+				return ConvertAndSetValue<T, sbyte>(value, oldValue => (sbyte) (oldValue + 1));
+			}
+			
+			if (typeof(T) == typeof(short))
+			{
+				return ConvertAndSetValue<T, short>(value, oldValue => (short) (oldValue + 1));
+			}
+			
+			if (typeof(T) == typeof(string))
+			{
+				return ConvertAndSetValue<T, string>(value, oldValue => oldValue + "a");
+			}
+			
+			if (typeof(T) == typeof(uint))
+			{
+				return ConvertAndSetValue<T, uint>(value, oldValue => oldValue + 1);
+			}
+			
+			if (typeof(T) == typeof(ulong))
+			{
+				return ConvertAndSetValue<T, ulong>(value, oldValue => oldValue + 1);
+			}
+			
+			if (typeof(T) == typeof(ushort))
+			{
+				return ConvertAndSetValue<T, ushort>(value, oldValue => (ushort) (oldValue + 1));
+			}
+			
+			if (typeof(T) == typeof(Vector2))
+			{
+				return ConvertAndSetValue<T, Vector2>(value, oldValue => oldValue + Vector2.one);
+			}
+			
+			if (typeof(T) == typeof(Vector2Int))
+			{
+				return ConvertAndSetValue<T, Vector2Int>(value, oldValue => oldValue + Vector2Int.one);
+			}
+			
+			if (typeof(T) == typeof(Vector3))
+			{
+				return ConvertAndSetValue<T, Vector3>(value, oldValue => oldValue + Vector3.one);
+			}
+			
+			if (typeof(T) == typeof(Vector3Int))
+			{
+				return ConvertAndSetValue<T, Vector3Int>(value, oldValue => oldValue + Vector3Int.one);
+			}
+			
+			if (typeof(T) == typeof(Vector4))
+			{
+				return ConvertAndSetValue<T, Vector4>(value, oldValue => oldValue + Vector4.one);
+			}
+
+			throw new NotSupportedException($"Type {typeof(T)} is not supported.");
+		}
+
+		private static TFrom ConvertAndSetValue<TFrom, TTo>(TFrom value, Func<TTo, TTo> setValue)
+		{
+			TTo castedValue = UnsafeUtility.As<TFrom, TTo>(ref value);
+			castedValue = setValue(castedValue);
+			return UnsafeUtility.As<TTo, TFrom>(ref castedValue);
 		}
 	}
 }

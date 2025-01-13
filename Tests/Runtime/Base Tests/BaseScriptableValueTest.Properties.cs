@@ -1,14 +1,10 @@
 ﻿#if SCRIPTABLE_VALUES_PROPERTIES
-using System.Collections.Generic;
 using NUnit.Framework;
-using Unity.Properties;
 
 namespace Hertzole.ScriptableValues.Tests
 {
 	partial class BaseScriptableValueTest<TType, TValue>
 	{
-		private readonly GetPropertiesVisitor propertiesVisitor = new GetPropertiesVisitor();
-
 		public static readonly string[] bannedProperties =
 		{
 			nameof(ScriptableValue.isReadOnly),
@@ -41,44 +37,13 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void HasProperty([ValueSource(nameof(requiredProperties))] string property)
 		{
-			TType target = CreateInstance<TType>();
-
-			propertiesVisitor.Reset();
-
-			PropertyContainer.Accept(propertiesVisitor, ref target);
-			Assert.That(propertiesVisitor.HasProperty(property), Is.True);
+			AssertHasProperty<TType>(property);
 		}
 
 		[Test]
 		public void DoesNotHaveProperty([ValueSource(nameof(bannedProperties))] string property)
 		{
-			TType target = CreateInstance<TType>();
-
-			propertiesVisitor.Reset();
-
-			PropertyContainer.Accept(propertiesVisitor, ref target);
-			Assert.That(propertiesVisitor.HasProperty(property), Is.False);
-		}
-
-		private sealed class GetPropertiesVisitor : PropertyVisitor
-		{
-			private readonly HashSet<string> properties = new HashSet<string>();
-
-			public void Reset()
-			{
-				properties.Clear();
-			}
-
-			public bool HasProperty(string name)
-			{
-				return properties.Contains(name);
-			}
-
-			protected override void VisitProperty<TContainer, TV>(Property<TContainer, TV> property, ref TContainer container, ref TV value)
-			{
-				base.VisitProperty(property, ref container, ref value);
-				properties.Add(property.Name);
-			}
+			AssertDoesNotHaveProperty<TType>(property);
 		}
 	}
 }

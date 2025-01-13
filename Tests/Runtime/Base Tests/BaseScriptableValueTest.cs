@@ -205,7 +205,5 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
-		
-		protected abstract TValue MakeDifferentValue(TValue value);
 	}
 }
