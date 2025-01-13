@@ -93,12 +93,6 @@ jobs:
           dotnet-version: |
             8.x
 
-      # - name: Install Java
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: 'temurin'
-      #     java-version: '21'
-
       - name: Install scanner
         run: dotnet tool install dotnet-sonarscanner --tool-path .
 
@@ -110,8 +104,12 @@ jobs:
           pattern: 'Coverage results - *'
           path: Coverage
 
-      - name: LS
-        run: ls -R
+      # The test results have a different path than what SonarQube can read.
+      # We need to remove the github/workspace/ path.
+      - name: Fix paths
+        run: |
+          chmod +x ./ci/fix_paths.sh
+          ./ci/fix_paths.sh Coverage
 
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
@@ -138,13 +136,6 @@ jobs:
         run: |
           unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
           ls
-
-      # The test results have a different path than what SonarQube can read.
-      # We need to remove the github/workspace/ path.
-      - name: Fix paths
-        run: |
-          chmod +x ./ci/fix_paths.sh
-          ./ci/fix_paths.sh Coverage
 
       - name: SonarQube analysis
         env:
