@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿#if SCRIPTABLE_VALUES_PROPERTIES
+using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -43,3 +44,4 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 	}
 }
+#endif
