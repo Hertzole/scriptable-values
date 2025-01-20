@@ -1,6 +1,6 @@
 {
   "name": "se.hertzole.scriptable-values",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "displayName": "Scriptable Values",
   "description": "Scriptable Values allow you to use scriptable objects for reactive values, events, and collections instead of normal C# events and singletons.\n\nYou also don't need to care about values being saved between sessions as they are cleared before you enter play mode, but this is also customizable!",
   "unity": "2021.3",
