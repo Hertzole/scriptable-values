@@ -1,6 +1,7 @@
 ﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Properties;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues
@@ -22,7 +23,7 @@ namespace Hertzole.ScriptableValues
 
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
-			OnPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(propertyName));
+			OnPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(new BindingId(new PropertyPath(propertyName))));
 		}
 
 		long IDataSourceViewHashProvider.GetViewHashCode()
