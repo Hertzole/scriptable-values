@@ -11,7 +11,7 @@ using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class ScriptableDictionaryTests : BaseRuntimeTest
+	public partial class ScriptableDictionaryTests : BaseRuntimeTest
 	{
 		private TestScriptableDictionary dictionary;
 
