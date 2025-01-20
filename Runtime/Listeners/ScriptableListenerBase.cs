@@ -29,7 +29,7 @@ namespace Hertzole.ScriptableValues
 		{
 			IsListening = false;
 
-			if (!IsListening && startListening == StartListenEvents.Awake)
+			if (startListening == StartListenEvents.Awake)
 			{
 				ToggleListening(true);
 			}
