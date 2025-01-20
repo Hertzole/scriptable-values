@@ -1,6 +1,5 @@
 ﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Hertzole.ScriptableValues
 {
