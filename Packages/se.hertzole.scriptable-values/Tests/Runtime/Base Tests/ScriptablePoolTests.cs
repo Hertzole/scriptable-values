@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class ScriptablePoolTests : BaseRuntimeTest
+	public partial class ScriptablePoolTests : BaseRuntimeTest
 	{
 		// Get
 
