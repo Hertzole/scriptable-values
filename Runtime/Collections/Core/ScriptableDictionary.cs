@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
 
 namespace Hertzole.ScriptableValues
 {
@@ -27,7 +30,7 @@ namespace Hertzole.ScriptableValues
 	/// </summary>
 	/// <typeparam name="TKey">The key of the dictionary.</typeparam>
 	/// <typeparam name="TValue">The value of the dictionary.</typeparam>
-	public abstract class ScriptableDictionary<TKey, TValue> : ScriptableDictionary,
+	public abstract partial class ScriptableDictionary<TKey, TValue> : ScriptableDictionary,
 		ISerializationCallbackReceiver,
 		IDictionary<TKey, TValue>,
 		IReadOnlyDictionary<TKey, TValue>,
@@ -35,18 +38,33 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the dictionary cannot be changed at runtime and won't be cleared on start.")]
-		private bool isReadOnly = false;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool isReadOnly = false;
 		[SerializeField]
 		[EditorTooltip(
 			"If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
-		private bool setEqualityCheck = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool setEqualityCheck = true;
 		[SerializeField]
 		[EditorTooltip("If true, the dictionary will be cleared on play mode start/game boot.")]
-		private bool clearOnStart = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool clearOnStart = true;
 
 		[SerializeField]
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
 		internal List<TKey> keys = new List<TKey>();
 		[SerializeField]
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
 		internal List<TValue> values = new List<TValue>();
 
 		internal Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
@@ -93,18 +111,38 @@ namespace Hertzole.ScriptableValues
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
-			set { setEqualityCheck = value; }
+			set
+			{
+				if (setEqualityCheck != value)
+				{
+					setEqualityCheck = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 		/// <summary>
 		///     If true, the dictionary will be cleared on play mode start/game boot.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool ClearOnStart
 		{
 			get { return clearOnStart; }
-			set { clearOnStart = value; }
+			set
+			{
+				if (clearOnStart != value)
+				{
+					clearOnStart = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 
 		/// <summary>
@@ -147,15 +185,28 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool IsReadOnly
 		{
 			get { return isReadOnly; }
-			set { isReadOnly = value; }
+			set
+			{
+				if (isReadOnly != value)
+				{
+					isReadOnly = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 
 		/// <summary>
 		///     Gets the number of key/value pairs contained in the dictionary.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public int Count
 		{
 			get { return dictionary.Count; }
@@ -277,37 +328,40 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			// Check if the item already exists.
-			// If it does, update it.
-			// Otherwise, add it.
-			if (dictionary.TryGetValue(key, out TValue oldValue))
+			using (new ChangeScope(this))
 			{
-				// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
-				if (setEqualityCheck && EqualityHelper.Equals(oldValue, value))
+				// Check if the item already exists.
+				// If it does, update it.
+				// Otherwise, add it.
+				if (dictionary.TryGetValue(key, out TValue oldValue))
 				{
-					return;
-				}
+					// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
+					if (setEqualityCheck && EqualityHelper.Equals(oldValue, value))
+					{
+						return;
+					}
 
-				// Get the index of the value.
-				int valueIndex = values.IndexOf(oldValue);
-				if (valueIndex >= 0)
+					// Get the index of the value.
+					int valueIndex = values.IndexOf(oldValue);
+					if (valueIndex >= 0)
+					{
+						// Update the value in the values list.
+						values[valueIndex] = value;
+					}
+
+					// Update the value in the dictionary.
+					dictionary[key] = value;
+
+					OnSet?.Invoke(key, oldValue, value);
+					OnChanged?.Invoke(DictionaryChangeType.Set);
+
+					AddStackTrace();
+				}
+				else
 				{
-					// Update the value in the values list.
-					values[valueIndex] = value;
+					AddFastPath(key, value);
+					AddStackTrace();
 				}
-
-				// Update the value in the dictionary.
-				dictionary[key] = value;
-
-				OnSet?.Invoke(key, oldValue, value);
-				OnChanged?.Invoke(DictionaryChangeType.Set);
-
-				AddStackTrace();
-			}
-			else
-			{
-				AddFastPath(key, value);
-				AddStackTrace();
 			}
 		}
 
@@ -326,21 +380,24 @@ namespace Hertzole.ScriptableValues
 				return false;
 			}
 
-			bool result = dictionary.TryAdd(key, value);
-			// If the item was added, add it to the lists and invoke the event.
-			if (result)
+			using (new ChangeScope(this))
 			{
-				// We must update the lists too so they are in sync with the dictionary.
-				keys.Add(key);
-				values.Add(value);
+				bool result = dictionary.TryAdd(key, value);
+				// If the item was added, add it to the lists and invoke the event.
+				if (result)
+				{
+					// We must update the lists too so they are in sync with the dictionary.
+					keys.Add(key);
+					values.Add(value);
 
-				OnAdded?.Invoke(key, value);
-				OnChanged?.Invoke(DictionaryChangeType.Added);
+					OnAdded?.Invoke(key, value);
+					OnChanged?.Invoke(DictionaryChangeType.Added);
 
-				AddStackTrace();
+					AddStackTrace();
+				}
+
+				return result;
 			}
-
-			return result;
 		}
 
 		/// <summary>
@@ -623,15 +680,18 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			dictionary.Clear();
+			using (new ChangeScope(this))
+			{
+				dictionary.Clear();
 
-			keys.Clear();
-			values.Clear();
+				keys.Clear();
+				values.Clear();
 
-			OnCleared?.Invoke();
-			OnChanged?.Invoke(DictionaryChangeType.Cleared);
+				OnCleared?.Invoke();
+				OnChanged?.Invoke(DictionaryChangeType.Cleared);
 
-			AddStackTrace();
+				AddStackTrace();
+			}
 		}
 
 		/// <summary>
@@ -684,9 +744,12 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			AddFastPath(key, value);
+			using (new ChangeScope(this))
+			{
+				AddFastPath(key, value);
 
-			AddStackTrace();
+				AddStackTrace();
+			}
 		}
 
 		/// <summary>
@@ -715,23 +778,26 @@ namespace Hertzole.ScriptableValues
 				return false;
 			}
 
-			bool removed = false;
-			if (dictionary.ContainsKey(key))
+			using (new ChangeScope(this))
 			{
-				removed = dictionary.Remove(key, out TValue oldItem);
-				if (removed)
+				bool removed = false;
+				if (dictionary.ContainsKey(key))
 				{
-					keys.Remove(key);
-					values.Remove(oldItem);
+					removed = dictionary.Remove(key, out TValue oldItem);
+					if (removed)
+					{
+						keys.Remove(key);
+						values.Remove(oldItem);
 
-					AddStackTrace();
+						AddStackTrace();
 
-					OnRemoved?.Invoke(key, oldItem);
-					OnChanged?.Invoke(DictionaryChangeType.Removed);
+						OnRemoved?.Invoke(key, oldItem);
+						OnChanged?.Invoke(DictionaryChangeType.Removed);
+					}
 				}
-			}
 
-			return removed;
+				return removed;
+			}
 		}
 
 		/// <summary>
@@ -770,6 +836,30 @@ namespace Hertzole.ScriptableValues
 			for (int i = 0; i < keys.Count; i++)
 			{
 				dictionary.Add(keys[i], values[i]);
+			}
+		}
+
+		/// <summary>
+		///     Helper scope for notifying if the count and/or capacity has changed between changes.
+		/// </summary>
+		private readonly ref struct ChangeScope
+		{
+			private readonly int originalCount;
+
+			private readonly ScriptableDictionary<TKey, TValue> dictionary;
+
+			public ChangeScope(ScriptableDictionary<TKey, TValue> dictionary)
+			{
+				this.dictionary = dictionary;
+				originalCount = dictionary.Count;
+			}
+
+			public void Dispose()
+			{
+				if (dictionary.Count != originalCount)
+				{
+					dictionary.NotifyPropertyChanged(nameof(dictionary.Count));
+				}
 			}
 		}
 	}
