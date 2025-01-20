@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine.Assertions;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
 
 namespace Hertzole.ScriptableValues
 {
@@ -9,7 +12,7 @@ namespace Hertzole.ScriptableValues
 	///     A scriptable object that holds a pool of values.
 	/// </summary>
 	/// <typeparam name="T">The type of to pool. Must be a class.</typeparam>
-	public abstract class ScriptablePool<T> : RuntimeScriptableObject where T : class
+	public abstract partial class ScriptablePool<T> : RuntimeScriptableObject where T : class
 	{
 		private readonly List<T> activeObjects = new List<T>();
 		private readonly Stack<T> pool = new Stack<T>();
@@ -17,15 +20,34 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     How many total objects that the pool is keeping track of.
 		/// </summary>
-		public int CountAll { get { return activeObjects.Count + pool.Count; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public int CountAll
+		{
+			get { return activeObjects.Count + pool.Count; }
+		}
 		/// <summary>
 		///     How many objects that are currently active.
 		/// </summary>
-		public int CountActive { get { return activeObjects.Count; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public int CountActive
+		{
+			get { return activeObjects.Count; }
+		}
 		/// <summary>
 		///     How many objects that are currently inactive.
 		/// </summary>
-		public int CountInactive { get { return pool.Count; } }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public int CountInactive
+		{
+			get { return pool.Count; }
+		}
+
 #if UNITY_EDITOR
 		internal const int ORDER = ScriptableList<object>.ORDER + 50;
 #endif
@@ -52,31 +74,34 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public T Get()
 		{
-			T item = null;
-			// Objects may be destroyed when switching scenes, so we need to check if they are null.
-			// If the returned object is null, just keep going until we find one that isn't.
-			// If it's still null, we'll create a new one.
-			while (EqualityHelper.IsNull(item))
+			using (new ChangeScope(this))
 			{
-				if (pool.Count > 0)
+				T item = null;
+				// Objects may be destroyed when switching scenes, so we need to check if they are null.
+				// If the returned object is null, just keep going until we find one that isn't.
+				// If it's still null, we'll create a new one.
+				while (EqualityHelper.IsNull(item))
 				{
-					item = pool.Pop();
+					if (pool.Count > 0)
+					{
+						item = pool.Pop();
+					}
+					else
+					{
+						item = CreateObject();
+						OnCreateObject?.Invoke(item);
+					}
 				}
-				else
-				{
-					item = CreateObject();
-					OnCreateObject?.Invoke(item);
-				}
+
+				activeObjects.Add(item);
+
+				OnGetInternal(item);
+				OnGetObject?.Invoke(item);
+
+				AddStackTrace();
+
+				return item;
 			}
-
-			activeObjects.Add(item);
-
-			OnGetInternal(item);
-			OnGetObject?.Invoke(item);
-
-			AddStackTrace();
-
-			return item;
 		}
 
 		/// <summary>
@@ -85,14 +110,17 @@ namespace Hertzole.ScriptableValues
 		/// <param name="item">The item to return.</param>
 		public void Return(T item)
 		{
-			activeObjects.Remove(item);
+			using (new ChangeScope(this))
+			{
+				activeObjects.Remove(item);
 
-			OnReturnInternal(item);
-			OnReturnObject?.Invoke(item);
+				OnReturnInternal(item);
+				OnReturnObject?.Invoke(item);
 
-			pool.Push(item);
+				pool.Push(item);
 
-			AddStackTrace();
+				AddStackTrace();
+			}
 		}
 
 		/// <summary>
@@ -100,28 +128,31 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void Clear()
 		{
-			// Destroy all active objects.
-			// Go in reverse order so that we don't mess up the list.
-			for (int i = activeObjects.Count - 1; i >= 0; i--)
+			using (new ChangeScope(this))
 			{
-				T item = activeObjects[i];
+				// Destroy all active objects.
+				// Go in reverse order so that we don't mess up the list.
+				for (int i = activeObjects.Count - 1; i >= 0; i--)
+				{
+					T item = activeObjects[i];
 
-				OnDestroyObject?.Invoke(item);
-				DestroyObject(item);
-				activeObjects.RemoveAt(i);
+					OnDestroyObject?.Invoke(item);
+					DestroyObject(item);
+					activeObjects.RemoveAt(i);
+				}
+
+				// Destroy all inactive objects.
+				while (pool.TryPop(out T item))
+				{
+					OnDestroyObject?.Invoke(item);
+					DestroyObject(item);
+				}
+
+				// Make sure that the pool is empty.
+				Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
+
+				AddStackTrace();
 			}
-
-			// Destroy all inactive objects.
-			while (pool.TryPop(out T item))
-			{
-				OnDestroyObject?.Invoke(item);
-				DestroyObject(item);
-			}
-
-			// Make sure that the pool is empty.
-			Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
-
-			AddStackTrace();
 		}
 
 		/// <summary>
@@ -182,7 +213,7 @@ namespace Hertzole.ScriptableValues
 			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
 			ClearSubscribers();
 		}
-		
+
 		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
@@ -219,5 +250,40 @@ namespace Hertzole.ScriptableValues
 			Clear();
 		}
 #endif
+
+		private readonly ref struct ChangeScope
+		{
+			private readonly int countAll;
+			private readonly int countActive;
+			private readonly int countInactive;
+
+			private readonly ScriptablePool<T> pool;
+
+			public ChangeScope(ScriptablePool<T> pool)
+			{
+				this.pool = pool;
+				countAll = pool.CountAll;
+				countActive = pool.CountActive;
+				countInactive = pool.CountInactive;
+			}
+
+			public void Dispose()
+			{
+				if (countAll != pool.CountAll)
+				{
+					pool.NotifyPropertyChanged(nameof(pool.CountAll));
+				}
+
+				if (countActive != pool.CountActive)
+				{
+					pool.NotifyPropertyChanged(nameof(pool.CountActive));
+				}
+
+				if (countInactive != pool.CountInactive)
+				{
+					pool.NotifyPropertyChanged(nameof(pool.CountInactive));
+				}
+			}
+		}
 	}
 }
