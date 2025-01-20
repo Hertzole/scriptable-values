@@ -12,7 +12,7 @@ using Is = UnityEngine.TestTools.Constraints.Is;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class ScriptableListTests : BaseRuntimeTest
+	public partial class ScriptableListTests : BaseRuntimeTest
 	{
 		private TestScriptableList list;
 
@@ -1524,6 +1524,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			bool changedEventInvoked = false;
 
+			list.EnsureCapacity(100);
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
@@ -1537,7 +1538,7 @@ namespace Hertzole.ScriptableValues.Tests
 			list.TrimExcess();
 
 			Assert.AreEqual(3, list.Count);
-			Assert.AreEqual(4, list.Capacity);
+			Assert.AreEqual(3, list.Capacity);
 			Assert.IsTrue(changedEventInvoked);
 		}
 

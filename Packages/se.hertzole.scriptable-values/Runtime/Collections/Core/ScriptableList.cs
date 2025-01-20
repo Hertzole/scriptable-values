@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
 
 namespace Hertzole.ScriptableValues
 {
@@ -10,19 +13,31 @@ namespace Hertzole.ScriptableValues
 	///     A scriptable object that holds a list.
 	/// </summary>
 	/// <typeparam name="T">The type in the list.</typeparam>
-	public abstract class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
+	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
-		private bool isReadOnly = false;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool isReadOnly = false;
 		[SerializeField]
 		[EditorTooltip(
 			"If true, an equality check will be run before setting an item through the indexer to make sure the new object is not the same as the old one.")]
-		private bool setEqualityCheck = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool setEqualityCheck = true;
 		[SerializeField]
 		[EditorTooltip("If true, the list will be cleared on play mode start/game boot.")]
-		private bool clearOnStart = true;
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
+		internal bool clearOnStart = true;
 		[SerializeField]
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[DontCreateProperty]
+#endif
 		internal List<T> list = new List<T>();
 
 		public T this[int index]
@@ -46,6 +61,9 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the total number of elements the internal data structure can hold without resizing.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public int Capacity
 		{
 			get { return list.Capacity; }
@@ -55,18 +73,38 @@ namespace Hertzole.ScriptableValues
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
-			set { setEqualityCheck = value; }
+			set
+			{
+				if (setEqualityCheck != value)
+				{
+					setEqualityCheck = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 		/// <summary>
 		///     If true, the list will be cleared on play mode start/game boot.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool ClearOnStart
 		{
 			get { return clearOnStart; }
-			set { clearOnStart = value; }
+			set
+			{
+				if (clearOnStart != value)
+				{
+					clearOnStart = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 
 		// Is this List synchronized (thread-safe)?
@@ -87,14 +125,27 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     If read only, the list cannot be changed at runtime and won't be cleared on start.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public bool IsReadOnly
 		{
 			get { return isReadOnly; }
-			set { isReadOnly = value; }
+			set
+			{
+				if (isReadOnly != value)
+				{
+					isReadOnly = value;
+					NotifyPropertyChanged();
+				}
+			}
 		}
 		/// <summary>
 		///     Gets the number of elements contained in the list.
 		/// </summary>
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public int Count
 		{
 			get { return list.Count; }
@@ -186,21 +237,24 @@ namespace Hertzole.ScriptableValues
 				return 0;
 			}
 
-			// Keep track of how many items were removed.
-			int removeCount = 0;
-
-			// Go in reverse as we are removing items.
-			for (int i = list.Count - 1; i >= 0; i--)
+			using (new ChangeScope(this))
 			{
-				// If the item matches the predicate, remove it.
-				if (match(list[i]))
-				{
-					removeCount++;
-					RemoveAt(i);
-				}
-			}
+				// Keep track of how many items were removed.
+				int removeCount = 0;
 
-			return removeCount;
+				// Go in reverse as we are removing items.
+				for (int i = list.Count - 1; i >= 0; i--)
+				{
+					// If the item matches the predicate, remove it.
+					if (match(list[i]))
+					{
+						removeCount++;
+						RemoveAt(i);
+					}
+				}
+
+				return removeCount;
+			}
 		}
 
 		/// <summary>
@@ -345,8 +399,14 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
+			int originalCapacity = list.Capacity;
 			list.TrimExcess();
-			OnChanged?.Invoke(ListChangeType.Trimmed);
+
+			if (originalCapacity != list.Capacity)
+			{
+				OnChanged?.Invoke(ListChangeType.Trimmed);
+				NotifyPropertyChanged(nameof(Capacity));
+			}
 
 			AddStackTrace();
 		}
@@ -400,7 +460,13 @@ namespace Hertzole.ScriptableValues
 		{
 			if (list.Capacity < capacity)
 			{
+				int originalCapacity = list.Capacity;
 				list.Capacity = capacity;
+
+				if (originalCapacity != list.Capacity)
+				{
+					NotifyPropertyChanged(nameof(Capacity));
+				}
 			}
 		}
 
@@ -487,33 +553,36 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
-			// Otherwise, just add the items as normal.
-			if (collection is ICollection<T> c)
+			using (new ChangeScope(this))
 			{
-				int count = c.Count;
-				if (count > 0)
+				// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
+				// Otherwise, just add the items as normal.
+				if (collection is ICollection<T> c)
 				{
-					ResizeIfNeeded(count);
+					int count = c.Count;
+					if (count > 0)
+					{
+						ResizeIfNeeded(count);
 
+						// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+						using (IEnumerator<T> en = c.GetEnumerator())
+						{
+							while (en.MoveNext())
+							{
+								AddFastPath(en.Current);
+							}
+						}
+					}
+				}
+				else
+				{
 					// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-					using (IEnumerator<T> en = c.GetEnumerator())
+					using (IEnumerator<T> en = collection.GetEnumerator())
 					{
 						while (en.MoveNext())
 						{
 							AddFastPath(en.Current);
 						}
-					}
-				}
-			}
-			else
-			{
-				// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-				using (IEnumerator<T> en = collection.GetEnumerator())
-				{
-					while (en.MoveNext())
-					{
-						AddFastPath(en.Current);
 					}
 				}
 			}
@@ -549,33 +618,36 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
-			// Otherwise, just insert the items as normal.
-			if (collection is ICollection<T> c)
+			using (new ChangeScope(this))
 			{
-				int count = c.Count;
-				if (count > 0)
+				// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
+				// Otherwise, just insert the items as normal.
+				if (collection is ICollection<T> c)
 				{
-					ResizeIfNeeded(count);
-				}
-
-				// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-				using (IEnumerator<T> en = c.GetEnumerator())
-				{
-					while (en.MoveNext())
+					int count = c.Count;
+					if (count > 0)
 					{
-						InsertFastPath(index++, en.Current);
+						ResizeIfNeeded(count);
+					}
+
+					// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+					using (IEnumerator<T> en = c.GetEnumerator())
+					{
+						while (en.MoveNext())
+						{
+							InsertFastPath(index++, en.Current);
+						}
 					}
 				}
-			}
-			else
-			{
-				// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-				using (IEnumerator<T> en = collection.GetEnumerator())
+				else
 				{
-					while (en.MoveNext())
+					// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
+					using (IEnumerator<T> en = collection.GetEnumerator())
 					{
-						InsertFastPath(index++, en.Current);
+						while (en.MoveNext())
+						{
+							InsertFastPath(index++, en.Current);
+						}
 					}
 				}
 			}
@@ -629,10 +701,13 @@ namespace Hertzole.ScriptableValues
 
 			if (count > 0)
 			{
-				// Keep removing at the index until we've removed the specified amount.
-				for (int i = 0; i < count; i++)
+				using (new ChangeScope(this))
 				{
-					RemoveAtFastPath(index);
+					// Keep removing at the index until we've removed the specified amount.
+					for (int i = 0; i < count; i++)
+					{
+						RemoveAtFastPath(index);
+					}
 				}
 			}
 
@@ -717,6 +792,24 @@ namespace Hertzole.ScriptableValues
 			list.RemoveAt(index);
 			OnRemoved?.Invoke(index, item);
 			OnChanged?.Invoke(ListChangeType.Removed);
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the list.
+		/// </summary>
+		/// <returns>A enumerator for the list.</returns>
+		public List<T>.Enumerator GetEnumerator()
+		{
+			return list.GetEnumerator();
+		}
+
+		/// <summary>
+		///     Copies the entire list to a compatible one-dimensional array.
+		/// </summary>
+		/// <param name="array">The array destination.</param>
+		public void CopyTo(T[] array)
+		{
+			list.CopyTo(array);
 		}
 
 		/// <summary>
@@ -822,15 +915,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		/// Returns an enumerator that iterates through the list.
-		/// </summary>
-		/// <returns>A enumerator for the list.</returns>
-		public List<T>.Enumerator GetEnumerator()
-		{
-			return list.GetEnumerator();
-		}
-
-		/// <summary>
 		///     Adds an item to the list.
 		/// </summary>
 		/// <param name="item">The item to add.</param>
@@ -843,7 +927,10 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			AddFastPath(item);
+			using (new ChangeScope(this))
+			{
+				AddFastPath(item);
+			}
 
 			AddStackTrace();
 		}
@@ -862,7 +949,10 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			InsertFastPath(index, item);
+			using (new ChangeScope(this))
+			{
+				InsertFastPath(index, item);
+			}
 
 			AddStackTrace();
 		}
@@ -890,7 +980,11 @@ namespace Hertzole.ScriptableValues
 				return false;
 			}
 
-			RemoveAtFastPath(index);
+			using (new ChangeScope(this))
+			{
+				RemoveAtFastPath(index);
+			}
+
 			AddStackTrace();
 
 			return true;
@@ -909,7 +1003,10 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			RemoveAtFastPath(index);
+			using (new ChangeScope(this))
+			{
+				RemoveAtFastPath(index);
+			}
 
 			AddStackTrace();
 		}
@@ -926,9 +1023,12 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			list.Clear();
-			OnCleared?.Invoke();
-			OnChanged?.Invoke(ListChangeType.Cleared);
+			using (new ChangeScope(this))
+			{
+				list.Clear();
+				OnCleared?.Invoke();
+				OnChanged?.Invoke(ListChangeType.Cleared);
+			}
 
 			AddStackTrace();
 		}
@@ -963,14 +1063,36 @@ namespace Hertzole.ScriptableValues
 		{
 			list.CopyTo(array, arrayIndex);
 		}
-		
+
 		/// <summary>
-		///     Copies the entire list to a compatible one-dimensional array.
+		///     Helper scope for notifying if the count and/or capacity has changed between changes.
 		/// </summary>
-		/// <param name="array">The array destination.</param>
-		public void CopyTo(T[] array)
+		private readonly ref struct ChangeScope
 		{
-			list.CopyTo(array);
+			private readonly int originalCount;
+			private readonly int originalCapacity;
+
+			private readonly ScriptableList<T> list;
+
+			public ChangeScope(ScriptableList<T> list)
+			{
+				this.list = list;
+				originalCount = list.Count;
+				originalCapacity = list.Capacity;
+			}
+
+			public void Dispose()
+			{
+				if (originalCount != list.Count)
+				{
+					list.NotifyPropertyChanged(nameof(Count));
+				}
+
+				if (originalCapacity != list.Capacity)
+				{
+					list.NotifyPropertyChanged(nameof(Capacity));
+				}
+			}
 		}
 	}
 }
