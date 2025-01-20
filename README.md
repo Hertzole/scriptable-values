@@ -8,10 +8,10 @@
      <a href="https://ko-fi.com/Hertzole"><img src="https://img.shields.io/badge/Support_me-Ko--fi-%23FF5E5B?style=flat&logo=ko-fi" alt="Support me on ko-fi badge"></a>
      <br>
      <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=alert_status" alt="Quality gate status"></a>
-     <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=coverage" alt="Code coverage"></a>
      <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=code_smells" alt="Code smells"></a>
      <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=sqale_rating" alt="Maintainability rating"></a>
      <a href="https://sonarcloud.io/summary/overall?id=scriptable-values"><img src="https://sonarcloud.io/api/project_badges/measure?project=scriptable-values&metric=bugs" alt="Bugs"></a>
+     <a href="https://hertzole.github.io/scriptable-values/coverage"><img src="https://hertzole.github.io/scriptable-values/coverage/badge_linecoverage.svg" alt="Code coverage"></a>
 </div>
 
 ## ❓ What is this?
