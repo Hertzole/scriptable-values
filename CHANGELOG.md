@@ -1,10 +1,20 @@
-## [1.3.1] - 2024-01-31
+# 1.4.0 - Unreleased
+
+### Added
+
+- Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
+
+### Changed
+
+- Tooltips are no longer included in builds
+
+## 1.3.1 - 2024-01-31
 
 ### Fixed
 
 - Fixed Odin inspector compatibility
 
-## [1.3.0] - 2024-01-17
+# 1.3.0 - 2024-01-17
 
 ### Added
 
@@ -22,7 +32,7 @@
 
 - Removed obsolete `ResetValues` from `RuntimeScriptableObject`
 
-## [1.2.0] - 2023-05-20
+# 1.2.0 - 2023-05-20
 
 ### Added
 
@@ -41,7 +51,7 @@
 - Fixed event listeners having the same name as the value listeners
 - Fixed editor compatibility with Odin inspector
 
-## [1.1.0] - 2023-04-06
+# 1.1.0 - 2023-04-06
 
 ### Added
 
@@ -67,6 +77,6 @@
 - Fixed non-serializable types breaking editors
 - Fixed warnings on Unity 2022.2
 
-## [1.0.0] - 2022-10-27
+# [1.0.0] - 2022-10-27
 
 First release
