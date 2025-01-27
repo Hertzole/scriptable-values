@@ -1,6 +1,7 @@
 ﻿#if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
+using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -51,6 +52,9 @@ namespace Hertzole.ScriptableValues
 		// This is mainly use for OnValidate weirdness.
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
+
+		private readonly ValueEventList<T, OldNewValue<T>> onValueChangingEvents = new ValueEventList<T, OldNewValue<T>>();
+		private readonly ValueEventList<T, OldNewValue<T>> onValueChangedEvents = new ValueEventList<T, OldNewValue<T>>();
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -108,11 +112,25 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called before the current value is set.
 		/// </summary>
-		public event OldNewValue<T> OnValueChanging;
+		public event OldNewValue<T> OnValueChanging
+		{
+			add { onValueChangingEvents.AddListener(value, null);}
+			remove { onValueChangingEvents.RemoveListener(value); }
+		}
 		/// <summary>
 		///     Called after the current value is set.
 		/// </summary>
-		public event OldNewValue<T> OnValueChanged;
+		public event OldNewValue<T> OnValueChanged
+		{
+			add { onValueChangedEvents.AddListener(value, null); }
+			remove { onValueChangedEvents.RemoveListener(value); }
+		}
+
+		private void OnDestroy()
+		{
+			onValueChangingEvents.Dispose();
+			onValueChangedEvents.Dispose();
+		}
 
 		/// <summary>
 		///     Returns the current value.
@@ -148,7 +166,7 @@ namespace Hertzole.ScriptableValues
 			if (notify)
 			{
 				onValueChanging.Invoke(PreviousValue, newValue);
-				OnValueChanging?.Invoke(PreviousValue, newValue);
+				onValueChangingEvents.Invoke(PreviousValue, newValue);
 			}
 
 			// Update the value.
@@ -163,7 +181,7 @@ namespace Hertzole.ScriptableValues
 			if (notify)
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
-				OnValueChanged?.Invoke(PreviousValue, Value);
+				onValueChangedEvents.Invoke(PreviousValue, Value);
 			}
 		}
 
@@ -231,13 +249,13 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
+				EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
+				EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
 			}
 #endif
 
-			OnValueChanging = null;
-			OnValueChanged = null;
+			onValueChangingEvents.ClearListeners();
+			onValueChangedEvents.ClearListeners();
 		}
 
 #if UNITY_INCLUDE_TESTS
@@ -246,22 +264,22 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		internal bool ValueChangingHasSubscribers
 		{
-			get { return OnValueChanging != null; }
+			get { return onValueChangingEvents.ListenersCount > 0; }
 		}
 		/// <summary>
 		///     A test only check to see if <see cref="OnValueChanged" /> has subscribers.
 		/// </summary>
 		internal bool ValueChangedHasSubscribers
 		{
-			get { return OnValueChanged != null; }
+			get { return onValueChangedEvents.ListenersCount > 0; }
 		}
 #endif
 
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
+			EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
 		}
 
 		internal void CallOnValidate_TestOnly()

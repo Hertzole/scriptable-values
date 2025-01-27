@@ -23,31 +23,44 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// <param name="targetObject">Optional target object to ping when the log is selected.</param>
 		/// <typeparam name="T">The type of the delegate.</typeparam>
 		[Conditional("DEBUG")]
-		public static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object targetObject = null) where T : Delegate
+		public static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object targetObject = null)
 		{
 #if DEBUG
-			if (action != null)
+			if (typeof(T).IsSubclassOf(typeof(Delegate)) && action != null)
 			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append($"{parameterName}");
-				if (targetObject != null)
+				if (action is not Delegate del)
 				{
-					sb.Append($" in object {targetObject.name} ({targetObject.GetType().FullName})");
+					throw new ArgumentException("The given action is not a delegate.");
 				}
 
-				sb.AppendLine(" has some left over subscribers:");
-				WriteDelegates(sb, action);
-
-				Debug.LogWarning(sb.ToString(), targetObject);
+				CreateWarning(del.GetInvocationList().AsSpan(), parameterName, targetObject);
+			}
+			else if (action is IEventList eventList && eventList.ListenersCount > 0)
+			{
+				CreateWarning(eventList.GetListeners(), parameterName, targetObject);
 			}
 #endif
 		}
 
 #if DEBUG
-		private static void WriteDelegates<T>(StringBuilder sb, T action) where T : Delegate
+		private static void CreateWarning(ReadOnlySpan<Delegate> delegates, string parameterName, Object targetObject)
 		{
-			Delegate[] addedDelegates = action.GetInvocationList();
-			foreach (Delegate del in addedDelegates)
+			StringBuilder sb = new StringBuilder();
+			sb.Append($"{parameterName}");
+			if (targetObject != null)
+			{
+				sb.Append($" in object {targetObject.name} ({targetObject.GetType().FullName})");
+			}
+
+			sb.AppendLine(" has some left over subscribers:");
+			WriteDelegates(sb, delegates);
+
+			Debug.LogWarning(sb.ToString(), targetObject);
+		}
+
+		private static void WriteDelegates(StringBuilder sb, ReadOnlySpan<Delegate> delegates)
+		{
+			foreach (Delegate del in delegates)
 			{
 				sb.Append($"{del.Method.DeclaringType}.{del.Method.Name}");
 				WriteParameters(sb, del);
