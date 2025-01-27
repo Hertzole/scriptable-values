@@ -53,8 +53,8 @@ namespace Hertzole.ScriptableValues
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
 
-		private readonly ValueEventList<T> onValueChangingEvents = new ValueEventList<T>();
-		private readonly ValueEventList<T> onValueChangedEvents = new ValueEventList<T>();
+		internal readonly ValueEventList<T> onValueChangingEvents = new ValueEventList<T>();
+		internal readonly ValueEventList<T> onValueChangedEvents = new ValueEventList<T>();
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
