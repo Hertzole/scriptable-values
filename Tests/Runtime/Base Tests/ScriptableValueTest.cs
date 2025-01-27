@@ -45,5 +45,17 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			TestSetValue_SameValue_NoEqualsCheck(value, value);
 		}
+
+		[Test]
+		public void RegisterValueChange([Values] ChangeChoice choice)
+		{
+			TestRegisterValueChange(choice);
+		}
+		
+		[Test]
+		public void RegisterValueChangeWithContext([Values] ChangeChoice choice)
+		{
+			TestRegisterValueChangeWithContext(choice);
+		}
 	}
 }

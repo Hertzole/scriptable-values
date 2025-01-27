@@ -53,8 +53,8 @@ namespace Hertzole.ScriptableValues
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
 
-		private readonly ValueEventList<T, OldNewValue<T>> onValueChangingEvents = new ValueEventList<T, OldNewValue<T>>();
-		private readonly ValueEventList<T, OldNewValue<T>> onValueChangedEvents = new ValueEventList<T, OldNewValue<T>>();
+		private readonly ValueEventList<T> onValueChangingEvents = new ValueEventList<T>();
+		private readonly ValueEventList<T> onValueChangedEvents = new ValueEventList<T>();
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -114,16 +114,16 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public event OldNewValue<T> OnValueChanging
 		{
-			add { onValueChangingEvents.AddListener(value, null);}
-			remove { onValueChangingEvents.RemoveListener(value); }
+			add { RegisterValueChanging(value); }
+			remove { UnregisterValueChanging(value); }
 		}
 		/// <summary>
 		///     Called after the current value is set.
 		/// </summary>
 		public event OldNewValue<T> OnValueChanged
 		{
-			add { onValueChangedEvents.AddListener(value, null); }
-			remove { onValueChangedEvents.RemoveListener(value); }
+			add { RegisterValueChanged(value); }
+			remove { UnregisterValueChanged(value); }
 		}
 
 		private void OnDestroy()
@@ -183,6 +183,64 @@ namespace Hertzole.ScriptableValues
 				onValueChanged.Invoke(PreviousValue, newValue);
 				onValueChangedEvents.Invoke(PreviousValue, Value);
 			}
+		}
+
+		public void RegisterValueChanging(OldNewValue<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangingEvents.AddListener(callback);
+		}
+
+		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(args, nameof(args));
+
+			onValueChangingEvents.AddListener(callback, args);
+		}
+
+		public void UnregisterValueChanging(OldNewValue<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangingEvents.RemoveListener(callback);
+		}
+
+		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangingEvents.RemoveListener(callback);
+		}
+
+		public void RegisterValueChanged(OldNewValue<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangedEvents.AddListener(callback);
+		}
+
+		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(args, nameof(args));
+
+			onValueChangedEvents.AddListener(callback, args);
+		}
+
+		public void UnregisterValueChanged(OldNewValue<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangedEvents.RemoveListener(callback);
+		}
+
+		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onValueChangedEvents.RemoveListener(callback);
 		}
 
 		protected bool IsSameValue(T newValue, T oldValue)

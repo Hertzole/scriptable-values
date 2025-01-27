@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 
 namespace Hertzole.ScriptableValues
 {
-	internal sealed class ValueEventList<TValue, TDelegate> : IDisposable, IEventList where TDelegate : Delegate
+	internal sealed class ValueEventList<TValue> : IDisposable, IEventList
 	{
 		private bool isDisposed = false;
 
@@ -37,14 +37,14 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public void AddListener(TDelegate action, object? context = null)
+		public void AddListener<TDelegate>(TDelegate action, object? context = null) where TDelegate : Delegate
 		{
 			ThrowIfDisposed();
 
 			events.Add(new ValueClosure<TValue>(action, context));
 		}
 
-		public void RemoveListener(TDelegate action)
+		public void RemoveListener<TDelegate>(TDelegate action) where TDelegate : Delegate
 		{
 			ThrowIfDisposed();
 

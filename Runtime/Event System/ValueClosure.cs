@@ -29,7 +29,7 @@ namespace Hertzole.ScriptableValues
 
 		public bool Equals(ValueClosure<T> other)
 		{
-			return action.Method.Equals(other.action.Method) && Equals(context, other.context);
+			return action.Method.Equals(other.action.Method);
 		}
 
 		public override bool Equals(object? obj)
