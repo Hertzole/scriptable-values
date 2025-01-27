@@ -288,8 +288,24 @@ namespace Hertzole.ScriptableValues
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
 					referenceValue = handle.Result;
-					referenceValue.OnValueChanging += OnValueChangingInternal;
-					referenceValue.OnValueChanged += OnValueChangedInternal;
+					if (OnValueChangingInternal != null)
+					{
+						var invocations = OnValueChangingInternal.GetInvocationList();
+						for (int i = 0; i < invocations.Length; i++)
+						{
+							referenceValue.OnValueChanging += (ScriptableValue<T>.OldNewValue<T>)invocations[i];
+						}
+					}
+					
+
+					if (OnValueChangedInternal != null)
+					{
+						var invocations = OnValueChangedInternal.GetInvocationList();
+						for (int i = 0; i < invocations.Length; i++)
+						{
+							referenceValue.OnValueChanged += (ScriptableValue<T>.OldNewValue<T>)invocations[i];
+						}
+					}
 				}
 
 				onLoaded?.Invoke(handle);
@@ -305,6 +321,16 @@ namespace Hertzole.ScriptableValues
 				Addressables.Release(AssetHandle);
 				referenceValue = null;
 			}
+		}
+		
+		private void OnAddressableResultValueChanging(T previousValue, T newValue)
+		{
+			OnValueChangingInternal?.Invoke(previousValue, newValue);
+		}
+		
+		private void OnAddressableResultValueChanged(T previousValue, T newValue)
+		{
+			OnValueChangedInternal?.Invoke(previousValue, newValue);
 		}
 #endif
 	}

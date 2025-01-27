@@ -245,7 +245,7 @@ namespace Hertzole.ScriptableValues.Tests
 			bool gotError = false;
 			try
 			{
-				instance.Value = MakeDifferentValue(default);
+				instance.Value = MakeDifferentValue(default(TValue));
 			}
 			catch (NotSupportedException)
 			{
@@ -263,10 +263,10 @@ namespace Hertzole.ScriptableValues.Tests
 			ValueReference<TValue> instance = new ValueReference<TValue>(default(TValue));
 			instance.OnValueChanged += ValueChanged;
 			
-			instance.SetValueWithoutNotify(MakeDifferentValue(default));
+			instance.SetValueWithoutNotify(MakeDifferentValue(default(TValue)));
 
-			Assert.AreEqual(MakeDifferentValue(default), instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(default), instance.Value);
+			Assert.AreEqual(MakeDifferentValue(default(TValue)), instance.constantValue);
+			Assert.AreEqual(MakeDifferentValue(default(TValue)), instance.Value);
 			Assert.IsFalse(eventInvoked);
 
 			eventInvoked = false;
@@ -283,8 +283,8 @@ namespace Hertzole.ScriptableValues.Tests
 			
 			void ValueChanged(TValue previousValue, TValue newValue)
 			{
-				Assert.AreEqual(MakeDifferentValue(default), previousValue);
-				Assert.AreEqual(MakeDifferentValue(default), newValue);
+				Assert.AreEqual(MakeDifferentValue(default(TValue)), previousValue);
+				Assert.AreEqual(MakeDifferentValue(default(TValue)), newValue);
 				eventInvoked = true;
 			}
 		}
@@ -300,11 +300,11 @@ namespace Hertzole.ScriptableValues.Tests
 			ValueReference<TValue> instance = new ValueReference<TValue>(scriptableValue);
 			instance.OnValueChanged += ValueChanged;
 			
-			instance.SetValueWithoutNotify(MakeDifferentValue(default));
+			instance.SetValueWithoutNotify(MakeDifferentValue(default(TValue)));
 
 			Assert.AreEqual(default, instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(default), instance.Value);
-			Assert.AreEqual(MakeDifferentValue(default), scriptableValue.Value);
+			Assert.AreEqual(MakeDifferentValue(default(TValue)), instance.Value);
+			Assert.AreEqual(MakeDifferentValue(default(TValue)), scriptableValue.Value);
 			Assert.IsFalse(eventInvoked);
 
 			eventInvoked = false;
@@ -322,12 +322,10 @@ namespace Hertzole.ScriptableValues.Tests
 			
 			void ValueChanged(TValue previousValue, TValue newValue)
 			{
-				Assert.AreEqual(MakeDifferentValue(default), previousValue);
-				Assert.AreEqual(MakeDifferentValue(default), newValue);
+				Assert.AreEqual(MakeDifferentValue(default(TValue)), previousValue);
+				Assert.AreEqual(MakeDifferentValue(default(TValue)), newValue);
 				eventInvoked = true;
 			}
 		}
-
-		protected abstract TValue MakeDifferentValue(TValue value);
 	}
 }
