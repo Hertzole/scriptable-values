@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.TestTools;
 
@@ -205,5 +206,115 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
+
+		protected void TestRegisterValueChange(ChangeChoice choice)
+		{
+			// Arrange
+			var instance = CreateInstance<TType>();
+			int invokeCount = 0;
+			TValue targetValue = MakeDifferentValue(instance.Value);
+			switch (choice)
+			{
+				case ChangeChoice.Changing:
+					instance.RegisterValueChanging(Callback);
+					break;
+				case ChangeChoice.Changed:
+					instance.RegisterValueChanged(Callback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
+			}
+			
+			// Act
+			instance.Value = targetValue;
+
+			switch (choice)
+			{
+				case ChangeChoice.Changing:
+					instance.UnregisterValueChanging(Callback);
+					break;
+				case ChangeChoice.Changed:
+					instance.UnregisterValueChanged(Callback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
+			}
+			
+			instance.Value = MakeDifferentValue(targetValue);
+			
+			// Assert
+			Assert.AreEqual(1, invokeCount, "Callback was not invoked once.");
+			return;
+
+			void Callback(TValue oldValue, TValue newValue)
+			{
+				invokeCount++;
+				Assert.AreEqual(targetValue, newValue, "New value is not the same as the instance value.");
+			}
+		}
+
+		protected void TestRegisterValueChangeWithContext(ChangeChoice choice)
+		{
+			// Arrange
+			var instance = CreateInstance<TType>();
+			TValue targetValue = MakeDifferentValue(instance.Value);
+			Context context = new Context(targetValue);
+			switch (choice)
+			{
+				case ChangeChoice.Changing:
+					instance.RegisterValueChanging(Callback, context);
+					break;
+				case ChangeChoice.Changed:
+					instance.RegisterValueChanged(Callback, context);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
+			}
+			
+			// Act
+			instance.Value = targetValue;
+
+			switch (choice)
+			{
+				case ChangeChoice.Changing:
+					instance.UnregisterValueChanging<Context>(Callback);
+					break;
+				case ChangeChoice.Changed:
+					instance.UnregisterValueChanged<Context>(Callback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
+			}
+			
+			instance.Value = MakeDifferentValue(targetValue);
+			
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "Callback was not invoked once.");
+			return;
+
+			static void Callback(TValue oldValue, TValue newValue, Context context)
+			{
+				context.invokeCount++;
+				Assert.AreEqual(context.targetValue, newValue, "New value is not the same as the instance value.");
+			}
+		}
+
+		private class Context
+		{
+			public int invokeCount;
+			public readonly TValue targetValue;
+
+			public Context(TValue targetValue)
+			{
+				invokeCount = 0;
+				this.targetValue = targetValue;
+			}
+		}
+	}
+
+	public enum ChangeChoice
+	{
+		Changing = 0,
+		Changed = 1
 	}
 }
