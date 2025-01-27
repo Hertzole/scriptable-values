@@ -185,6 +185,12 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Registers a callback that is invoked before the value is changed.
+		/// </summary>
+		/// <param name="callback">The callback that is invoked before the value is changed.</param>
+		/// '
+		/// <exception cref="ArgumentNullException">The callback is null.</exception>
 		public void RegisterValueChanging(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -192,6 +198,15 @@ namespace Hertzole.ScriptableValues
 			onValueChangingEvents.AddListener(callback);
 		}
 
+		/// <summary>
+		///     Registers a callback that is invoked before the value is changed with additional context. The context can be used
+		///     to avoid closures.
+		/// </summary>
+		/// <param name="callback">The callback that is invoked before the value is changed.</param>
+		/// <param name="args">The context that is passed to the callback.</param>
+		/// <typeparam name="TArgs">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException">The callback is null.</exception>
+		/// <exception cref="ArgumentNullException">The context is null.</exception>
 		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -200,6 +215,10 @@ namespace Hertzole.ScriptableValues
 			onValueChangingEvents.AddListener(callback, args);
 		}
 
+		/// <summary>
+		///     Unregisters a callback from the OnValueChanging event.
+		/// </summary>
+		/// <param name="callback">The callback that should be unregistered.</param>
 		public void UnregisterValueChanging(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -207,6 +226,11 @@ namespace Hertzole.ScriptableValues
 			onValueChangingEvents.RemoveListener(callback);
 		}
 
+		/// <summary>
+		///     Unregisters a callback from the OnValueChanging event.
+		/// </summary>
+		/// <param name="callback">The callback that should be unregistered.</param>
+		/// <typeparam name="TArgs">The type of the context.</typeparam>
 		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -214,6 +238,10 @@ namespace Hertzole.ScriptableValues
 			onValueChangingEvents.RemoveListener(callback);
 		}
 
+		/// <summary>
+		///     Registers a callback that is invoked after the value is changed.
+		/// </summary>
+		/// <param name="callback">The callback that is invoked after the value is changed.</param>
 		public void RegisterValueChanged(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -221,6 +249,13 @@ namespace Hertzole.ScriptableValues
 			onValueChangedEvents.AddListener(callback);
 		}
 
+		/// <summary>
+		///     Registers a callback that is invoked after the value is changed with additional context. The context can be used to
+		///     avoid closures.
+		/// </summary>
+		/// <param name="callback">The callback that is invoked after the value is changed.</param>
+		/// <param name="args">The context that is passed to the callback.</param>
+		/// <typeparam name="TArgs">The type of the context.</typeparam>
 		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -229,6 +264,10 @@ namespace Hertzole.ScriptableValues
 			onValueChangedEvents.AddListener(callback, args);
 		}
 
+		/// <summary>
+		///     Unregisters a callback from the OnValueChanged event.
+		/// </summary>
+		/// <param name="callback">The callback that should be unregistered.</param>
 		public void UnregisterValueChanged(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -236,6 +275,11 @@ namespace Hertzole.ScriptableValues
 			onValueChangedEvents.RemoveListener(callback);
 		}
 
+		/// <summary>
+		///     Unregisters a callback from the OnValueChanged event.
+		/// </summary>
+		/// <param name="callback">The callback that should be unregistered.</param>
+		/// <typeparam name="TArgs">The type of the context.</typeparam>
 		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
