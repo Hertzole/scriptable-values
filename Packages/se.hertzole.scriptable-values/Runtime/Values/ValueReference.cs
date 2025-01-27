@@ -1,5 +1,6 @@
 ﻿using System;
 using Hertzole.ScriptableValues.Helpers;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 using UnityEngine.AddressableAssets;
@@ -49,83 +50,20 @@ namespace Hertzole.ScriptableValues
 			set { SetValue(value, true); }
 		}
 
-		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangingInternal;
-		internal event ScriptableValue<T>.OldNewValue<T> OnValueChangedInternal;
+		// These are only used for constant values, and as a buffer for addressable assets that are not loaded yet.
+		internal readonly ValueEventList<T> onValueChangingInternal = new ValueEventList<T>();
+		internal readonly ValueEventList<T> onValueChangedInternal = new ValueEventList<T>();
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
 		{
-			add
-			{
-				if (valueType == ValueReferenceType.Reference)
-				{
-					referenceValue.OnValueChanging += value;
-				}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-				{
-					AssetHandle.Result.OnValueChanging += value;
-				}
-#endif
-				else
-				{
-					OnValueChangingInternal += value;
-				}
-			}
-			remove
-			{
-				if (valueType == ValueReferenceType.Reference)
-				{
-					referenceValue.OnValueChanging -= value;
-				}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-				{
-					AssetHandle.Result.OnValueChanging -= value;
-				}
-#endif
-				else
-				{
-					OnValueChangingInternal -= value;
-				}
-			}
+			add { RegisterValueChanging(value); }
+			remove { UnregisterValueChanging(value); }
 		}
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanged
 		{
-			add
-			{
-				if (valueType == ValueReferenceType.Reference)
-				{
-					referenceValue.OnValueChanged += value;
-				}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-				{
-					AssetHandle.Result.OnValueChanged += value;
-				}
-#endif
-				else
-				{
-					OnValueChangedInternal += value;
-				}
-			}
-			remove
-			{
-				if (valueType == ValueReferenceType.Reference)
-				{
-					referenceValue.OnValueChanged -= value;
-				}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-				else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-				{
-					AssetHandle.Result.OnValueChanged -= value;
-				}
-#endif
-				else
-				{
-					OnValueChangedInternal -= value;
-				}
-			}
+			add { RegisterValueChanged(value); }
+			remove { UnregisterValueChanged(value); }
 		}
 
 		public ValueReference()
@@ -211,14 +149,14 @@ namespace Hertzole.ScriptableValues
 		{
 			if (notify)
 			{
-				OnValueChangingInternal?.Invoke(previousValue, value);
+				onValueChangingInternal.Invoke(previousValue, value);
 			}
 
 			constantValue = value;
 
 			if (notify)
 			{
-				OnValueChangedInternal?.Invoke(previousValue, value);
+				onValueChangedInternal.Invoke(previousValue, value);
 			}
 		}
 
@@ -256,6 +194,112 @@ namespace Hertzole.ScriptableValues
 			SetValue(value, false);
 		}
 
+		public void RegisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.RegisterValueChanging(callback);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.RegisterValueChanging(callback);
+			}
+#endif
+
+			onValueChangingInternal.AddListener(callback);
+		}
+
+		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.RegisterValueChanging(callback, args);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.RegisterValueChanging(callback, args);
+			}
+#endif
+
+			onValueChangingInternal.AddListener(callback, args);
+		}
+
+		public void UnregisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.UnregisterValueChanging(callback);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.UnregisterValueChanging(callback);
+			}
+#endif
+
+			onValueChangingInternal.RemoveListener(callback);
+		}
+
+		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
+		{
+			UnregisterValueChanging(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
+		}
+
+		public void RegisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.RegisterValueChanged(callback);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.RegisterValueChanged(callback);
+			}
+#endif
+
+			onValueChangedInternal.AddListener(callback);
+		}
+
+		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.RegisterValueChanged(callback, args);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.RegisterValueChanged(callback, args);
+			}
+#endif
+
+			onValueChangedInternal.AddListener(callback, args);
+		}
+
+		public void UnregisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				referenceValue.UnregisterValueChanged(callback);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
+			{
+				AssetHandle.Result.UnregisterValueChanged(callback);
+			}
+#endif
+
+			onValueChangedInternal.RemoveListener(callback);
+		}
+
+		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
+		{
+			UnregisterValueChanged(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
+		}
+
 #if UNITY_EDITOR
 		internal void SetPreviousValue()
 		{
@@ -269,8 +313,8 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			OnValueChangingInternal?.Invoke(oldValue, Value);
-			OnValueChangedInternal?.Invoke(oldValue, Value);
+			onValueChangingInternal.Invoke(oldValue, Value);
+			onValueChangedInternal.Invoke(oldValue, Value);
 
 			oldValue = Value;
 		}
@@ -288,24 +332,8 @@ namespace Hertzole.ScriptableValues
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
 					referenceValue = handle.Result;
-					if (OnValueChangingInternal != null)
-					{
-						var invocations = OnValueChangingInternal.GetInvocationList();
-						for (int i = 0; i < invocations.Length; i++)
-						{
-							referenceValue.OnValueChanging += (ScriptableValue<T>.OldNewValue<T>)invocations[i];
-						}
-					}
-					
-
-					if (OnValueChangedInternal != null)
-					{
-						var invocations = OnValueChangedInternal.GetInvocationList();
-						for (int i = 0; i < invocations.Length; i++)
-						{
-							referenceValue.OnValueChanged += (ScriptableValue<T>.OldNewValue<T>)invocations[i];
-						}
-					}
+					onValueChangingInternal.AddFrom(referenceValue.onValueChangingEvents);
+					onValueChangedInternal.AddFrom(referenceValue.onValueChangedEvents);
 				}
 
 				onLoaded?.Invoke(handle);
@@ -316,21 +344,18 @@ namespace Hertzole.ScriptableValues
 
 		public void ReleaseAddressableAsset()
 		{
+			// Make sure to remove all old listeners.
+			if (referenceValue != null)
+			{
+				referenceValue.onValueChangingEvents.RemoveFrom(onValueChangingInternal);
+				referenceValue.onValueChangedEvents.RemoveFrom(onValueChangedInternal);
+			}
+
 			if (AssetHandle.IsValid())
 			{
 				Addressables.Release(AssetHandle);
 				referenceValue = null;
 			}
-		}
-		
-		private void OnAddressableResultValueChanging(T previousValue, T newValue)
-		{
-			OnValueChangingInternal?.Invoke(previousValue, newValue);
-		}
-		
-		private void OnAddressableResultValueChanged(T previousValue, T newValue)
-		{
-			OnValueChangedInternal?.Invoke(previousValue, newValue);
 		}
 #endif
 	}

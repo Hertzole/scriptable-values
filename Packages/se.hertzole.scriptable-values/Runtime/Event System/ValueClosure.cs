@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Text;
 using Hertzole.ScriptableValues.Helpers;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Assertions;
@@ -43,6 +44,19 @@ namespace Hertzole.ScriptableValues
 			{
 				return action.Method.GetHashCode() * 397;
 			}
+		}
+
+		public override string ToString()
+		{
+			StringBuilder builder = new StringBuilder(128);
+			builder.Append("ValueClosure<");
+			builder.Append(typeof(T).Name);
+			builder.Append(">(");
+			builder.Append(action.Method);
+			builder.Append(", ");
+			builder.Append(context ?? "null context");
+			builder.Append(")");
+			return builder.ToString();
 		}
 
 		public static bool operator ==(ValueClosure<T> left, ValueClosure<T> right)

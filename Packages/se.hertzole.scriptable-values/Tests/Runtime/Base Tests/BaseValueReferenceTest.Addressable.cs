@@ -240,7 +240,6 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsFalse(eventInvoked);
 			
 			instance.referenceValue.ResetValue();
-			instance.referenceValue.ClearSubscribers();
 			
 			instance.ReleaseAddressableAsset();
 

@@ -2,8 +2,6 @@
 
 using System;
 using System.Buffers;
-using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Hertzole.ScriptableValues
 {
@@ -48,8 +46,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowIfDisposed();
 
-			bool removeSuccess = events.Remove(new ValueClosure<TValue>(action, null));
-			Assert.IsTrue(removeSuccess, "Failed to remove listener.");
+			events.Remove(new ValueClosure<TValue>(action, null));
 		}
 
 		public void ClearListeners()
@@ -68,6 +65,20 @@ namespace Hertzole.ScriptableValues
 			{
 				span[i].Invoke(oldValue, newValue);
 			}
+		}
+
+		public void AddFrom(ValueEventList<TValue> other)
+		{
+			ThrowIfDisposed();
+
+			other.events.AddFrom(events);
+		}
+
+		public void RemoveFrom(ValueEventList<TValue> other)
+		{
+			ThrowIfDisposed();
+
+			events.RemoveFrom(other.events);
 		}
 
 		public void Dispose()

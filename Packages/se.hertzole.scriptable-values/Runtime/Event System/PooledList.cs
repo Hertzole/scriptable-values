@@ -30,6 +30,20 @@ namespace Hertzole.ScriptableValues
 			items[Count++] = item;
 		}
 
+		public void AddFrom(PooledList<T> other)
+		{
+			if (other.Count == 0)
+			{
+				return;
+			}
+
+			ResizeIfNeeded(Count + other.Count);
+
+			Array.Copy(other.items, 0, items, Count, other.Count);
+
+			Count += other.Count;
+		}
+
 		public bool Remove(T item)
 		{
 			int index = IndexOf(item);
@@ -38,8 +52,26 @@ namespace Hertzole.ScriptableValues
 			{
 				RemoveAt(index);
 			}
-			
+
 			return index != -1;
+		}
+
+		public void RemoveFrom(PooledList<T> other)
+		{
+			if (other.Count == 0 || Count == 0)
+			{
+				return;
+			}
+
+			for (int i = 0; i < other.Count; i++)
+			{
+				if (Count == 0)
+				{
+					break;
+				}
+
+				Remove(other[i]);
+			}
 		}
 
 		public void Clear()
@@ -87,13 +119,13 @@ namespace Hertzole.ScriptableValues
 			if (items.Length < newCount)
 			{
 				T[] newItems = ArrayPool<T>.Shared.Rent(newCount);
-				
+
 				if (items.Length > 0)
 				{
 					items.CopyTo(newItems, 0);
 					ArrayPool<T>.Shared.Return(items, true);
 				}
-				
+
 				items = newItems;
 			}
 		}
