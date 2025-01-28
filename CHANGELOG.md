@@ -1,12 +1,14 @@
-# 1.4.0 - Unreleased
+# 2.0.0 - Unreleased
 
 ### Added
 
 - Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
+- New internal event system that is more efficient and allows avoiding closure allocations
 
 ### Changed
 
 - Tooltips are no longer included in builds
+- `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
 
 ## 1.3.1 - 2024-01-31
 
