@@ -12,15 +12,7 @@ namespace Hertzole.ScriptableValues
 
 		public T this[int index]
 		{
-			get
-			{
-				if (index < 0 || index >= Count)
-				{
-					throw new IndexOutOfRangeException();
-				}
-
-				return items[index];
-			}
+			get { return items[index]; }
 		}
 
 		public void Add(T item)

@@ -10,10 +10,11 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableEvent.onInvoked),
 			nameof(ScriptableEvent.OnInvoked),
 			nameof(ScriptableEvent.InvokedHasSubscribers),
-			nameof(ScriptableEvent<TType>.onInvokedWithArgs),
+			nameof(ScriptableEvent<TType>.onInvoked),
 			nameof(ScriptableEvent<TType>.editorInvokeValue),
 			nameof(ScriptableEvent<TType>.InvokedHasSubscribers),
 			nameof(ScriptableEvent<TType>.OnInvoked),
+			nameof(ScriptableEvent<TType>.onInvokedInternal),
 #if UNITY_EDITOR
 			nameof(RuntimeScriptableObject.CollectStackTraces),
 			nameof(RuntimeScriptableObject.CollectStackTraces)
