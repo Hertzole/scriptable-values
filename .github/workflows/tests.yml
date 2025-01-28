@@ -1,6 +1,8 @@
 name: Unity Tests
 on:
   push:
+    branches: # Only run jobs if files changed on this branch
+      - master
     paths: # Only run jobs if files changed at these paths
       - '.github/workflows/**'
       - 'Assets/**'
@@ -113,24 +115,11 @@ jobs:
           chmod +x ./ci/fix_paths.sh
           ./ci/fix_paths.sh Coverage
 
-      # Set the target directory for the coverage report
-      # On master, the target directory is CoverageReport/coverage
-      # On other branches, the target directory is CoverageReport/coverage/branch_name
-      - name: Set target directory
-        id: set-targetdir
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/master" ]; then
-            echo "##[set-output name=targetdir;]CoverageReport/coverage"
-          else
-            branch_name=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-            echo "##[set-output name=targetdir;]CoverageReport/coverage/${branch_name}"
-          fi
-
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
         with:
           reports: "${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
-          targetdir: "${{ steps.set-targetdir.outputs.targetdir }}"
+          targetdir: "CoverageReport/coverage"
           reporttypes: "Html;Badges"
 
       - name: Upload report
@@ -150,6 +139,7 @@ jobs:
       - name: Generate Solution
         run: |
           unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
+          ls
 
       - name: SonarQube analysis
         env:
