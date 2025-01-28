@@ -1,8 +1,6 @@
 name: Unity Tests
 on:
   push:
-    branches: # Only run jobs if files changed on this branch
-      - master
     paths: # Only run jobs if files changed at these paths
       - '.github/workflows/**'
       - 'Assets/**'
@@ -117,6 +115,8 @@ jobs:
 
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        # Only run on master branch
+        if: github.ref == 'refs/heads/master'
         with:
           reports: "${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
           targetdir: "CoverageReport/coverage"
@@ -125,6 +125,8 @@ jobs:
       - name: Upload report
         uses: actions/upload-pages-artifact@v3
         id: upload_report
+        # Only run on master branch
+        if: github.ref == 'refs/heads/master'
         with:
           path: CoverageReport
 
@@ -162,6 +164,8 @@ jobs:
     needs: [sonarscan]
     name: Deploy Pages
     runs-on: ubuntu-latest
+    # Only run on master branch
+    if: github.ref == 'refs/heads/master'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
