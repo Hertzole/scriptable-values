@@ -336,7 +336,11 @@ namespace Hertzole.ScriptableValues
 		{
 			AssetHandle = Addressables.LoadAssetAsync<ScriptableValue<T>>(addressableReference);
 
-			AssetHandle.Completed += handle =>
+			AssetHandle.Completed += OnAssetHandleOnCompleted;
+
+			return AssetHandle;
+
+			void OnAssetHandleOnCompleted(AsyncOperationHandle<ScriptableValue<T>> handle)
 			{
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
@@ -346,9 +350,9 @@ namespace Hertzole.ScriptableValues
 				}
 
 				onLoaded?.Invoke(handle);
-			};
-
-			return AssetHandle;
+				// Clean up the event as to not have any memory leaks.
+				handle.Completed -= OnAssetHandleOnCompleted;
+			}
 		}
 
 		public void ReleaseAddressableAsset()
