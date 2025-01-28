@@ -24,7 +24,7 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal UnityEvent onInvoked = new UnityEvent();
 
-		private readonly EventHandlerList onInvokedInternal = new EventHandlerList();
+		private readonly EventHandlerList<object> onInvokedInternal = new EventHandlerList<object>();
 
 #if UNITY_INCLUDE_TESTS
 		/// <summary>
@@ -82,7 +82,7 @@ namespace Hertzole.ScriptableValues
 			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(1 + skipFrames);
 
-			onInvokedInternal.Invoke(in sender);
+			onInvokedInternal.Invoke(in sender, null);
 			onInvoked.Invoke();
 		}
 

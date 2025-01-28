@@ -67,8 +67,15 @@ namespace Hertzole.ScriptableValues
 			events.RemoveFrom(other.events);
 		}
 
+		~ValueEventList()
+		{
+			Dispose();
+		}
+
 		public void Dispose()
 		{
+			GC.SuppressFinalize(this);
+
 			ThrowIfDisposed();
 
 			events.Dispose();
