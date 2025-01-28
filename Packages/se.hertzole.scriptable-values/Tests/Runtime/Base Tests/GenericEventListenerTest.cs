@@ -61,18 +61,6 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void OnInvoked()
-		{
-			Test_OnInvoked();
-		}
-
-		[Test]
-		public void OnInvoked_ChangeEvent()
-		{
-			Test_OnInvoked_ChangeEvent();
-		}
-
-		[Test]
 		public void OnInvoked_WithArgs([ValueSource(nameof(eventInvokes))] EventInvokeEvents invokeOn, [ValueSource(nameof(StaticsValue))] TValue value)
 		{
 			Test_OnInvoked_WithArgs(invokeOn, value);
@@ -215,45 +203,6 @@ namespace Hertzole.ScriptableValues.Tests
 
 			Assert.IsNull(listener.TargetEvent);
 			Assert.IsFalse(scriptableEvent.InvokedHasSubscribers);
-		}
-
-		public void Test_OnInvoked()
-		{
-			TListener listener = CreateComponent<TListener>();
-			TEvent scriptableEvent = CreateInstance<TEvent>();
-			listener.TargetEvent = scriptableEvent;
-
-			bool invoked = false;
-
-			listener.OnInvoked.AddListener(i => invoked = true);
-
-			scriptableEvent.Invoke(this);
-
-			Assert.IsTrue(invoked);
-		}
-
-		public void Test_OnInvoked_ChangeEvent() 
-		{
-			TListener listener = CreateComponent<TListener>();
-			TEvent scriptableEvent = CreateInstance<TEvent>();
-			listener.TargetEvent = scriptableEvent;
-
-			bool invoked = false;
-
-			listener.OnInvoked.AddListener(i => invoked = true);
-
-			scriptableEvent.Invoke(this);
-
-			Assert.IsTrue(invoked);
-
-			invoked = false;
-
-			TEvent newEvent = CreateInstance<TEvent>();
-			listener.TargetEvent = newEvent;
-
-			newEvent.Invoke(this);
-
-			Assert.IsTrue(invoked);
 		}
 
 		public void Test_OnInvoked_WithArgs(EventInvokeEvents invokeOn, TValue args) 

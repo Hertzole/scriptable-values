@@ -24,8 +24,8 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal UnityEvent onInvoked = new UnityEvent();
 
-		private readonly SimpleEventList onInvokedInternal = new SimpleEventList();
-		
+		private readonly EventHandlerList onInvokedInternal = new EventHandlerList();
+
 #if UNITY_INCLUDE_TESTS
 		/// <summary>
 		///     A test only check to see if the event has any subscribers.
@@ -86,28 +86,51 @@ namespace Hertzole.ScriptableValues
 			onInvoked.Invoke();
 		}
 
-		public void RegisterInvokedListener(EventHandler action)
+		/// <summary>
+		///     Registers a callback that will be called when the event has been invoked.
+		/// </summary>
+		/// <param name="callback">The callback to register.</param>
+		public void RegisterInvokedListener(EventHandler callback)
 		{
-			ThrowHelper.ThrowIfNull(action, nameof(action));
-			
-			onInvokedInternal.AddListener(action);
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onInvokedInternal.AddListener(callback);
 		}
 
+		/// <summary>
+		///     Registers a callback that will be called when the event has been invoked. The provided args will be passed to the
+		///     callback.
+		/// </summary>
+		/// <remarks>
+		///     This method is useful for avoiding closure allocations when registering a callback.
+		/// </remarks>
+		/// <param name="action">The callback to register.</param>
+		/// <param name="args">The arguments to pass to the callback.</param>
+		/// <typeparam name="TArgs">The type of the arguments.</typeparam>
 		public void RegisterInvokedListener<TArgs>(EventHandlerWithContext<TArgs> action, TArgs args)
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
-			
+
 			onInvokedInternal.AddListener(action, args);
 		}
-		
+
+		/// <summary>
+		///     Unregisters a callback from the event.
+		/// </summary>
+		/// <param name="action">The callback to unregister.</param>
 		public void UnregisterInvokedListener(EventHandler action)
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
-			
+
 			onInvokedInternal.RemoveListener(action);
 		}
-		
+
+		/// <summary>
+		///     Unregisters a callback from the event.
+		/// </summary>
+		/// <param name="action">The callback to unregister.</param>
+		/// <typeparam name="TArgs">The type of the arguments that were used when registering.</typeparam>
 		public void UnregisterInvokedListener<TArgs>(EventHandlerWithContext<TArgs> action)
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
@@ -134,7 +157,7 @@ namespace Hertzole.ScriptableValues
 		///     If true, a warning will be printed in the console if there are any subscribers.
 		///     The warning will only be printed in the editor and debug builds.
 		/// </param>
-		public virtual void ClearSubscribers(bool warnIfLeftOver = false)
+		public void ClearSubscribers(bool warnIfLeftOver = false)
 		{
 #if DEBUG
 			if (warnIfLeftOver)

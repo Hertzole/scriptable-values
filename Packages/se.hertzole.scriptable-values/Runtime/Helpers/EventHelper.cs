@@ -31,7 +31,7 @@ namespace Hertzole.ScriptableValues.Helpers
 			{
 				if (action is not Delegate del)
 				{
-					throw new ArgumentException("The given action is not a delegate.");
+					throw new ArgumentException("The given action is not a delegate.", nameof(action));
 				}
 
 				CreateWarning(del.GetInvocationList().AsSpan(), parameterName, targetObject);

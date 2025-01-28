@@ -115,13 +115,13 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		[Test]
 		public void StackTrace_DontCollect_ScriptableGenericEvent()
 		{
-			TestStackTraceWereNotCollected<ScriptableIntEvent>(i => { i.Invoke(this); });
+			TestStackTraceWereNotCollected<ScriptableIntEvent>(i => { i.Invoke(this, 1); });
 		}
 
 		[Test]
 		public void StackTrace_DontCollect_Globally_ScriptableGenericEvent()
 		{
-			TestStackTraceWereNoCollectGloballyCollected<ScriptableIntEvent>(i => { i.Invoke(this); });
+			TestStackTraceWereNoCollectGloballyCollected<ScriptableIntEvent>(i => { i.Invoke(this, 1); });
 		}
 
 		// List

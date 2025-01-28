@@ -3,23 +3,23 @@ using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
-	internal sealed class SimpleEventList : IDisposable, IEventList
+	internal class EventHandlerList<T> : IDisposable, IEventList
 	{
 		private bool isDisposed = false;
 
-		private readonly PooledList<EventClosure<object>> events = new PooledList<EventClosure<object>>();
+		private readonly PooledList<EventClosure<T>> events = new PooledList<EventClosure<T>>();
 
 		public int ListenersCount
 		{
 			get { return events.Count; }
 		}
 
-		public void Invoke(in object sender)
+		public void Invoke(in object sender, in T args)
 		{
 			var span = events.AsSpan();
 			for (int i = 0; i < span.Length; i++)
 			{
-				span[i].Invoke(sender, null);
+				span[i].Invoke(sender, args);
 			}
 		}
 
@@ -41,14 +41,14 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfDisposed(in isDisposed);
 
-			events.Add(new EventClosure<object>(action, context));
+			events.Add(new EventClosure<T>(action, context));
 		}
 
 		public void RemoveListener<TDelegate>(TDelegate action) where TDelegate : Delegate
 		{
 			ThrowHelper.ThrowIfDisposed(in isDisposed);
 
-			events.Remove(new EventClosure<object>(action, null));
+			events.Remove(new EventClosure<T>(action, null));
 		}
 
 		public void ClearListeners()
@@ -56,6 +56,14 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfDisposed(in isDisposed);
 
 			events.Clear();
+		}
+	}
+	
+	internal sealed class EventHandlerList : EventHandlerList<object>
+	{
+		public void Invoke(in object sender)
+		{
+			Invoke(sender, null);
 		}
 	}
 }

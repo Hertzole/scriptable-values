@@ -9,71 +9,136 @@ namespace Hertzole.ScriptableValues.Tests
 		private static TValue[] values;
 
 		public static TValue[] StaticsValue { get { return TestHelper.FindValues(typeof(BaseTest), ref values); } }
-
-		[Test]
-		public void Invoke_WithoutSender()
-		{
-			TType instance = CreateInstance<TType>();
-
-			bool eventInvoked = false;
-
-			instance.OnInvoked += (eventSender, eventArgs) => { eventInvoked = true; };
-
-			instance.Invoke();
-
-			Assert.IsTrue(eventInvoked, "OnInvoked should be invoked.");
-		}
 		
 		[Test]
-		public void Invoke_WithSenderAndArg([ValueSource(nameof(StaticsValue))] TValue value)
+		public void Invoke_WithSenderAndArg([ValueSource(nameof(StaticsValue))] TValue value, [Values] EventType eventType)
 		{
-			InvokeWithArgAndSender(value);
-		}
-		
-		[Test]
-		public void Invoke_WithArgOnly([ValueSource(nameof(StaticsValue))] TValue value)
-		{
-			InvokeWithArgsOnly(value);
-		}
-
-		private void InvokeWithArgAndSender(TValue args) 
-		{
-			TType instance = CreateInstance<TType>();
-
+			// Arrange
+			var instance = CreateInstance<TType>();
 			GameObject sender = CreateGameObject("sender");
+			InvokeCountContext context = new InvokeCountContext();
+			context.AddArg("sender", sender);
+			context.AddArg("value", value);
 
-			bool eventInvoked = false;
-
-			instance.OnInvoked += (eventSender, eventArgs) =>
+			switch (eventType)
 			{
-				Assert.AreEqual(args, eventArgs);
-				Assert.AreEqual(sender, eventSender);
+				case EventType.Event:
+					instance.OnInvoked += InstanceOnInvoked;
+					break;
+				case EventType.Register:
+					instance.RegisterInvokedListener(InstanceOnInvoked);
+					break;
+				case EventType.RegisterWithContext:
+					instance.RegisterInvokedListener(StaticOnInvoked, context);
+					break;
+			}
+			
+			// Act
+			instance.Invoke(sender, value);
+			
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "Invoke count should be 1.");
+			
+			// Arrange removal
+			switch (eventType)
+			{
+				case EventType.Event:
+					instance.OnInvoked -= InstanceOnInvoked;
+					break;
+				case EventType.Register:
+					instance.UnregisterInvokedListener(InstanceOnInvoked);
+					break;
+				case EventType.RegisterWithContext:
+					instance.UnregisterInvokedListener<InvokeCountContext>(StaticOnInvoked);
+					break;
+			}
+			
+			// Act
+			instance.Invoke(sender, value);
+			
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "Invoke count should still be 1.");
+			return;
 
-				eventInvoked = true;
-			};
-
-			instance.Invoke(sender, args);
-
-			Assert.IsTrue(eventInvoked, "OnInvoked should be invoked.");
+			void InstanceOnInvoked(object o, TValue e)
+			{
+				Assert.AreEqual(o, sender);
+				Assert.AreEqual(e, value);
+				context.invokeCount++;
+			}
+			
+			static void StaticOnInvoked(object o, TValue e, InvokeCountContext c)
+			{
+				c.invokeCount++;
+				Assert.AreEqual(o, c.GetArg<GameObject>("sender"));
+				Assert.AreEqual(e, c.GetArg<TValue>("value"));
+			}
 		}
-
-		private void InvokeWithArgsOnly(TValue args)
+		
+		[Test]
+		public void Invoke_WithArgOnly([ValueSource(nameof(StaticsValue))] TValue value, [Values] EventType eventType)
 		{
-			TType instance = CreateInstance<TType>();
-
-			bool eventInvoked = false;
-
-			instance.OnInvoked += (eventSender, eventArgs) =>
+			// InvokeWithArgsOnly(value);
+			
+			// Arrange
+			var instance = CreateInstance<TType>();
+			InvokeCountContext context = new InvokeCountContext();
+			context.AddArg("value", value);
+			context.AddArg("sender", instance);
+			
+			switch (eventType)
 			{
-				Assert.AreEqual(args, eventArgs);
-				Assert.AreEqual(instance, eventSender);
-
-				eventInvoked = true;
-			};
-
-			instance.Invoke(args);
-
-			Assert.IsTrue(eventInvoked, "OnInvoked should be invoked.");
+				case EventType.Event:
+					instance.OnInvoked += InstanceOnInvoked;
+					break;
+				case EventType.Register:
+					instance.RegisterInvokedListener(InstanceOnInvoked);
+					break;
+				case EventType.RegisterWithContext:
+					instance.RegisterInvokedListener(StaticOnInvoked, context);
+					break;
+			}
+			
+			// Act
+			instance.Invoke(value);
+			
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "Invoke count should be 1.");
+			
+			// Arrange removal
+			switch (eventType)
+			{
+				case EventType.Event:
+					instance.OnInvoked -= InstanceOnInvoked;
+					break;
+				case EventType.Register:
+					instance.UnregisterInvokedListener(InstanceOnInvoked);
+					break;
+				case EventType.RegisterWithContext:
+					instance.UnregisterInvokedListener<InvokeCountContext>(StaticOnInvoked);
+					break;
+			}
+			
+			// Act
+			instance.Invoke(value);
+			
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "Invoke count should still be 1.");
+			return;
+			
+			void InstanceOnInvoked(object o, TValue e)
+			{
+				Assert.AreEqual(instance, o);
+				Assert.AreEqual(e, value);
+				context.invokeCount++;
+			}
+			
+			static void StaticOnInvoked(object o, TValue e, InvokeCountContext c)
+			{
+				c.invokeCount++;
+				Assert.AreEqual(o, c.GetArg<TType>("sender"));
+				Assert.AreEqual(e, c.GetArg<TValue>("value"));
+			}
 		}
 	}
 }
