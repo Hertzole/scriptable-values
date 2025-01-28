@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using Hertzole.ScriptableValues.Helpers;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -29,19 +31,19 @@ namespace Hertzole.ScriptableValues
 	public class ValueReference<T>
 	{
 		[SerializeField]
-		internal T constantValue = default;
+		internal T constantValue = default!;
 		[SerializeField]
-		internal ScriptableValue<T> referenceValue = default;
+		internal ScriptableValue<T> referenceValue = null!;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		[SerializeField]
-		internal AssetReferenceT<ScriptableValue<T>> addressableReference = default;
+		internal AssetReferenceT<ScriptableValue<T>> addressableReference = null!;
 #endif
 		[SerializeField]
 		internal ValueReferenceType valueType;
 
 #if UNITY_EDITOR
 		[NonSerialized]
-		internal T oldValue;
+		internal T oldValue = default!;
 #endif
 
 		public T Value
@@ -198,52 +200,20 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
 		public void RegisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.RegisterValueChanging(callback);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.RegisterValueChanging(callback);
-			}
-#endif
-
-			onValueChangingInternal.AddListener(callback);
+			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChanging(c), callback, null,
+				onValueChangingInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging{TArgs}(Action{T, T, TArgs}, TArgs)" />
 		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.RegisterValueChanging(callback, args);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.RegisterValueChanging(callback, args);
-			}
-#endif
-
-			onValueChangingInternal.AddListener(callback, args);
+			RegisterEvent(static (value, c, a) => value.RegisterValueChanging(c!, a), callback, args, onValueChangingInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
 		public void UnregisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.UnregisterValueChanging(callback);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.UnregisterValueChanging(callback);
-			}
-#endif
-
-			onValueChangingInternal.RemoveListener(callback);
+			UnregisterEvent(static (value, c) => value.UnregisterValueChanging(c), callback, onValueChangingInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging{TArgs}(Action{T, T, TArgs})" />
@@ -255,52 +225,20 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
 		public void RegisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.RegisterValueChanged(callback);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.RegisterValueChanged(callback);
-			}
-#endif
-
-			onValueChangedInternal.AddListener(callback);
+			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChanged(c), callback, null,
+				onValueChangedInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged{TArgs}(Action{T, T, TArgs}, TArgs)" />
 		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.RegisterValueChanged(callback, args);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.RegisterValueChanged(callback, args);
-			}
-#endif
-
-			onValueChangedInternal.AddListener(callback, args);
+			RegisterEvent(static (value, c, a) => value.RegisterValueChanged(c!, a), callback, args, onValueChangedInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
 		public void UnregisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			if (valueType == ValueReferenceType.Reference)
-			{
-				referenceValue.UnregisterValueChanged(callback);
-			}
-#if SCRIPTABLE_VALUES_ADDRESSABLES
-			else if (valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.Result != null)
-			{
-				AssetHandle.Result.UnregisterValueChanged(callback);
-			}
-#endif
-
-			onValueChangedInternal.RemoveListener(callback);
+			UnregisterEvent(static (value, c) => value.UnregisterValueChanged(c), callback, onValueChangedInternal);
 		}
 
 		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged{TArgs}(Action{T, T, TArgs})" />
@@ -308,6 +246,49 @@ namespace Hertzole.ScriptableValues
 		{
 			UnregisterValueChanged(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
 		}
+
+		private void RegisterEvent<TEvent, TArgs>(Action<ScriptableValue<T>, TEvent, TArgs?> registerAction,
+			TEvent callback,
+			TArgs? args,
+			IEventList defaultListener) where TEvent : Delegate
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				registerAction.Invoke(referenceValue, callback, args);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (IsValidAddressable())
+			{
+				registerAction.Invoke(AssetHandle.Result, callback, args);
+			}
+#endif
+
+			defaultListener.AddListener(callback, args);
+		}
+
+		private void UnregisterEvent<TEvent>(Action<ScriptableValue<T>, TEvent> unregisterAction, TEvent callback, IEventList defaultListener)
+			where TEvent : Delegate
+		{
+			if (valueType == ValueReferenceType.Reference)
+			{
+				unregisterAction.Invoke(referenceValue, callback);
+			}
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+			else if (IsValidAddressable())
+			{
+				unregisterAction.Invoke(AssetHandle.Result, callback);
+			}
+#endif
+
+			defaultListener.RemoveListener(callback);
+		}
+
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+		private bool IsValidAddressable()
+		{
+			return valueType == ValueReferenceType.Addressable && AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null;
+		}
+#endif
 
 #if UNITY_EDITOR
 		internal void SetPreviousValue()
