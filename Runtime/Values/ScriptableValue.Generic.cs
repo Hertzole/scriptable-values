@@ -114,16 +114,16 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public event OldNewValue<T> OnValueChanging
 		{
-			add { RegisterValueChanging(value); }
-			remove { UnregisterValueChanging(value); }
+			add { RegisterValueChangingListener(value); }
+			remove { UnregisterValueChangingListener(value); }
 		}
 		/// <summary>
 		///     Called after the current value is set.
 		/// </summary>
 		public event OldNewValue<T> OnValueChanged
 		{
-			add { RegisterValueChanged(value); }
-			remove { UnregisterValueChanged(value); }
+			add { RegisterValueChangedListener(value); }
+			remove { UnregisterValueChangedListener(value); }
 		}
 
 		private void OnDestroy()
@@ -191,7 +191,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="callback">The callback that is invoked before the value is changed.</param>
 		/// '
 		/// <exception cref="ArgumentNullException">The callback is null.</exception>
-		public void RegisterValueChanging(OldNewValue<T> callback)
+		public void RegisterValueChangingListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -207,7 +207,7 @@ namespace Hertzole.ScriptableValues
 		/// <typeparam name="TArgs">The type of the context.</typeparam>
 		/// <exception cref="ArgumentNullException">The callback is null.</exception>
 		/// <exception cref="ArgumentNullException">The context is null.</exception>
-		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		public void RegisterValueChangingListener<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
@@ -219,7 +219,7 @@ namespace Hertzole.ScriptableValues
 		///     Unregisters a callback from the OnValueChanging event.
 		/// </summary>
 		/// <param name="callback">The callback that should be unregistered.</param>
-		public void UnregisterValueChanging(OldNewValue<T> callback)
+		public void UnregisterValueChangingListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -231,7 +231,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="callback">The callback that should be unregistered.</param>
 		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
+		public void UnregisterValueChangingListener<TArgs>(Action<T, T, TArgs> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -242,7 +242,7 @@ namespace Hertzole.ScriptableValues
 		///     Registers a callback that is invoked after the value is changed.
 		/// </summary>
 		/// <param name="callback">The callback that is invoked after the value is changed.</param>
-		public void RegisterValueChanged(OldNewValue<T> callback)
+		public void RegisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -256,7 +256,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="callback">The callback that is invoked after the value is changed.</param>
 		/// <param name="args">The context that is passed to the callback.</param>
 		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		public void RegisterValueChangedListener<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
@@ -268,7 +268,7 @@ namespace Hertzole.ScriptableValues
 		///     Unregisters a callback from the OnValueChanged event.
 		/// </summary>
 		/// <param name="callback">The callback that should be unregistered.</param>
-		public void UnregisterValueChanged(OldNewValue<T> callback)
+		public void UnregisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -280,7 +280,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="callback">The callback that should be unregistered.</param>
 		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
+		public void UnregisterValueChangedListener<TArgs>(Action<T, T, TArgs> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -317,7 +317,7 @@ namespace Hertzole.ScriptableValues
 			ResetStackTraces();
 #endif
 
-			// If the value should be reset and it isn't a read only value, we set the value to the default value.
+			// If the value should be reset, and it isn't a read only value, we set the value to the default value.
 			if (ResetValueOnStart && !IsReadOnly)
 			{
 				ResetValue();

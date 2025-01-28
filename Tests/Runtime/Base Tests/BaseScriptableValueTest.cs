@@ -216,10 +216,10 @@ namespace Hertzole.ScriptableValues.Tests
 			switch (choice)
 			{
 				case ChangeChoice.Changing:
-					instance.RegisterValueChanging(Callback);
+					instance.RegisterValueChangingListener(Callback);
 					break;
 				case ChangeChoice.Changed:
-					instance.RegisterValueChanged(Callback);
+					instance.RegisterValueChangedListener(Callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
@@ -231,10 +231,10 @@ namespace Hertzole.ScriptableValues.Tests
 			switch (choice)
 			{
 				case ChangeChoice.Changing:
-					instance.UnregisterValueChanging(Callback);
+					instance.UnregisterValueChangingListener(Callback);
 					break;
 				case ChangeChoice.Changed:
-					instance.UnregisterValueChanged(Callback);
+					instance.UnregisterValueChangedListener(Callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
@@ -262,10 +262,10 @@ namespace Hertzole.ScriptableValues.Tests
 			switch (choice)
 			{
 				case ChangeChoice.Changing:
-					instance.RegisterValueChanging(Callback, context);
+					instance.RegisterValueChangingListener(Callback, context);
 					break;
 				case ChangeChoice.Changed:
-					instance.RegisterValueChanged(Callback, context);
+					instance.RegisterValueChangedListener(Callback, context);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
@@ -277,10 +277,10 @@ namespace Hertzole.ScriptableValues.Tests
 			switch (choice)
 			{
 				case ChangeChoice.Changing:
-					instance.UnregisterValueChanging<Context>(Callback);
+					instance.UnregisterValueChangingListener<Context>(Callback);
 					break;
 				case ChangeChoice.Changed:
-					instance.UnregisterValueChanged<Context>(Callback);
+					instance.UnregisterValueChangedListener<Context>(Callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
