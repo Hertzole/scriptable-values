@@ -189,11 +189,13 @@ namespace Hertzole.ScriptableValues
 		}
 #endif
 
+		/// <inheritdoc cref="ScriptableValue{T}.SetValueWithoutNotify(T)" />
 		public void SetValueWithoutNotify(T value)
 		{
 			SetValue(value, false);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
 		public void RegisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -210,6 +212,7 @@ namespace Hertzole.ScriptableValues
 			onValueChangingInternal.AddListener(callback);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging{TArgs}(Action{T, T, TArgs}, TArgs)" />
 		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -226,6 +229,7 @@ namespace Hertzole.ScriptableValues
 			onValueChangingInternal.AddListener(callback, args);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
 		public void UnregisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -242,11 +246,13 @@ namespace Hertzole.ScriptableValues
 			onValueChangingInternal.RemoveListener(callback);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging{TArgs}(Action{T, T, TArgs})" />
 		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
 		{
 			UnregisterValueChanging(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
 		public void RegisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -263,6 +269,7 @@ namespace Hertzole.ScriptableValues
 			onValueChangedInternal.AddListener(callback);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged{TArgs}(Action{T, T, TArgs}, TArgs)" />
 		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -279,6 +286,7 @@ namespace Hertzole.ScriptableValues
 			onValueChangedInternal.AddListener(callback, args);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
 		public void UnregisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -295,6 +303,7 @@ namespace Hertzole.ScriptableValues
 			onValueChangedInternal.RemoveListener(callback);
 		}
 
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged{TArgs}(Action{T, T, TArgs})" />
 		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
 		{
 			UnregisterValueChanged(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
