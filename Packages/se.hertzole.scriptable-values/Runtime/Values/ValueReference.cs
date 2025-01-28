@@ -197,51 +197,51 @@ namespace Hertzole.ScriptableValues
 			SetValue(value, false);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChangingListener" />
 		public void RegisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChanging(c), callback, null,
+			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChangingListener(c), callback, null,
 				onValueChangingInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanging{TArgs}(Action{T, T, TArgs}, TArgs)" />
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChangingListener{TArgs}" />
 		public void RegisterValueChanging<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
-			RegisterEvent(static (value, c, a) => value.RegisterValueChanging(c!, a), callback, args, onValueChangingInternal);
+			RegisterEvent(static (value, c, a) => value.RegisterValueChangingListener(c!, a), callback, args, onValueChangingInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging(ScriptableValue{T}.OldNewValue{T})" />
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChangingListener" />
 		public void UnregisterValueChanging(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			UnregisterEvent(static (value, c) => value.UnregisterValueChanging(c), callback, onValueChangingInternal);
+			UnregisterEvent(static (value, c) => value.UnregisterValueChangingListener(c), callback, onValueChangingInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanging{TArgs}(Action{T, T, TArgs})" />
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChangingListener{TArgs}" />
 		public void UnregisterValueChanging<TArgs>(Action<T, T, TArgs> callback)
 		{
 			UnregisterValueChanging(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChangedListener" />
 		public void RegisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChanged(c), callback, null,
+			RegisterEvent<ScriptableValue<T>.OldNewValue<T>, object>(static (value, c, _) => value.RegisterValueChangedListener(c), callback, null,
 				onValueChangedInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChanged{TArgs}(Action{T, T, TArgs}, TArgs)" />
+		/// <inheritdoc cref="ScriptableValue{T}.RegisterValueChangedListener{TArgs}" />
 		public void RegisterValueChanged<TArgs>(Action<T, T, TArgs> callback, TArgs args)
 		{
-			RegisterEvent(static (value, c, a) => value.RegisterValueChanged(c!, a), callback, args, onValueChangedInternal);
+			RegisterEvent(static (value, c, a) => value.RegisterValueChangedListener(c!, a), callback, args, onValueChangedInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged(ScriptableValue{T}.OldNewValue{T})" />
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChangedListener" />
 		public void UnregisterValueChanged(ScriptableValue<T>.OldNewValue<T> callback)
 		{
-			UnregisterEvent(static (value, c) => value.UnregisterValueChanged(c), callback, onValueChangedInternal);
+			UnregisterEvent(static (value, c) => value.UnregisterValueChangedListener(c), callback, onValueChangedInternal);
 		}
 
-		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChanged{TArgs}(Action{T, T, TArgs})" />
+		/// <inheritdoc cref="ScriptableValue{T}.UnregisterValueChangedListener{TArgs}" />
 		public void UnregisterValueChanged<TArgs>(Action<T, T, TArgs> callback)
 		{
 			UnregisterValueChanged(UnsafeUtility.As<Action<T, T, TArgs>, ScriptableValue<T>.OldNewValue<T>>(ref callback));
