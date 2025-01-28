@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Diagnostics;
 using Object = UnityEngine.Object;
 #if DEBUG
@@ -89,5 +90,27 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 		}
 #endif
+
+		/// <summary>
+		///     Helper method to get the listeners from a pooled list of closures as a span.
+		/// </summary>
+		internal static ReadOnlySpan<Delegate> GetListeners<T>(PooledList<T> list) where T : struct, IStructClosure
+		{
+			Delegate[] listeners = ArrayPool<Delegate>.Shared.Rent(list.Count);
+
+			try
+			{
+				for (int i = 0; i < list.Count; i++)
+				{
+					listeners[i] = list[i].GetAction();
+				}
+
+				return new ReadOnlySpan<Delegate>(listeners, 0, list.Count);
+			}
+			finally
+			{
+				ArrayPool<Delegate>.Shared.Return(listeners);
+			}
+		}
 	}
 }

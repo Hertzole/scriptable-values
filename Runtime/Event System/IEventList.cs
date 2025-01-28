@@ -13,5 +13,7 @@ namespace Hertzole.ScriptableValues
 		void AddListener<TDelegate>(TDelegate action, object? context = null) where TDelegate : Delegate;
 
 		void RemoveListener<TDelegate>(TDelegate action) where TDelegate : Delegate;
+
+		void ClearListeners();
 	}
 }

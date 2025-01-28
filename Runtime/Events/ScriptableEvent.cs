@@ -24,13 +24,15 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal UnityEvent onInvoked = new UnityEvent();
 
+		private readonly SimpleEventList onInvokedInternal = new SimpleEventList();
+		
 #if UNITY_INCLUDE_TESTS
 		/// <summary>
 		///     A test only check to see if the event has any subscribers.
 		/// </summary>
 		internal bool InvokedHasSubscribers
 		{
-			get { return OnInvoked != null; }
+			get { return onInvokedInternal.ListenersCount > 0; }
 		}
 #endif
 
@@ -42,7 +44,16 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the event is invoked.
 		/// </summary>
-		public event EventHandler OnInvoked;
+		public event EventHandler OnInvoked
+		{
+			add { RegisterInvokedListener(value); }
+			remove { UnregisterInvokedListener(value); }
+		}
+
+		protected virtual void OnDestroy()
+		{
+			onInvokedInternal.Dispose();
+		}
 
 		/// <summary>
 		///     Invokes the event with the scriptable object as the sender.
@@ -71,8 +82,37 @@ namespace Hertzole.ScriptableValues
 			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(1 + skipFrames);
 
-			OnInvoked?.Invoke(sender, EventArgs.Empty);
+			onInvokedInternal.Invoke(in sender);
 			onInvoked.Invoke();
+		}
+
+		public void RegisterInvokedListener(EventHandler action)
+		{
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+			
+			onInvokedInternal.AddListener(action);
+		}
+
+		public void RegisterInvokedListener<TArgs>(EventHandlerWithContext<TArgs> action, TArgs args)
+		{
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(args, nameof(args));
+			
+			onInvokedInternal.AddListener(action, args);
+		}
+		
+		public void UnregisterInvokedListener(EventHandler action)
+		{
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+			
+			onInvokedInternal.RemoveListener(action);
+		}
+		
+		public void UnregisterInvokedListener<TArgs>(EventHandlerWithContext<TArgs> action)
+		{
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+
+			onInvokedInternal.RemoveListener(action);
 		}
 
 		/// <inheritdoc />
@@ -99,18 +139,18 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+				EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
 			}
 #endif
 
-			OnInvoked = null;
+			onInvokedInternal.ClearListeners();
 		}
 
 #if UNITY_EDITOR
 		/// <inheritdoc />
 		protected override void OnExitPlayMode()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
+			EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
 		}
 #endif
 	}
