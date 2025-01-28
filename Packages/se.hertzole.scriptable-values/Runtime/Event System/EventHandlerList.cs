@@ -3,7 +3,7 @@ using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
-	internal class EventHandlerList<T> : IDisposable, IEventList
+	internal sealed class EventHandlerList<T> : IDisposable, IEventList
 	{
 		private bool isDisposed = false;
 
@@ -16,15 +16,22 @@ namespace Hertzole.ScriptableValues
 
 		public void Invoke(in object sender, in T args)
 		{
-			var span = events.AsSpan();
+			ReadOnlySpan<EventClosure<T>> span = events.AsSpan();
 			for (int i = 0; i < span.Length; i++)
 			{
 				span[i].Invoke(sender, args);
 			}
 		}
 
+		~EventHandlerList()
+		{
+			Dispose();
+		}
+
 		public void Dispose()
 		{
+			GC.SuppressFinalize(this);
+
 			ThrowHelper.ThrowIfDisposed(in isDisposed);
 
 			isDisposed = true;
@@ -56,14 +63,6 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfDisposed(in isDisposed);
 
 			events.Clear();
-		}
-	}
-	
-	internal sealed class EventHandlerList : EventHandlerList<object>
-	{
-		public void Invoke(in object sender)
-		{
-			Invoke(sender, null);
 		}
 	}
 }
