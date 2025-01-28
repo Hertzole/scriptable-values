@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace Hertzole.ScriptableValues.Editor
 {
 	[CustomEditor(typeof(ScriptableEvent<>), true)]
-	public class GenericScriptableEventEditor : ScriptableEventEditor
+	public class GenericScriptableEventEditor : RuntimeScriptableObjectEditor
 	{
 		private MethodInfo invokeMethod;
 		private SerializedProperty onInvokedWithArgs;
@@ -17,7 +17,7 @@ namespace Hertzole.ScriptableValues.Editor
 		protected override void GatherProperties()
 		{
 			base.GatherProperties();
-			
+
 			onInvokedWithArgs = serializedObject.FindProperty(nameof(onInvokedWithArgs));
 			editorInvokeValue = serializedObject.FindProperty(nameof(editorInvokeValue));
 
@@ -31,12 +31,17 @@ namespace Hertzole.ScriptableValues.Editor
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
 			base.CreateGUIBeforeStackTraces(root);
+
+			VisualElement invokeElement = CreateInvokeButton();
+			invokeElement.style.marginBottom = 8;
+			root.Add(invokeElement);
+
 			PropertyField onInvokedWithArgsField = new PropertyField(onInvokedWithArgs);
 			onInvokedWithArgsField.Bind(serializedObject);
 			root.Add(onInvokedWithArgsField);
 		}
 
-		protected override VisualElement CreateInvokeButton()
+		private VisualElement CreateInvokeButton()
 		{
 			VisualElement root = new VisualElement();
 
