@@ -20,9 +20,33 @@ namespace Hertzole.ScriptableValues.Helpers
 #if DEBUG
 			if (obj == null)
 			{
-				throw new ArgumentNullException(name, $"{name} is null.");
+				ThrowNullArgumentException(name);
 			}
 #endif
+		}
+
+		public static void ThrowIfDisposed(in bool isDisposed)
+		{
+			if (isDisposed)
+			{
+				ThrowDisposedException();
+			}
+		}
+
+#if NETSTANDARD2_1
+		[DoesNotReturn]
+#endif
+		private static void ThrowNullArgumentException(string name)
+		{
+			throw new ArgumentNullException(name, $"{name} is null.");
+		}
+
+#if NETSTANDARD2_1
+		[DoesNotReturn]
+#endif
+		private static void ThrowDisposedException()
+		{
+			throw new ObjectDisposedException("The object has been disposed.");
 		}
 	}
 }

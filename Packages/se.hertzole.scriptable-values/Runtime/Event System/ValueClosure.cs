@@ -8,7 +8,7 @@ using UnityEngine.Assertions;
 
 namespace Hertzole.ScriptableValues
 {
-	internal readonly struct ValueClosure<T> : IEquatable<ValueClosure<T>>
+	internal readonly struct ValueClosure<T> : IEquatable<ValueClosure<T>>, IStructClosure
 	{
 		public readonly Action<T, T, object?> action;
 		private readonly object? context;
@@ -57,6 +57,11 @@ namespace Hertzole.ScriptableValues
 			builder.Append(context ?? "null context");
 			builder.Append(")");
 			return builder.ToString();
+		}
+
+		public Delegate GetAction()
+		{
+			return action;
 		}
 
 		public static bool operator ==(ValueClosure<T> left, ValueClosure<T> right)

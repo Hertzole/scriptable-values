@@ -2,6 +2,7 @@
 
 using System;
 using System.Buffers;
+using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
@@ -18,21 +19,7 @@ namespace Hertzole.ScriptableValues
 
 		public ReadOnlySpan<Delegate> GetListeners()
 		{
-			Delegate[]? listeners = ArrayPool<Delegate>.Shared.Rent(events.Count);
-
-			try
-			{
-				for (int i = 0; i < events.Count; i++)
-				{
-					listeners[i] = events[i].action;
-				}
-
-				return new ReadOnlySpan<Delegate>(listeners, 0, events.Count);
-			}
-			finally
-			{
-				ArrayPool<Delegate>.Shared.Return(listeners);
-			}
+			return EventHelper.GetListeners(events);
 		}
 
 		public void AddListener<TDelegate>(TDelegate action, object? context = null) where TDelegate : Delegate
