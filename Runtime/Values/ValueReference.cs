@@ -53,8 +53,8 @@ namespace Hertzole.ScriptableValues
 		}
 
 		// These are only used for constant values, and as a buffer for addressable assets that are not loaded yet.
-		internal readonly ValueEventList<T> onValueChangingInternal = new ValueEventList<T>();
-		internal readonly ValueEventList<T> onValueChangedInternal = new ValueEventList<T>();
+		internal readonly EventHandlerList<T, T> onValueChangingInternal = new EventHandlerList<T, T>();
+		internal readonly EventHandlerList<T, T> onValueChangedInternal = new EventHandlerList<T, T>();
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
 		{
