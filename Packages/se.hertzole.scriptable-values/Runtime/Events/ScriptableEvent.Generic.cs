@@ -37,7 +37,7 @@ namespace Hertzole.ScriptableValues
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 #endif
 
-		internal readonly EventHandlerList<T> onInvokedInternal = new EventHandlerList<T>();
+		internal readonly EventHandlerList<object, T> onInvokedInternal = new EventHandlerList<object, T>();
 
 		// The arguments that was passed to the event when it was invoked.
 		// This is used to set the previous value.
@@ -124,7 +124,7 @@ namespace Hertzole.ScriptableValues
 			PreviousArgs = currentArgs;
 			currentArgs = args;
 
-			onInvokedInternal.Invoke(in sender, in args);
+			onInvokedInternal.Invoke(sender, args);
 			onInvoked.Invoke(args);
 		}
 

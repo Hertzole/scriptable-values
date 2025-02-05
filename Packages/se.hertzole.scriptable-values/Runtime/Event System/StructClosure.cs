@@ -8,34 +8,39 @@ using UnityEngine.Assertions;
 
 namespace Hertzole.ScriptableValues
 {
-	internal readonly struct ValueClosure<T> : IEquatable<ValueClosure<T>>, IStructClosure
+	internal readonly struct StructClosure<TValue1, TValue2> : IEquatable<StructClosure<TValue1, TValue2>>, IStructClosure
 	{
-		public readonly Action<T, T, object?> action;
+		private readonly Action<TValue1, TValue2, object?> action;
 		private readonly object? context;
 
-		public ValueClosure(Delegate action, object? context)
+		public StructClosure(Delegate action, object? context)
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			this.action = UnsafeUtility.As<Delegate, Action<T, T, object?>>(ref action);
+			this.action = UnsafeUtility.As<Delegate, Action<TValue1, TValue2, object?>>(ref action);
 			this.context = context;
 
 			Assert.IsNotNull(this.action, $"Can't convert delegate {action}");
 		}
 
-		public void Invoke(T oldValue, T newValue)
+		public void Invoke(TValue1 oldValue, TValue2 newValue)
 		{
 			action.Invoke(oldValue, newValue, context);
 		}
 
-		public bool Equals(ValueClosure<T> other)
+		public Delegate GetAction()
+		{
+			return action;
+		}
+
+		public bool Equals(StructClosure<TValue1, TValue2> other)
 		{
 			return action.Method.Equals(other.action.Method);
 		}
 
 		public override bool Equals(object? obj)
 		{
-			return obj is ValueClosure<T> other && Equals(other);
+			return obj is StructClosure<TValue1, TValue2> other && Equals(other);
 		}
 
 		public override int GetHashCode()
@@ -49,8 +54,10 @@ namespace Hertzole.ScriptableValues
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder(128);
-			builder.Append("ValueClosure<");
-			builder.Append(typeof(T).Name);
+			builder.Append("StructClosure<");
+			builder.Append(typeof(TValue1).Name);
+			builder.Append(", ");
+			builder.Append(typeof(TValue2).Name);
 			builder.Append(">(");
 			builder.Append(action.Method);
 			builder.Append(", ");
@@ -59,17 +66,12 @@ namespace Hertzole.ScriptableValues
 			return builder.ToString();
 		}
 
-		public Delegate GetAction()
-		{
-			return action;
-		}
-
-		public static bool operator ==(ValueClosure<T> left, ValueClosure<T> right)
+		public static bool operator ==(StructClosure<TValue1, TValue2> left, StructClosure<TValue1, TValue2> right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(ValueClosure<T> left, ValueClosure<T> right)
+		public static bool operator !=(StructClosure<TValue1, TValue2> left, StructClosure<TValue1, TValue2> right)
 		{
 			return !left.Equals(right);
 		}
