@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using UnityEngine.Assertions;
 
 namespace Hertzole.ScriptableValues
 {
 	internal sealed class PooledList<T> : IDisposable
 	{
-		private T[] items = Array.Empty<T>();
+		internal T[] items = Array.Empty<T>();
 
 		public int Count { get; private set; }
 
@@ -24,6 +25,8 @@ namespace Hertzole.ScriptableValues
 
 		public void AddFrom(PooledList<T> other)
 		{
+			Assert.IsNotNull(other, "A null list was passed in when adding from another pooled list.");
+
 			if (other.Count == 0)
 			{
 				return;
@@ -36,7 +39,7 @@ namespace Hertzole.ScriptableValues
 			Count += other.Count;
 		}
 
-		public bool Remove(T item)
+		public void Remove(T item)
 		{
 			int index = IndexOf(item);
 
@@ -44,12 +47,12 @@ namespace Hertzole.ScriptableValues
 			{
 				RemoveAt(index);
 			}
-
-			return index != -1;
 		}
 
 		public void RemoveFrom(PooledList<T> other)
 		{
+			Assert.IsNotNull(other, "A null list was passed in when removing from another pooled list.");
+
 			if (other.Count == 0 || Count == 0)
 			{
 				return;
@@ -76,7 +79,7 @@ namespace Hertzole.ScriptableValues
 			Count = 0;
 		}
 
-		public int IndexOf(T item)
+		private int IndexOf(T item)
 		{
 			if (items.Length == 0)
 			{
