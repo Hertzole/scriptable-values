@@ -221,6 +221,12 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		}
 
 		[Test]
+		public void ScriptableEvent()
+		{
+			TestLeftOverWarning<ScriptableEvent>(1, i => { i.OnInvoked += (_, _) => { }; });
+		}
+
+		[Test]
 		public void ScriptablePool()
 		{
 			TestLeftOverWarning<ScriptableGameObjectPool>(4, i =>
