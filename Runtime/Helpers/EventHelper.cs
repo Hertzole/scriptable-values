@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Buffers;
 using System.Diagnostics;
 using Object = UnityEngine.Object;
@@ -24,15 +26,12 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// <param name="targetObject">Optional target object to ping when the log is selected.</param>
 		/// <typeparam name="T">The type of the delegate.</typeparam>
 		[Conditional("DEBUG")]
-		public static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object targetObject = null)
+		public static void WarnIfLeftOverSubscribers<T>(T action, string parameterName, Object? targetObject = null)
 		{
 #if DEBUG
 			if (typeof(T).IsSubclassOf(typeof(Delegate)) && action != null)
 			{
-				if (action is not Delegate del)
-				{
-					throw new ArgumentException("The given action is not a delegate.", nameof(action));
-				}
+				Delegate del = (Delegate) (object) action;
 
 				CreateWarning(del.GetInvocationList().AsSpan(), parameterName, targetObject);
 			}
@@ -44,7 +43,7 @@ namespace Hertzole.ScriptableValues.Helpers
 		}
 
 #if DEBUG
-		private static void CreateWarning(ReadOnlySpan<Delegate> delegates, string parameterName, Object targetObject)
+		private static void CreateWarning(ReadOnlySpan<Delegate> delegates, string parameterName, Object? targetObject)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append($"{parameterName}");
@@ -59,14 +58,20 @@ namespace Hertzole.ScriptableValues.Helpers
 			Debug.LogWarning(sb.ToString(), targetObject);
 		}
 
-		private static void WriteDelegates(StringBuilder sb, ReadOnlySpan<Delegate> delegates)
+		private static void WriteDelegates(StringBuilder sb, in ReadOnlySpan<Delegate> delegates)
 		{
-			foreach (Delegate del in delegates)
+			for (int i = 0; i < delegates.Length; i++)
 			{
-				sb.Append($"{del.Method.DeclaringType}.{del.Method.Name}");
-				WriteParameters(sb, del);
+				sb.Append(delegates[i].Method.DeclaringType);
+				sb.Append('.');
+				sb.Append(delegates[i].Method.Name);
 
-				sb.AppendLine();
+				WriteParameters(sb, delegates[i]);
+
+				if (i < delegates.Length - 1)
+				{
+					sb.AppendLine();
+				}
 			}
 		}
 
@@ -75,7 +80,7 @@ namespace Hertzole.ScriptableValues.Helpers
 			ParameterInfo[] parameters = del.Method.GetParameters();
 			if (parameters.Length > 0)
 			{
-				sb.Append("(");
+				sb.Append('(');
 
 				for (int i = 0; i < parameters.Length; i++)
 				{
@@ -86,7 +91,7 @@ namespace Hertzole.ScriptableValues.Helpers
 					}
 				}
 
-				sb.Append(")");
+				sb.Append(')');
 			}
 		}
 #endif

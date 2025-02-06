@@ -59,6 +59,53 @@ namespace Hertzole.ScriptableValues.Tests
 			EventInvokeEvents.ToValue
 		};
 
+		protected void DestroyObjects(bool destroyImmediate)
+		{
+			for (int i = 0; i < objects.Count; i++)
+			{
+				if (objects[i] == null)
+				{
+					continue;
+				}
+
+				if (objects[i] is GameObject go)
+				{
+					if (destroyImmediate)
+					{
+						Object.DestroyImmediate(go);
+					}
+					else
+					{
+						Object.Destroy(go);
+					}
+				}
+				else if (objects[i] is Component comp)
+				{
+					if (destroyImmediate)
+					{
+						Object.DestroyImmediate(comp.gameObject);
+					}
+					else
+					{
+						Object.Destroy(comp.gameObject);
+					}
+				}
+				else
+				{
+					if (destroyImmediate)
+					{
+						Object.DestroyImmediate(objects[i]);
+					}
+					else
+					{
+						Object.Destroy(objects[i]);
+					}
+				}
+			}
+
+			objects.Clear();
+		}
+
 		protected T CreateInstance<T>() where T : ScriptableObject
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
