@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.TestTools;
 
@@ -31,28 +30,7 @@ namespace Hertzole.ScriptableValues.Tests
 
 			yield return OnTearDownRoutine();
 
-			for (int i = 0; i < objects.Count; i++)
-			{
-				if (objects[i] == null)
-				{
-					continue;
-				}
-
-				if (objects[i] is GameObject go)
-				{
-					Object.Destroy(go);
-				}
-				else if (objects[i] is Component comp)
-				{
-					Object.Destroy(comp.gameObject);
-				}
-				else
-				{
-					Object.Destroy(objects[i]);
-				}
-			}
-
-			objects.Clear();
+			DestroyObjects(false);
 
 			yield return null;
 		}
