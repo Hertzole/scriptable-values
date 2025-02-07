@@ -14,11 +14,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableEvent<TType>.editorInvokeValue),
 			nameof(ScriptableEvent<TType>.InvokedHasSubscribers),
 			nameof(ScriptableEvent<TType>.OnInvoked),
-			nameof(ScriptableEvent<TType>.onInvokedInternal),
-#if UNITY_EDITOR
-			nameof(RuntimeScriptableObject.CollectStackTraces),
-			nameof(RuntimeScriptableObject.CollectStackTraces)
-#endif
+			nameof(ScriptableEvent<TType>.onInvokedInternal)
 		};
 
 		public static readonly string[] requiredProperties =
@@ -34,7 +30,7 @@ namespace Hertzole.ScriptableValues.Tests
 				Assert.Pass("ScriptableEvent does not have properties.");
 				return;
 			}
-			
+
 			AssertHasProperty<TType>(property);
 		}
 

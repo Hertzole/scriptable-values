@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hertzole.ScriptableValues.Debugging;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,12 +11,12 @@ namespace Hertzole.ScriptableValues.Editor
 	{
 		public static bool CollectStackTraces
 		{
-			get { return EditorPrefs.GetBool(COLLECT_STACK_TRACES_KEY, true); }
+			get { return UserSettings.CollectStackTraces; }
 			set
 			{
-				if (EditorPrefs.GetBool(COLLECT_STACK_TRACES_KEY, true) != value)
+				if (UserSettings.CollectStackTraces != value)
 				{
-					EditorPrefs.SetBool(COLLECT_STACK_TRACES_KEY, value);
+					UserSettings.CollectStackTraces = value;
 					OnCollectStackTracesChanged?.Invoke(value);
 				}
 			}
@@ -24,8 +25,6 @@ namespace Hertzole.ScriptableValues.Editor
 		private ScriptableValuesPreferences(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords) { }
 
 		public static event Action<bool> OnCollectStackTracesChanged;
-
-		private const string COLLECT_STACK_TRACES_KEY = "Hertzole.ScriptableValues.CollectStackTraces";
 
 		public override void OnActivate(string searchContext, VisualElement rootElement)
 		{

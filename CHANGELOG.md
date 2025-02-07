@@ -9,6 +9,7 @@
 
 - Tooltips are no longer included in builds
 - `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
+- Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file 
 
 ### Fixed
 
