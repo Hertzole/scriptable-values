@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Hertzole.ScriptableValues.Debugging;
-using Hertzole.ScriptableValues.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -12,15 +11,16 @@ namespace Hertzole.ScriptableValues.Editor
 	public class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
 		private bool hasCreatedDefaultInspector;
-		private SerializedProperty collectStackTraces;
 		private StackTraceElement stackTraces;
 
-		protected virtual string StackTracesLabel { get { return "Invocation Stack Traces"; } }
+		protected virtual string StackTracesLabel
+		{
+			get { return "Invocation Stack Traces"; }
+		}
 
 		protected virtual void OnEnable()
 		{
 			hasCreatedDefaultInspector = false;
-			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
 
 			((IStackTraceProvider) target).OnStackTraceAdded += OnStackTraceAdded;
 
@@ -43,7 +43,7 @@ namespace Hertzole.ScriptableValues.Editor
 			CreateGUIBeforeStackTraces(root);
 			CreateDefaultInspectorGUI(root);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, collectStackTraces, StackTracesLabel)
+			stackTraces = new StackTraceElement((IStackTraceProvider) target, StackTracesLabel)
 			{
 				style =
 				{
@@ -66,10 +66,7 @@ namespace Hertzole.ScriptableValues.Editor
 			SerializedProperty iterator = serializedObject.GetIterator();
 			bool enterChildren = true;
 
-			List<SerializedProperty> ignoreProperties = new List<SerializedProperty>
-			{
-				collectStackTraces
-			};
+			List<SerializedProperty> ignoreProperties = new List<SerializedProperty>();
 
 			HashSet<string> ignorePropertyNames = new HashSet<string>
 			{
@@ -84,7 +81,7 @@ namespace Hertzole.ScriptableValues.Editor
 				{
 					continue;
 				}
-				
+
 				ignorePropertyNames.Add(property.propertyPath);
 			}
 

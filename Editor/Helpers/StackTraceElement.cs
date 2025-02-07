@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,9 +32,12 @@ namespace Hertzole.ScriptableValues.Editor
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
 		private readonly ToolbarToggle stackTraceToggle;
 
-		private Color BorderColor { get { return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight; } }
+		private Color BorderColor
+		{
+			get { return EditorGUIUtility.isProSkin ? borderColorDark : borderColorLight; }
+		}
 
-		public StackTraceElement(IStackTraceProvider target, SerializedProperty collectStackTracesProperty, string title = "Stack Traces")
+		public StackTraceElement(IStackTraceProvider target, string title = "Stack Traces")
 		{
 			ScriptableValuesPreferences.OnCollectStackTracesChanged += OnGlobalCollectStackTracesChanged;
 
@@ -82,11 +86,14 @@ namespace Hertzole.ScriptableValues.Editor
 			stackTraceToggle = new ToolbarToggle
 			{
 				text = "Collect Stack Traces",
-				value = collectStackTracesProperty.boolValue
+				value = target.CollectStackTraces
 			};
 
-			stackTraceToggle.BindProperty(collectStackTracesProperty);
-			stackTraceToggle.RegisterValueChangedCallback(evt => { OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces); });
+			stackTraceToggle.RegisterValueChangedCallback(evt =>
+			{
+				target.CollectStackTraces = evt.newValue;
+				OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces);
+			});
 
 			toolbar.Add(CreateToolbarLabel(title));
 			toolbar.Add(spacer);
@@ -130,7 +137,7 @@ namespace Hertzole.ScriptableValues.Editor
 				fixedItemHeight = 20,
 				reorderable = false,
 				showAlternatingRowBackgrounds = AlternatingRowBackground.All,
-				itemsSource = target.Invocations,
+				itemsSource = (IList) target.Invocations,
 				showBorder = false
 			};
 
@@ -220,7 +227,8 @@ namespace Hertzole.ScriptableValues.Editor
 				StackTraceEntry entry = target.Invocations[index];
 				StackFrame frame = entry.trace.GetFrame(0);
 				// Set text to [HH:MM:SS] MethodName (Line:Column)
-				label.text = $"[{entry.hour:00}:{entry.minute:00}:{entry.second:00}] {frame.GetMethod().Name} ({frame.GetFileLineNumber()}:{frame.GetFileColumnNumber()})";
+				label.text =
+					$"[{entry.hour:00}:{entry.minute:00}:{entry.second:00}] {frame.GetMethod().Name} ({frame.GetFileLineNumber()}:{frame.GetFileColumnNumber()})";
 			}
 		}
 

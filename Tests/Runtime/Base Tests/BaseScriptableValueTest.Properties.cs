@@ -17,11 +17,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableValue<TType>.OnValueChanging),
 			nameof(ScriptableValue<TType>.OnValueChanged),
 			nameof(ScriptableValue<TType>.ValueChangingHasSubscribers),
-			nameof(ScriptableValue<TType>.ValueChangedHasSubscribers),
-#if UNITY_EDITOR
-			nameof(RuntimeScriptableObject.CollectStackTraces),
-			nameof(RuntimeScriptableObject.CollectStackTraces)
-#endif
+			nameof(ScriptableValue<TType>.ValueChangedHasSubscribers)
 		};
 
 		public static readonly string[] requiredProperties =

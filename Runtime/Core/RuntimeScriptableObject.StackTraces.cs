@@ -2,12 +2,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using Hertzole.ScriptableValues.Debugging;
-using UnityEditor;
-#if SCRIPTABLE_VALUES_PROPERTIES
-using Unity.Properties;
-#endif
 #endif
 
 namespace Hertzole.ScriptableValues
@@ -21,7 +16,7 @@ namespace Hertzole.ScriptableValues
 		protected void AddStackTrace(int skipFrames = 0)
 		{
 #if UNITY_EDITOR
-			if (!collectStackTraces || !EditorPrefs.GetBool("Hertzole.ScriptableValues.CollectStackTraces", true))
+			if (!((IStackTraceProvider) this).CollectStackTraces || !UserSettings.CollectStackTraces)
 			{
 				return;
 			}
@@ -49,16 +44,18 @@ namespace Hertzole.ScriptableValues
 #endif
 		}
 #if UNITY_EDITOR
-		[SerializeField]
-#if SCRIPTABLE_VALUES_PROPERTIES
-		[DontCreateProperty]
-#endif
-		internal bool collectStackTraces = true;
-		
-		internal bool CollectStackTraces { get { return collectStackTraces; } set { collectStackTraces = value; } }
+		bool IStackTraceProvider.CollectStackTraces
+		{
+			get { return UserSettings.GetCollectStackTraces(this); }
+			set { UserSettings.SetCollectStackTraces(this, value); }
+		}
 
-		List<StackTraceEntry> IStackTraceProvider.Invocations { get; } = new List<StackTraceEntry>();
-		event Action IStackTraceProvider.OnStackTraceAdded { add { OnStackTraceAddedInternal += value; } remove { OnStackTraceAddedInternal -= value; } }
+		IList<StackTraceEntry> IStackTraceProvider.Invocations { get; } = new List<StackTraceEntry>();
+		event Action IStackTraceProvider.OnStackTraceAdded
+		{
+			add { OnStackTraceAddedInternal += value; }
+			remove { OnStackTraceAddedInternal -= value; }
+		}
 
 		private event Action OnStackTraceAddedInternal;
 #endif

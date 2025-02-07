@@ -6,7 +6,9 @@ namespace Hertzole.ScriptableValues.Debugging
 {
 	public interface IStackTraceProvider
 	{
-		List<StackTraceEntry> Invocations { get; }
+		bool CollectStackTraces { get; set; }
+
+		IList<StackTraceEntry> Invocations { get; }
 
 		event Action OnStackTraceAdded;
 

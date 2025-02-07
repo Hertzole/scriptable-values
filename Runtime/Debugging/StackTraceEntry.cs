@@ -19,7 +19,7 @@ namespace Hertzole.ScriptableValues.Debugging
 		public StackTraceEntry(StackTrace trace)
 		{
 			this.trace = trace;
-			DateTime time = DateTime.Now;
+			DateTimeOffset time = DateTimeOffset.Now;
 			hour = (byte) time.Hour;
 			minute = (byte) time.Minute;
 			second = (byte) time.Second;
