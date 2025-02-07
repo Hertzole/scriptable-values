@@ -22,7 +22,10 @@ namespace Hertzole.ScriptableValues.Editor
 		private SerializedProperty clearOnStart;
 		private SerializedProperty list;
 
-		protected override string StackTracesLabel { get { return "List Change Stack Traces"; } }
+		protected override string StackTracesLabel
+		{
+			get { return "List Change Stack Traces"; }
+		}
 
 		protected override void OnEnable()
 		{
@@ -48,7 +51,9 @@ namespace Hertzole.ScriptableValues.Editor
 
 			if (list == null)
 			{
-				listFieldInfo = target.GetType().GetField(nameof(ScriptableList<object>.list), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				listFieldInfo = target.GetType().GetField(nameof(ScriptableList<object>.list),
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+
 				listValue = listFieldInfo!.GetValue(target) as IList;
 			}
 		}
@@ -73,7 +78,8 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 			else
 			{
-				dynamicListView = new ListView(listValue, EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, MakeListItem, BindListItem)
+				dynamicListView = new ListView(listValue, EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing, MakeListItem,
+					BindListItem)
 				{
 					showBorder = true,
 					showFoldoutHeader = true,
@@ -144,6 +150,10 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private void UpdateEnabledState()
 		{
+			// Find the isReadOnly property again because it may have been disposed.
+			// The property is always disposed when exiting play mode.
+			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
+
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
 			isReadOnlyField?.SetEnabled(enabled);
 			listField?.SetEnabled(enabled);

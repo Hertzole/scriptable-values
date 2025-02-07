@@ -10,6 +10,10 @@
 - Tooltips are no longer included in builds
 - `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
 
+### Fixed
+
+- NullReferenceException being thrown when exiting play mode when a scriptable object is selected
+
 ## 1.3.1 - 2024-01-31
 
 ### Fixed
