@@ -11,6 +11,9 @@ namespace Hertzole.ScriptableValues.Debugging
 {
 	internal static class UserSettings
 	{
+		// Used to keep track of temporary objects, like objects used in testing.
+		private static readonly Dictionary<int, bool> temporaryCollectStackTraces = new Dictionary<int, bool>();
+
 		private static UserSettingsData? data;
 
 		private static readonly string dataPath =
@@ -63,6 +66,13 @@ namespace Hertzole.ScriptableValues.Debugging
 		public static bool GetCollectStackTraces(Object obj)
 		{
 			string guid = GetKey(obj);
+
+			// If the object is not an asset, we use the temporary dictionary.
+			if (string.IsNullOrEmpty(guid))
+			{
+				return temporaryCollectStackTraces.GetValueOrDefault(obj.GetInstanceID(), false);
+			}
+
 			if (Data.TryGetCollectStackTraces(guid, out bool value))
 			{
 				return value;
@@ -74,6 +84,12 @@ namespace Hertzole.ScriptableValues.Debugging
 		public static void SetCollectStackTraces(Object obj, bool value)
 		{
 			string guid = GetKey(obj);
+
+			// If the object is not an asset, we use the temporary dictionary.
+			if (string.IsNullOrEmpty(guid))
+			{
+				temporaryCollectStackTraces[obj.GetInstanceID()] = value;
+			}
 
 			Data.SetCollectStackTraces(guid, value);
 			SaveData();
