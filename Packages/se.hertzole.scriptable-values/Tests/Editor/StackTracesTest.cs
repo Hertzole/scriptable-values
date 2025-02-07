@@ -278,6 +278,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		private void TestStackTraceCount<T>(Action<T> action) where T : ScriptableObject, IStackTraceProvider
 		{
 			T instance = CreateInstance<T>();
+			instance.CollectStackTraces = true;
 
 			IStackTraceProvider provider = instance;
 
@@ -296,6 +297,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		private void TestStackTraceEventInvoked<T>(Action<T> setup, Action<T> invoke) where T : RuntimeScriptableObject, IStackTraceProvider
 		{
 			T instance = CreateInstance<T>();
+			instance.CollectStackTraces = true;
 
 			bool eventInvoked = false;
 
@@ -311,6 +313,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		private void TestStackTracesWereReset<T>(Action<T> invoke) where T : RuntimeScriptableObject, IStackTraceProvider
 		{
 			T instance = CreateInstance<T>();
+			instance.CollectStackTraces = true;
 
 			invoke.Invoke(instance);
 
@@ -338,6 +341,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		private void TestStackTraceWereNoCollectGloballyCollected<T>(Action<T> invoke) where T : RuntimeScriptableObject, IStackTraceProvider
 		{
 			T instance = CreateInstance<T>();
+			instance.CollectStackTraces = true;
 
 			ScriptableValuesPreferences.CollectStackTraces = false;
 
