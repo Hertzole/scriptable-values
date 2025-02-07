@@ -1,4 +1,45 @@
-## [1.2.0] - 2023-05-20
+# 2.0.0 - Unreleased
+
+### Added
+
+- Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
+- New internal event system that is more efficient and allows avoiding closure allocations
+
+### Changed
+
+- Tooltips are no longer included in builds
+- `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
+- Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file 
+
+### Fixed
+
+- NullReferenceException being thrown when exiting play mode when a scriptable object is selected
+
+## 1.3.1 - 2024-01-31
+
+### Fixed
+
+- Fixed Odin inspector compatibility
+
+# 1.3.0 - 2024-01-17
+
+### Added
+
+- Added `SetValueWithoutNotify` to `ValueReference<T>` to allow you to set the value without invoking the change event
+- Added `EnsureCapacity` to `ScriptableList<T>`
+
+### Fixed
+
+- Fixed scriptable value editor breaking if the value is null
+- Fixed scriptable value editor having the wrong height in newer Unity versions
+- Fixed the package not having an author
+- Fixed allocation when using `foreach` on scriptable lists and dictionaries
+
+### Removed
+
+- Removed obsolete `ResetValues` from `RuntimeScriptableObject`
+
+# 1.2.0 - 2023-05-20
 
 ### Added
 
@@ -17,7 +58,7 @@
 - Fixed event listeners having the same name as the value listeners
 - Fixed editor compatibility with Odin inspector
 
-## [1.1.0] - 2023-04-06
+# 1.1.0 - 2023-04-06
 
 ### Added
 
@@ -43,6 +84,6 @@
 - Fixed non-serializable types breaking editors
 - Fixed warnings on Unity 2022.2
 
-## [1.0.0] - 2022-10-27
+# [1.0.0] - 2022-10-27
 
 First release
