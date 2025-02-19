@@ -170,6 +170,7 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
 
+#if UNITY_EDITOR
 		protected void TestSetValue_OnValidate(bool equalsCheck, TValue value, TValue startValue = default)
 		{
 			TType instance = CreateInstance<TType>();
@@ -206,11 +207,12 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
 			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 		}
+#endif // UNITY_EDITOR
 
 		protected void TestRegisterValueChange(ChangeChoice choice)
 		{
 			// Arrange
-			var instance = CreateInstance<TType>();
+			TType instance = CreateInstance<TType>();
 			int invokeCount = 0;
 			TValue targetValue = MakeDifferentValue(instance.Value);
 			switch (choice)
@@ -224,7 +226,7 @@ namespace Hertzole.ScriptableValues.Tests
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
 			}
-			
+
 			// Act
 			instance.Value = targetValue;
 
@@ -239,9 +241,9 @@ namespace Hertzole.ScriptableValues.Tests
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
 			}
-			
+
 			instance.Value = MakeDifferentValue(targetValue);
-			
+
 			// Assert
 			Assert.AreEqual(1, invokeCount, "Callback was not invoked once.");
 			return;
@@ -256,7 +258,7 @@ namespace Hertzole.ScriptableValues.Tests
 		protected void TestRegisterValueChangeWithContext(ChangeChoice choice)
 		{
 			// Arrange
-			var instance = CreateInstance<TType>();
+			TType instance = CreateInstance<TType>();
 			TValue targetValue = MakeDifferentValue(instance.Value);
 			Context context = new Context(targetValue);
 			switch (choice)
@@ -270,7 +272,7 @@ namespace Hertzole.ScriptableValues.Tests
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
 			}
-			
+
 			// Act
 			instance.Value = targetValue;
 
@@ -285,9 +287,9 @@ namespace Hertzole.ScriptableValues.Tests
 				default:
 					throw new ArgumentOutOfRangeException(nameof(choice), choice, null);
 			}
-			
+
 			instance.Value = MakeDifferentValue(targetValue);
-			
+
 			// Assert
 			Assert.AreEqual(1, context.invokeCount, "Callback was not invoked once.");
 			return;

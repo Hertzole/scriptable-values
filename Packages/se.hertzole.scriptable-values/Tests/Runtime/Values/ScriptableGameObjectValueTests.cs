@@ -40,6 +40,7 @@ namespace Hertzole.ScriptableValues.Tests.Values
 			TestSetValue_WithoutNotify(null, go);
 		}
 
+#if UNITY_EDITOR
 		[Test]
 		public void SetValue_OnValidate([ValueSource(nameof(bools))] bool equalsCheck)
 		{
@@ -47,6 +48,7 @@ namespace Hertzole.ScriptableValues.Tests.Values
 
 			TestSetValue_OnValidate(equalsCheck, go);
 		}
+#endif // UNITY_EDITOR
 
 		[Test]
 		public void SetValue_ReadOnly()
