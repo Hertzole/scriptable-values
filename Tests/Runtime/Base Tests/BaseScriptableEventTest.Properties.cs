@@ -11,10 +11,12 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableEvent.OnInvoked),
 			nameof(ScriptableEvent.InvokedHasSubscribers),
 			nameof(ScriptableEvent<TType>.onInvoked),
-			nameof(ScriptableEvent<TType>.editorInvokeValue),
 			nameof(ScriptableEvent<TType>.InvokedHasSubscribers),
 			nameof(ScriptableEvent<TType>.OnInvoked),
-			nameof(ScriptableEvent<TType>.onInvokedInternal)
+			nameof(ScriptableEvent<TType>.onInvokedInternal),
+#if UNITY_EDITOR
+			nameof(ScriptableEvent<TType>.editorInvokeValue)
+#endif
 		};
 
 		public static readonly string[] requiredProperties =

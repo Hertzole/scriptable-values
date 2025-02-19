@@ -22,11 +22,13 @@ namespace Hertzole.ScriptableValues.Tests
 			TestSetValue_WithoutNotify(value, MakeDifferentValue(value));
 		}
 
+		#if UNITY_EDITOR
 		[Test]
 		public void SetValue_OnValidate([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(StaticsValue))] TValue value)
 		{
 			TestSetValue_OnValidate(equalsCheck, value, MakeDifferentValue(value));
 		}
+		#endif // UNITY_EDITOR
 
 		[Test]
 		public void SetValue_ReadOnly([ValueSource(nameof(StaticsValue))] TValue value)
