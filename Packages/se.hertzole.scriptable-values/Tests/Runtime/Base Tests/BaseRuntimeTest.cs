@@ -1,43 +1,26 @@
-﻿using System.Collections;
-using UnityEngine.Assertions;
-using UnityEngine.TestTools;
+﻿using NUnit.Framework;
+using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
 	public class BaseRuntimeTest : BaseTest
 	{
-		[UnitySetUp]
-		public IEnumerator Setup()
+		[SetUp]
+		public void Setup()
 		{
 			Assert.AreEqual(0, objects.Count);
 
 			OnSetup();
-
-			yield return OnSetupRoutine();
-		}
-
-		protected virtual IEnumerator OnSetupRoutine()
-		{
-			yield return null;
 		}
 
 		protected virtual void OnSetup() { }
 
-		[UnityTearDown]
-		public IEnumerator TearDown()
+		[TearDown]
+		public void TearDown()
 		{
 			OnTearDown();
 
-			yield return OnTearDownRoutine();
-
-			DestroyObjects(false);
-
-			yield return null;
-		}
-
-		protected virtual IEnumerator OnTearDownRoutine()
-		{
-			yield return null;
+			DestroyObjects(true);
 		}
 
 		protected virtual void OnTearDown() { }

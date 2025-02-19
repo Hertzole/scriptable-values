@@ -16,7 +16,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableEvent<TType>.onInvokedInternal),
 #if UNITY_EDITOR
 			nameof(ScriptableEvent<TType>.editorInvokeValue)
-#endif
+#endif // UNITY_EDITOR
 		};
 
 		public static readonly string[] requiredProperties =
