@@ -6,5 +6,6 @@
     "com.unity.test-framework": "1.4.2",
     "com.unity.testtools.codecoverage": "1.2.5",
     "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.6"
+    "com.cysharp.slnmerge": "https://github.com/Cysharp/SlnMerge.git?path=src",
   }
 }

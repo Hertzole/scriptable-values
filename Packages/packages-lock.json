@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.slnmerge": {
+      "version": "https://github.com/Cysharp/SlnMerge.git?path=src",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0bdaffef585cd62838aeb1a22719a77cd197c218"
+    },
     "com.unity.addressables": {
       "version": "1.21.19",
       "depth": 0,
