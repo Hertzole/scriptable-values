@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84d6b4ff3cbf670489d1414b99047410, type: 3}
   m_Name: Test Bounds
   m_EditorClassIdentifier: 
-  collectStackTraces: 1
   isReadOnly: 0
   resetValueOnStart: 1
   setEqualityCheck: 1

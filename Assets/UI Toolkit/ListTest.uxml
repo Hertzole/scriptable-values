@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; flex-direction: row; right: 0; left: 0; position: absolute; top: 0; bottom: 0; justify-content: flex-start; align-content: stretch;">
+        <ui:ListView header-title="Basic List" show-add-remove-footer="true" reorderable="true" show-foldout-header="true" show-alternating-row-backgrounds="ContentOnly" selection-type="Single" show-border="true" show-bound-collection-size="true" binding-source-selection-mode="AutoAssign" name="basic-list" style="flex-grow: 1;" />
+        <ui:VisualElement style="flex-grow: 1;">
+            <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+                <ui:Label text="Capacity:" />
+                <ui:Label text="Label">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source="project://database/Assets/Test%20Objects/Values/Test%20Bool.asset?fileID=11400000&amp;guid=7d4ffa823f124cb4da7e9db3aa859298&amp;type=2#Test Bool" binding-mode="ToTarget" data-source-path="Value" />
+                    </Bindings>
+                </ui:Label>
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+                <ui:Label text="Count:" />
+                <ui:Label text="Label" data-source="project://database/Assets/New%20Scriptable%20Game%20Object%20List.asset?fileID=11400000&amp;guid=5e2e9b8935b591047ac813a11ae00081&amp;type=2#New Scriptable Game Object List" data-source-path="Count">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="Count" data-source="project://database/Assets/New%20Scriptable%20Game%20Object%20List.asset?fileID=11400000&amp;guid=5e2e9b8935b591047ac813a11ae00081&amp;type=2#New Scriptable Game Object List" binding-mode="ToTarget" update-trigger="WhenDirty" />
+                    </Bindings>
+                </ui:Label>
+            </ui:VisualElement>
+            <ui:ListView header-title="Scriptable List" show-add-remove-footer="true" reorderable="true" show-foldout-header="true" show-alternating-row-backgrounds="ContentOnly" selection-type="Single" show-border="true" show-bound-collection-size="true" binding-source-selection-mode="AutoAssign" name="scriptable-list" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

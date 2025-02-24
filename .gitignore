@@ -79,3 +79,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # End of https://www.toptal.com/developers/gitignore/api/unity
+
+!/[Gg]enerator/*.sln
+!/[Gg]enerator/*/*.csproj
+/[Gg]enerator/*/bin
+/[Gg]enerator/*/obj
