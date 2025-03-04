@@ -81,14 +81,7 @@ namespace Hertzole.ScriptableValues
 		public T PreviousValue
 		{
 			get { return previousValue; }
-			internal set
-			{
-				if (!EqualityHelper.Equals(previousValue, value))
-				{
-					previousValue = value;
-					NotifyPropertyChanged();
-				}
-			}
+			internal set { SetField(ref previousValue, value, previousValueChangingArgs, previousValueChangedArgs); }
 		}
 		/// <summary>
 		///     The default value. This is used when the value is reset.
@@ -99,14 +92,7 @@ namespace Hertzole.ScriptableValues
 		public T DefaultValue
 		{
 			get { return defaultValue; }
-			set
-			{
-				if (!EqualityHelper.Equals(defaultValue, value))
-				{
-					defaultValue = value;
-					NotifyPropertyChanged();
-				}
-			}
+			set { SetField(ref defaultValue, value, defaultValueChangingArgs, defaultValueChangedArgs); }
 		}
 
 		/// <summary>
@@ -167,13 +153,12 @@ namespace Hertzole.ScriptableValues
 			{
 				onValueChanging.Invoke(PreviousValue, newValue);
 				onValueChangingEvents.Invoke(PreviousValue, newValue);
+				NotifyPropertyChanging(valueChangingArgs);
 			}
 
 			// Update the value.
 			value = newValue;
 			temporaryValue = newValue;
-
-			NotifyPropertyChanged(nameof(Value));
 
 			valueIsDefault = EqualityHelper.Equals(value, default);
 
@@ -182,6 +167,7 @@ namespace Hertzole.ScriptableValues
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
 				onValueChangedEvents.Invoke(PreviousValue, Value);
+				NotifyPropertyChanged(valueChangedArgs);
 			}
 		}
 

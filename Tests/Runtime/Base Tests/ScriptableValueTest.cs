@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -8,7 +6,10 @@ namespace Hertzole.ScriptableValues.Tests
 	{
 		private static TValue[] values;
 
-		public static TValue[] StaticsValue { get { return TestHelper.FindValues(typeof(BaseTest), ref values); } }
+		public static TValue[] StaticsValue
+		{
+			get { return TestHelper.FindValues(typeof(BaseTest), ref values); }
+		}
 
 		[Test]
 		public void SetValue([ValueSource(nameof(StaticsValue))] TValue value)
@@ -22,13 +23,13 @@ namespace Hertzole.ScriptableValues.Tests
 			TestSetValue_WithoutNotify(value, MakeDifferentValue(value));
 		}
 
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		[Test]
 		public void SetValue_OnValidate([ValueSource(nameof(bools))] bool equalsCheck, [ValueSource(nameof(StaticsValue))] TValue value)
 		{
 			TestSetValue_OnValidate(equalsCheck, value, MakeDifferentValue(value));
 		}
-		#endif // UNITY_EDITOR
+#endif // UNITY_EDITOR
 
 		[Test]
 		public void SetValue_ReadOnly([ValueSource(nameof(StaticsValue))] TValue value)
@@ -53,7 +54,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			TestRegisterValueChange(choice);
 		}
-		
+
 		[Test]
 		public void RegisterValueChangeWithContext([Values] ChangeChoice choice)
 		{
