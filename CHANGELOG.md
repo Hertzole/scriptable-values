@@ -3,6 +3,7 @@
 ### Added
 
 - Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
+- RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces which some scriptable types makes use of
 - New internal event system that is more efficient and allows avoiding closure allocations
 
 ### Changed

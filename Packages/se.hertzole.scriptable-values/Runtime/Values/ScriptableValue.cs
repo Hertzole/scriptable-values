@@ -38,14 +38,7 @@ namespace Hertzole.ScriptableValues
 		public bool IsReadOnly
 		{
 			get { return isReadOnly; }
-			set
-			{
-				if (isReadOnly != value)
-				{
-					isReadOnly = value;
-					NotifyPropertyChanged();
-				}
-			}
+			set { SetField(ref isReadOnly, value, isReadOnlyChangingArgs, isReadOnlyChangedArgs); }
 		}
 		/// <summary>
 		///     If true, the value will be reset to the default value on play mode start/game boot.
@@ -56,14 +49,7 @@ namespace Hertzole.ScriptableValues
 		public bool ResetValueOnStart
 		{
 			get { return resetValueOnStart; }
-			set
-			{
-				if (resetValueOnStart != value)
-				{
-					resetValueOnStart = value;
-					NotifyPropertyChanged();
-				}
-			}
+			set { SetField(ref resetValueOnStart, value, resetValueOnStartChangingArgs, resetValueOnStartChangedArgs); }
 		}
 		/// <summary>
 		///     If true, an equality check will be run before setting the value to make sure the new value is not the same as the
@@ -75,14 +61,7 @@ namespace Hertzole.ScriptableValues
 		public bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
-			set
-			{
-				if (setEqualityCheck != value)
-				{
-					setEqualityCheck = value;
-					NotifyPropertyChanged();
-				}
-			}
+			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingArgs, setEqualityCheckChangedArgs); }
 		}
 
 #if UNITY_EDITOR
