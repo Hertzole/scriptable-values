@@ -53,16 +53,7 @@ namespace Hertzole.ScriptableValues
 		public T PreviousArgs
 		{
 			get { return previousArgs; }
-			private set
-			{
-				if (EqualityComparer<T>.Default.Equals(previousArgs, value))
-				{
-					return;
-				}
-
-				previousArgs = value;
-				NotifyPropertyChanged();
-			}
+			private set { SetField(ref previousArgs, value, ScriptableEvent.previousArgsChanging, ScriptableEvent.previousArgsChanged); }
 		}
 
 #if UNITY_INCLUDE_TESTS
