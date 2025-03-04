@@ -17,7 +17,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Hertzole/Scriptable Values/Events/Runtime Event", order = ORDER)]
 #endif
-	public class ScriptableEvent : RuntimeScriptableObject
+	public partial class ScriptableEvent : RuntimeScriptableObject
 	{
 		[SerializeField]
 		[EditorTooltip("Called when the event is invoked.")]
