@@ -2,21 +2,21 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
-using Unity.Properties;
 using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING
+using Unity.Properties;
 using UnityEngine.UIElements;
 #endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
 
 namespace Hertzole.ScriptableValues
 {
 	partial class RuntimeScriptableObject :
-		INotifyPropertyChanging,
-		INotifyPropertyChanged,
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING
 		IDataSourceViewHashProvider,
-		INotifyBindablePropertyChanged
+		INotifyBindablePropertyChanged,
 #endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
+		INotifyPropertyChanging,
+		INotifyPropertyChanged
 	{
 		private event PropertyChangingEventHandler OnNotifyPropertyChanging;
 		private event PropertyChangedEventHandler OnNotifyPropertyChanged;
