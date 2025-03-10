@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -37,7 +36,7 @@ namespace Hertzole.ScriptableValues
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 #endif
 
-		internal readonly EventHandlerList<object, T> onInvokedInternal = new EventHandlerList<object, T>();
+		internal readonly DelegateHandlerList<EventHandler<T>, object, T> onInvokedInternal = new DelegateHandlerList<EventHandler<T>, object, T>();
 
 		// The arguments that was passed to the event when it was invoked.
 		// This is used to set the previous value.
@@ -127,7 +126,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			onInvokedInternal.AddListener(action);
+			onInvokedInternal.RegisterCallback(action);
 		}
 
 		/// <summary>
@@ -145,7 +144,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
 
-			onInvokedInternal.AddListener(action, args);
+			onInvokedInternal.RegisterCallback(action, args);
 		}
 
 		/// <summary>
@@ -156,7 +155,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			onInvokedInternal.RemoveListener(action);
+			onInvokedInternal.RemoveCallback(action);
 		}
 
 		/// <summary>
@@ -168,7 +167,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			onInvokedInternal.RemoveListener(action);
+			onInvokedInternal.RemoveCallback(action);
 		}
 
 		/// <inheritdoc />
@@ -200,7 +199,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onInvokedInternal.ClearListeners();
+			onInvokedInternal.Reset();
 		}
 
 #if UNITY_EDITOR
