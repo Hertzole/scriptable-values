@@ -4,6 +4,7 @@ using System;
 
 namespace Hertzole.ScriptableValues
 {
+	[Obsolete("Use IDelegateList instead.")]
 	internal interface IEventList
 	{
 		int ListenersCount { get; }
