@@ -1,8 +1,14 @@
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data;
+using System.Diagnostics;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
@@ -13,7 +19,7 @@ namespace Hertzole.ScriptableValues
 	///     A scriptable object that holds a list.
 	/// </summary>
 	/// <typeparam name="T">The type in the list.</typeparam>
-	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList
+	public abstract partial class ScriptableList<T> : RuntimeScriptableObject, IList<T>, IReadOnlyList<T>, IList, INotifyCollectionChanged
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
@@ -39,6 +45,9 @@ namespace Hertzole.ScriptableValues
 		[DontCreateProperty]
 #endif
 		internal List<T> list = new List<T>();
+
+		private readonly DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>> onCollectionChanged =
+			new DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>>();
 
 		public T this[int index]
 		{
@@ -81,11 +90,8 @@ namespace Hertzole.ScriptableValues
 			get { return setEqualityCheck; }
 			set
 			{
-				if (setEqualityCheck != value)
-				{
-					setEqualityCheck = value;
-					NotifyPropertyChanged();
-				}
+				//TODO: Cache changing/changed args
+				SetField(ref setEqualityCheck, value);
 			}
 		}
 		/// <summary>
@@ -99,11 +105,8 @@ namespace Hertzole.ScriptableValues
 			get { return clearOnStart; }
 			set
 			{
-				if (clearOnStart != value)
-				{
-					clearOnStart = value;
-					NotifyPropertyChanged();
-				}
+				// TODO: Cache changing/changed args
+				SetField(ref clearOnStart, value);
 			}
 		}
 
@@ -133,11 +136,8 @@ namespace Hertzole.ScriptableValues
 			get { return isReadOnly; }
 			set
 			{
-				if (isReadOnly != value)
-				{
-					isReadOnly = value;
-					NotifyPropertyChanged();
-				}
+				//TODO: Cache changing/changed args
+				SetField(ref isReadOnly, value);
 			}
 		}
 		/// <summary>
@@ -158,6 +158,8 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when something was added. Gives you the newly added item.
 		/// </summary>
+		// TODO: Turn this into an error.
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
 		public event Action<T> OnAdded;
 		/// <summary>
 		///     Called when something was inserted. Gives you the index it was inserted at and the newly inserted item.
@@ -184,7 +186,26 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the list is changed in any way.
 		/// </summary>
-		public event Action<ListChangeType> OnChanged;
+		public event Action<ListChangeType>? OnChanged;
+
+		public event CollectionChangedEventHandler<T> OnCollectionChanged
+		{
+			add { RegisterChangedListener(value); }
+			remove { throw new NotImplementedException(); }
+		}
+
+		private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
+
+		event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+		{
+			add { OnInternalCollectionChanged += value; }
+			remove { OnInternalCollectionChanged -= value; }
+		}
+
+		private void OnDestroy()
+		{
+			onCollectionChanged.Dispose();
+		}
 
 		/// <summary>
 		///     Sets the value at the given index.
@@ -485,6 +506,19 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		[Conditional("DEBUG")]
+		private void WarnLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
+		}
+
 		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
@@ -497,13 +531,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
+				WarnLeftOverSubscribers();
 			}
 #endif
 
@@ -514,6 +542,7 @@ namespace Hertzole.ScriptableValues
 			OnRemoved = null;
 			OnCleared = null;
 			OnChanged = null;
+			onCollectionChanged.Reset();
 		}
 
 #if UNITY_EDITOR
@@ -525,13 +554,7 @@ namespace Hertzole.ScriptableValues
 				Debug.LogWarning($"There are left over objects in the scriptable list {name}. You should clear the list before leaving play mode.");
 			}
 
-			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
+			WarnLeftOverSubscribers();
 
 			list.TrimExcess();
 		}
@@ -542,48 +565,24 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
 		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+		/// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
 		public void AddRange(IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
 
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			using (new ChangeScope(this))
 			{
-				// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
-				// Otherwise, just add the items as normal.
-				if (collection is ICollection<T> c)
+				int index = list.Count;
+				using (CollectionScope<T> scope = new CollectionScope<T>(collection))
 				{
-					int count = c.Count;
-					if (count > 0)
-					{
-						ResizeIfNeeded(count);
-
-						// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-						using (IEnumerator<T> en = c.GetEnumerator())
-						{
-							while (en.MoveNext())
-							{
-								AddFastPath(en.Current);
-							}
-						}
-					}
-				}
-				else
-				{
-					// Add the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-					using (IEnumerator<T> en = collection.GetEnumerator())
-					{
-						while (en.MoveNext())
-						{
-							AddFastPath(en.Current);
-						}
-					}
+					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
+					list.AddRange(enumerator);
+					CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
+					onCollectionChanged.Invoke(args);
+					OnInternalCollectionChanged?.Invoke(this, args);
 				}
 			}
 
@@ -756,19 +755,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds an item to the list without checking if the list is read only and without adding a stack trace.
-		/// </summary>
-		/// <param name="item">The item to add.</param>
-		private void AddFastPath(T item)
-		{
-			int index = Count;
-			list.Add(item);
-			OnAdded?.Invoke(item);
-			OnAddedOrInserted?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Added);
-		}
-
-		/// <summary>
 		///     Inserts an item into the list without checking if it's read only and without adding a stack trace.
 		/// </summary>
 		/// <param name="index"></param>
@@ -812,22 +798,44 @@ namespace Hertzole.ScriptableValues
 			list.CopyTo(array);
 		}
 
+		public void RegisterChangedListener(CollectionChangedEventHandler<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RegisterCallback(callback);
+		}
+
+		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback, TContext context)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
+
+			onCollectionChanged.RegisterCallback(callback, context);
+		}
+
 		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
-		/// <param name="value">The item to add.</param>
+		/// <param name="item">The item to add.</param>
 		/// <returns>The new count of the list.</returns>
-		int IList.Add(object value)
+		/// <exception cref="ArgumentNullException"><c>item</c> is null and <c>T</c> does not allow it.</exception>
+		/// <exception cref="ArgumentException"><c>item</c> is of a type that is not assignable to the list.</exception>
+		int IList.Add(object? item)
 		{
-			// Check if the value is the same type as the generic type.
-			if (EqualityHelper.IsSameType(value, out T newValue))
+			// If the item is null and typeof(T) doesn't allow nulls, throw an exception.
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(item, nameof(item));
+
+			try
 			{
-				Add(newValue);
-				return Count - 1;
+				Add((T) item!);
+			}
+			catch (InvalidCastException)
+			{
+				// The item was not the correct type, throw an exception.
+				ThrowHelper.ThrowWrongExpectedValueType<T>(item);
 			}
 
-			// It was not a valid type, return -1.
-			return -1;
+			return Count - 1;
 		}
 
 		/// <summary>
@@ -918,18 +926,19 @@ namespace Hertzole.ScriptableValues
 		///     Adds an item to the list.
 		/// </summary>
 		/// <param name="item">The item to add.</param>
+		/// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
 		public void Add(T item)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			using (new ChangeScope(this))
 			{
-				AddFastPath(item);
+				int index = Count;
+				list.Add(item);
+				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(item, index);
+				onCollectionChanged.Invoke(args);
+				OnInternalCollectionChanged?.Invoke(this, args);
 			}
 
 			AddStackTrace();
@@ -1085,11 +1094,13 @@ namespace Hertzole.ScriptableValues
 			{
 				if (originalCount != list.Count)
 				{
+					//TODO: Cache count parameter
 					list.NotifyPropertyChanged(nameof(Count));
 				}
 
 				if (originalCapacity != list.Capacity)
 				{
+					//TODO: Cache capacity parameter
 					list.NotifyPropertyChanged(nameof(Capacity));
 				}
 			}

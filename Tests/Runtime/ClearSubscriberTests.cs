@@ -39,13 +39,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			TestClearing<TestScriptableList>(7, i =>
 			{
-				i.OnAdded += i => { };
-				i.OnInserted += (i, i1) => { };
-				i.OnAddedOrInserted += (i, i1) => { };
-				i.OnRemoved += (i, i1) => { };
-				i.OnCleared += () => { };
-				i.OnSet += (i, i1, arg3) => { };
-				i.OnChanged += type => { };
+				i.OnCollectionChanged += _ => { };
 			}, i => i.ClearSubscribers(true));
 		}
 

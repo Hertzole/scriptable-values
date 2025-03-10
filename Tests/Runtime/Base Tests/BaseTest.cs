@@ -298,5 +298,10 @@ namespace Hertzole.ScriptableValues.Tests
 			castedValue = setValue(castedValue);
 			return UnsafeUtility.As<TTo, TFrom>(ref castedValue);
 		}
+
+		protected static void AssertThrows<T>(NUnit.Framework.TestDelegate action) where T : Exception
+		{
+			NUnit.Framework.Assert.Throws<T>(action);
+		}
 	}
 }

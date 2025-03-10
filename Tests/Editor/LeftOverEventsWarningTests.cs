@@ -241,14 +241,9 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		[Test]
 		public void ScriptableList_Events()
 		{
-			TestLeftOverWarning<TestScriptableList>(6, i =>
+			TestLeftOverWarning<TestScriptableList>(1, i =>
 			{
-				i.OnAdded += _ => { };
-				i.OnInserted += (_, _) => { };
-				i.OnAddedOrInserted += (_, _) => { };
-				i.OnSet += (_, _, _) => { };
-				i.OnRemoved += (_, _) => { };
-				i.OnCleared += () => { };
+				i.OnCollectionChanged += _ => { };
 			});
 		}
 

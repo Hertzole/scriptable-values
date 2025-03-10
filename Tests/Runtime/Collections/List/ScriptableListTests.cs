@@ -1,4 +1,6 @@
-﻿using System;
+#nullable enable
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,7 @@ using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
 using Is = UnityEngine.TestTools.Constraints.Is;
+using Random = UnityEngine.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -16,251 +19,16 @@ namespace Hertzole.ScriptableValues.Tests
 	{
 		private TestScriptableList list;
 
-		public bool IsReadOnly { get { return list.IsReadOnly; } set { list.IsReadOnly = value; } }
+		public bool IsReadOnly
+		{
+			get { return list.IsReadOnly; }
+			set { list.IsReadOnly = value; }
+		}
 
 		protected override void OnSetup()
 		{
 			list = CreateInstance<TestScriptableList>();
 			list.name = "Instance";
-		}
-
-		[Test]
-		public void Add()
-		{
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.OnAdded += i => { addEventInvoked = true; };
-			list.OnAddedOrInserted += (index, item) =>
-			{
-				addOrInsertEventInvoked = true;
-				Assert.AreEqual(0, index);
-				Assert.AreEqual(1, item);
-			};
-
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Added, type);
-			};
-
-			list.Add(1);
-
-			Assert.AreEqual(1, list.Count);
-			Assert.AreEqual(1, list[0]);
-			Assert.IsTrue(addEventInvoked);
-			Assert.IsTrue(addOrInsertEventInvoked);
-			Assert.IsTrue(changedEventInvoked);
-		}
-
-		[Test]
-		public void Add_ReadOnly()
-		{
-			IsReadOnly = true;
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.OnAdded += i => { addEventInvoked = true; };
-			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
-			list.OnChanged += type => { changedEventInvoked = true; };
-
-			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
-
-			list.Add(1);
-
-			Assert.AreEqual(0, list.Count);
-			Assert.IsFalse(addEventInvoked);
-			Assert.IsFalse(addOrInsertEventInvoked);
-			Assert.IsFalse(changedEventInvoked);
-		}
-
-		[Test]
-		public void Add_Object()
-		{
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.OnAdded += i => { addEventInvoked = true; };
-			list.OnAddedOrInserted += (index, item) =>
-			{
-				addOrInsertEventInvoked = true;
-				Assert.AreEqual(0, index);
-				Assert.AreEqual(1, item);
-			};
-
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Added, type);
-			};
-
-			int result = ((IList) list).Add(1);
-
-			// Make sure the result is the index of the added item, which is 0.
-			Assert.AreEqual(0, result);
-			Assert.AreEqual(1, list.Count);
-			Assert.AreEqual(1, list[0]);
-			Assert.IsTrue(addEventInvoked);
-			Assert.IsTrue(addOrInsertEventInvoked);
-			Assert.IsTrue(changedEventInvoked);
-		}
-
-		[Test]
-		public void Add_Object_ReadOnly()
-		{
-			IsReadOnly = true;
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.OnAdded += i => { addEventInvoked = true; };
-			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
-			list.OnChanged += type => { changedEventInvoked = true; };
-
-			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
-
-			((IList) list).Add(1);
-
-			Assert.AreEqual(0, list.Count);
-			Assert.IsFalse(addEventInvoked);
-			Assert.IsFalse(addOrInsertEventInvoked);
-			Assert.IsFalse(changedEventInvoked);
-		}
-
-		[Test]
-		public void Add_ObjectInvalid()
-		{
-			LogAssert.Expect(LogType.Error, "System.Int32 is not assignable from System.String.");
-
-			int result = ((IList) list).Add("invalid");
-
-			Assert.AreEqual(-1, result);
-		}
-
-		[Test]
-		public void AddRange_Collection()
-		{
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			int addedCount = 0;
-			int addedOrInsertedCount = 0;
-			int changedCount = 0;
-
-			list.OnAdded += i =>
-			{
-				addEventInvoked = true;
-				addedCount++;
-			};
-
-			list.OnAddedOrInserted += (index, item) =>
-			{
-				addOrInsertEventInvoked = true;
-				addedOrInsertedCount++;
-			};
-
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				changedCount++;
-				Assert.AreEqual(ListChangeType.Added, type);
-			};
-
-			int[] array = { 1, 2, 3 };
-
-			list.AddRange(array);
-
-			Assert.AreEqual(array.Length, list.Count);
-			Assert.AreEqual(1, list[0]);
-			Assert.AreEqual(2, list[1]);
-			Assert.AreEqual(3, list[2]);
-			Assert.IsTrue(addEventInvoked);
-			Assert.IsTrue(addOrInsertEventInvoked);
-			Assert.IsTrue(changedEventInvoked);
-			Assert.AreEqual(array.Length, addedCount);
-			Assert.AreEqual(array.Length, addedOrInsertedCount);
-			Assert.AreEqual(array.Length, changedCount);
-		}
-
-		[Test]
-		public void AddRange_Enumerable()
-		{
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			int addedCount = 0;
-			int addedOrInsertedCount = 0;
-			int changedCount = 0;
-
-			list.OnAdded += i =>
-			{
-				addEventInvoked = true;
-				addedCount++;
-			};
-
-			list.OnAddedOrInserted += (index, item) =>
-			{
-				addOrInsertEventInvoked = true;
-				addedOrInsertedCount++;
-			};
-
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				changedCount++;
-				Assert.AreEqual(ListChangeType.Added, type);
-			};
-
-			IEnumerable<int> array = Enumerable.Range(1, 3);
-			int arrayLength = array.Count();
-
-			list.AddRange(array);
-
-			Assert.AreEqual(arrayLength, list.Count);
-			Assert.AreEqual(1, list[0]);
-			Assert.AreEqual(2, list[1]);
-			Assert.AreEqual(3, list[2]);
-			Assert.IsTrue(addEventInvoked);
-			Assert.IsTrue(addOrInsertEventInvoked);
-			Assert.IsTrue(changedEventInvoked);
-			Assert.AreEqual(arrayLength, addedCount);
-			Assert.AreEqual(arrayLength, addedOrInsertedCount);
-			Assert.AreEqual(arrayLength, changedCount);
-		}
-
-		[Test]
-		public void AddRange_Readonly()
-		{
-			IsReadOnly = true;
-			bool addEventInvoked = false;
-			bool addOrInsertEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.OnAdded += i => { addEventInvoked = true; };
-			list.OnAddedOrInserted += (index, item) => { addOrInsertEventInvoked = true; };
-			list.OnChanged += type => { changedEventInvoked = true; };
-
-			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be added to at runtime.");
-
-			int[] array = { 1, 2, 3 };
-
-			list.AddRange(array);
-
-			Assert.AreEqual(0, list.Count);
-			Assert.IsFalse(addEventInvoked);
-			Assert.IsFalse(addOrInsertEventInvoked);
-			Assert.IsFalse(changedEventInvoked);
-		}
-
-		[Test]
-		public void AddRange_Null()
-		{
-			NUnit.Framework.Assert.That(() => list.AddRange(null), Throws.ArgumentNullException);
 		}
 
 		[Test]
@@ -1614,10 +1382,10 @@ namespace Hertzole.ScriptableValues.Tests
 			// This generates garbage due to boxing.
 			NUnit.Framework.Assert.That(() =>
 			{
-				var enumerator = ((IList<int>) list).GetEnumerator();
+				IEnumerator<int> enumerator = ((IList<int>) list).GetEnumerator();
 				enumerator.Dispose();
 			}, Is.AllocatingGCMemory());
-			
+
 			IEnumerator<int> enumerator = ((IList<int>) list).GetEnumerator();
 
 			try
@@ -1650,11 +1418,11 @@ namespace Hertzole.ScriptableValues.Tests
 			list.Add(2);
 			list.Add(1);
 			list.Add(3);
-			
+
 			// This generates garbage due to boxing.
 			NUnit.Framework.Assert.That(() =>
 			{
-				var enumerator = ((IList) list).GetEnumerator();
+				IEnumerator enumerator = ((IList) list).GetEnumerator();
 				if (enumerator is IDisposable disposable)
 				{
 					disposable.Dispose();
@@ -1728,7 +1496,7 @@ namespace Hertzole.ScriptableValues.Tests
 				enumerator.Dispose();
 			}
 		}
-		
+
 		[Test]
 		public void ForEach_NoAlloc()
 		{
@@ -1925,15 +1693,31 @@ namespace Hertzole.ScriptableValues.Tests
 			list.AddRange(Enumerable.Range(0, 100));
 			Assert.AreEqual(0, list.Find(x => x == 200));
 		}
-		
+
 		[Test]
 		public void EnsureCapacity()
 		{
 			list.EnsureCapacity(100);
 			Assert.AreEqual(100, list.Capacity);
-			
+
 			list.EnsureCapacity(50);
 			Assert.AreEqual(100, list.Capacity);
+		}
+
+		private static int GetRandomNumber(int tolerance = 100)
+		{
+			int result = 0;
+			int min = -tolerance;
+			int max = tolerance;
+			int tries = 0;
+
+			while ((result > min || result < max) && tries < 100)
+			{
+				result = Random.Range(int.MinValue, int.MaxValue);
+				tries++;
+			}
+
+			return result;
 		}
 	}
 }

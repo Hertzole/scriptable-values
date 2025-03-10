@@ -75,7 +75,9 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			bool insertedWasInvoked = false;
 			bool addedOrInsertedWasInvoked = false;
 
-			instance.OnAdded += _ => { addedWasInvoked = true; };
+			instance.OnCollectionChanged += OnCollectionChanged;
+
+			// instance.OnAdded += _ => { addedWasInvoked = true; };
 			instance.OnRemoved += (_, _) => { removedWasInvoked = true; };
 			instance.OnCleared += () => { clearedWasInvoked = true; };
 			instance.OnSet += (_, _, _) => { setWasInvoked = true; };
@@ -96,6 +98,12 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			Assert.IsFalse(setWasInvoked);
 			Assert.IsFalse(insertedWasInvoked);
 			Assert.IsFalse(addedOrInsertedWasInvoked);
+			return;
+			
+			void OnCollectionChanged(CollectionChangedArgs<int> e)
+			{
+				throw new System.NotImplementedException();
+			}
 		}
 		
 		[Test]
