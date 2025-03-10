@@ -13,6 +13,11 @@ namespace Hertzole.ScriptableValues.Tests
 			args.Add(key, value);
 		}
 		
+		public void SetArg<T>(string key, T value)
+		{
+			args[key] = value;
+		}
+		
 		public T GetArg<T>(string key)
 		{
 			return (T)args[key];
