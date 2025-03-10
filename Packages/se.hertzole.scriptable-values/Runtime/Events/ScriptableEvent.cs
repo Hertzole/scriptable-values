@@ -26,7 +26,7 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal UnityEvent onInvoked = new UnityEvent();
 
-		private readonly EventHandlerList<object, object?> onInvokedInternal = new EventHandlerList<object, object?>();
+		private readonly DelegateHandlerList<EventHandler, object, EventArgs> onInvokedInternal = new DelegateHandlerList<EventHandler, object, EventArgs>();
 
 #if UNITY_INCLUDE_TESTS
 		/// <summary>
@@ -84,7 +84,7 @@ namespace Hertzole.ScriptableValues
 			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(1 + skipFrames);
 
-			onInvokedInternal.Invoke(sender, null);
+			onInvokedInternal.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
 		}
 
@@ -96,7 +96,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onInvokedInternal.AddListener(callback);
+			onInvokedInternal.RegisterCallback(callback);
 		}
 
 		/// <summary>
@@ -114,7 +114,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
 
-			onInvokedInternal.AddListener(action, args);
+			onInvokedInternal.RegisterCallback(action, args);
 		}
 
 		/// <summary>
@@ -125,7 +125,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			onInvokedInternal.RemoveListener(action);
+			onInvokedInternal.RemoveCallback(action);
 		}
 
 		/// <summary>
@@ -137,7 +137,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(action, nameof(action));
 
-			onInvokedInternal.RemoveListener(action);
+			onInvokedInternal.RemoveCallback(action);
 		}
 
 		/// <inheritdoc />
@@ -168,7 +168,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onInvokedInternal.ClearListeners();
+			onInvokedInternal.Reset();
 		}
 
 #if UNITY_EDITOR
