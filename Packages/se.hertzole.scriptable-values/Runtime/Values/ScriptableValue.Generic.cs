@@ -53,8 +53,8 @@ namespace Hertzole.ScriptableValues
 		// We need to have another value that is the value right before it gets modified.
 		private T temporaryValue = default;
 
-		internal readonly EventHandlerList<T, T> onValueChangingEvents = new EventHandlerList<T, T>();
-		internal readonly EventHandlerList<T, T> onValueChangedEvents = new EventHandlerList<T, T>();
+		internal readonly DelegateHandlerList<OldNewValue<T>, T, T> onValueChangingEvents = new DelegateHandlerList<OldNewValue<T>, T, T>();
+		internal readonly DelegateHandlerList<OldNewValue<T>, T, T> onValueChangedEvents = new DelegateHandlerList<OldNewValue<T>, T, T>();
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -181,7 +181,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangingEvents.AddListener(callback);
+			onValueChangingEvents.RegisterCallback(callback);
 		}
 
 		/// <summary>
@@ -198,7 +198,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
 
-			onValueChangingEvents.AddListener(callback, args);
+			onValueChangingEvents.RegisterCallback(callback, args);
 		}
 
 		/// <summary>
@@ -209,7 +209,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangingEvents.RemoveListener(callback);
+			onValueChangingEvents.RemoveCallback(callback);
 		}
 
 		/// <summary>
@@ -221,7 +221,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangingEvents.RemoveListener(callback);
+			onValueChangingEvents.RemoveCallback(callback);
 		}
 
 		/// <summary>
@@ -232,7 +232,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangedEvents.AddListener(callback);
+			onValueChangedEvents.RegisterCallback(callback);
 		}
 
 		/// <summary>
@@ -247,7 +247,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(args, nameof(args));
 
-			onValueChangedEvents.AddListener(callback, args);
+			onValueChangedEvents.RegisterCallback(callback, args);
 		}
 
 		/// <summary>
@@ -258,7 +258,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangedEvents.RemoveListener(callback);
+			onValueChangedEvents.RemoveCallback(callback);
 		}
 
 		/// <summary>
@@ -270,7 +270,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangedEvents.RemoveListener(callback);
+			onValueChangedEvents.RemoveCallback(callback);
 		}
 
 		protected bool IsSameValue(T newValue, T oldValue)
@@ -342,8 +342,8 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onValueChangingEvents.ClearListeners();
-			onValueChangedEvents.ClearListeners();
+			onValueChangingEvents.Reset();
+			onValueChangedEvents.Reset();
 		}
 
 #if UNITY_INCLUDE_TESTS

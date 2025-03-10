@@ -35,9 +35,9 @@ namespace Hertzole.ScriptableValues.Helpers
 
 				CreateWarning(del.GetInvocationList().AsSpan(), parameterName, targetObject);
 			}
-			else if (action is IEventList eventList && eventList.ListenersCount > 0)
+			else if (action is IDelegateList eventList && eventList.ListenersCount > 0)
 			{
-				CreateWarning(eventList.GetListeners(), parameterName, targetObject);
+				CreateWarning(eventList.GetDelegates(), parameterName, targetObject);
 			}
 #endif
 		}
