@@ -68,21 +68,9 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		{
 			TestScriptableList instance = CreateInstance<TestScriptableList>();
 
-			bool addedWasInvoked = false;
-			bool removedWasInvoked = false;
-			bool clearedWasInvoked = false;
-			bool setWasInvoked = false;
-			bool insertedWasInvoked = false;
-			bool addedOrInsertedWasInvoked = false;
+			int invokeCount = 0;
 
 			instance.OnCollectionChanged += OnCollectionChanged;
-
-			// instance.OnAdded += _ => { addedWasInvoked = true; };
-			instance.OnRemoved += (_, _) => { removedWasInvoked = true; };
-			instance.OnCleared += () => { clearedWasInvoked = true; };
-			instance.OnSet += (_, _, _) => { setWasInvoked = true; };
-			instance.OnInserted += (_, _) => { insertedWasInvoked = true; };
-			instance.OnAddedOrInserted += (_, _) => { addedOrInsertedWasInvoked = true; };
 
 			instance.Test_OnStart();
 
@@ -92,17 +80,12 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			instance.Insert(0, 42);
 			instance.RemoveAt(0);
 
-			Assert.IsFalse(addedWasInvoked);
-			Assert.IsFalse(removedWasInvoked);
-			Assert.IsFalse(clearedWasInvoked);
-			Assert.IsFalse(setWasInvoked);
-			Assert.IsFalse(insertedWasInvoked);
-			Assert.IsFalse(addedOrInsertedWasInvoked);
+			Assert.AreEqual(0, invokeCount);
 			return;
 			
 			void OnCollectionChanged(CollectionChangedArgs<int> e)
 			{
-				throw new System.NotImplementedException();
+				invokeCount++;
 			}
 		}
 		

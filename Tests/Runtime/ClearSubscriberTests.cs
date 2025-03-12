@@ -9,7 +9,7 @@ namespace Hertzole.ScriptableValues.Tests
 	public class ClearSubscriberTests : BaseTest
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
-			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
+			@"(On)([A-Za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
 			RegexOptions.Multiline);
 
 		[Test]
@@ -37,7 +37,7 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ScriptableList()
 		{
-			TestClearing<TestScriptableList>(7, i =>
+			TestClearing<TestScriptableList>(1, i =>
 			{
 				i.OnCollectionChanged += _ => { };
 			}, i => i.ClearSubscribers(true));
