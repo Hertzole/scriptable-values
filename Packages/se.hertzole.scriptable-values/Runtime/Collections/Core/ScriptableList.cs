@@ -158,18 +158,19 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when something was added. Gives you the newly added item.
 		/// </summary>
-		// TODO: Turn this into an error.
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
-		public event Action<T> OnAdded;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action<T>? OnAdded;
 		/// <summary>
 		///     Called when something was inserted. Gives you the index it was inserted at and the newly inserted item.
 		/// </summary>
-		public event Action<int, T> OnInserted;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action<int, T>? OnInserted;
 		/// <summary>
 		///     Called when something was added or inserted. Gives you the index it was added/inserted at and the newly
 		///     added/inserted item.
 		/// </summary>
-		public event Action<int, T> OnAddedOrInserted;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action<int, T>? OnAddedOrInserted;
 		/// <summary>
 		///     Called when something was set using the indexer. Gives you the index it was set at, the old value and the new
 		///     value.
@@ -509,9 +510,6 @@ namespace Hertzole.ScriptableValues
 		[Conditional("DEBUG")]
 		private void WarnLeftOverSubscribers()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnInserted, nameof(OnInserted), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnAddedOrInserted, nameof(OnAddedOrInserted), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
@@ -534,10 +532,7 @@ namespace Hertzole.ScriptableValues
 				WarnLeftOverSubscribers();
 			}
 #endif
-
-			OnAdded = null;
-			OnInserted = null;
-			OnAddedOrInserted = null;
+			
 			OnSet = null;
 			OnRemoved = null;
 			OnCleared = null;
@@ -560,13 +555,13 @@ namespace Hertzole.ScriptableValues
 		}
 #endif
 
-		/// <summary>
-		///     Adds the elements of the specified collection to the end of the list.
-		/// </summary>
-		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
-		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
-		/// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
-		public void AddRange(IEnumerable<T> collection)
+        /// <summary>
+        ///     Adds the elements of the specified collection to the end of the list.
+        /// </summary>
+        /// <param name="collection">The collection whose elements should be added to the end of the list.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+        /// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
+        public void AddRange(IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
 
@@ -589,65 +584,33 @@ namespace Hertzole.ScriptableValues
 			AddStackTrace();
 		}
 
-		/// <summary>
-		///     Inserts the elements of a collection into the list at the specified index.
-		/// </summary>
-		/// <param name="index">The zero-based index at which the new elements should be inserted.</param>
-		/// <param name="collection">The collection whose elements should be inserted into the list.</param>
-		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">
-		///     If <paramref name="index" /> is less than 0 or is greater than
-		///     <see cref="Count" />.
-		/// </exception>
-		public void InsertRange(int index, IEnumerable<T> collection)
+        /// <summary>
+        ///     Inserts the elements of a collection into the list at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which the new elements should be inserted.</param>
+        /// <param name="collection">The collection whose elements should be inserted into the list.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     If <paramref name="index" /> is less than 0 or is greater than
+        ///     <see cref="Count" />.
+        /// </exception>
+        /// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
+        public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
-
-#if DEBUG
-			if (index < 0 || index > list.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} must be between 0 and {nameof(list.Count)} ({list.Count}).");
-			}
-#endif
+			ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
 
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be inserted to at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			using (new ChangeScope(this))
 			{
-				// If it's a collection, we can get the count and add the capacity to the list to avoid resizing the list multiple times.
-				// Otherwise, just insert the items as normal.
-				if (collection is ICollection<T> c)
+				using (var scope = new CollectionScope<T>(collection))
 				{
-					int count = c.Count;
-					if (count > 0)
-					{
-						ResizeIfNeeded(count);
-					}
-
-					// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-					using (IEnumerator<T> en = c.GetEnumerator())
-					{
-						while (en.MoveNext())
-						{
-							InsertFastPath(index++, en.Current);
-						}
-					}
-				}
-				else
-				{
-					// Insert the items. We use the enumerator directly to avoid allocations, instead of a foreach.
-					using (IEnumerator<T> en = collection.GetEnumerator())
-					{
-						while (en.MoveNext())
-						{
-							InsertFastPath(index++, en.Current);
-						}
-					}
+					using var enumerator = scope.GetEnumerator();
+					list.InsertRange(index, enumerator);
+					var args = CollectionChangedArgs<T>.Add(scope.Span, index);
+					InvokeCollectionChanged(args);
 				}
 			}
 
@@ -755,19 +718,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Inserts an item into the list without checking if it's read only and without adding a stack trace.
-		/// </summary>
-		/// <param name="index"></param>
-		/// <param name="item"></param>
-		private void InsertFastPath(int index, T item)
-		{
-			list.Insert(index, item);
-			OnInserted?.Invoke(index, item);
-			OnAddedOrInserted?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Inserted);
-		}
-
-		/// <summary>
 		///     Removes the element at the specified index of the list without checking if the list is read only and without adding
 		///     a stack trace.
 		/// </summary>
@@ -871,13 +821,18 @@ namespace Hertzole.ScriptableValues
 		///     Inserts an element into the list at the specified index.
 		/// </summary>
 		/// <param name="index">The zero-based index at which item should be inserted.</param>
-		/// <param name="value">The object to insert.</param>
-		void IList.Insert(int index, object value)
+		/// <param name="item">The item to insert.</param>
+		void IList.Insert(int index, object? item)
 		{
-			// Check if the value is the same type as the generic type.
-			if (EqualityHelper.IsSameType(value, out T newValue))
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(item, nameof(item));
+
+			try
 			{
-				Insert(index, newValue);
+				Insert(index, (T)item!);
+			}
+			catch (InvalidCastException)
+			{
+				ThrowHelper.ThrowWrongExpectedValueType<T>(item);
 			}
 		}
 
@@ -936,9 +891,7 @@ namespace Hertzole.ScriptableValues
 			{
 				int index = Count;
 				list.Add(item);
-				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(item, index);
-				onCollectionChanged.Invoke(args);
-				OnInternalCollectionChanged?.Invoke(this, args);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
 			}
 
 			AddStackTrace();
@@ -952,15 +905,13 @@ namespace Hertzole.ScriptableValues
 		public void Insert(int index, T item)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be inserted to at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+			ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
 
 			using (new ChangeScope(this))
 			{
-				InsertFastPath(index, item);
+				list.Insert(index, item);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
 			}
 
 			AddStackTrace();
@@ -1071,6 +1022,12 @@ namespace Hertzole.ScriptableValues
 		public void CopyTo(T[] array, int arrayIndex)
 		{
 			list.CopyTo(array, arrayIndex);
+		}
+
+		private void InvokeCollectionChanged(in CollectionChangedArgs<T> args)
+		{
+			onCollectionChanged.Invoke(args);
+			OnInternalCollectionChanged?.Invoke(this, args);
 		}
 
 		/// <summary>
