@@ -60,7 +60,7 @@ namespace Hertzole.ScriptableValues
 				return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Remove, oldIndex: startingIndex, oldItems: memory);
 			}
 		}
-		
+
 		public static CollectionChangedArgs<T> Remove(ReadOnlySpan<T> oldItems, int startingIndex)
 		{
 			using (IMemoryOwner<T> owner = MemoryPool<T>.Shared.Rent(oldItems.Length))
@@ -68,6 +68,22 @@ namespace Hertzole.ScriptableValues
 				Memory<T> memory = owner.Memory.Slice(0, oldItems.Length);
 				oldItems.CopyTo(memory.Span);
 				return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Remove, oldIndex: startingIndex, oldItems: memory);
+			}
+		}
+
+		public static CollectionChangedArgs<T> Replace(T oldItem, T newItem, int index)
+		{
+			using (IMemoryOwner<T> oldOwner = MemoryPool<T>.Shared.Rent(1))
+			{
+				Memory<T> oldMemory = oldOwner.Memory.Slice(0, 1);
+				oldMemory.Span[0] = oldItem;
+
+				using (IMemoryOwner<T> newOwner = MemoryPool<T>.Shared.Rent(1))
+				{
+					Memory<T> newMemory = newOwner.Memory.Slice(0, 1);
+					newMemory.Span[0] = newItem;
+					return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Replace, index, newMemory, index, oldMemory);
+				}
 			}
 		}
 
@@ -82,7 +98,8 @@ namespace Hertzole.ScriptableValues
 				case NotifyCollectionChangedAction.Remove:
 					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, args.OldItems.ToArray(), args.OldIndex);
 				case NotifyCollectionChangedAction.Replace:
-					break;
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, args.NewItems.ToArray(), args.OldItems.ToArray(),
+						args.NewIndex);
 				case NotifyCollectionChangedAction.Reset:
 					break;
 				default:
