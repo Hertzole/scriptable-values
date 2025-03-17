@@ -195,7 +195,8 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the list is cleared.
 		/// </summary>
-		public event Action OnCleared;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action? OnCleared;
 		/// <summary>
 		///     Called when the list is changed in any way.
 		/// </summary>
@@ -527,8 +528,6 @@ namespace Hertzole.ScriptableValues
 		[Conditional("DEBUG")]
 		private void WarnLeftOverSubscribers()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
 		}
 
@@ -547,9 +546,6 @@ namespace Hertzole.ScriptableValues
 				WarnLeftOverSubscribers();
 			}
 #endif
-
-			OnCleared = null;
-			OnChanged = null;
 			onCollectionChanged.Reset();
 		}
 
@@ -997,17 +993,19 @@ namespace Hertzole.ScriptableValues
 		public void Clear()
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			if (list.Count == 0)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
 				return;
 			}
 
 			using (new ChangeScope(this))
 			{
+				using CollectionScope<T> scope = new CollectionScope<T>(list);
+
 				list.Clear();
-				OnCleared?.Invoke();
-				OnChanged?.Invoke(ListChangeType.Cleared);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Reset());
 			}
 
 			AddStackTrace();
