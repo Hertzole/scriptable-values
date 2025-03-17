@@ -17,17 +17,17 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			AssertHashCodeChanged(list, instance => instance.Add(1));
 		}
-		
+
 		[Test]
 		public void Add_Object_NotifiesPropertyChanged_Count()
 		{
-			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList)instance).Add(1));
+			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList) instance).Add(1));
 		}
-		
+
 		[Test]
 		public void Add_Object_ChangesHashCode()
 		{
-			AssertHashCodeChanged(list, instance => ((IList)instance).Add(1));
+			AssertHashCodeChanged(list, instance => ((IList) instance).Add(1));
 		}
 
 		[Test]
@@ -67,17 +67,17 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			AssertHashCodeChanged(list, instance => instance.Insert(0, 1));
 		}
-		
+
 		[Test]
 		public void Insert_Object_NotifiesPropertyChanged_Count()
 		{
-			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList)instance).Insert(0, 1));
+			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList) instance).Insert(0, 1));
 		}
-		
+
 		[Test]
 		public void Insert_Object_ChangesHashCode()
 		{
-			AssertHashCodeChanged(list, instance => ((IList)instance).Insert(0, 1));
+			AssertHashCodeChanged(list, instance => ((IList) instance).Insert(0, 1));
 		}
 
 		[Test]
@@ -105,19 +105,19 @@ namespace Hertzole.ScriptableValues.Tests
 			list.Add(1);
 			AssertHashCodeChanged(list, instance => instance.Remove(1));
 		}
-		
+
 		[Test]
 		public void Remove_Object_NotifiesPropertyChanged_Count()
 		{
 			list.Add(1);
-			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList)instance).Remove(1));
+			AssertNotifyPropertyChangedCalled(list, nameof(list.Count), instance => ((IList) instance).Remove(1));
 		}
-		
+
 		[Test]
 		public void Remove_Object_ChangesHashCode()
 		{
 			list.Add(1);
-			AssertHashCodeChanged(list, instance => ((IList)instance).Remove(1));
+			AssertHashCodeChanged(list, instance => ((IList) instance).Remove(1));
 		}
 
 		[Test]

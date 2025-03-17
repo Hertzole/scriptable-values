@@ -1,13 +1,16 @@
 #nullable enable
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Debug = UnityEngine.Debug;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
@@ -179,7 +182,8 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when something was removed. Gives you the index it was removed at and the removed item.
 		/// </summary>
-		public event Action<int, T> OnRemoved;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action<int, T>? OnRemoved;
 		/// <summary>
 		///     Called when the list is cleared.
 		/// </summary>
@@ -244,38 +248,48 @@ namespace Hertzole.ScriptableValues
 		/// <exception cref="ArgumentNullException">match is null.</exception>
 		public int RemoveAll(Predicate<T> match)
 		{
-#if DEBUG
-			// Throw an exception if the match is null, but only in Debug builds.
-			if (match == null)
-			{
-				throw new ArgumentNullException(nameof(match));
-			}
-#endif
+			ThrowHelper.ThrowIfNull(match, nameof(match));
 
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
-				return 0;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			using (new ChangeScope(this))
 			{
-				// Keep track of how many items were removed.
-				int removeCount = 0;
-
-				// Go in reverse as we are removing items.
-				for (int i = list.Count - 1; i >= 0; i--)
+				T[]? removed = ArrayPool<T>.Shared.Rent(list.Count);
+				try
 				{
-					// If the item matches the predicate, remove it.
-					if (match(list[i]))
+					int count = 0;
+					int firstIndex = -1;
+					for (int i = 0; i < list.Count; i++)
 					{
-						removeCount++;
-						RemoveAt(i);
+						if (match(list[i]))
+						{
+							if (firstIndex == -1)
+							{
+								firstIndex = i;
+							}
+
+							removed[count] = list[i];
+							count++;
+						}
+					}
+
+					if (count > 0)
+					{
+						int removeCount = list.RemoveAll(match);
+						InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removed.AsSpan(0, count), firstIndex));
+
+						Assert.AreEqual(count, removeCount, "The expected count of removed items is not the same as the actually removed items count.");
+
+						return removeCount;
 					}
 				}
+				finally
+				{
+					ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+				}
 
-				return removeCount;
+				return 0;
 			}
 		}
 
@@ -511,7 +525,6 @@ namespace Hertzole.ScriptableValues
 		private void WarnLeftOverSubscribers()
 		{
 			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
@@ -532,9 +545,8 @@ namespace Hertzole.ScriptableValues
 				WarnLeftOverSubscribers();
 			}
 #endif
-			
+
 			OnSet = null;
-			OnRemoved = null;
 			OnCleared = null;
 			OnChanged = null;
 			onCollectionChanged.Reset();
@@ -555,13 +567,13 @@ namespace Hertzole.ScriptableValues
 		}
 #endif
 
-        /// <summary>
-        ///     Adds the elements of the specified collection to the end of the list.
-        /// </summary>
-        /// <param name="collection">The collection whose elements should be added to the end of the list.</param>
-        /// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
-        /// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
-        public void AddRange(IEnumerable<T> collection)
+		/// <summary>
+		///     Adds the elements of the specified collection to the end of the list.
+		/// </summary>
+		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
+		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+		/// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
+		public void AddRange(IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
 
@@ -584,18 +596,18 @@ namespace Hertzole.ScriptableValues
 			AddStackTrace();
 		}
 
-        /// <summary>
-        ///     Inserts the elements of a collection into the list at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index at which the new elements should be inserted.</param>
-        /// <param name="collection">The collection whose elements should be inserted into the list.</param>
-        /// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     If <paramref name="index" /> is less than 0 or is greater than
-        ///     <see cref="Count" />.
-        /// </exception>
-        /// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
-        public void InsertRange(int index, IEnumerable<T> collection)
+		/// <summary>
+		///     Inserts the elements of a collection into the list at the specified index.
+		/// </summary>
+		/// <param name="index">The zero-based index at which the new elements should be inserted.</param>
+		/// <param name="collection">The collection whose elements should be inserted into the list.</param>
+		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     If <paramref name="index" /> is less than 0 or is greater than
+		///     <see cref="Count" />.
+		/// </exception>
+		/// <exception cref="ReadOnlyException">If the object is marked as read-only and the application is playing.</exception>
+		public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
 			ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
@@ -605,11 +617,11 @@ namespace Hertzole.ScriptableValues
 
 			using (new ChangeScope(this))
 			{
-				using (var scope = new CollectionScope<T>(collection))
+				using (CollectionScope<T> scope = new CollectionScope<T>(collection))
 				{
-					using var enumerator = scope.GetEnumerator();
+					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
 					list.InsertRange(index, enumerator);
-					var args = CollectionChangedArgs<T>.Add(scope.Span, index);
+					CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
 					InvokeCollectionChanged(args);
 				}
 			}
@@ -638,37 +650,41 @@ namespace Hertzole.ScriptableValues
 		public void RemoveRange(int index, int count)
 		{
 #if DEBUG
-			if (index < 0 || index > list.Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(index), $"{nameof(index)} must be between 0 and {nameof(list.Count)} ({list.Count}).");
-			}
-
-			if (count < 0)
-			{
-				throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be less than 0.");
-			}
+			ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
 
 			if (index + count > list.Count)
 			{
-				throw new ArgumentException("Count cannot be greater than the number of elements in the list.", nameof(count));
+				throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be greater than the number of elements in the list.");
 			}
 #endif
 
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			if (count > 0)
+			// Calculate how many items to remove based on the count and index.
+			int countToRemove = Math.Min(count, list.Count - index);
+
+			if (countToRemove > 0)
 			{
 				using (new ChangeScope(this))
 				{
-					// Keep removing at the index until we've removed the specified amount.
-					for (int i = 0; i < count; i++)
+					T[]? removed = ArrayPool<T>.Shared.Rent(countToRemove);
+					try
 					{
-						RemoveAtFastPath(index);
+						for (int i = 0; i < countToRemove; i++)
+						{
+							removed[i] = list[index + i];
+						}
+
+						list.RemoveRange(index, count);
+
+						Span<T> span = removed.AsSpan(0, countToRemove);
+
+						InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(span, index));
+					}
+					finally
+					{
+						ArrayPool<T>.Shared.Return(removed);
 					}
 				}
 			}
@@ -718,19 +734,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes the element at the specified index of the list without checking if the list is read only and without adding
-		///     a stack trace.
-		/// </summary>
-		/// <param name="index">The index of the element to remove.</param>
-		private void RemoveAtFastPath(int index)
-		{
-			T item = list[index];
-			list.RemoveAt(index);
-			OnRemoved?.Invoke(index, item);
-			OnChanged?.Invoke(ListChangeType.Removed);
-		}
-
-		/// <summary>
 		///     Returns an enumerator that iterates through the list.
 		/// </summary>
 		/// <returns>A enumerator for the list.</returns>
@@ -776,6 +779,13 @@ namespace Hertzole.ScriptableValues
 
 			onCollectionChanged.RemoveCallback(callback);
 		}
+
+		private void InvokeCollectionChanged(in CollectionChangedArgs<T> args)
+		{
+			onCollectionChanged.Invoke(args);
+			OnInternalCollectionChanged?.Invoke(this, args);
+		}
+
 		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
@@ -841,7 +851,7 @@ namespace Hertzole.ScriptableValues
 
 			try
 			{
-				Insert(index, (T)item!);
+				Insert(index, (T) item!);
 			}
 			catch (InvalidCastException)
 			{
@@ -873,24 +883,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Returns an enumerator that iterates through the list.
-		/// </summary>
-		/// <returns>A enumerator for the list.</returns>
-		IEnumerator<T> IEnumerable<T>.GetEnumerator()
-		{
-			return ((IEnumerable<T>) list).GetEnumerator();
-		}
-
-		/// <summary>
-		///     Returns an enumerator that iterates through the list.
-		/// </summary>
-		/// <returns>A enumerator for the list.</returns>
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return ((IEnumerable) list).GetEnumerator();
-		}
-
-		/// <summary>
 		///     Adds an item to the list.
 		/// </summary>
 		/// <param name="item">The item to add.</param>
@@ -908,6 +900,24 @@ namespace Hertzole.ScriptableValues
 			}
 
 			AddStackTrace();
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the list.
+		/// </summary>
+		/// <returns>A enumerator for the list.</returns>
+		IEnumerator<T> IEnumerable<T>.GetEnumerator()
+		{
+			return ((IEnumerable<T>) list).GetEnumerator();
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the list.
+		/// </summary>
+		/// <returns>A enumerator for the list.</returns>
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable) list).GetEnumerator();
 		}
 
 		/// <summary>
@@ -941,11 +951,7 @@ namespace Hertzole.ScriptableValues
 		public bool Remove(T item)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
-				return false;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			int index = list.IndexOf(item);
 			if (index == -1)
@@ -955,7 +961,9 @@ namespace Hertzole.ScriptableValues
 
 			using (new ChangeScope(this))
 			{
-				RemoveAtFastPath(index);
+				T? itemToRemove = list[index];
+				list.RemoveAt(index);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(itemToRemove, index));
 			}
 
 			AddStackTrace();
@@ -970,15 +978,13 @@ namespace Hertzole.ScriptableValues
 		public void RemoveAt(int index)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			using (new ChangeScope(this))
 			{
-				RemoveAtFastPath(index);
+				T? removedItem = list[index];
+				list.RemoveAt(index);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removedItem, index));
 			}
 
 			AddStackTrace();
@@ -1035,12 +1041,6 @@ namespace Hertzole.ScriptableValues
 		public void CopyTo(T[] array, int arrayIndex)
 		{
 			list.CopyTo(array, arrayIndex);
-		}
-
-		private void InvokeCollectionChanged(in CollectionChangedArgs<T> args)
-		{
-			onCollectionChanged.Invoke(args);
-			OnInternalCollectionChanged?.Invoke(this, args);
 		}
 
 		/// <summary>

@@ -11,13 +11,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableList<object>.setEqualityCheck),
 			nameof(ScriptableList<object>.clearOnStart),
 			nameof(ScriptableList<object>.list),
-			nameof(ScriptableList<object>.OnAdded),
-			nameof(ScriptableList<object>.OnInserted),
-			nameof(ScriptableList<object>.OnAddedOrInserted),
-			nameof(ScriptableList<object>.OnSet),
-			nameof(ScriptableList<object>.OnRemoved),
-			nameof(ScriptableList<object>.OnCleared),
-			nameof(ScriptableList<object>.OnChanged),
+			nameof(ScriptableList<object>.OnChanged)
 		};
 
 		public static readonly string[] requiredProperties =
@@ -26,7 +20,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableList<object>.SetEqualityCheck),
 			nameof(ScriptableList<object>.ClearOnStart),
 			nameof(ScriptableList<object>.IsReadOnly),
-			nameof(ScriptableList<object>.Count),
+			nameof(ScriptableList<object>.Count)
 		};
 
 		[Test]

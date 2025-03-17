@@ -157,7 +157,7 @@ namespace Hertzole.ScriptableValues.Tests
 				context.SetArg("args", e);
 			}
 		}
-		
+
 		[Test]
 		public void AddRange_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
 		{
@@ -177,7 +177,7 @@ namespace Hertzole.ScriptableValues.Tests
 				args = e;
 			}
 		}
-		
+
 		[Test]
 		public void AddRange_Null_ThrowsArgumentNullException()
 		{
