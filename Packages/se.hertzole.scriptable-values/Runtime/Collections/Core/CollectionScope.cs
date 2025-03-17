@@ -71,7 +71,7 @@ namespace Hertzole.ScriptableValues
 		public Enumerator GetEnumerator()
 		{
 			ThrowHelper.ThrowIfNull(array, nameof(array));
-			
+
 			Enumerator enumerator = enumeratorPool.Get();
 			enumerator.SetArray(array!, length);
 			return enumerator;
@@ -87,15 +87,26 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		public static CollectionScope<T> FromListSlice(IReadOnlyList<T> list, int index, int count)
+		{
+			T[]? array = ArrayPool<T>.Shared.Rent(count);
+			for (int i = 0; i < count; i++)
+			{
+				array[i] = list[index + i];
+			}
+
+			return new CollectionScope<T>
+			{
+				array = array,
+				length = count
+			};
+		}
+
 		public class Enumerator : ICollection<T>, IDisposable
 		{
 			private T[]? array;
-			private int count;
 
-			public int Count
-			{
-				get { return count; }
-			}
+			public int Count { get; private set; }
 			public bool IsReadOnly
 			{
 				get { return true; }
@@ -104,24 +115,24 @@ namespace Hertzole.ScriptableValues
 			public void SetArray(T[] newArray, int newCount)
 			{
 				array = newArray;
-				count = newCount;
+				Count = newCount;
 			}
 
 			public void Dispose()
 			{
 				array = null;
-				count = 0;
+				Count = 0;
 				enumeratorPool.Release(this);
 			}
 
 			public IEnumerator<T> GetEnumerator()
 			{
-				if (array == null || count == 0)
+				if (array == null || Count == 0)
 				{
 					yield break;
 				}
 
-				for (int i = 0; i < count; i++)
+				for (int i = 0; i < Count; i++)
 				{
 					yield return array[i];
 				}
@@ -151,7 +162,7 @@ namespace Hertzole.ScriptableValues
 			{
 				ThrowHelper.ThrowIfNull(array, nameof(array));
 
-				Array.Copy(array, 0, destination, arrayIndex, count);
+				Array.Copy(array, 0, destination, arrayIndex, Count);
 			}
 
 			public bool Remove(T item)

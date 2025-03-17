@@ -200,6 +200,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the list is changed in any way.
 		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
 		public event Action<ListChangeType>? OnChanged;
 
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
@@ -302,17 +303,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void Reverse()
 		{
-			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be reversed at runtime.");
-				return;
-			}
-
-			list.Reverse();
-			OnChanged?.Invoke(ListChangeType.Reversed);
-
-			AddStackTrace();
+			ReverseInternal(0, list.Count);
 		}
 
 		/// <summary>
@@ -322,17 +313,34 @@ namespace Hertzole.ScriptableValues
 		/// <param name="count">The number of elements in the range to reverse.</param>
 		public void Reverse(int index, int count)
 		{
+			ReverseInternal(index, count);
+		}
+
+		/// <summary>
+		///     Internal reverse method that skips a frame in the stack traces.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="count"></param>
+		/// <exception cref="ReadOnlyException"></exception>
+		private void ReverseInternal(int index, int count)
+		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			// There are no items in the list, so we don't need to do anything.
+			if (list.Count == 0)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be reversed at runtime.");
+				AddStackTrace(1);
 				return;
 			}
 
+			using CollectionScope<T> oldItemsScope = CollectionScope<T>.FromListSlice(list, index, count);
 			list.Reverse(index, count);
-			OnChanged?.Invoke(ListChangeType.Reversed);
 
-			AddStackTrace();
+			using CollectionScope<T> newItemsScope = CollectionScope<T>.FromListSlice(list, index, count);
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Reverse(oldItemsScope.Span, newItemsScope.Span, index));
+
+			AddStackTrace(1);
 		}
 
 		/// <summary>
@@ -748,6 +756,7 @@ namespace Hertzole.ScriptableValues
 			list.CopyTo(array);
 		}
 
+		//TODO: Document
 		public void RegisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -755,6 +764,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback);
 		}
 
+		//TODO: Document
 		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -763,6 +773,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback, context);
 		}
 
+		//TODO: Document
 		public void UnregisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -770,6 +781,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RemoveCallback(callback);
 		}
 
+		//TODO: Document
 		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
