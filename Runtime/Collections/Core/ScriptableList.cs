@@ -58,14 +58,21 @@ namespace Hertzole.ScriptableValues
 			set { SetValue(index, value); }
 		}
 
-		object IList.this[int index]
+		object? IList.this[int index]
 		{
 			get { return list[index]; }
 			set
 			{
-				if (EqualityHelper.IsSameType(value, out T newValue))
+				ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
+
+				try
 				{
-					SetValue(index, newValue);
+					this[index] = (T) value!;
+				}
+				catch (InvalidCastException)
+				{
+					// The item was not the correct type, throw an exception.
+					ThrowHelper.ThrowWrongExpectedValueType<T>(value);
 				}
 			}
 		}
@@ -178,7 +185,8 @@ namespace Hertzole.ScriptableValues
 		///     Called when something was set using the indexer. Gives you the index it was set at, the old value and the new
 		///     value.
 		/// </summary>
-		public event Action<int, T, T> OnSet;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
+		public event Action<int, T, T>? OnSet;
 		/// <summary>
 		///     Called when something was removed. Gives you the index it was removed at and the removed item.
 		/// </summary>
@@ -220,11 +228,7 @@ namespace Hertzole.ScriptableValues
 		private void SetValue(int index, T value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
 			if (setEqualityCheck && EqualityHelper.Equals(list[index], value))
@@ -234,8 +238,7 @@ namespace Hertzole.ScriptableValues
 
 			T oldValue = list[index];
 			list[index] = value;
-			OnSet?.Invoke(index, oldValue, value);
-			OnChanged?.Invoke(ListChangeType.Set);
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Replace(oldValue, value, index));
 
 			AddStackTrace();
 		}
@@ -524,7 +527,6 @@ namespace Hertzole.ScriptableValues
 		[Conditional("DEBUG")]
 		private void WarnLeftOverSubscribers()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
@@ -546,7 +548,6 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			OnSet = null;
 			OnCleared = null;
 			OnChanged = null;
 			onCollectionChanged.Reset();
