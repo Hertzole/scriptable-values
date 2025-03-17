@@ -92,6 +92,19 @@ namespace Hertzole.ScriptableValues
 			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset);
 		}
 
+		public static CollectionChangedArgs<T> Reverse(ReadOnlySpan<T> oldItems, ReadOnlySpan<T> newItems, int startingIndex)
+		{
+			using IMemoryOwner<T> oldOwner = MemoryPool<T>.Shared.Rent(oldItems.Length);
+			Memory<T> oldMemory = oldOwner.Memory.Slice(0, oldItems.Length);
+			oldItems.CopyTo(oldMemory.Span);
+
+			using IMemoryOwner<T> newOwner = MemoryPool<T>.Shared.Rent(newItems.Length);
+			Memory<T> newMemory = newOwner.Memory.Slice(0, newItems.Length);
+			newItems.CopyTo(newMemory.Span);
+
+			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Replace, startingIndex, newMemory, startingIndex, oldMemory);
+		}
+
 		public static implicit operator NotifyCollectionChangedEventArgs(CollectionChangedArgs<T> args)
 		{
 			switch (args.Action)
