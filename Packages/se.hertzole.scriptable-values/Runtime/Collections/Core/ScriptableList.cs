@@ -192,7 +192,7 @@ namespace Hertzole.ScriptableValues
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
 		{
 			add { RegisterChangedListener(value); }
-			remove { throw new NotImplementedException(); }
+			remove { UnregisterChangedListener(value); }
 		}
 
 		private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
@@ -763,6 +763,19 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback, context);
 		}
 
+		public void UnregisterChangedListener(CollectionChangedEventHandler<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
+		}
+
+		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
+		}
 		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
