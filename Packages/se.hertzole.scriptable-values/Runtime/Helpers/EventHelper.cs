@@ -114,7 +114,7 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 			finally
 			{
-				ArrayPool<Delegate>.Shared.Return(listeners);
+				ArrayPool<Delegate>.Shared.Return(listeners, true);
 			}
 		}
 	}

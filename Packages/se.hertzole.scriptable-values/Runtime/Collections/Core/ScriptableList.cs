@@ -681,7 +681,7 @@ namespace Hertzole.ScriptableValues
 					}
 					finally
 					{
-						ArrayPool<T>.Shared.Return(removed);
+						ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 					}
 				}
 			}
