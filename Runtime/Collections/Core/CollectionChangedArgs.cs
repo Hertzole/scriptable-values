@@ -87,6 +87,11 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		public static CollectionChangedArgs<T> Reset()
+		{
+			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset);
+		}
+
 		public static implicit operator NotifyCollectionChangedEventArgs(CollectionChangedArgs<T> args)
 		{
 			switch (args.Action)
@@ -101,12 +106,10 @@ namespace Hertzole.ScriptableValues
 					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, args.NewItems.ToArray(), args.OldItems.ToArray(),
 						args.NewIndex);
 				case NotifyCollectionChangedAction.Reset:
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
 			}
 
-			throw new NotImplementedException();
+			throw new NotSupportedException($"Can't create NotifyCollectionChangedEventArgs from this action ({args.Action}).");
 		}
 
 		public bool Equals(CollectionChangedArgs<T> other)

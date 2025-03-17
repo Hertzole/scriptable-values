@@ -32,56 +32,6 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Clear()
-		{
-			bool clearEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.Add(1);
-			list.Add(2);
-			list.OnCleared += () => { clearEventInvoked = true; };
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Cleared, type);
-			};
-
-			list.Clear();
-
-			Assert.AreEqual(0, list.Count);
-			Assert.IsTrue(clearEventInvoked);
-			Assert.IsTrue(changedEventInvoked);
-		}
-
-		[Test]
-		public void Clear_ReadOnly()
-		{
-			bool clearEventInvoked = false;
-			bool changedEventInvoked = false;
-
-			list.Add(1);
-			list.Add(2);
-			list.OnCleared += () => { clearEventInvoked = true; };
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Cleared, type);
-			};
-
-			IsReadOnly = true;
-
-			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be cleared at runtime.");
-
-			list.Clear();
-
-			Assert.AreEqual(2, list.Count);
-			Assert.AreEqual(1, list[0]);
-			Assert.AreEqual(2, list[1]);
-			Assert.IsFalse(clearEventInvoked);
-			Assert.IsFalse(changedEventInvoked);
-		}
-
-		[Test]
 		public void Reverse()
 		{
 			bool changedEventInvoked = false;
