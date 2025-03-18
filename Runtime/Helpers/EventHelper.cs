@@ -114,7 +114,9 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 			finally
 			{
-				ArrayPool<Delegate>.Shared.Return(listeners, true);
+				//TODO: Try to clear the array before returning it.
+				// Currently causes consumers of the span to get nulls.
+				ArrayPool<Delegate>.Shared.Return(listeners, false);
 			}
 		}
 	}
