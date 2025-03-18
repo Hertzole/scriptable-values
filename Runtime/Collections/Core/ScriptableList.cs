@@ -200,7 +200,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the list is changed in any way.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
 		public event Action<ListChangeType>? OnChanged;
 
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
@@ -435,13 +435,9 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void TrimExcess()
 		{
-			int originalCapacity = list.Capacity;
-			list.TrimExcess();
-
-			if (originalCapacity != list.Capacity)
+			using (new ChangeScope(this))
 			{
-				OnChanged?.Invoke(ListChangeType.Trimmed);
-				NotifyPropertyChanged(nameof(Capacity));
+				list.TrimExcess();
 			}
 
 			AddStackTrace();
