@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -322,6 +323,13 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
+		protected static T[] GetShuffledArray<T>(int count = 1000)
+		{
+			T[] items = Enumerable.Range(0, count).Select(x => (T) Convert.ChangeType(x, typeof(T))).ToArray();
+			ShuffleArray(items);
+			return items;
+		}
+
 		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, Comparison<T> comparison)
 		{
 			AssertIsSorted(actual, 0, actual.Count, new ComparisonComparer<T>(comparison));
@@ -337,10 +345,10 @@ namespace Hertzole.ScriptableValues.Tests
 
 			Array.Sort(expected, index, count, comparer);
 
-			AssertIsSorted(expected, actual);
+			AssertArraysAreEqual(expected, actual);
 		}
 
-		protected static void AssertIsSorted<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
+		protected static void AssertArraysAreEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
 		{
 			UnityEngine.Assertions.Assert.AreEqual(expected.Count, actual.Count, "The lists are not the same length.");
 

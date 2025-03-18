@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using System.Linq;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -361,13 +360,6 @@ namespace Hertzole.ScriptableValues.Tests
 
 			// Assert
 			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
-		}
-
-		private static T[] GetShuffledArray<T>(int count = 1000)
-		{
-			T[] items = Enumerable.Range(0, count).Select(x => (T) Convert.ChangeType(x, typeof(T))).ToArray();
-			ShuffleArray(items);
-			return items;
 		}
 
 		private class ReverseComparer : IComparer<int>

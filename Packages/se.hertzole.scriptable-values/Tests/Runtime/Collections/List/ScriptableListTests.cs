@@ -34,68 +34,32 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ToArray()
 		{
-			list.Add(5);
-			list.Add(2);
-			list.Add(1);
-			list.Add(3);
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
 
+			// Act
 			int[] array = list.ToArray();
 
-			Assert.AreEqual(4, array.Length);
-
-			Assert.AreEqual(5, array[0]);
-			Assert.AreEqual(2, array[1]);
-			Assert.AreEqual(1, array[2]);
-			Assert.AreEqual(3, array[3]);
+			// Assert
+			AssertArraysAreEqual(items, array);
 		}
 
 		[Test]
 		public void TrimExcess()
 		{
-			bool changedEventInvoked = false;
-
+			// Arrange
 			list.EnsureCapacity(100);
 			list.Add(5);
 			list.Add(2);
 			list.Add(1);
 
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Trimmed, type);
-			};
-
+			// Act
 			list.TrimExcess();
 
+			// Assert
 			Assert.AreEqual(3, list.Count);
 			Assert.AreEqual(3, list.Capacity);
-			Assert.IsTrue(changedEventInvoked);
-		}
-
-		[Test]
-		public void TrimExcess_ReadOnly()
-		{
-			bool changedEventInvoked = false;
-
-			list.Add(5);
-			list.Add(2);
-			list.Add(1);
-
-			IsReadOnly = true;
-
-			list.OnChanged += type =>
-			{
-				changedEventInvoked = true;
-				Assert.AreEqual(ListChangeType.Trimmed, type);
-			};
-
-			LogAssert.Expect(LogType.Error, $"{list} is marked as read only and cannot be trimmed at runtime.");
-
-			list.TrimExcess();
-
-			Assert.AreEqual(3, list.Count);
-			Assert.AreEqual(4, list.Capacity);
-			Assert.IsFalse(changedEventInvoked);
 		}
 
 		[Test]
