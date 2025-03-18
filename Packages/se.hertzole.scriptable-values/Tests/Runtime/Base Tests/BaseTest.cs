@@ -1,8 +1,12 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Random = System.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -238,52 +242,52 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				return ConvertAndSetValue<T, sbyte>(value, oldValue => (sbyte) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(short))
 			{
 				return ConvertAndSetValue<T, short>(value, oldValue => (short) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(string))
 			{
 				return ConvertAndSetValue<T, string>(value, oldValue => oldValue + "a");
 			}
-			
+
 			if (typeof(T) == typeof(uint))
 			{
 				return ConvertAndSetValue<T, uint>(value, oldValue => oldValue + 1);
 			}
-			
+
 			if (typeof(T) == typeof(ulong))
 			{
 				return ConvertAndSetValue<T, ulong>(value, oldValue => oldValue + 1);
 			}
-			
+
 			if (typeof(T) == typeof(ushort))
 			{
 				return ConvertAndSetValue<T, ushort>(value, oldValue => (ushort) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(Vector2))
 			{
 				return ConvertAndSetValue<T, Vector2>(value, oldValue => oldValue + Vector2.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector2Int))
 			{
 				return ConvertAndSetValue<T, Vector2Int>(value, oldValue => oldValue + Vector2Int.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector3))
 			{
 				return ConvertAndSetValue<T, Vector3>(value, oldValue => oldValue + Vector3.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector3Int))
 			{
 				return ConvertAndSetValue<T, Vector3Int>(value, oldValue => oldValue + Vector3Int.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector4))
 			{
 				return ConvertAndSetValue<T, Vector4>(value, oldValue => oldValue + Vector4.one);
@@ -299,9 +303,66 @@ namespace Hertzole.ScriptableValues.Tests
 			return UnsafeUtility.As<TTo, TFrom>(ref castedValue);
 		}
 
-		protected static void AssertThrows<T>(NUnit.Framework.TestDelegate action) where T : Exception
+		protected static void AssertThrows<T>(TestDelegate action) where T : Exception
 		{
-			NUnit.Framework.Assert.Throws<T>(action);
+			Assert.Throws<T>(action);
+		}
+
+		protected static void ShuffleArray<T>(T[] array)
+		{
+			Random random = new Random();
+
+			int n = array.Length;
+			while (n > 1)
+			{
+				int k = random.Next(n--);
+				T temp = array[n];
+				array[n] = array[k];
+				array[k] = temp;
+			}
+		}
+
+		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, Comparison<T> comparison)
+		{
+			AssertIsSorted(actual, 0, actual.Count, new ComparisonComparer<T>(comparison));
+		}
+
+		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, int index, int count, IComparer<T>? comparer = null)
+		{
+			T[] expected = new T[actual.Count];
+			for (int i = 0; i < actual.Count; i++)
+			{
+				expected[i] = actual[i];
+			}
+
+			Array.Sort(expected, index, count, comparer);
+
+			AssertIsSorted(expected, actual);
+		}
+
+		protected static void AssertIsSorted<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
+		{
+			UnityEngine.Assertions.Assert.AreEqual(expected.Count, actual.Count, "The lists are not the same length.");
+
+			for (int i = 0; i < expected.Count; i++)
+			{
+				UnityEngine.Assertions.Assert.AreEqual(expected[i], actual[i], $"The item at index {i} is not the same.");
+			}
+		}
+
+		private class ComparisonComparer<T> : IComparer<T>
+		{
+			public readonly Comparison<T> comparison;
+
+			public ComparisonComparer(Comparison<T> comparison)
+			{
+				this.comparison = comparison;
+			}
+
+			public int Compare(T x, T y)
+			{
+				return comparison.Invoke(x, y);
+			}
 		}
 	}
 }

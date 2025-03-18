@@ -11,7 +11,7 @@ namespace Hertzole.ScriptableValues.Tests
 			nameof(ScriptableList<object>.setEqualityCheck),
 			nameof(ScriptableList<object>.clearOnStart),
 			nameof(ScriptableList<object>.list),
-			nameof(ScriptableList<object>.OnChanged)
+			nameof(ScriptableList<object>.OnCollectionChanged)
 		};
 
 		public static readonly string[] requiredProperties =

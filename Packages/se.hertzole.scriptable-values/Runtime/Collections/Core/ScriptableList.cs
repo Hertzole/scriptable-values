@@ -338,27 +338,9 @@ namespace Hertzole.ScriptableValues
 			list.Reverse(index, count);
 
 			using CollectionScope<T> newItemsScope = CollectionScope<T>.FromListSlice(list, index, count);
-			InvokeCollectionChanged(CollectionChangedArgs<T>.Reverse(oldItemsScope.Span, newItemsScope.Span, index));
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Replace(oldItemsScope.Span, newItemsScope.Span, index));
 
 			AddStackTrace(1);
-		}
-
-		/// <summary>
-		///     Sorts the elements in the entire list using the default comparer.
-		/// </summary>
-		public void Sort()
-		{
-			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
-				return;
-			}
-
-			list.Sort();
-			OnChanged?.Invoke(ListChangeType.Sorted);
-
-			AddStackTrace();
 		}
 
 		/// <summary>
@@ -366,21 +348,11 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="comparer">
 		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or null to use
-		///     the default comparer Default.
+		///     the default comparer <see cref="Comparer{T}.Default" />.
 		/// </param>
-		public void Sort(IComparer<T> comparer)
+		public void Sort(IComparer<T>? comparer = null)
 		{
-			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
-				return;
-			}
-
-			list.Sort(comparer);
-			OnChanged?.Invoke(ListChangeType.Sorted);
-
-			AddStackTrace();
+			SortInternal(0, list.Count, comparer, null);
 		}
 
 		/// <summary>
@@ -390,21 +362,11 @@ namespace Hertzole.ScriptableValues
 		/// <param name="count">The number of elements in the range to sort.</param>
 		/// <param name="comparer">
 		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or null to use
-		///     the default comparer Default.
+		///     the default comparer <see cref="Comparer{T}.Default" />.
 		/// </param>
-		public void Sort(int index, int count, IComparer<T> comparer)
+		public void Sort(int index, int count, IComparer<T>? comparer = null)
 		{
-			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
-				return;
-			}
-
-			list.Sort(index, count, comparer);
-			OnChanged?.Invoke(ListChangeType.Sorted);
-
-			AddStackTrace();
+			SortInternal(index, count, comparer, null);
 		}
 
 		/// <summary>
@@ -413,17 +375,50 @@ namespace Hertzole.ScriptableValues
 		/// <param name="comparison">The <see cref="Comparison{T}" /> to use when comparing elements.</param>
 		public void Sort(Comparison<T> comparison)
 		{
+			ThrowHelper.ThrowIfNull(comparison, nameof(comparison));
+
+			SortInternal(0, list.Count, null, comparison);
+		}
+
+		/// <summary>
+		///     Internal sort method that skips a frame in the stack traces.
+		/// </summary>
+		/// <param name="index">The zero-based starting index of the range to sort.</param>
+		/// <param name="count">The length of the range to sort.</param>
+		/// <param name="comparer">
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or null to use
+		///     the default comparer <see cref="Comparer{T}.Default" />.
+		/// </param>
+		/// <param name="comparison">The <see cref="Comparison{T}" /> to use when comparing elements.</param>
+		/// <exception cref="ReadOnlyException">The list is marked as read-only.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0 or <c>count</c> is less than 0.</exception>
+		private void SortInternal(int index, int count, IComparer<T>? comparer, Comparison<T>? comparison)
+		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			if (list.Count == 0)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be sorted at runtime.");
+				AddStackTrace(1);
 				return;
 			}
 
-			list.Sort(comparison);
-			OnChanged?.Invoke(ListChangeType.Sorted);
+			using CollectionScope<T> oldItemsScope = CollectionScope<T>.FromListSlice(list, index, count);
 
-			AddStackTrace();
+			// If there's a comparison, we sort using that. Otherwise, we use the comparer, or the default comparer if the comparer is null.
+			if (comparison != null)
+			{
+				list.Sort(comparison);
+			}
+			else
+			{
+				list.Sort(index, count, comparer);
+			}
+
+			using CollectionScope<T> newItemsScope = CollectionScope<T>.FromListSlice(list, index, count);
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Replace(oldItemsScope.Span, newItemsScope.Span, index));
+
+			AddStackTrace(1);
 		}
 
 		/// <summary>
