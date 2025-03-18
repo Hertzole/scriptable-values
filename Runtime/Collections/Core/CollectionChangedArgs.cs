@@ -87,12 +87,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public static CollectionChangedArgs<T> Reset()
-		{
-			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset);
-		}
-
-		public static CollectionChangedArgs<T> Reverse(ReadOnlySpan<T> oldItems, ReadOnlySpan<T> newItems, int startingIndex)
+		public static CollectionChangedArgs<T> Replace(ReadOnlySpan<T> oldItems, ReadOnlySpan<T> newItems, int startingIndex)
 		{
 			using IMemoryOwner<T> oldOwner = MemoryPool<T>.Shared.Rent(oldItems.Length);
 			Memory<T> oldMemory = oldOwner.Memory.Slice(0, oldItems.Length);
@@ -103,6 +98,11 @@ namespace Hertzole.ScriptableValues
 			newItems.CopyTo(newMemory.Span);
 
 			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Replace, startingIndex, newMemory, startingIndex, oldMemory);
+		}
+
+		public static CollectionChangedArgs<T> Reset()
+		{
+			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset);
 		}
 
 		public static implicit operator NotifyCollectionChangedEventArgs(CollectionChangedArgs<T> args)

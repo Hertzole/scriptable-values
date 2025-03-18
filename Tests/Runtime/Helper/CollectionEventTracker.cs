@@ -62,6 +62,12 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
+		public CollectionEventTracker(ScriptableList<T> list, EventType eventType, INotifyCollectionChanged collectionChanged) : this(list, eventType)
+		{
+			notifyCollectionChanged = collectionChanged;
+			notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
+		}
+
 		public CollectionEventTracker(INotifyCollectionChanged collectionChanged)
 		{
 			notifyCollectionChanged = collectionChanged;
@@ -111,7 +117,8 @@ namespace Hertzole.ScriptableValues.Tests
 						throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
 				}
 			}
-			else if (notifyCollectionChanged != null)
+
+			if (notifyCollectionChanged != null)
 			{
 				notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
 			}
