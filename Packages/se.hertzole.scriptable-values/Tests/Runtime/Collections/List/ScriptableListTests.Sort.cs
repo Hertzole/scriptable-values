@@ -350,18 +350,6 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
-		private static void AssertThrowsReadOnlyExceptionAndNotInvoked<T>(ScriptableList<T> list, EventType eventType, Action<ScriptableList<T>> action)
-		{
-			// Arrange
-			CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list, eventType, list);
-
-			// Act
-			AssertThrows<ReadOnlyException>(() => action.Invoke(list));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
-		}
-
 		private class ReverseComparer : IComparer<int>
 		{
 			public static ReverseComparer Instance { get; } = new ReverseComparer();

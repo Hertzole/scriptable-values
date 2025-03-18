@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace Hertzole.ScriptableValues.Tests
 {
 	public partial class ScriptableListTests : BaseRuntimeTest
 	{
-		private TestScriptableList list;
+		private TestScriptableList list = null!;
 
 		public bool IsReadOnly
 		{
@@ -444,6 +445,18 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 
 			return result;
+		}
+		
+		private static void AssertThrowsReadOnlyExceptionAndNotInvoked<T>(ScriptableList<T> list, EventType eventType, Action<ScriptableList<T>> action)
+		{
+			// Arrange
+			CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list, eventType, list);
+
+			// Act
+			AssertThrows<ReadOnlyException>(() => action.Invoke(list));
+
+			// Assert
+			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
 		}
 	}
 }

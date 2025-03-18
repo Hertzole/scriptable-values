@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -30,44 +29,16 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			// Arrange
 			int value = GetRandomNumber();
-			InvokeCountContext context = new InvokeCountContext();
-			context.AddArg("args", default(CollectionChangedArgs<int>));
-			switch (eventType)
-			{
-				case EventType.Event:
-					list.OnCollectionChanged += OnCollectionChanged;
-					break;
-				case EventType.Register:
-					list.RegisterChangedListener(OnCollectionChanged);
-					break;
-				case EventType.RegisterWithContext:
-					list.RegisterChangedListener(OnCollectionChangedWithContext, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
+			CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
 			// Act
 			list.Add(value);
 
 			// Assert
-			CollectionChangedArgs<int> args = context.GetArg<CollectionChangedArgs<int>>("args");
+			CollectionChangedArgs<int> args = tracker.CollectionChangedArgs;
+			Assert.IsTrue(tracker.HasBeenInvoked());
 			Assert.AreEqual(value, args.NewItems.Span[0]);
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, args.Action);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void OnCollectionChanged(CollectionChangedArgs<int> e)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-
-			static void OnCollectionChangedWithContext(CollectionChangedArgs<int> e, InvokeCountContext context)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
 		}
 
 		[Test]
@@ -75,98 +46,29 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			// Arrange
 			int value = GetRandomNumber();
-			NotifyCollectionChangedEventArgs? args = null;
-			((INotifyCollectionChanged) list).CollectionChanged += OnCollectionChanged;
+			CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
 			// Act
 			list.Add(value);
 
 			// Assert
+			NotifyCollectionChangedEventArgs args = tracker.NotifyCollectionChangedArgs;
 			Assert.IsNotNull(args);
-			Assert.AreEqual(NotifyCollectionChangedAction.Add, args!.Action);
+			Assert.AreEqual(NotifyCollectionChangedAction.Add, args.Action);
 			Assert.AreEqual(1, args.NewItems.Count);
 			Assert.AreEqual(value, args.NewItems[0]);
 			Assert.AreEqual(0, args.NewStartingIndex);
-			return;
-
-			void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-			{
-				args = e;
-			}
 		}
 
 		[Test]
-		public void Add_ReadOnly_DoesNotAddItem()
+		public void Add_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
 		{
 			// Arrange
 			IsReadOnly = true;
 			int value = GetRandomNumber();
 
 			// Assert
-			AssertThrows<ReadOnlyException>(() => list.Add(value));
-		}
-
-		[Test]
-		public void Add_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
-		{
-			// Arrange
-			IsReadOnly = true;
-			int value = GetRandomNumber();
-			InvokeCountContext context = new InvokeCountContext();
-			context.AddArg("args", default(CollectionChangedArgs<int>));
-
-			switch (eventType)
-			{
-				case EventType.Event:
-					list.OnCollectionChanged += OnCollectionChanged;
-					break;
-				case EventType.Register:
-					list.RegisterChangedListener(OnCollectionChanged);
-					break;
-				case EventType.RegisterWithContext:
-					list.RegisterChangedListener(OnCollectionChangedWithContext, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
-
-			// Assert
-			AssertThrows<ReadOnlyException>(() => list.Add(value));
-			Assert.AreEqual(0, context.invokeCount);
-			Assert.AreEqual(default, context.GetArg<CollectionChangedArgs<int>>("args"));
-			return;
-
-			void OnCollectionChanged(CollectionChangedArgs<int> e)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-
-			static void OnCollectionChangedWithContext(CollectionChangedArgs<int> e, InvokeCountContext context)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-		}
-
-		[Test]
-		public void Add_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
-		{
-			// Arrange
-			IsReadOnly = true;
-			int value = GetRandomNumber();
-			NotifyCollectionChangedEventArgs? args = null;
-			((INotifyCollectionChanged) list).CollectionChanged += OnCollectionChanged;
-
-			// Assert
-			AssertThrows<ReadOnlyException>(() => list.Add(value));
-			Assert.IsNull(args);
-			return;
-
-			void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-			{
-				args = e;
-			}
+			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => x.Add(value));
 		}
 
 		[Test]
@@ -189,44 +91,16 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			// Arrange
 			int value = GetRandomNumber();
-			InvokeCountContext context = new InvokeCountContext();
-			context.AddArg("args", default(CollectionChangedArgs<int>));
-			switch (eventType)
-			{
-				case EventType.Event:
-					list.OnCollectionChanged += OnCollectionChanged;
-					break;
-				case EventType.Register:
-					list.RegisterChangedListener(OnCollectionChanged);
-					break;
-				case EventType.RegisterWithContext:
-					list.RegisterChangedListener(OnCollectionChangedWithContext, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
+			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
 			// Act
 			((IList) list).Add(value);
 
 			// Assert
-			CollectionChangedArgs<int> args = context.GetArg<CollectionChangedArgs<int>>("args");
+			CollectionChangedArgs<int> args = tracker.CollectionChangedArgs;
+			Assert.IsTrue(tracker.HasBeenInvoked(), "The event has not been invoked.");
 			Assert.AreEqual(value, args.NewItems.Span[0]);
 			Assert.AreEqual(NotifyCollectionChangedAction.Add, args.Action);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void OnCollectionChanged(CollectionChangedArgs<int> e)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-
-			static void OnCollectionChangedWithContext(CollectionChangedArgs<int> e, InvokeCountContext context)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
 		}
 
 		[Test]
@@ -255,77 +129,14 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Add_Object_ReadOnly_DoesNotAddItem()
+		public void Add_Object_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
 		{
 			// Arrange
 			IsReadOnly = true;
 			int value = GetRandomNumber();
 
 			// Assert
-			AssertThrows<ReadOnlyException>(() => ((IList) list).Add(value));
-		}
-
-		[Test]
-		public void Add_Object_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
-		{
-			// Arrange
-			IsReadOnly = true;
-			int value = GetRandomNumber();
-			InvokeCountContext context = new InvokeCountContext();
-			context.AddArg("args", default(CollectionChangedArgs<int>));
-
-			switch (eventType)
-			{
-				case EventType.Event:
-					list.OnCollectionChanged += OnCollectionChanged;
-					break;
-				case EventType.Register:
-					list.RegisterChangedListener(OnCollectionChanged);
-					break;
-				case EventType.RegisterWithContext:
-					list.RegisterChangedListener(OnCollectionChangedWithContext, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
-
-			// Assert
-			AssertThrows<ReadOnlyException>(() => ((IList) list).Add(value));
-			Assert.AreEqual(0, context.invokeCount);
-			Assert.AreEqual(default, context.GetArg<CollectionChangedArgs<int>>("args"));
-			return;
-
-			void OnCollectionChanged(CollectionChangedArgs<int> e)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-
-			static void OnCollectionChangedWithContext(CollectionChangedArgs<int> e, InvokeCountContext context)
-			{
-				context.invokeCount++;
-				context.SetArg("args", e);
-			}
-		}
-
-		[Test]
-		public void Add_Object_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
-		{
-			// Arrange
-			IsReadOnly = true;
-			int value = GetRandomNumber();
-			NotifyCollectionChangedEventArgs? args = null;
-			((INotifyCollectionChanged) list).CollectionChanged += OnCollectionChanged;
-
-			// Assert
-			AssertThrows<ReadOnlyException>(() => ((IList) list).Add(value));
-			Assert.IsNull(args);
-			return;
-
-			void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-			{
-				args = e;
-			}
+			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => ((IList) x).Add(value));
 		}
 
 		[Test]
