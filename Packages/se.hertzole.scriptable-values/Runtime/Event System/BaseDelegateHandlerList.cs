@@ -98,11 +98,6 @@ namespace Hertzole.ScriptableValues
 			callbacks.RemoveFrom(other.callbacks);
 		}
 
-		public void RegisterCallback<TDelegate1>(TDelegate1 callback) where TDelegate1 : Delegate
-		{
-			throw new NotImplementedException();
-		}
-
 		public ReadOnlySpan<Delegate> GetDelegates()
 		{
 			ThrowHelper.ThrowIfDisposed(in isDisposed);

@@ -682,20 +682,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Resizes the list capacity by the specified amount, if needed. This can be used to avoid multiple resizes when
-		///     adding multiple items.
-		/// </summary>
-		/// <param name="count">The amount of resize by.</param>
-		private void ResizeIfNeeded(int count)
-		{
-			// If the capacity is less than the current count + the number of items to add, increase the capacity.
-			if (list.Capacity < list.Count + count)
-			{
-				list.Capacity = list.Count + count;
-			}
-		}
-
-		/// <summary>
 		///     Determines whether the list contains elements that match the conditions defined by the specified predicate.
 		/// </summary>
 		/// <param name="match">The predicate delegate that defines the conditions of the elements to search for.</param>
