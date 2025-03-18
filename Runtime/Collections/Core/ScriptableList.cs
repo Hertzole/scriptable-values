@@ -435,13 +435,6 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void TrimExcess()
 		{
-			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
-				return;
-			}
-
 			int originalCapacity = list.Capacity;
 			list.TrimExcess();
 
