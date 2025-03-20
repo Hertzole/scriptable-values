@@ -252,12 +252,10 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		[Test]
 		public void ScriptableDictionary_Events()
 		{
-			TestLeftOverWarning<TestScriptableDictionary>(4, i =>
+			TestLeftOverWarning<TestScriptableDictionary>(2, i =>
 			{
-				i.OnAdded += (_, _) => { };
-				i.OnSet += (_, _, _) => { };
-				i.OnRemoved += (_, _) => { };
-				i.OnCleared += () => { };
+				i.OnCollectionChanged += _ => { };
+				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
 			});
 		}
 

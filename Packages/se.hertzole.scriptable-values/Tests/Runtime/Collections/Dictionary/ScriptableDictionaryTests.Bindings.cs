@@ -87,7 +87,8 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void SetEqualityCheck_NotifiesPropertyChanged()
 		{
-			AssertNotifyPropertyChangedCalled(dictionary, nameof(dictionary.SetEqualityCheck), instance => instance.SetEqualityCheck = !instance.SetEqualityCheck);
+			AssertNotifyPropertyChangedCalled(dictionary, nameof(dictionary.SetEqualityCheck),
+				instance => instance.SetEqualityCheck = !instance.SetEqualityCheck);
 		}
 
 		[Test]

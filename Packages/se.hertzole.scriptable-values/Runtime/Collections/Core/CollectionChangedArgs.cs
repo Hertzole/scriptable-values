@@ -100,13 +100,13 @@ namespace Hertzole.ScriptableValues
 			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Replace, startingIndex, newMemory, startingIndex, oldMemory);
 		}
 
-		public static CollectionChangedArgs<T> Clear(ReadOnlySpan<T> items)
+		public static CollectionChangedArgs<T> Clear(ReadOnlySpan<T> items, int newIndex = 0, int oldIndex = 0)
 		{
 			using IMemoryOwner<T> owner = MemoryPool<T>.Shared.Rent(items.Length);
 			Memory<T> memory = owner.Memory.Slice(0, items.Length);
 			items.CopyTo(memory.Span);
 
-			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset, 0, oldIndex: 0, oldItems: memory);
+			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset, newIndex, oldIndex: oldIndex, oldItems: memory);
 		}
 
 		public static implicit operator NotifyCollectionChangedEventArgs(CollectionChangedArgs<T> args)

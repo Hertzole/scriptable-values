@@ -12,11 +12,10 @@ using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
 using Is = UnityEngine.TestTools.Constraints.Is;
-using Random = UnityEngine.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public partial class ScriptableListTests : BaseRuntimeTest
+	public partial class ScriptableListTests : BaseCollectionTest
 	{
 		private TestScriptableList list = null!;
 
@@ -423,79 +422,6 @@ namespace Hertzole.ScriptableValues.Tests
 
 			list.EnsureCapacity(50);
 			Assert.AreEqual(100, list.Capacity);
-		}
-
-		private static int GetRandomNumber(int tolerance = 10)
-		{
-			int result = 0;
-			int min = -tolerance;
-			int max = tolerance;
-			int tries = 0;
-
-			while ((result > min || result < max) && tries < 100)
-			{
-				result = Random.Range(int.MinValue, int.MaxValue);
-				tries++;
-			}
-
-			return result;
-		}
-
-		private static void AssertDoesNotInvokeCollectionChanged<T>(ScriptableList<T> list,
-			EventType eventType,
-			Action<ScriptableList<T>> action,
-			bool handleReadOnly = false)
-		{
-			// Arrange
-			using CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list, eventType);
-
-			// Act
-			if (handleReadOnly)
-			{
-				try
-				{
-					action.Invoke(list);
-				}
-				catch (ReadOnlyException)
-				{
-					// Does nothing.
-				}
-			}
-			else
-			{
-				action.Invoke(list);
-			}
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
-		}
-
-		private static void AssertDoesNotInvokeINotifyCollectionChanged<T>(ScriptableList<T> list,
-			Action<ScriptableList<T>> action,
-			bool handleReadOnly = false)
-		{
-			// Arrange
-			using CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list);
-
-			// Act
-			if (handleReadOnly)
-			{
-				try
-				{
-					action.Invoke(list);
-				}
-				catch (ReadOnlyException)
-				{
-					// Does nothing.
-				}
-			}
-			else
-			{
-				action.Invoke(list);
-			}
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
 		}
 	}
 }
