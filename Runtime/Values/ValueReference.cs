@@ -330,8 +330,8 @@ namespace Hertzole.ScriptableValues
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
 					referenceValue = handle.Result;
-					onValueChangingInternal.AddFrom(referenceValue.onValueChangingEvents);
-					onValueChangedInternal.AddFrom(referenceValue.onValueChangedEvents);
+					referenceValue.onValueChangingEvents.AddFrom(onValueChangingInternal);
+					referenceValue.onValueChangedEvents.AddFrom(onValueChangedInternal);
 				}
 
 				onLoaded?.Invoke(handle);
