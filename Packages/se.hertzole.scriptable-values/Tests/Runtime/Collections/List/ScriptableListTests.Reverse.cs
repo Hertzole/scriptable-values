@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -101,7 +100,7 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list.Reverse());
+			AssertThrowsReadOnlyException(list, x => x.Reverse());
 		}
 
 		[Test]
@@ -110,13 +109,9 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			list.AddRange(new[] { 1, 2, 3 });
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Reverse());
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Reverse(), true);
 		}
 
 		[Test]
@@ -125,39 +120,23 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			list.AddRange(new[] { 1, 2, 3 });
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Reverse());
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Reverse(), true);
 		}
 
 		[Test]
 		public void Reverse_EmptyList_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
-
-			// Act
-			list.Reverse();
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Reverse());
 		}
 
 		[Test]
 		public void Reverse_EmptyList_DoesNotInvokeINotifyCollectionChanged()
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
-
-			// Act
-			list.Reverse();
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Reverse());
 		}
 
 		[Test]
@@ -171,10 +150,7 @@ namespace Hertzole.ScriptableValues.Tests
 
 			// Assert
 			int[] expected = { 1, 4, 3, 2, 5 };
-			for (int i = 0; i < expected.Length; i++)
-			{
-				Assert.AreEqual(expected[i], list[i], $"The item at index {i} is not correct.");
-			}
+			AssertArraysAreEqual(expected, list);
 		}
 
 		[Test]
@@ -256,7 +232,7 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list.Reverse(0, 3));
+			AssertThrowsReadOnlyException(list, x => x.Reverse(0, 3));
 		}
 
 		[Test]
@@ -265,13 +241,9 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			list.AddRange(new[] { 1, 2, 3 });
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Reverse(0, 3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Reverse(0, 3), true);
 		}
 
 		[Test]
@@ -280,13 +252,9 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			list.AddRange(new[] { 1, 2, 3 });
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Reverse(0, 3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Reverse(0, 3), true);
 		}
 
 		[Test]
@@ -312,27 +280,15 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ReverseRange_EmptyList_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
-
-			// Act
-			list.Reverse(0, 0);
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Reverse(0, 0));
 		}
 
 		[Test]
 		public void ReverseRange_EmptyList_DoesNotInvokeINotifyCollectionChanged()
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
-
-			// Act
-			list.Reverse(0, 0);
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Reverse(0, 0));
 		}
 	}
 }

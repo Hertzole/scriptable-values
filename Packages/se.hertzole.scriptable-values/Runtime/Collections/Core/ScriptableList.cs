@@ -5,7 +5,7 @@ using Unity.Properties;
 
 namespace Hertzole.ScriptableValues
 {
-	public abstract class ScriptableList : RuntimeScriptableObject
+	public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly
 	{
 		public static readonly PropertyChangedEventArgs clearOnStartChangedArgs = new PropertyChangedEventArgs(nameof(ScriptableList<object>.ClearOnStart));
 		public static readonly PropertyChangedEventArgs isReadOnlyChangedArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));

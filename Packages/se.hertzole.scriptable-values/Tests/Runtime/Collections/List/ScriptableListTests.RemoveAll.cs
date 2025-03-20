@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -73,23 +72,19 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list.RemoveAll(x => x == 3));
+			AssertThrowsReadOnlyException(list, l => l.RemoveAll(x => x == 3));
 		}
 
 		[Test]
-		public void RemoveAll_ReadOnly_DoesNotInvokeCollectionChanged()
+		public void RemoveAll_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.RemoveAll(x => x == 3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, l => l.RemoveAll(x => x == 3), true);
 		}
 
 		[Test]
@@ -99,13 +94,9 @@ namespace Hertzole.ScriptableValues.Tests
 			int[] items = { 1, 2, 3, 4, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.RemoveAll(x => x == 3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, l => l.RemoveAll(x => x == 3), true);
 		}
 
 		[Test]
@@ -128,6 +119,28 @@ namespace Hertzole.ScriptableValues.Tests
 			// Assert
 			Assert.AreEqual(0, removed, "The amount of removed items is not correct.");
 			Assert.AreEqual(5, list.Count, "The count is not correct.");
+		}
+
+		[Test]
+		public void RemoveAll_NoMatch_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Arrange
+			int[] items = { 1, 2, 3, 4, 5 };
+			list.AddRange(items);
+
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, l => l.RemoveAll(x => x == 10));
+		}
+
+		[Test]
+		public void RemoveAll_NoMatch_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = { 1, 2, 3, 4, 5 };
+			list.AddRange(items);
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, l => l.RemoveAll(x => x == 10));
 		}
 	}
 }

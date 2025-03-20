@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -88,7 +87,7 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list.RemoveAt(3));
+			AssertThrowsReadOnlyException(list, x => x.RemoveAt(1));
 		}
 
 		[Test]
@@ -97,14 +96,10 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 			list.IsReadOnly = true;
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.RemoveAt(3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, l => l.RemoveAt(2), true);
 		}
 
 		[Test]
@@ -113,14 +108,10 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 			list.IsReadOnly = true;
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.RemoveAt(3));
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.RemoveAt(2), true);
 		}
 	}
 }

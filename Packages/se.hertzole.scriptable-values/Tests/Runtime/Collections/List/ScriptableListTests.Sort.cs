@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -60,7 +59,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Sort_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_ReadOnly_ThrowsReadOnlyException()
 		{
 			// Arrange
 			int[] items = GetShuffledArray<int>();
@@ -68,20 +67,45 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Assert
-			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => x.Sort());
+			AssertThrowsReadOnlyException(list, x => x.Sort());
 		}
 
 		[Test]
-		public void Sort_EmptyList_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
 			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType, list);
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
 
-			// Act
-			list.Sort();
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort(), true);
+		}
 
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+		[Test]
+		public void Sort_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort(), true);
+		}
+
+		[Test]
+		public void Sort_EmptyList_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort());
+		}
+
+		[Test]
+		public void Sort_EmptyList_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort());
 		}
 
 		[Test]
@@ -133,7 +157,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Sort_WithComparer_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_WithComparer_ReadOnly_ThrowsReadOnlyException()
 		{
 			// Arrange
 			int[] items = GetShuffledArray<int>();
@@ -141,7 +165,31 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Assert
-			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => x.Sort(ReverseComparer.Instance));
+			AssertThrowsReadOnlyException(list, x => x.Sort(ReverseComparer.Instance));
+		}
+
+		[Test]
+		public void Sort_WithComparer_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort(ReverseComparer.Instance), true);
+		}
+
+		[Test]
+		public void Sort_WithComparer_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort(ReverseComparer.Instance), true);
 		}
 
 		[Test]
@@ -222,7 +270,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Sort_Range_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_Range_ReadOnly_ThrowsReadOnlyException()
 		{
 			// Arrange
 			int[] items = GetShuffledArray<int>();
@@ -230,7 +278,31 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Assert
-			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => x.Sort(2, 5));
+			AssertThrowsReadOnlyException(list, x => x.Sort(2, 5));
+		}
+
+		[Test]
+		public void Sort_Range_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort(2, 5), true);
+		}
+
+		[Test]
+		public void Sort_Range_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort(2, 5), true);
 		}
 
 		[Test]
@@ -298,7 +370,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void Sort_Comparison_ReadOnly_ThrowsReadOnlyException_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_Comparison_ReadOnly_ThrowsReadOnlyException()
 		{
 			// Arrange
 			int[] items = GetShuffledArray<int>();
@@ -307,21 +379,53 @@ namespace Hertzole.ScriptableValues.Tests
 			Comparison<int> comparison = (x, y) => x - y;
 
 			// Assert
-			AssertThrowsReadOnlyExceptionAndNotInvoked(list, eventType, x => x.Sort(comparison));
+			AssertThrowsReadOnlyException(list, x => x.Sort(comparison));
 		}
 
 		[Test]
-		public void Sort_Comparison_EmptyList_DoesNotInvokeEvents([Values] EventType eventType)
+		public void Sort_Comparison_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
 			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType, list);
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
 			Comparison<int> comparison = (x, y) => x - y;
 
-			// Act
-			list.Sort(comparison);
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort(comparison), true);
+		}
 
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+		[Test]
+		public void Sort_Comparison_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = GetShuffledArray<int>();
+			list.AddRange(items);
+			list.IsReadOnly = true;
+			Comparison<int> comparison = (x, y) => x - y;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort(comparison), true);
+		}
+
+		[Test]
+		public void Sort_Comparison_EmptyList_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Arrange
+			Comparison<int> comparison = (x, y) => x - y;
+
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Sort(comparison));
+		}
+
+		[Test]
+		public void Sort_Comparison_EmptyList_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			Comparison<int> comparison = (x, y) => x - y;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Sort(comparison));
 		}
 
 		private static void AssertIsArgsSorted<T>(T[] original, IList<T> newList, CollectionChangedArgs<T> args)
