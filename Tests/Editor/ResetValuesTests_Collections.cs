@@ -64,14 +64,13 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		}
 
 		[Test]
-		public void List_ResetEvents()
+		public void List_ResetEvents([Values] EventType eventType)
 		{
+			// Arrange
 			TestScriptableList instance = CreateInstance<TestScriptableList>();
+			using var tracker = new CollectionEventTracker<int>(instance, eventType, instance);
 
-			int invokeCount = 0;
-
-			instance.OnCollectionChanged += OnCollectionChanged;
-
+			// Act
 			instance.Test_OnStart();
 
 			instance.Add(0);
@@ -80,13 +79,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 			instance.Insert(0, 42);
 			instance.RemoveAt(0);
 
-			Assert.AreEqual(0, invokeCount);
-			return;
-			
-			void OnCollectionChanged(CollectionChangedArgs<int> e)
-			{
-				invokeCount++;
-			}
+			Assert.IsFalse(tracker.HasBeenInvoked());
 		}
 		
 		[Test]

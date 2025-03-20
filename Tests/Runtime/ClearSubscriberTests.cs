@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Hertzole.ScriptableValues.Tests
 	public class ClearSubscriberTests : BaseTest
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
-			@"(On)([A-Za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
+			@"(On)?([A-Za-z\.]*) in object [A-Za-z ]*\(.*\) has some leftover subscribers:.*\n.*",
 			RegexOptions.Multiline);
 
 		[Test]
@@ -37,9 +38,10 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ScriptableList()
 		{
-			TestClearing<TestScriptableList>(1, i =>
+			TestClearing<TestScriptableList>(2, i =>
 			{
 				i.OnCollectionChanged += _ => { };
+				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
 			}, i => i.ClearSubscribers(true));
 		}
 

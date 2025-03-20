@@ -495,6 +495,7 @@ namespace Hertzole.ScriptableValues
 		private void WarnLeftOverSubscribers()
 		{
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
 		}
 
 		/// <summary>
@@ -513,6 +514,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 			onCollectionChanged.Reset();
+			OnInternalCollectionChanged = null;
 		}
 
 #if UNITY_EDITOR
