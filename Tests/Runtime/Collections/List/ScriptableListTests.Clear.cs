@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -37,10 +36,13 @@ namespace Hertzole.ScriptableValues.Tests
 			// Assert
 			CollectionChangedArgs<int> args = tracker.CollectionChangedArgs;
 			Assert.IsTrue(tracker.HasBeenInvoked(), "The event has not been invoked.");
+
 			Assert.AreEqual(0, args.NewItems.Length, "The new items length is not correct.");
-			Assert.AreEqual(0, args.OldItems.Length, "The old items length is not correct.");
-			Assert.AreEqual(-1, args.NewIndex, "The new index is not correct.");
-			Assert.AreEqual(-1, args.OldIndex, "The old index is not correct.");
+			Assert.AreEqual(0, args.NewIndex, "The new index is not correct.");
+
+			AssertArraysAreEqual(items, args.OldItems.ToArray());
+			Assert.AreEqual(0, args.OldIndex, "The old index is not correct.");
+
 			Assert.AreEqual(NotifyCollectionChangedAction.Reset, args.Action, "The action is not correct.");
 		}
 
@@ -58,10 +60,14 @@ namespace Hertzole.ScriptableValues.Tests
 			// Assert
 			NotifyCollectionChangedEventArgs args = tracker.NotifyCollectionChangedArgs;
 			Assert.IsTrue(tracker.HasBeenInvoked(), "The event has not been invoked.");
+
+			// Reset does not support any items.
 			Assert.IsNull(args.NewItems, "There shouldn't be any new items");
-			Assert.IsNull(args.OldItems, "There shouldn't be any old items");
 			Assert.AreEqual(-1, args.NewStartingIndex, "The new index is not correct.");
+
+			Assert.IsNull(args.OldItems, "There shouldn't be any old items");
 			Assert.AreEqual(-1, args.OldStartingIndex, "The old index is not correct.");
+
 			Assert.AreEqual(NotifyCollectionChangedAction.Reset, args.Action, "The action is not correct.");
 		}
 
@@ -74,7 +80,7 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list.Clear());
+			AssertThrowsReadOnlyException(list, x => x.Clear());
 		}
 
 		[Test]
@@ -84,13 +90,9 @@ namespace Hertzole.ScriptableValues.Tests
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Clear());
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Clear(), true);
 		}
 
 		[Test]
@@ -100,39 +102,23 @@ namespace Hertzole.ScriptableValues.Tests
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list.Clear());
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Clear(), true);
 		}
 
 		[Test]
 		public void Clear_Empty_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
-
-			// Act
-			list.Clear();
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Arrange
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x.Clear());
 		}
 
 		[Test]
 		public void Clear_Empty_DoesNotInvokeINotifyCollectionChanged()
 		{
-			// Arrange
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
-
-			// Act
-			list.Clear();
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Arrange
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x.Clear());
 		}
 	}
 }

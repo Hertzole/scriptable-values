@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
@@ -356,6 +357,15 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				UnityEngine.Assertions.Assert.AreEqual(expected[i], actual[i], $"The item at index {i} is not the same.");
 			}
+		}
+
+		protected static void AssertThrowsReadOnlyException<T>(T obj, Action<T> action) where T : RuntimeScriptableObject, ICanBeReadOnly
+		{
+			// Arrange
+			obj.IsReadOnly = true;
+
+			// Act & Assert
+			AssertThrows<ReadOnlyException>(() => action.Invoke(obj));
 		}
 
 		private class ComparisonComparer<T> : IComparer<T>

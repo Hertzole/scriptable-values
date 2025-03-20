@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Data;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -94,20 +93,19 @@ namespace Hertzole.ScriptableValues.Tests
 			list.IsReadOnly = true;
 
 			// Act & Assert
-			AssertThrows<ReadOnlyException>(() => list[2] = 10);
+			AssertThrowsReadOnlyException(list, x => x[2] = 10);
 		}
 
 		[Test]
-		public void Set_ReadOnly_DoesNotInvokeCollectionChanged()
+		public void Set_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
 		{
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list[2] = 10);
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x[2] = 10, true);
 		}
 
 		[Test]
@@ -117,10 +115,9 @@ namespace Hertzole.ScriptableValues.Tests
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
 			list.IsReadOnly = true;
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			AssertThrows<ReadOnlyException>(() => list[2] = 10);
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x[2] = 10, true);
 		}
 
 		[Test]
@@ -129,13 +126,9 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list, eventType);
 
-			// Act
-			list[2] = 3;
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x[2] = 3);
 		}
 
 		[Test]
@@ -144,13 +137,9 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			int[] items = { 1, 2, 3, 4, 5 };
 			list.AddRange(items);
-			using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(list);
 
-			// Act
-			list[2] = 3;
-
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x[2] = 3);
 		}
 
 		[Test]
@@ -261,6 +250,30 @@ namespace Hertzole.ScriptableValues.Tests
 
 			// Act & Assert
 			AssertThrows<ArgumentException>(() => l[2] = "Test");
+		}
+
+		[Test]
+		public void Set_Object_ReadOnly_DoesNotInvokeCollectionChanged([Values] EventType eventType)
+		{
+			// Arrange
+			int[] items = { 1, 2, 3, 4, 5 };
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeCollectionChanged(list, eventType, x => x[2] = 10, true);
+		}
+
+		[Test]
+		public void Set_Object_ReadOnly_DoesNotInvokeINotifyCollectionChanged()
+		{
+			// Arrange
+			int[] items = { 1, 2, 3, 4, 5 };
+			list.AddRange(items);
+			list.IsReadOnly = true;
+
+			// Act & Assert
+			AssertDoesNotInvokeINotifyCollectionChanged(list, x => x[2] = 10, true);
 		}
 	}
 }

@@ -20,12 +20,6 @@ namespace Hertzole.ScriptableValues.Tests
 	{
 		private TestScriptableList list = null!;
 
-		public bool IsReadOnly
-		{
-			get { return list.IsReadOnly; }
-			set { list.IsReadOnly = value; }
-		}
-
 		protected override void OnSetup()
 		{
 			list = CreateInstance<TestScriptableList>();
@@ -356,28 +350,28 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void IsFixedSizeWhenReadOnly()
 		{
-			IsReadOnly = true;
+			list.IsReadOnly = true;
 			Assert.IsTrue(((IList) list).IsFixedSize);
 		}
 
 		[Test]
 		public void IsFixedSizeWhenNotReadOnly()
 		{
-			IsReadOnly = false;
+			list.IsReadOnly = false;
 			Assert.IsFalse(((IList) list).IsFixedSize);
 		}
 
 		[Test]
 		public void IsReadOnlyWhenReadOnly()
 		{
-			IsReadOnly = true;
+			list.IsReadOnly = true;
 			Assert.IsTrue(((IList) list).IsReadOnly);
 		}
 
 		[Test]
 		public void IsReadOnlyWhenNotReadOnly()
 		{
-			IsReadOnly = false;
+			list.IsReadOnly = false;
 			Assert.IsFalse(((IList) list).IsReadOnly);
 		}
 
@@ -431,7 +425,7 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.AreEqual(100, list.Capacity);
 		}
 
-		private static int GetRandomNumber(int tolerance = 100)
+		private static int GetRandomNumber(int tolerance = 10)
 		{
 			int result = 0;
 			int min = -tolerance;
@@ -446,14 +440,59 @@ namespace Hertzole.ScriptableValues.Tests
 
 			return result;
 		}
-		
-		private static void AssertThrowsReadOnlyExceptionAndNotInvoked<T>(ScriptableList<T> list, EventType eventType, Action<ScriptableList<T>> action)
+
+		private static void AssertDoesNotInvokeCollectionChanged<T>(ScriptableList<T> list,
+			EventType eventType,
+			Action<ScriptableList<T>> action,
+			bool handleReadOnly = false)
 		{
 			// Arrange
-			CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list, eventType, list);
+			using CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list, eventType);
 
 			// Act
-			AssertThrows<ReadOnlyException>(() => action.Invoke(list));
+			if (handleReadOnly)
+			{
+				try
+				{
+					action.Invoke(list);
+				}
+				catch (ReadOnlyException)
+				{
+					// Does nothing.
+				}
+			}
+			else
+			{
+				action.Invoke(list);
+			}
+
+			// Assert
+			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
+		}
+
+		private static void AssertDoesNotInvokeINotifyCollectionChanged<T>(ScriptableList<T> list,
+			Action<ScriptableList<T>> action,
+			bool handleReadOnly = false)
+		{
+			// Arrange
+			using CollectionEventTracker<T> tracker = new CollectionEventTracker<T>(list);
+
+			// Act
+			if (handleReadOnly)
+			{
+				try
+				{
+					action.Invoke(list);
+				}
+				catch (ReadOnlyException)
+				{
+					// Does nothing.
+				}
+			}
+			else
+			{
+				action.Invoke(list);
+			}
 
 			// Assert
 			Assert.IsFalse(tracker.HasBeenInvoked(), "The event has been invoked.");
