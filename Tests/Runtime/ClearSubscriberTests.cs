@@ -48,13 +48,10 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ScriptableDictionary()
 		{
-			TestClearing<TestScriptableDictionary>(5, i =>
+			TestClearing<TestScriptableDictionary>(2, i =>
 			{
-				i.OnAdded += (i1, i2) => { };
-				i.OnRemoved += (i, i1) => { };
-				i.OnCleared += () => { };
-				i.OnSet += (i, i1, arg3) => { };
-				i.OnChanged += type => { };
+				i.OnCollectionChanged += _ => { };
+				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
 			}, i => i.ClearSubscribers(true));
 		}
 

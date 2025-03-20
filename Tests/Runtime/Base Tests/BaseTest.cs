@@ -8,7 +8,7 @@ using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Random = System.Random;
+using Random = UnityEngine.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -312,7 +312,7 @@ namespace Hertzole.ScriptableValues.Tests
 
 		protected static void ShuffleArray<T>(T[] array)
 		{
-			Random random = new Random();
+			System.Random random = new System.Random();
 
 			int n = array.Length;
 			while (n > 1)
@@ -329,6 +329,22 @@ namespace Hertzole.ScriptableValues.Tests
 			T[] items = Enumerable.Range(0, count).Select(x => (T) Convert.ChangeType(x, typeof(T))).ToArray();
 			ShuffleArray(items);
 			return items;
+		}
+		
+		protected static int GetRandomNumber(int tolerance = 10)
+		{
+			int result = 0;
+			int min = -tolerance;
+			int max = tolerance;
+			int tries = 0;
+
+			while ((result > min || result < max) && tries < 100)
+			{
+				result = Random.Range(int.MinValue, int.MaxValue);
+				tries++;
+			}
+
+			return result;
 		}
 
 		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, Comparison<T> comparison)

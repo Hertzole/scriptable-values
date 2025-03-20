@@ -7,7 +7,7 @@ namespace Hertzole.ScriptableValues.Tests
 {
 	public sealed class CollectionEventTracker<T> : BaseEventTracker
 	{
-		private readonly ScriptableList<T>? list = null;
+		private readonly INotifyScriptableCollectionChanged<T>? list = null;
 		private readonly EventType eventType;
 		private readonly InvokeCountContext context = new InvokeCountContext();
 		private readonly INotifyCollectionChanged? notifyCollectionChanged = null;
@@ -40,7 +40,7 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
-		public CollectionEventTracker(ScriptableList<T> list, EventType eventType)
+		public CollectionEventTracker(INotifyScriptableCollectionChanged<T> list, EventType eventType)
 		{
 			this.list = list;
 			this.eventType = eventType;
@@ -62,7 +62,7 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
-		public CollectionEventTracker(ScriptableList<T> list, EventType eventType, INotifyCollectionChanged collectionChanged) : this(list, eventType)
+		public CollectionEventTracker(INotifyScriptableCollectionChanged<T> list, EventType eventType, INotifyCollectionChanged collectionChanged) : this(list, eventType)
 		{
 			notifyCollectionChanged = collectionChanged;
 			notifyCollectionChanged.CollectionChanged += OnCollectionChanged;

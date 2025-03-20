@@ -1,9 +1,15 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Assertions;
+using Debug = UnityEngine.Debug;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
@@ -15,20 +21,36 @@ namespace Hertzole.ScriptableValues
 	/// </summary>
 	public abstract class ScriptableDictionary : RuntimeScriptableObject, ICanBeReadOnly
 	{
-		public static readonly PropertyChangingEventArgs isReadOnlyChangingEventArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
 		public static readonly PropertyChangedEventArgs isReadOnlyChangedEventArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));
-		
-		public static readonly PropertyChangingEventArgs setEqualityCheckChangingEventArgs = new PropertyChangingEventArgs(nameof(SetEqualityCheck));
+		public static readonly PropertyChangingEventArgs isReadOnlyChangingEventArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
+
 		public static readonly PropertyChangedEventArgs setEqualityCheckChangedEventArgs = new PropertyChangedEventArgs(nameof(SetEqualityCheck));
-		
-		public static readonly PropertyChangingEventArgs clearOnStartChangingEventArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
+		public static readonly PropertyChangingEventArgs setEqualityCheckChangingEventArgs = new PropertyChangingEventArgs(nameof(SetEqualityCheck));
+
 		public static readonly PropertyChangedEventArgs clearOnStartChangedEventArgs = new PropertyChangedEventArgs(nameof(ClearOnStart));
-		
-		/// <inheritdoc />
-		public abstract bool IsReadOnly { get; set; }
+		public static readonly PropertyChangingEventArgs clearOnStartChangingEventArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
+
+		public static readonly PropertyChangedEventArgs countChangedEventArgs = new PropertyChangedEventArgs(nameof(Count));
+		public static readonly PropertyChangingEventArgs countChangingEventArgs = new PropertyChangingEventArgs(nameof(Count));
+
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public abstract bool SetEqualityCheck { get; set; }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
 		public abstract bool ClearOnStart { get; set; }
-		public abstract int Count { get; }
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public abstract int Count { get; protected set; }
+
+		/// <inheritdoc />
+#if SCRIPTABLE_VALUES_PROPERTIES
+		[CreateProperty]
+#endif
+		public abstract bool IsReadOnly { get; set; }
 
 		internal virtual bool IsValid()
 		{
@@ -50,6 +72,8 @@ namespace Hertzole.ScriptableValues
 		ISerializationCallbackReceiver,
 		IDictionary<TKey, TValue>,
 		IReadOnlyDictionary<TKey, TValue>,
+		INotifyCollectionChanged,
+		INotifyScriptableCollectionChanged<KeyValuePair<TKey, TValue>>,
 		IDictionary where TKey : notnull
 	{
 		[SerializeField]
@@ -83,16 +107,37 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal List<TValue> values = new List<TValue>();
 
+		private int count = 0;
+
+		private readonly DelegateHandlerList<CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>, CollectionChangedArgs<KeyValuePair<TKey, TValue>>>
+			onCollectionChanged =
+				new DelegateHandlerList<CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>, CollectionChangedArgs<KeyValuePair<TKey, TValue>>>();
+
 		internal Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
-		object IDictionary.this[object key]
+		object? IDictionary.this[object key]
 		{
-			get { return EqualityHelper.IsSameType(key, out TKey newKey) ? dictionary[newKey] : default(object); }
+			get { return EqualityHelper.IsSameType(key, out TKey newKey) ? dictionary[newKey] : null; }
 			set
 			{
-				if (EqualityHelper.IsSameType(key, out TKey newKey) && EqualityHelper.IsSameType(value, out TValue newValue))
+				ThrowHelper.ThrowIfNull(key, nameof(key));
+				ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
+
+				try
 				{
-					SetValue(newKey, newValue);
+					TKey tempKey = (TKey) key;
+					try
+					{
+						SetValue(tempKey, (TValue) value!);
+					}
+					catch (InvalidCastException)
+					{
+						ThrowHelper.ThrowWrongExpectedValueType<TValue>(value);
+					}
+				}
+				catch (InvalidCastException)
+				{
+					ThrowHelper.ThrowWrongExpectedValueType<TKey>(key);
 				}
 			}
 		}
@@ -127,30 +172,18 @@ namespace Hertzole.ScriptableValues
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
-#if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
-#endif
 		public override bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
-			set
-			{
-				SetField(ref setEqualityCheck, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs);
-			}
+			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingEventArgs, setEqualityCheckChangedEventArgs); }
 		}
 		/// <summary>
 		///     If true, the dictionary will be cleared on play mode start/game boot.
 		/// </summary>
-#if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
-#endif
 		public override bool ClearOnStart
 		{
 			get { return clearOnStart; }
-			set
-			{
-				SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs);
-			}
+			set { SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs); }
 		}
 
 		/// <summary>
@@ -193,27 +226,27 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
 		/// </summary>
-#if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
-#endif
 		public override bool IsReadOnly
 		{
 			get { return isReadOnly; }
-			set
-			{
-				SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs);
-			}
+			set { SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs); }
 		}
 
 		/// <summary>
 		///     Gets the number of key/value pairs contained in the dictionary.
 		/// </summary>
-#if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
-#endif
 		public override int Count
 		{
-			get { return dictionary.Count; }
+			get
+			{
+				Assert.AreEqual(dictionary.Count, count, "Dictionary count is not the same as the internal count.");
+				return count;
+			}
+			protected set
+			{
+				SetField(ref count, value, countChangingEventArgs, countChangedEventArgs);
+				Assert.AreEqual(dictionary.Count, count);
+			}
 		}
 
 		ICollection<TKey> IDictionary<TKey, TValue>.Keys
@@ -238,23 +271,44 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when an item was added. Gives you the key and value of the newly added item.
 		/// </summary>
-		public event Action<TKey, TValue> OnAdded;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		public event Action<TKey, TValue>? OnAdded;
 		/// <summary>
 		///     Called when an item was set. Gives you the key, the old value, and the new value of the item.
 		/// </summary>
-		public event Action<TKey, TValue, TValue> OnSet;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		public event Action<TKey, TValue, TValue>? OnSet;
 		/// <summary>
 		///     Called when an item was removed. Gives you the key and value of the removed item.
 		/// </summary>
-		public event Action<TKey, TValue> OnRemoved;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		public event Action<TKey, TValue>? OnRemoved;
 		/// <summary>
 		///     Called when the dictionary is cleared.
 		/// </summary>
-		public event Action OnCleared;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		public event Action? OnCleared;
 		/// <summary>
 		///     Called when the dictionary is changed in any way.
 		/// </summary>
-		public event Action<DictionaryChangeType> OnChanged;
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", false)]
+		public event Action<DictionaryChangeType>? OnChanged;
+
+		// Internal event for the INotifyCollectionChanged interface as we don't want to expose that event directly.
+		private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
+
+		/// <inheritdoc />
+		event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+		{
+			add { OnInternalCollectionChanged += value; }
+			remove { OnInternalCollectionChanged -= value; }
+		}
+		/// <inheritdoc />
+		public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> OnCollectionChanged
+		{
+			add { RegisterChangedListener(value); }
+			remove { UnregisterChangedListener(value); }
+		}
 
 		/// <summary>
 		///     Checks if the dictionary is a valid dictionary by checking the keys and values.
@@ -326,46 +380,36 @@ namespace Hertzole.ScriptableValues
 		private void SetValue(TKey key, TValue value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			// Try to add it first. If it fails, we update the value.
+			if (!TryAddInternal(key, value))
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be changed at runtime.");
-				return;
-			}
+				// Get the old value from the dictionary.
+				TValue? oldValue = dictionary[key];
 
-			using (new ChangeScope(this))
-			{
-				// Check if the item already exists.
-				// If it does, update it.
-				// Otherwise, add it.
-				if (dictionary.TryGetValue(key, out TValue oldValue))
+				// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
+				if (setEqualityCheck && EqualityHelper.Equals(oldValue, value))
 				{
-					// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
-					if (setEqualityCheck && EqualityHelper.Equals(oldValue, value))
-					{
-						return;
-					}
-
-					// Get the index of the value.
-					int valueIndex = values.IndexOf(oldValue);
-					if (valueIndex >= 0)
-					{
-						// Update the value in the values list.
-						values[valueIndex] = value;
-					}
-
-					// Update the value in the dictionary.
-					dictionary[key] = value;
-
-					OnSet?.Invoke(key, oldValue, value);
-					OnChanged?.Invoke(DictionaryChangeType.Set);
-
-					AddStackTrace();
+					return;
 				}
-				else
-				{
-					AddFastPath(key, value);
-					AddStackTrace();
-				}
+
+				// Get the index of the value.
+				int valueIndex = values.IndexOf(oldValue);
+				Assert.AreNotEqual(-1, valueIndex, "The value was not found in the values list.");
+
+				// Update the value in the values list.
+				values[valueIndex] = value;
+
+				// Update the value in the dictionary.
+				dictionary[key] = value;
+
+				KeyValuePair<TKey, TValue> oldItem = new KeyValuePair<TKey, TValue>(key, oldValue);
+				KeyValuePair<TKey, TValue> newItem = new KeyValuePair<TKey, TValue>(key, value);
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Replace(oldItem, newItem, -1));
+
+				AddStackTrace();
 			}
 		}
 
@@ -378,30 +422,32 @@ namespace Hertzole.ScriptableValues
 		public bool TryAdd(TKey key, TValue value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			return TryAddInternal(key, value);
+		}
+
+		private bool TryAddInternal(TKey key, TValue value)
+		{
+			bool result = dictionary.TryAdd(key, value);
+
+			if (result)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
-				return false;
+				// We must update the lists too so they are in sync with the dictionary.
+				keys.Add(key);
+				values.Add(value);
+
+				Count = dictionary.Count;
+
+				Assert.AreEqual(dictionary.Keys.Count, keys.Count);
+				Assert.AreEqual(dictionary.Values.Count, values.Count);
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Add(new KeyValuePair<TKey, TValue>(key, value), -1));
+
+				AddStackTrace(1);
 			}
 
-			using (new ChangeScope(this))
-			{
-				bool result = dictionary.TryAdd(key, value);
-				// If the item was added, add it to the lists and invoke the event.
-				if (result)
-				{
-					// We must update the lists too so they are in sync with the dictionary.
-					keys.Add(key);
-					values.Add(value);
-
-					OnAdded?.Invoke(key, value);
-					OnChanged?.Invoke(DictionaryChangeType.Added);
-
-					AddStackTrace();
-				}
-
-				return result;
-			}
+			return result;
 		}
 
 		/// <summary>
@@ -466,18 +512,10 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void TrimExcess()
 		{
-			if (isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
-				return;
-			}
-
 			dictionary.TrimExcess();
 
 			keys.TrimExcess();
 			values.TrimExcess();
-
-			OnChanged?.Invoke(DictionaryChangeType.Trimmed);
 
 			AddStackTrace();
 		}
@@ -489,18 +527,10 @@ namespace Hertzole.ScriptableValues
 		/// <param name="capacity">The new capacity.</param>
 		public void TrimExcess(int capacity)
 		{
-			if (isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be trimmed at runtime.");
-				return;
-			}
-
 			dictionary.TrimExcess(capacity);
 
 			keys.TrimExcess();
 			values.TrimExcess();
-
-			OnChanged?.Invoke(DictionaryChangeType.Trimmed);
 
 			AddStackTrace();
 		}
@@ -519,7 +549,15 @@ namespace Hertzole.ScriptableValues
 				dictionary.Clear();
 				keys.Clear();
 				values.Clear();
+				Count = 0;
 			}
+		}
+
+		[Conditional("DEBUG")]
+		private void WarnLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
 		}
 
 		/// <summary>
@@ -534,19 +572,12 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnChanged, nameof(OnChanged), this);
+				WarnLeftOverSubscribers();
 			}
 #endif
 
-			OnAdded = null;
-			OnSet = null;
-			OnRemoved = null;
-			OnCleared = null;
-			OnChanged = null;
+			onCollectionChanged.Reset();
+			OnInternalCollectionChanged = null;
 		}
 
 #if UNITY_EDITOR
@@ -558,31 +589,11 @@ namespace Hertzole.ScriptableValues
 				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
 			}
 
-			EventHelper.WarnIfLeftOverSubscribers(OnAdded, nameof(OnAdded), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnSet, nameof(OnSet), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnRemoved, nameof(OnRemoved), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnCleared, nameof(OnCleared), this);
+			WarnLeftOverSubscribers();
 
 			dictionary.TrimExcess();
 		}
 #endif
-
-		/// <summary>
-		///     Adds the specified key and value to the dictionary without checking read only status and without adding a stack
-		///     trace.
-		/// </summary>
-		/// <param name="key">The key of the element to add.</param>
-		/// <param name="value">The value of the element to add.</param>
-		private void AddFastPath(TKey key, TValue value)
-		{
-			dictionary.Add(key, value);
-
-			keys.Add(key);
-			values.Add(value);
-
-			OnAdded?.Invoke(key, value);
-			OnChanged?.Invoke(DictionaryChangeType.Added);
-		}
 
 		/// <summary>
 		///     Returns an enumerator that iterates through the dictionary.
@@ -619,7 +630,7 @@ namespace Hertzole.ScriptableValues
 		{
 			if (EqualityHelper.IsSameType(key, out TKey newKey))
 			{
-				Remove(newKey);
+				RemoveInternal(newKey);
 			}
 		}
 
@@ -628,11 +639,27 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="key">The key of the element to add.</param>
 		/// <param name="value">The value of the element to add.</param>
-		void IDictionary.Add(object key, object value)
+		void IDictionary.Add(object key, object? value)
 		{
-			if (EqualityHelper.IsSameType(key, out TKey newKey) && EqualityHelper.IsSameType(value, out TValue newValue))
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
+
+			try
 			{
-				Add(newKey, newValue);
+				TKey tempKey = (TKey) key;
+
+				try
+				{
+					AddInternal(tempKey, (TValue) value!);
+				}
+				catch (InvalidCastException)
+				{
+					ThrowHelper.ThrowWrongExpectedValueType<TValue>(value);
+				}
+			}
+			catch (InvalidCastException)
+			{
+				ThrowHelper.ThrowWrongExpectedValueType<TKey>(key);
 			}
 		}
 
@@ -670,7 +697,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="item">The key/value pair to add.</param>
 		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
 		{
-			Add(item.Key, item.Value);
+			AddInternal(item.Key, item.Value);
 		}
 
 		/// <summary>
@@ -678,21 +705,23 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void Clear()
 		{
-			if (isReadOnly)
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			if (Count == 0)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be cleared at runtime.");
 				return;
 			}
 
-			using (new ChangeScope(this))
+			using (CollectionScope<KeyValuePair<TKey, TValue>> scope = new CollectionScope<KeyValuePair<TKey, TValue>>(dictionary))
 			{
 				dictionary.Clear();
 
 				keys.Clear();
 				values.Clear();
 
-				OnCleared?.Invoke();
-				OnChanged?.Invoke(DictionaryChangeType.Cleared);
+				Count = 0;
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Clear(scope.Span, -1, -1));
 
 				AddStackTrace();
 			}
@@ -725,11 +754,9 @@ namespace Hertzole.ScriptableValues
 		/// <returns>True if the key/value pair was found and removed; otherwise, false.</returns>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
 		{
-			AddStackTrace();
-
 			if (dictionary.TryGetValue(item.Key, out TValue value) && EqualityHelper.Equals(item.Value, value))
 			{
-				return Remove(item.Key);
+				return RemoveInternal(item.Key);
 			}
 
 			return false;
@@ -742,18 +769,26 @@ namespace Hertzole.ScriptableValues
 		/// <param name="value">The value of the element to add.</param>
 		public void Add(TKey key, TValue value)
 		{
-			if (isReadOnly)
-			{
-				Debug.LogError($"{this} is marked as read only and cannot be added to at runtime.");
-				return;
-			}
+			AddInternal(key, value);
+		}
 
-			using (new ChangeScope(this))
-			{
-				AddFastPath(key, value);
+		private void AddInternal(TKey key, TValue value)
+		{
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-				AddStackTrace();
-			}
+			dictionary.Add(key, value);
+
+			keys.Add(key);
+			values.Add(value);
+
+			Count = dictionary.Count;
+
+			Assert.AreEqual(dictionary.Keys.Count, keys.Count);
+			Assert.AreEqual(dictionary.Values.Count, values.Count);
+
+			InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Add(new KeyValuePair<TKey, TValue>(key, value), -1));
+
+			AddStackTrace(1);
 		}
 
 		/// <summary>
@@ -776,32 +811,34 @@ namespace Hertzole.ScriptableValues
 		/// </returns>
 		public bool Remove(TKey key)
 		{
-			if (isReadOnly)
+			return RemoveInternal(key);
+		}
+
+		/// <summary>
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		private bool RemoveInternal(TKey key)
+		{
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			bool removed = dictionary.Remove(key, out TValue oldItem);
+			if (removed)
 			{
-				Debug.LogError($"{this} is marked as read only and cannot be removed from at runtime.");
-				return false;
+				keys.Remove(key);
+				values.Remove(oldItem);
+
+				Count = dictionary.Count;
+
+				Assert.AreEqual(dictionary.Keys.Count, keys.Count);
+				Assert.AreEqual(dictionary.Values.Count, values.Count);
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Remove(new KeyValuePair<TKey, TValue>(key, oldItem), -1));
+
+				AddStackTrace(1);
 			}
 
-			using (new ChangeScope(this))
-			{
-				bool removed = false;
-				if (dictionary.ContainsKey(key))
-				{
-					removed = dictionary.Remove(key, out TValue oldItem);
-					if (removed)
-					{
-						keys.Remove(key);
-						values.Remove(oldItem);
-
-						AddStackTrace();
-
-						OnRemoved?.Invoke(key, oldItem);
-						OnChanged?.Invoke(DictionaryChangeType.Removed);
-					}
-				}
-
-				return removed;
-			}
+			return removed;
 		}
 
 		/// <summary>
@@ -813,6 +850,12 @@ namespace Hertzole.ScriptableValues
 		public bool TryGetValue(TKey key, out TValue value)
 		{
 			return dictionary.TryGetValue(key, out value);
+		}
+
+		private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
+		{
+			onCollectionChanged.Invoke(args);
+			OnInternalCollectionChanged?.Invoke(this, args);
 		}
 
 		void ISerializationCallbackReceiver.OnBeforeSerialize()
@@ -841,30 +884,41 @@ namespace Hertzole.ScriptableValues
 			{
 				dictionary.Add(keys[i], values[i]);
 			}
+
+			Count = dictionary.Count;
 		}
 
-		/// <summary>
-		///     Helper scope for notifying if the count and/or capacity has changed between changes.
-		/// </summary>
-		private readonly ref struct ChangeScope
+		/// <inheritdoc />
+		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
 		{
-			private readonly int originalCount;
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			private readonly ScriptableDictionary<TKey, TValue> dictionary;
+			onCollectionChanged.RegisterCallback(callback);
+		}
 
-			public ChangeScope(ScriptableDictionary<TKey, TValue> dictionary)
-			{
-				this.dictionary = dictionary;
-				originalCount = dictionary.Count;
-			}
+		/// <inheritdoc />
+		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback, TContext context)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			public void Dispose()
-			{
-				if (dictionary.Count != originalCount)
-				{
-					dictionary.NotifyPropertyChanged(nameof(dictionary.Count));
-				}
-			}
+			onCollectionChanged.RegisterCallback(callback, context);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
 		}
 	}
 }
