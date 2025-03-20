@@ -1,7 +1,7 @@
 ﻿#nullable enable
 
 using System;
-using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Object = UnityEngine.Object;
 #if DEBUG
@@ -37,7 +37,8 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 			else if (action is IDelegateList eventList && eventList.ListenersCount > 0)
 			{
-				CreateWarning(eventList.GetDelegates(), parameterName, targetObject);
+				using SpanOwner<Delegate> owner = eventList.GetDelegates();
+				CreateWarning(owner.Span, parameterName, targetObject);
 			}
 #endif
 		}
@@ -99,25 +100,16 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// <summary>
 		///     Helper method to get the listeners from a pooled list of closures as a span.
 		/// </summary>
-		internal static ReadOnlySpan<Delegate> GetListeners<T>(PooledList<T> list) where T : struct, IStructClosure
+		internal static SpanOwner<Delegate> GetListeners<T>(IReadOnlyList<T> list) where T : struct, IStructClosure
 		{
-			Delegate[] listeners = ArrayPool<Delegate>.Shared.Rent(list.Count);
+			SpanOwner<Delegate> span = SpanOwner<Delegate>.Allocate(list.Count);
 
-			try
+			for (int i = 0; i < list.Count; i++)
 			{
-				for (int i = 0; i < list.Count; i++)
-				{
-					listeners[i] = list[i].GetAction();
-				}
+				span.Span[i] = list[i].GetAction();
+			}
 
-				return new ReadOnlySpan<Delegate>(listeners, 0, list.Count);
-			}
-			finally
-			{
-				//TODO: Try to clear the array before returning it.
-				// Currently causes consumers of the span to get nulls.
-				ArrayPool<Delegate>.Shared.Return(listeners, false);
-			}
+			return span;
 		}
 	}
 }

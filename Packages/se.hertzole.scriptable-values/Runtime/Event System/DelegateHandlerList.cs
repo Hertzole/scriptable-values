@@ -8,8 +8,9 @@ namespace Hertzole.ScriptableValues
 	{
 		public void Invoke(T1 value)
 		{
-			ReadOnlySpan<StructClosure<Action<T1, object?>>> span = GetCallbacks();
-			for (int i = 0; i < span.Length; i++)
+			using SpanOwner<StructClosure<Action<T1, object?>>> owner = GetCallbacks();
+			Span<StructClosure<Action<T1, object?>>> span = owner.Span;
+			for (int i = 0; i < owner.Length; i++)
 			{
 				span[i].action.Invoke(value, span[i].context);
 			}
@@ -20,8 +21,9 @@ namespace Hertzole.ScriptableValues
 	{
 		public void Invoke(T1 value1, T2 value2)
 		{
-			ReadOnlySpan<StructClosure<Action<T1, T2, object?>>> span = GetCallbacks();
-			for (int i = 0; i < span.Length; i++)
+			using SpanOwner<StructClosure<Action<T1, T2, object?>>> owner = GetCallbacks();
+			Span<StructClosure<Action<T1, T2, object?>>> span = owner.Span;
+			for (int i = 0; i < owner.Length; i++)
 			{
 				span[i].action.Invoke(value1, value2, span[i].context);
 			}

@@ -76,11 +76,6 @@ namespace Hertzole.ScriptableValues
 			remove { UnregisterInvokedListener(value); }
 		}
 
-		private void OnDestroy()
-		{
-			onInvokedInternal.Dispose();
-		}
-
 		/// <summary>
 		///     Invokes the event with the specified sender and argument.
 		/// </summary>

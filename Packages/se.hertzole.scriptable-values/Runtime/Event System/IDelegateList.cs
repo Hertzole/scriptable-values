@@ -6,7 +6,7 @@ namespace Hertzole.ScriptableValues
 	{
 		int ListenersCount { get; }
 
-		ReadOnlySpan<Delegate> GetDelegates();
+		SpanOwner<Delegate> GetDelegates();
 	}
 
 	internal interface IDelegateList<in TDelegate> : IDelegateList where TDelegate : Delegate

@@ -112,12 +112,6 @@ namespace Hertzole.ScriptableValues
 			remove { UnregisterValueChangedListener(value); }
 		}
 
-		private void OnDestroy()
-		{
-			onValueChangingEvents.Dispose();
-			onValueChangedEvents.Dispose();
-		}
-
 		/// <summary>
 		///     Returns the current value.
 		/// </summary>
@@ -231,7 +225,7 @@ namespace Hertzole.ScriptableValues
 		public void RegisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
+			
 			onValueChangedEvents.RegisterCallback(callback);
 		}
 

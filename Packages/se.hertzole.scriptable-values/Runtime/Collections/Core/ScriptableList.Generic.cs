@@ -22,7 +22,12 @@ namespace Hertzole.ScriptableValues
 	///     A scriptable object that holds a list.
 	/// </summary>
 	/// <typeparam name="T">The type in the list.</typeparam>
-	public abstract partial class ScriptableList<T> : ScriptableList, IList<T>, IReadOnlyList<T>, IList, INotifyCollectionChanged, INotifyScriptableCollectionChanged<T>
+	public abstract partial class ScriptableList<T> : ScriptableList,
+		IList<T>,
+		IReadOnlyList<T>,
+		IList,
+		INotifyCollectionChanged,
+		INotifyScriptableCollectionChanged<T>
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
@@ -189,11 +194,6 @@ namespace Hertzole.ScriptableValues
 		{
 			add { OnInternalCollectionChanged += value; }
 			remove { OnInternalCollectionChanged -= value; }
-		}
-
-		private void OnDestroy()
-		{
-			onCollectionChanged.Dispose();
 		}
 
 		/// <summary>
@@ -553,7 +553,7 @@ namespace Hertzole.ScriptableValues
 					{
 						return;
 					}
-					
+
 					int index = list.Count;
 					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
 					list.AddRange(enumerator);
@@ -593,7 +593,7 @@ namespace Hertzole.ScriptableValues
 					{
 						return;
 					}
-					
+
 					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
 					list.InsertRange(index, enumerator);
 					CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
