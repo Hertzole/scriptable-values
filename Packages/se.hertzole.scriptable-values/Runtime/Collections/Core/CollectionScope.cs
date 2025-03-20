@@ -13,21 +13,22 @@ namespace Hertzole.ScriptableValues
 	internal struct CollectionScope<T> : IDisposable
 	{
 		private T[]? array;
-		private int length;
 
 		private static readonly ObjectPool<Enumerator> enumeratorPool =
 			new ObjectPool<Enumerator>(static () => new Enumerator());
+		
+		public int Length { get; private set; }
 
 		public ReadOnlySpan<T> Span
 		{
-			get { return array == null ? ReadOnlySpan<T>.Empty : new ReadOnlySpan<T>(array, 0, length); }
+			get { return array == null ? ReadOnlySpan<T>.Empty : new ReadOnlySpan<T>(array, 0, Length); }
 		}
 
 		public CollectionScope(T item)
 		{
 			array = ArrayPool<T>.Shared.Rent(1);
 			array[0] = item;
-			length = 1;
+			Length = 1;
 		}
 
 		public CollectionScope(IEnumerable<T> items)
@@ -50,7 +51,7 @@ namespace Hertzole.ScriptableValues
 				}
 
 				array = tempArray;
-				length = count;
+				Length = count;
 			}
 			else
 			{
@@ -64,7 +65,7 @@ namespace Hertzole.ScriptableValues
 				}
 
 				array = tempArray;
-				length = i;
+				Length = i;
 			}
 		}
 
@@ -73,7 +74,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(array, nameof(array));
 
 			Enumerator enumerator = enumeratorPool.Get();
-			enumerator.SetArray(array!, length);
+			enumerator.SetArray(array!, Length);
 			return enumerator;
 		}
 
@@ -83,7 +84,7 @@ namespace Hertzole.ScriptableValues
 			{
 				ArrayPool<T>.Shared.Return(array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 				array = null;
-				length = 0;
+				Length = 0;
 			}
 		}
 
@@ -98,7 +99,7 @@ namespace Hertzole.ScriptableValues
 			return new CollectionScope<T>
 			{
 				array = array,
-				length = count
+				Length = count
 			};
 		}
 
