@@ -22,7 +22,7 @@ namespace Hertzole.ScriptableValues
 	///     A scriptable object that holds a list.
 	/// </summary>
 	/// <typeparam name="T">The type in the list.</typeparam>
-	public abstract partial class ScriptableList<T> : ScriptableList, IList<T>, IReadOnlyList<T>, IList, INotifyCollectionChanged
+	public abstract partial class ScriptableList<T> : ScriptableList, IList<T>, IReadOnlyList<T>, IList, INotifyCollectionChanged, INotifyScriptableCollectionChanged<T>
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the list cannot be changed at runtime and won't be cleared on start.")]
@@ -712,7 +712,7 @@ namespace Hertzole.ScriptableValues
 			list.CopyTo(array);
 		}
 
-		//TODO: Document
+		/// <inheritdoc />
 		public void RegisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -720,7 +720,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback);
 		}
 
-		//TODO: Document
+		/// <inheritdoc />
 		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -729,7 +729,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback, context);
 		}
 
-		//TODO: Document
+		/// <inheritdoc />
 		public void UnregisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -737,7 +737,7 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RemoveCallback(callback);
 		}
 
-		//TODO: Document
+		/// <inheritdoc />
 		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
