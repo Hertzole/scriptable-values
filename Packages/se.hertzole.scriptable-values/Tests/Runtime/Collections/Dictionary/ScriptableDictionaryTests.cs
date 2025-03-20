@@ -1794,6 +1794,16 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
-		private class TestBaseScriptableDictionary : ScriptableDictionary { }
+		private class TestBaseScriptableDictionary : ScriptableDictionary
+		{
+			/// <inheritdoc />
+			public override bool IsReadOnly { get; set; }
+			/// <inheritdoc />
+			public override bool SetEqualityCheck { get; set; }
+			/// <inheritdoc />
+			public override bool ClearOnStart { get; set; }
+			/// <inheritdoc />
+			public override int Count { get; }
+		}
 	}
 }

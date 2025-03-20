@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 #if SCRIPTABLE_VALUES_PROPERTIES
@@ -12,8 +13,23 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Base class for a scriptable object holds a dictionary.
 	/// </summary>
-	public abstract class ScriptableDictionary : RuntimeScriptableObject
+	public abstract class ScriptableDictionary : RuntimeScriptableObject, ICanBeReadOnly
 	{
+		public static readonly PropertyChangingEventArgs isReadOnlyChangingEventArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
+		public static readonly PropertyChangedEventArgs isReadOnlyChangedEventArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));
+		
+		public static readonly PropertyChangingEventArgs setEqualityCheckChangingEventArgs = new PropertyChangingEventArgs(nameof(SetEqualityCheck));
+		public static readonly PropertyChangedEventArgs setEqualityCheckChangedEventArgs = new PropertyChangedEventArgs(nameof(SetEqualityCheck));
+		
+		public static readonly PropertyChangingEventArgs clearOnStartChangingEventArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
+		public static readonly PropertyChangedEventArgs clearOnStartChangedEventArgs = new PropertyChangedEventArgs(nameof(ClearOnStart));
+		
+		/// <inheritdoc />
+		public abstract bool IsReadOnly { get; set; }
+		public abstract bool SetEqualityCheck { get; set; }
+		public abstract bool ClearOnStart { get; set; }
+		public abstract int Count { get; }
+
 		internal virtual bool IsValid()
 		{
 			return false;
@@ -114,16 +130,12 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public bool SetEqualityCheck
+		public override bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
 			set
 			{
-				if (setEqualityCheck != value)
-				{
-					setEqualityCheck = value;
-					NotifyPropertyChanged();
-				}
+				SetField(ref setEqualityCheck, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs);
 			}
 		}
 		/// <summary>
@@ -132,16 +144,12 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public bool ClearOnStart
+		public override bool ClearOnStart
 		{
 			get { return clearOnStart; }
 			set
 			{
-				if (clearOnStart != value)
-				{
-					clearOnStart = value;
-					NotifyPropertyChanged();
-				}
+				SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs);
 			}
 		}
 
@@ -188,16 +196,12 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public bool IsReadOnly
+		public override bool IsReadOnly
 		{
 			get { return isReadOnly; }
 			set
 			{
-				if (isReadOnly != value)
-				{
-					isReadOnly = value;
-					NotifyPropertyChanged();
-				}
+				SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs);
 			}
 		}
 
@@ -207,7 +211,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public int Count
+		public override int Count
 		{
 			get { return dictionary.Count; }
 		}
