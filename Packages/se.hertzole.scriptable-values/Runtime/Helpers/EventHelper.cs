@@ -52,7 +52,7 @@ namespace Hertzole.ScriptableValues.Helpers
 				sb.Append($" in object {targetObject.name} ({targetObject.GetType().FullName})");
 			}
 
-			sb.AppendLine(" has some left over subscribers:");
+			sb.AppendLine(" has some leftover subscribers:");
 			WriteDelegates(sb, delegates);
 
 			Debug.LogWarning(sb.ToString(), targetObject);
