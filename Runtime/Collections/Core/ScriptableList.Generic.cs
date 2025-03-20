@@ -961,7 +961,7 @@ namespace Hertzole.ScriptableValues
 				using CollectionScope<T> scope = new CollectionScope<T>(list);
 
 				list.Clear();
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Reset());
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Clear(scope.Span));
 			}
 
 			AddStackTrace();
