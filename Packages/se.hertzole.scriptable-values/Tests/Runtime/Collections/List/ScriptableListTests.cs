@@ -3,7 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
+using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -422,6 +422,126 @@ namespace Hertzole.ScriptableValues.Tests
 
 			list.EnsureCapacity(50);
 			Assert.AreEqual(100, list.Capacity);
+		}
+
+		[Test]
+		public void RegisterChangedCallback_InvokesCallback([Values] EventType eventType)
+		{
+			// Arrange
+			InvokeCountContext context = new InvokeCountContext();
+			switch (eventType)
+			{
+				case EventType.Event:
+					list.OnCollectionChanged += OnCallback;
+					break;
+				case EventType.Register:
+					list.RegisterChangedListener(OnCallback);
+					break;
+				case EventType.RegisterWithContext:
+					list.RegisterChangedListener(OnStaticCallback, context);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
+			}
+
+			// Act
+			list.Add(1); // This will cause the event to be invoked.
+
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, $"The callback was not invoked for {eventType}.");
+			return;
+
+			void OnCallback(CollectionChangedArgs<int> e)
+			{
+				context.invokeCount++;
+			}
+
+			static void OnStaticCallback(CollectionChangedArgs<int> e, InvokeCountContext context)
+			{
+				context.invokeCount++;
+			}
+		}
+
+		[Test]
+		public void UnregisterChangedCallback_InvokesCallback([Values] EventType eventType)
+		{
+			// Arrange
+			InvokeCountContext context = new InvokeCountContext();
+			switch (eventType)
+			{
+				case EventType.Event:
+					list.OnCollectionChanged += OnCallback;
+					list.OnCollectionChanged -= OnCallback;
+					break;
+				case EventType.Register:
+					list.RegisterChangedListener(OnCallback);
+					list.UnregisterChangedListener(OnCallback);
+					break;
+				case EventType.RegisterWithContext:
+					list.RegisterChangedListener(OnStaticCallback, context);
+					list.UnregisterChangedListener<InvokeCountContext>(OnStaticCallback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
+			}
+
+			// Act
+			list.Add(1); // This will cause the event to be invoked.
+
+			// Assert
+			Assert.AreEqual(0, context.invokeCount, $"The callback was invoked for {eventType}.");
+			return;
+
+			void OnCallback(CollectionChangedArgs<int> e)
+			{
+				context.invokeCount++;
+			}
+
+			static void OnStaticCallback(CollectionChangedArgs<int> e, InvokeCountContext context)
+			{
+				context.invokeCount++;
+			}
+		}
+
+		[Test]
+		public void RegisterCollectionChanged_InvokesEvent()
+		{
+			// Arrange
+			InvokeCountContext context = new InvokeCountContext();
+			((INotifyCollectionChanged) list).CollectionChanged += OnCallback;
+
+			// Act
+			list.Add(1); // This will cause the event to be invoked.
+
+			// Assert
+			Assert.AreEqual(1, context.invokeCount, "The callback was not invoked.");
+			return;
+
+			void OnCallback(object sender, NotifyCollectionChangedEventArgs e)
+			{
+				context.invokeCount++;
+			}
+		}
+
+		[Test]
+		public void UnregisterCollectionChanged_InvokesEvent()
+		{
+			// Arrange
+			InvokeCountContext context = new InvokeCountContext();
+			((INotifyCollectionChanged) list).CollectionChanged += OnCallback;
+			((INotifyCollectionChanged) list).CollectionChanged -= OnCallback;
+
+			// Act
+			list.Add(1); // This will cause the event to be invoked.
+
+			// Assert
+			Assert.AreEqual(0, context.invokeCount, "The callback was invoked.");
+			return;
+
+			void OnCallback(object sender, NotifyCollectionChangedEventArgs e)
+			{
+				context.invokeCount++;
+			}
 		}
 	}
 }
