@@ -3,14 +3,30 @@
 ### Added
 
 - Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
-- RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces which some scriptable types makes use of
-- New internal event system that is more efficient and allows avoiding closure allocations
+- RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces that can be used to track most property changes, including regular field properties
+  - `ScriptablePool<T>` tracks `CountAll`, `CountActive`, and `CountInactive`
+- New event system that is more efficient and allows for avoiding closure allocations
+- `ICanBeReadOnly` interface for scriptable objects that can be marked as read-only
+- `INotifyScriptableCollectionChanged` interface for scriptable collections that can be used to track collection changes
 
 ### Changed
 
 - Tooltips are no longer included in builds
-- `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
-- Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file 
+- **BREAKING**: `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
+- Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file
+- **BREAKING**: Read-only errors are now thrown as exceptions instead of logged using `Debug.LogError`
+- **BREAKING**: `ScriptableList<T>` no longer has individual event callbacks, instead it has a single `OnCollectionChanged` event
+  - `Resverse()` and `Sort()` now only triggers a single `Replace` event
+  - `TrimExcess()` no longer triggers a change event at all
+  - The enum `ListChangeType` is now marked as obsolete as it's no longer used
+- `ScriptableList<T>.TrimExcess()` can now be called even when the object is marked as read-only
+- `ScriptableList<T>` now implements `INotifyCollectionChanged` and `InotifyScriptableCollectionChanged<T>`
+- **BREAKING**: `ScriptableDictionary<TKey, TValue>` no longer has individual event callbacks, instead it has a single `OnCollectionChanged` event
+  - `TrimExcess()` no longer triggers a change event at all
+  - The enum `DictionaryChangeType` is now marked as obsolete as it's no longer used
+- `ScriptableDictionary<TKey, TValue>.TrimExcess()` can now be called even when the object is marked as read-only
+- `ScriptableDictionary<TKey, TValue>` now implements `INotifyCollectionChanged` and `InotifyScriptableCollectionChanged<KeyValurPair<TKey, TValue>>`
+- **BREAKING**: `ScriptablePool<T>.Return(T item)` is now obsolete, use `Release(T item)` instead
 
 ### Fixed
 
