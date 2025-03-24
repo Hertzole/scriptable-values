@@ -1,5 +1,10 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_PROPERTIES
@@ -8,14 +13,16 @@ using Unity.Properties;
 
 namespace Hertzole.ScriptableValues
 {
-	/// <summary>
-	///     A scriptable object that holds a pool of values.
-	/// </summary>
-	/// <typeparam name="T">The type of to pool. Must be a class.</typeparam>
-	public abstract partial class ScriptablePool<T> : RuntimeScriptableObject where T : class
+	public abstract class ScriptablePool : RuntimeScriptableObject
 	{
-		private readonly List<T> activeObjects = new List<T>();
-		private readonly Stack<T> pool = new Stack<T>();
+		public static readonly PropertyChangingEventArgs countAllChangingEventArgs = new PropertyChangingEventArgs(nameof(CountAll));
+		public static readonly PropertyChangedEventArgs countAllChangedEventArgs = new PropertyChangedEventArgs(nameof(CountAll));
+
+		public static readonly PropertyChangingEventArgs countActiveChangingEventArgs = new PropertyChangingEventArgs(nameof(CountActive));
+		public static readonly PropertyChangedEventArgs countActiveChangedEventArgs = new PropertyChangedEventArgs(nameof(CountActive));
+
+		public static readonly PropertyChangingEventArgs countInactiveChangingEventArgs = new PropertyChangingEventArgs(nameof(CountInactive));
+		public static readonly PropertyChangedEventArgs countInactiveChangedEventArgs = new PropertyChangedEventArgs(nameof(CountInactive));
 
 		/// <summary>
 		///     How many total objects that the pool is keeping track of.
@@ -23,104 +30,139 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public int CountAll
-		{
-			get { return activeObjects.Count + pool.Count; }
-		}
+		public abstract int CountAll { get; protected set; }
+
 		/// <summary>
 		///     How many objects that are currently active.
 		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public int CountActive
-		{
-			get { return activeObjects.Count; }
-		}
+		public abstract int CountActive { get; protected set; }
+
 		/// <summary>
 		///     How many objects that are currently inactive.
 		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public int CountInactive
+		public abstract int CountInactive { get; protected set; }
+	}
+
+	/// <summary>
+	///     A scriptable object that holds a pool of values.
+	/// </summary>
+	/// <typeparam name="T">The type of to pool. Must be a class.</typeparam>
+	public abstract partial class ScriptablePool<T> : ScriptablePool, IPoolCallbacks<T> where T : class
+	{
+		internal readonly List<T> activeObjects = new List<T>();
+		internal readonly Stack<T> pool = new Stack<T>();
+
+		private readonly DelegateHandlerList<PoolEventArgs<T>, PoolAction, T> onPoolChanged = new DelegateHandlerList<PoolEventArgs<T>, PoolAction, T>();
+
+		private int countAll;
+		private int countActive;
+		private int countInactive;
+
+		/// <inheritdoc />
+		public sealed override int CountAll
+		{
+			get { return countAll; }
+			protected set
+			{
+				Assert.AreEqual(activeObjects.Count + pool.Count, value,
+					$"CountAll should be equal to the sum of active and inactive objects but was {value} instead.");
+
+				SetField(ref countAll, value, countAllChangingEventArgs, countAllChangedEventArgs);
+			}
+		}
+
+		/// <inheritdoc />
+		public sealed override int CountActive
+		{
+			get { return countActive; }
+			protected set
+			{
+				Assert.AreEqual(activeObjects.Count, value, $"CountActive should be equal to the number of active objects but was {value} instead.");
+				SetField(ref countActive, value, countActiveChangingEventArgs, countActiveChangedEventArgs);
+			}
+		}
+
+		/// <inheritdoc />
+		public sealed override int CountInactive
 		{
 			get { return pool.Count; }
+			protected set
+			{
+				Assert.AreEqual(pool.Count, value, $"CountInactive should be equal to the number of inactive objects but was {value} instead.");
+				SetField(ref countInactive, value, countInactiveChangingEventArgs, countInactiveChangedEventArgs);
+			}
 		}
 
 #if UNITY_EDITOR
 		internal const int ORDER = ScriptableList<object>.ORDER + 50;
 #endif
 
-		/// <summary>
-		///     Called when an object is created.
-		/// </summary>
-		public event Action<T> OnCreateObject;
-		/// <summary>
-		///     Called when an object is destroyed.
-		/// </summary>
-		public event Action<T> OnDestroyObject;
-		/// <summary>
-		///     Called when an object is retrieved.
-		/// </summary>
-		public event Action<T> OnGetObject;
-		/// <summary>
-		///     Called when an object is put back into the pool.
-		/// </summary>
-		public event Action<T> OnReturnObject;
+		public event PoolEventArgs<T> OnPoolChanged
+		{
+			add { RegisterChangedCallback(value); }
+			remove { UnregisterChangedCallback(value); }
+		}
 
 		/// <summary>
 		///     Returns an object from the pool.
 		/// </summary>
 		public T Get()
 		{
-			using (new ChangeScope(this))
+			T? item = null;
+			// Objects may be destroyed when switching scenes, so we need to check if they are null.
+			// If the returned object is null, just keep going until we find one that isn't.
+			// If it's still null, we'll create a new one.
+			while (EqualityHelper.IsNull(item))
 			{
-				T item = null;
-				// Objects may be destroyed when switching scenes, so we need to check if they are null.
-				// If the returned object is null, just keep going until we find one that isn't.
-				// If it's still null, we'll create a new one.
-				while (EqualityHelper.IsNull(item))
+				if (pool.Count > 0)
 				{
-					if (pool.Count > 0)
-					{
-						item = pool.Pop();
-					}
-					else
-					{
-						item = CreateObject();
-						OnCreateObject?.Invoke(item);
-					}
+					item = pool.Pop();
 				}
-
-				activeObjects.Add(item);
-
-				OnGetInternal(item);
-				OnGetObject?.Invoke(item);
-
-				AddStackTrace();
-
-				return item;
+				else
+				{
+					item = CreateObject();
+					onPoolChanged.Invoke(PoolAction.CreatedObject, item);
+				}
 			}
+
+			Assert.IsNotNull(item);
+
+			activeObjects.Add(item!);
+
+			onPoolChanged.Invoke(PoolAction.RentedObject, item!);
+			OnGetInternal(item!);
+
+			UpdateCounts();
+
+			AddStackTrace();
+
+			return item!;
 		}
 
 		/// <summary>
 		///     Returns an object to the pool.
 		/// </summary>
 		/// <param name="item">The item to return.</param>
-		public void Return(T item)
+		public void Release(T item)
 		{
-			using (new ChangeScope(this))
-			{
-				activeObjects.Remove(item);
+			ThrowHelper.ThrowIfNull(item, nameof(item));
+			
+			activeObjects.Remove(item);
 
-				OnReturnInternal(item);
-				OnReturnObject?.Invoke(item);
+			OnReturnInternal(item);
+			onPoolChanged.Invoke(PoolAction.ReleasedObject, item);
 
-				pool.Push(item);
+			pool.Push(item);
 
-				AddStackTrace();
-			}
+			UpdateCounts();
+
+			AddStackTrace();
 		}
 
 		/// <summary>
@@ -128,31 +170,35 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void Clear()
 		{
-			using (new ChangeScope(this))
+			// Destroy all active objects.
+			// Go in reverse order so that we don't mess up the list.
+			for (int i = activeObjects.Count - 1; i >= 0; i--)
 			{
-				// Destroy all active objects.
-				// Go in reverse order so that we don't mess up the list.
-				for (int i = activeObjects.Count - 1; i >= 0; i--)
-				{
-					T item = activeObjects[i];
+				T item = activeObjects[i];
 
-					OnDestroyObject?.Invoke(item);
-					DestroyObject(item);
-					activeObjects.RemoveAt(i);
-				}
-
-				// Destroy all inactive objects.
-				while (pool.TryPop(out T item))
-				{
-					OnDestroyObject?.Invoke(item);
-					DestroyObject(item);
-				}
-
-				// Make sure that the pool is empty.
-				Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
-
-				AddStackTrace();
+				DestroyObjectInternal(item);
+				activeObjects.RemoveAt(i);
 			}
+
+			// Destroy all inactive objects.
+			while (pool.TryPop(out T item))
+			{
+				DestroyObjectInternal(item);
+			}
+
+			UpdateCounts();
+
+			// Make sure that the pool is empty.
+			Assert.AreEqual(0, CountAll, $"CountAll should be 0 after clearing the pool but was {CountAll}.");
+
+			AddStackTrace();
+		}
+
+		private void UpdateCounts()
+		{
+			CountAll = activeObjects.Count + pool.Count;
+			CountActive = activeObjects.Count;
+			CountInactive = pool.Count;
 		}
 
 		/// <summary>
@@ -183,6 +229,12 @@ namespace Hertzole.ScriptableValues
 			OnReturn(item);
 		}
 
+		internal virtual void DestroyObjectInternal(T item)
+		{
+			onPoolChanged.Invoke(PoolAction.DestroyedObject, item);
+			DestroyObject(item);
+		}
+
 		/// <summary>
 		///     Called when a new object needs to be created.
 		/// </summary>
@@ -207,11 +259,49 @@ namespace Hertzole.ScriptableValues
 		/// <param name="item">The object that was returned to the pool.</param>
 		protected virtual void OnReturn(T item) { }
 
+		/// <inheritdoc />
+		public void RegisterChangedCallback(PoolEventArgs<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onPoolChanged.RegisterCallback(callback);
+		}
+
+		/// <inheritdoc />
+		public void RegisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback, TContext context)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onPoolChanged.RegisterCallback(callback, context);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedCallback(PoolEventArgs<T> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onPoolChanged.RemoveCallback(callback);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onPoolChanged.RemoveCallback(callback);
+		}
+
 		protected override void OnStart()
 		{
 			// Remove any subscribers that are left over from play mode.
 			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
 			ClearSubscribers();
+		}
+
+		[Conditional("DEBUG")]
+		protected void WarnLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(onPoolChanged, nameof(OnPoolChanged), this);
 		}
 
 		/// <summary>
@@ -226,64 +316,47 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(OnCreateObject, nameof(OnCreateObject), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnDestroyObject, nameof(OnDestroyObject), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnGetObject, nameof(OnGetObject), this);
-				EventHelper.WarnIfLeftOverSubscribers(OnReturnObject, nameof(OnReturnObject), this);
+				WarnLeftOverSubscribers();
 			}
 #endif
 
-			OnCreateObject = null;
-			OnDestroyObject = null;
-			OnGetObject = null;
-			OnReturnObject = null;
+			onPoolChanged.Reset();
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		///     Called when an object is created.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
+		public event Action<T>? OnCreateObject;
+		/// <summary>
+		///     Called when an object is destroyed.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
+		public event Action<T>? OnDestroyObject;
+		/// <summary>
+		///     Called when an object is retrieved.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
+		public event Action<T>? OnGetObject;
+		/// <summary>
+		///     Called when an object is put back into the pool.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
+		public event Action<T>? OnReturnObject;
+#endif
 
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(OnCreateObject, nameof(OnCreateObject), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnDestroyObject, nameof(OnDestroyObject), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnGetObject, nameof(OnGetObject), this);
-			EventHelper.WarnIfLeftOverSubscribers(OnReturnObject, nameof(OnReturnObject), this);
+			WarnLeftOverSubscribers();
 
 			Clear();
 		}
-#endif
 
-		private readonly ref struct ChangeScope
-		{
-			private readonly int countAll;
-			private readonly int countActive;
-			private readonly int countInactive;
-
-			private readonly ScriptablePool<T> pool;
-
-			public ChangeScope(ScriptablePool<T> pool)
-			{
-				this.pool = pool;
-				countAll = pool.CountAll;
-				countActive = pool.CountActive;
-				countInactive = pool.CountInactive;
-			}
-
-			public void Dispose()
-			{
-				if (countAll != pool.CountAll)
-				{
-					pool.NotifyPropertyChanged(nameof(pool.CountAll));
-				}
-
-				if (countActive != pool.CountActive)
-				{
-					pool.NotifyPropertyChanged(nameof(pool.CountActive));
-				}
-
-				if (countInactive != pool.CountInactive)
-				{
-					pool.NotifyPropertyChanged(nameof(pool.CountInactive));
-				}
-			}
-		}
+		[Obsolete("Use 'Release' instead.", true)]
+		[ExcludeFromCodeCoverage]
+		public void Return(T item) { }
+#endif // UNITY_EDITOR
 	}
 }

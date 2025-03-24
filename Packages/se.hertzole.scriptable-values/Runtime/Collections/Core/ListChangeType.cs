@@ -1,8 +1,11 @@
-﻿namespace Hertzole.ScriptableValues
+﻿using System;
+
+namespace Hertzole.ScriptableValues
 {
 	/// <summary>
 	///     Types of change events that can be raised by a <see cref="ScriptableList{T}" />.
 	/// </summary>
+	[Obsolete]
 	public enum ListChangeType
 	{
 		/// <summary>

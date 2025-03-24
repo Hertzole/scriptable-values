@@ -53,8 +53,10 @@ namespace Hertzole.ScriptableValues
 		}
 
 		// These are only used for constant values, and as a buffer for addressable assets that are not loaded yet.
-		internal readonly EventHandlerList<T, T> onValueChangingInternal = new EventHandlerList<T, T>();
-		internal readonly EventHandlerList<T, T> onValueChangedInternal = new EventHandlerList<T, T>();
+		internal readonly DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T> onValueChangingInternal =
+			new DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T>();
+		internal readonly DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T> onValueChangedInternal =
+			new DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T>();
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
 		{
@@ -250,7 +252,7 @@ namespace Hertzole.ScriptableValues
 		private void RegisterEvent<TEvent, TArgs>(Action<ScriptableValue<T>, TEvent, TArgs?> registerAction,
 			TEvent callback,
 			TArgs? args,
-			IEventList defaultListener) where TEvent : Delegate
+			IDelegateList<ScriptableValue<T>.OldNewValue<T>> defaultListener) where TEvent : Delegate
 		{
 			if (valueType == ValueReferenceType.Reference)
 			{
@@ -263,10 +265,12 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			defaultListener.AddListener(callback, args);
+			defaultListener.RegisterCallback(callback, args);
 		}
 
-		private void UnregisterEvent<TEvent>(Action<ScriptableValue<T>, TEvent> unregisterAction, TEvent callback, IEventList defaultListener)
+		private void UnregisterEvent<TEvent>(Action<ScriptableValue<T>, TEvent> unregisterAction,
+			TEvent callback,
+			IDelegateList<ScriptableValue<T>.OldNewValue<T>> defaultListener)
 			where TEvent : Delegate
 		{
 			if (valueType == ValueReferenceType.Reference)
@@ -280,7 +284,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			defaultListener.RemoveListener(callback);
+			defaultListener.RemoveCallback(callback);
 		}
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
@@ -326,8 +330,8 @@ namespace Hertzole.ScriptableValues
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
 					referenceValue = handle.Result;
-					onValueChangingInternal.AddFrom(referenceValue.onValueChangingEvents);
-					onValueChangedInternal.AddFrom(referenceValue.onValueChangedEvents);
+					referenceValue.onValueChangingEvents.AddFrom(onValueChangingInternal);
+					referenceValue.onValueChangedEvents.AddFrom(onValueChangedInternal);
 				}
 
 				onLoaded?.Invoke(handle);
