@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
@@ -382,6 +385,51 @@ namespace Hertzole.ScriptableValues.Tests
 
 			// Act & Assert
 			AssertThrows<ReadOnlyException>(() => action.Invoke(obj));
+		}
+		
+		protected void AssertPropertyChangesAreInvoked<T>(PropertyChangingEventArgs changingArgs,
+			PropertyChangedEventArgs changedArgs,
+			Action<T> action,
+			T? instance = null) where T : RuntimeScriptableObject
+		{
+			// Arrange
+			if (instance == null)
+			{
+				instance = CreateInstance<T>();
+			}
+
+			// Use lists here because there may be multiple events fired.
+			List<PropertyChangingEventArgs> changingEventArgs = new List<PropertyChangingEventArgs>();
+			List<PropertyChangedEventArgs> changedEventArgs = new List<PropertyChangedEventArgs>();
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			List<BindablePropertyChangedEventArgs> bindableEventArgs = new List<BindablePropertyChangedEventArgs>();
+#endif
+
+			((INotifyPropertyChanged) instance).PropertyChanged += (_, args) => { changedEventArgs.Add(args); };
+
+			((INotifyPropertyChanging) instance).PropertyChanging += (_, args) => { changingEventArgs.Add(args); };
+
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			((INotifyBindablePropertyChanged) instance).propertyChanged += (_, args) => { bindableEventArgs.Add(args); };
+#endif
+
+			// Act
+			action.Invoke(instance);
+
+			// Assert
+			Assert.IsTrue(changingEventArgs.Count != 0, "There should be at least one changing event.");
+			Assert.IsTrue(changedEventArgs.Count != 0, "There should be at least one changed event.");
+			Assert.IsTrue(changingEventArgs.Count == changedEventArgs.Count, "The number of changing and changed events should be the same.");
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			Assert.IsTrue(bindableEventArgs.Count != 0, "There should be at least one bindable event.");
+			Assert.IsTrue(changingEventArgs.Count == bindableEventArgs.Count, "The number of changing and bindable events should be the same.");
+#endif
+
+			Assert.IsTrue(changingEventArgs.Any(x => x.PropertyName == changingArgs.PropertyName));
+			Assert.IsTrue(changedEventArgs.Any(x => x.PropertyName == changedArgs.PropertyName));
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			Assert.IsTrue(bindableEventArgs.Any(x => x.propertyName == changedArgs.PropertyName));
+#endif
 		}
 
 		private class ComparisonComparer<T> : IComparer<T>

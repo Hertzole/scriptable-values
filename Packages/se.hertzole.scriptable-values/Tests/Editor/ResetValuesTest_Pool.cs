@@ -9,26 +9,17 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		{
 			TestClassScriptablePool instance = CreateInstance<TestClassScriptablePool>();
 
-			bool addedWasInvoked = false;
-			bool removedWasInvoked = false;
-			bool clearedWasInvoked = false;
-			bool setWasInvoked = false;
+			bool poolChangedWasInvoked = false;
 
-			instance.OnGetObject += _ => { addedWasInvoked = true; };
-			instance.OnReturnObject += _ => { removedWasInvoked = true; };
-			instance.OnDestroyObject += _ => { clearedWasInvoked = true; };
-			instance.OnCreateObject += _ => { setWasInvoked = true; };
+			instance.OnPoolChanged += (_, _) => { poolChangedWasInvoked = true; };
 
 			instance.Test_OnStart();
 
 			TestClass obj = instance.Get();
-			instance.Return(obj);
+			instance.Release(obj);
 			instance.Clear();
 
-			Assert.IsFalse(addedWasInvoked);
-			Assert.IsFalse(removedWasInvoked);
-			Assert.IsFalse(clearedWasInvoked);
-			Assert.IsFalse(setWasInvoked);
+			Assert.IsFalse(poolChangedWasInvoked);
 		}
 	}
 }

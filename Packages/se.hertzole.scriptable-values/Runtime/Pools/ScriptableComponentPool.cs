@@ -15,7 +15,11 @@ namespace Hertzole.ScriptableValues
 
 		private readonly List<IPoolable> poolableBuffer = new List<IPoolable>(10);
 
-		public T Prefab { get { return prefab; } set { prefab = value; } }
+		public T Prefab
+		{
+			get { return prefab; }
+			set { prefab = value; }
+		}
 
 		protected override T CreateObject()
 		{
@@ -30,7 +34,7 @@ namespace Hertzole.ScriptableValues
 				Destroy(item.gameObject);
 			}
 		}
-		
+
 		internal override void OnGetInternal(T item)
 		{
 			// Don't check for poolable here and it's done with components in OnGet.
@@ -46,7 +50,7 @@ namespace Hertzole.ScriptableValues
 		protected override void OnGet(T item)
 		{
 			ThrowHelper.ThrowIfNull(item, nameof(item));
-			
+
 			item.gameObject.SetActive(true);
 
 			poolableBuffer.Clear();
@@ -59,11 +63,6 @@ namespace Hertzole.ScriptableValues
 
 		protected override void OnReturn(T item)
 		{
-			if (item == null)
-			{
-				return;
-			}
-
 			poolableBuffer.Clear();
 			item.GetComponentsInChildren(true, poolableBuffer);
 

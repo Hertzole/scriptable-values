@@ -14,10 +14,14 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		private GameObject prefab = default;
-		
+
 		private readonly List<IPoolable> poolableBuffer = new List<IPoolable>(10);
 
-		public GameObject Prefab { get { return prefab; } set { prefab = value; } }
+		public GameObject Prefab
+		{
+			get { return prefab; }
+			set { prefab = value; }
+		}
 
 		protected override GameObject CreateObject()
 		{
@@ -48,7 +52,7 @@ namespace Hertzole.ScriptableValues
 		protected override void OnGet(GameObject item)
 		{
 			ThrowHelper.ThrowIfNull(item, nameof(item));
-			
+
 			item.gameObject.SetActive(true);
 
 			poolableBuffer.Clear();
@@ -61,11 +65,6 @@ namespace Hertzole.ScriptableValues
 
 		protected override void OnReturn(GameObject item)
 		{
-			if (item == null)
-			{
-				return;
-			}
-
 			poolableBuffer.Clear();
 			item.GetComponentsInChildren(true, poolableBuffer);
 
