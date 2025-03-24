@@ -84,3 +84,6 @@ crashlytics-build.properties
 !/[Gg]enerator/*/*.csproj
 /[Gg]enerator/*/bin
 /[Gg]enerator/*/obj
+
+# Logs
+*.log

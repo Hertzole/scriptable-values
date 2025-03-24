@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Hertzole.ScriptableValues.Generator;
 
-public readonly struct ArrayBuilder<T>
+public readonly struct ArrayBuilder<T> : IDisposable
 {
 	private readonly Writer writer;
 

@@ -7,11 +7,12 @@ partial class ValueCallbackGeneratorTests
 	private const string CHANGING = /*lang=cs*/@"using System;
 using Hertzole.ScriptableValues;
 
+[GenerateScriptableCallbacks]
 public partial class ChangingClass
 {
-	[GenerateCallback(CallbackType.PreInvoke)]
+	[GenerateValueCallback(ValueCallbackType.Changing)]
 	public ScriptableBool valueField;
-	[GenerateCallback(CallbackType.PreInvoke)]
+	[GenerateValueCallback(ValueCallbackType.Changing)]
 	public ScriptableString ValueProperty { get; set; }
 
 	private partial void OnValueFieldChanging(bool oldValue, bool newValue)
@@ -84,6 +85,6 @@ public partial class ChangingClass
 	[Fact]
 	public void Field_Changing()
 	{
-		GeneratorTest.RunTest<CallbackGenerator>("ChangingClass.g.cs", CHANGING, CHANGING_EXPECTED);
+		GeneratorTest.RunTest<ValueCallbackGenerator>("ChangingClass.g.cs", CHANGING, CHANGING_EXPECTED);
 	}
 }
