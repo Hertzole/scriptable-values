@@ -58,12 +58,9 @@ namespace Hertzole.ScriptableValues.Tests
 		[Test]
 		public void ScriptablePool()
 		{
-			TestClearing<TestClassScriptablePool>(4, i =>
+			TestClearing<TestClassScriptablePool>(1, i =>
 			{
-				i.OnGetObject += i1 => { };
-				i.OnReturnObject += i1 => { };
-				i.OnDestroyObject += i1 => { };
-				i.OnCreateObject += i1 => { };
+				i.OnPoolChanged += (_, _) => { };
 			}, i => i.ClearSubscribers(true));
 		}
 

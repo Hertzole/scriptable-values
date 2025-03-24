@@ -230,13 +230,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		[Test]
 		public void ScriptablePool()
 		{
-			TestLeftOverWarning<ScriptableGameObjectPool>(4, i =>
-			{
-				i.OnCreateObject += _ => { };
-				i.OnDestroyObject += _ => { };
-				i.OnGetObject += _ => { };
-				i.OnReturnObject += _ => { };
-			});
+			TestLeftOverWarning<ScriptableGameObjectPool>(1, i => { i.OnPoolChanged += (_, _) => { }; });
 		}
 
 		[Test]
@@ -267,7 +261,8 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 
 			instance.Add(10);
 
-			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable list {instance.name}. You should clear the list before leaving play mode.");
+			LogAssert.Expect(LogType.Warning,
+				$"There are left over objects in the scriptable list {instance.name}. You should clear the list before leaving play mode.");
 
 			instance.Test_ExitPlayMode();
 		}
@@ -280,7 +275,8 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 
 			instance.Add(10, 42);
 
-			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
+			LogAssert.Expect(LogType.Warning,
+				$"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
 
 			instance.Test_ExitPlayMode();
 		}

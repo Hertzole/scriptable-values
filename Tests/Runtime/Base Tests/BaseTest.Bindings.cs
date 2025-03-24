@@ -12,6 +12,7 @@ namespace Hertzole.ScriptableValues.Tests
 	{
 		private readonly List<string> collectedProperties = new List<string>();
 
+		[Obsolete("Use 'AssertPropertyChangesAreInvoked' instead.")]
 		protected void AssertNotifyPropertyChangedCalled<TInstance>(string propertyName,
 			Action<TInstance> setValue,
 			[CanBeNull] Action<TInstance> setDefaultValue = null) where TInstance : ScriptableObject
@@ -20,6 +21,7 @@ namespace Hertzole.ScriptableValues.Tests
 			AssertNotifyPropertyChangedCalled(instance, propertyName, setValue, setDefaultValue);
 		}
 
+		[Obsolete("Use 'AssertPropertyChangesAreInvoked' instead.")]
 		protected void AssertNotifyPropertyChangedCalled<TInstance>(TInstance instance,
 			string propertyName,
 			Action<TInstance> setValue,
