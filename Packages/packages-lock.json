@@ -5,18 +5,19 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "0bdaffef585cd62838aeb1a22719a77cd197c218"
+      "hash": "c5aeb494a911391e2c0a50abee0a911bf6d4e08f"
     },
     "com.unity.addressables": {
-      "version": "1.21.19",
+      "version": "1.23.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
+        "com.unity.test-framework": "1.1.33",
         "com.unity.modules.assetbundle": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.scriptablebuildpipeline": "1.21.21",
+        "com.unity.scriptablebuildpipeline": "1.22.1",
         "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
       },
       "url": "https://packages.unity.com"
