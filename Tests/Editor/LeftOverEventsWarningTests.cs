@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 	public class LeftOverEventsWarningTests : BaseEditorTest
 	{
 		private static readonly Regex leftOverWarningRegex = new Regex(
-			@"(On)([A-za-z]*) in object [A-Za-z ]*\(.*\) has some left over subscribers:.*\n.*",
+			@"(On)?([A-za-z\.]*) in object [A-Za-z ]*\(.*\) has some leftover subscribers:.*\n.*",
 			RegexOptions.Multiline);
 
 		[Test]
@@ -229,38 +230,26 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 		[Test]
 		public void ScriptablePool()
 		{
-			TestLeftOverWarning<ScriptableGameObjectPool>(4, i =>
-			{
-				i.OnCreateObject += _ => { };
-				i.OnDestroyObject += _ => { };
-				i.OnGetObject += _ => { };
-				i.OnReturnObject += _ => { };
-			});
+			TestLeftOverWarning<ScriptableGameObjectPool>(1, i => { i.OnPoolChanged += (_, _) => { }; });
 		}
 
 		[Test]
 		public void ScriptableList_Events()
 		{
-			TestLeftOverWarning<TestScriptableList>(6, i =>
+			TestLeftOverWarning<TestScriptableList>(2, i =>
 			{
-				i.OnAdded += _ => { };
-				i.OnInserted += (_, _) => { };
-				i.OnAddedOrInserted += (_, _) => { };
-				i.OnSet += (_, _, _) => { };
-				i.OnRemoved += (_, _) => { };
-				i.OnCleared += () => { };
+				i.OnCollectionChanged += _ => { };
+				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
 			});
 		}
 
 		[Test]
 		public void ScriptableDictionary_Events()
 		{
-			TestLeftOverWarning<TestScriptableDictionary>(4, i =>
+			TestLeftOverWarning<TestScriptableDictionary>(2, i =>
 			{
-				i.OnAdded += (_, _) => { };
-				i.OnSet += (_, _, _) => { };
-				i.OnRemoved += (_, _) => { };
-				i.OnCleared += () => { };
+				i.OnCollectionChanged += _ => { };
+				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
 			});
 		}
 
@@ -272,7 +261,8 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 
 			instance.Add(10);
 
-			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable list {instance.name}. You should clear the list before leaving play mode.");
+			LogAssert.Expect(LogType.Warning,
+				$"There are left over objects in the scriptable list {instance.name}. You should clear the list before leaving play mode.");
 
 			instance.Test_ExitPlayMode();
 		}
@@ -285,7 +275,8 @@ namespace Hertzole.ScriptableValues.Tests.Editor
 
 			instance.Add(10, 42);
 
-			LogAssert.Expect(LogType.Warning, $"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
+			LogAssert.Expect(LogType.Warning,
+				$"There are left over objects in the scriptable dictionary {instance.name}. You should clear the dictionary before leaving play mode.");
 
 			instance.Test_ExitPlayMode();
 		}

@@ -1,8 +1,17 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Linq;
+using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -238,52 +247,52 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				return ConvertAndSetValue<T, sbyte>(value, oldValue => (sbyte) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(short))
 			{
 				return ConvertAndSetValue<T, short>(value, oldValue => (short) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(string))
 			{
 				return ConvertAndSetValue<T, string>(value, oldValue => oldValue + "a");
 			}
-			
+
 			if (typeof(T) == typeof(uint))
 			{
 				return ConvertAndSetValue<T, uint>(value, oldValue => oldValue + 1);
 			}
-			
+
 			if (typeof(T) == typeof(ulong))
 			{
 				return ConvertAndSetValue<T, ulong>(value, oldValue => oldValue + 1);
 			}
-			
+
 			if (typeof(T) == typeof(ushort))
 			{
 				return ConvertAndSetValue<T, ushort>(value, oldValue => (ushort) (oldValue + 1));
 			}
-			
+
 			if (typeof(T) == typeof(Vector2))
 			{
 				return ConvertAndSetValue<T, Vector2>(value, oldValue => oldValue + Vector2.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector2Int))
 			{
 				return ConvertAndSetValue<T, Vector2Int>(value, oldValue => oldValue + Vector2Int.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector3))
 			{
 				return ConvertAndSetValue<T, Vector3>(value, oldValue => oldValue + Vector3.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector3Int))
 			{
 				return ConvertAndSetValue<T, Vector3Int>(value, oldValue => oldValue + Vector3Int.one);
 			}
-			
+
 			if (typeof(T) == typeof(Vector4))
 			{
 				return ConvertAndSetValue<T, Vector4>(value, oldValue => oldValue + Vector4.one);
@@ -297,6 +306,145 @@ namespace Hertzole.ScriptableValues.Tests
 			TTo castedValue = UnsafeUtility.As<TFrom, TTo>(ref value);
 			castedValue = setValue(castedValue);
 			return UnsafeUtility.As<TTo, TFrom>(ref castedValue);
+		}
+
+		protected static void AssertThrows<T>(TestDelegate action) where T : Exception
+		{
+			Assert.Throws<T>(action);
+		}
+
+		protected static void ShuffleArray<T>(T[] array)
+		{
+			System.Random random = new System.Random();
+
+			int n = array.Length;
+			while (n > 1)
+			{
+				int k = random.Next(n--);
+				T temp = array[n];
+				array[n] = array[k];
+				array[k] = temp;
+			}
+		}
+
+		protected static T[] GetShuffledArray<T>(int count = 1000)
+		{
+			T[] items = Enumerable.Range(0, count).Select(x => (T) Convert.ChangeType(x, typeof(T))).ToArray();
+			ShuffleArray(items);
+			return items;
+		}
+		
+		protected static int GetRandomNumber(int tolerance = 10)
+		{
+			int result = 0;
+			int min = -tolerance;
+			int max = tolerance;
+			int tries = 0;
+
+			while ((result > min || result < max) && tries < 100)
+			{
+				result = Random.Range(int.MinValue, int.MaxValue);
+				tries++;
+			}
+
+			return result;
+		}
+
+		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, Comparison<T> comparison)
+		{
+			AssertIsSorted(actual, 0, actual.Count, new ComparisonComparer<T>(comparison));
+		}
+
+		protected static void AssertIsSorted<T>(IReadOnlyList<T> actual, int index, int count, IComparer<T>? comparer = null)
+		{
+			T[] expected = new T[actual.Count];
+			for (int i = 0; i < actual.Count; i++)
+			{
+				expected[i] = actual[i];
+			}
+
+			Array.Sort(expected, index, count, comparer);
+
+			AssertArraysAreEqual(expected, actual);
+		}
+
+		protected static void AssertArraysAreEqual<T>(IReadOnlyList<T> expected, IReadOnlyList<T> actual)
+		{
+			UnityEngine.Assertions.Assert.AreEqual(expected.Count, actual.Count, "The lists are not the same length.");
+
+			for (int i = 0; i < expected.Count; i++)
+			{
+				UnityEngine.Assertions.Assert.AreEqual(expected[i], actual[i], $"The item at index {i} is not the same.");
+			}
+		}
+
+		protected static void AssertThrowsReadOnlyException<T>(T obj, Action<T> action) where T : RuntimeScriptableObject, ICanBeReadOnly
+		{
+			// Arrange
+			obj.IsReadOnly = true;
+
+			// Act & Assert
+			AssertThrows<ReadOnlyException>(() => action.Invoke(obj));
+		}
+		
+		protected void AssertPropertyChangesAreInvoked<T>(PropertyChangingEventArgs changingArgs,
+			PropertyChangedEventArgs changedArgs,
+			Action<T> action,
+			T? instance = null) where T : RuntimeScriptableObject
+		{
+			// Arrange
+			if (instance == null)
+			{
+				instance = CreateInstance<T>();
+			}
+
+			// Use lists here because there may be multiple events fired.
+			List<PropertyChangingEventArgs> changingEventArgs = new List<PropertyChangingEventArgs>();
+			List<PropertyChangedEventArgs> changedEventArgs = new List<PropertyChangedEventArgs>();
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			List<BindablePropertyChangedEventArgs> bindableEventArgs = new List<BindablePropertyChangedEventArgs>();
+#endif
+
+			((INotifyPropertyChanged) instance).PropertyChanged += (_, args) => { changedEventArgs.Add(args); };
+
+			((INotifyPropertyChanging) instance).PropertyChanging += (_, args) => { changingEventArgs.Add(args); };
+
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			((INotifyBindablePropertyChanged) instance).propertyChanged += (_, args) => { bindableEventArgs.Add(args); };
+#endif
+
+			// Act
+			action.Invoke(instance);
+
+			// Assert
+			Assert.IsTrue(changingEventArgs.Count != 0, "There should be at least one changing event.");
+			Assert.IsTrue(changedEventArgs.Count != 0, "There should be at least one changed event.");
+			Assert.IsTrue(changingEventArgs.Count == changedEventArgs.Count, "The number of changing and changed events should be the same.");
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			Assert.IsTrue(bindableEventArgs.Count != 0, "There should be at least one bindable event.");
+			Assert.IsTrue(changingEventArgs.Count == bindableEventArgs.Count, "The number of changing and bindable events should be the same.");
+#endif
+
+			Assert.IsTrue(changingEventArgs.Any(x => x.PropertyName == changingArgs.PropertyName));
+			Assert.IsTrue(changedEventArgs.Any(x => x.PropertyName == changedArgs.PropertyName));
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			Assert.IsTrue(bindableEventArgs.Any(x => x.propertyName == changedArgs.PropertyName));
+#endif
+		}
+
+		private class ComparisonComparer<T> : IComparer<T>
+		{
+			public readonly Comparison<T> comparison;
+
+			public ComparisonComparer(Comparison<T> comparison)
+			{
+				this.comparison = comparison;
+			}
+
+			public int Compare(T x, T y)
+			{
+				return comparison.Invoke(x, y);
+			}
 		}
 	}
 }
