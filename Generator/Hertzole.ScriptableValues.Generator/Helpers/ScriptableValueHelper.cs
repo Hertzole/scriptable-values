@@ -7,7 +7,8 @@ public enum ScriptableType
 	None = 0,
 	Event = 1,
 	GenericEvent = 2,
-	Value = 3
+	Value = 3,
+	Pool = 4
 }
 
 internal static class ScriptableValueHelper
@@ -56,28 +57,16 @@ internal static class ScriptableValueHelper
 			return true;
 		}
 
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_POOL))
+		{
+			genericType = type.TypeArguments[0];
+			scriptableType = ScriptableType.Pool;
+			return true;
+		}
+
 		if (type.BaseType != null)
 		{
-			if (type.BaseType.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE))
-			{
-				genericType = type.BaseType.TypeArguments[0];
-				scriptableType = ScriptableType.Value;
-				return true;
-			}
-
-			if (type.BaseType.ConstructedFrom.StringEquals(Types.SCRIPTABLE_EVENT))
-			{
-				scriptableType = ScriptableType.Event;
-				genericType = null;
-				return true;
-			}
-
-			if (type.BaseType.ConstructedFrom.StringEquals(Types.GENERIC_SCRIPTABLE_EVENT))
-			{
-				genericType = type.BaseType.TypeArguments[0];
-				scriptableType = ScriptableType.GenericEvent;
-				return true;
-			}
+			return TryGetScriptableTypeFromType(type.BaseType, out scriptableType, out genericType);
 		}
 
 		scriptableType = ScriptableType.None;

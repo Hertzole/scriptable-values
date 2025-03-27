@@ -162,10 +162,13 @@ partial class ScriptableCallbackGenerator
 			switch (data.CallbackType)
 			{
 				case CallbackType.Value:
-					WriteValueField(writer, in hierarchy, in data);
+					WriteValueField(in writer, in hierarchy, in data);
 					break;
 				case CallbackType.Event:
-					WriteEventField(writer, in hierarchy, in data);
+					WriteEventField(in writer, in hierarchy, in data);
+					break;
+				case CallbackType.Pool:
+					WritePoolField(in writer, in hierarchy, in data);
 					break;
 			}
 		}
@@ -277,6 +280,7 @@ partial class ScriptableCallbackGenerator
 				case CallbackType.Collection:
 					break;
 				case CallbackType.Pool:
+					WritePoolCallbackMethod(in writer, in elements[i]);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -328,6 +332,28 @@ partial class ScriptableCallbackGenerator
 				}
 
 				parameterNames.Add("args");
+
+				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
+			}
+			finally
+			{
+				parameterTypes.Dispose();
+				parameterNames.Dispose();
+			}
+		}
+
+		static void WritePoolCallbackMethod(in CodeWriter writer, in CallbackData data)
+		{
+			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(2);
+			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(2);
+
+			try
+			{
+				parameterTypes.Add("global::Hertzole.ScriptableValues.PoolAction");
+				parameterNames.Add("action");
+
+				parameterTypes.Add(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+				parameterNames.Add("item");
 
 				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
 			}

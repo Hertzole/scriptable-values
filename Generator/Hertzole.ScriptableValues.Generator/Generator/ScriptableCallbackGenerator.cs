@@ -325,6 +325,7 @@ internal readonly record struct CallbackData(
 			case CallbackType.Collection:
 				break;
 			case CallbackType.Pool:
+				builder.AddRange("ScriptablePoolCallback");
 				break;
 			default:
 				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
@@ -351,6 +352,7 @@ internal readonly record struct CallbackData(
 			case CallbackType.Collection:
 				break;
 			case CallbackType.Pool:
+				builder.AddRange("ChangedCallback");
 				break;
 			default:
 				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
@@ -379,6 +381,7 @@ internal readonly record struct CallbackData(
 			case CallbackType.Collection:
 				break;
 			case CallbackType.Pool:
+				builder.AddRange("Changed");
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

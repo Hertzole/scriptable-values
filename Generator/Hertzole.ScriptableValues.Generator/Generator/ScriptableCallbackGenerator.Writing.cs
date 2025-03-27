@@ -74,6 +74,36 @@ partial class ScriptableCallbackGenerator
 		}
 	}
 
+	private static void WritePoolField(in CodeWriter writer, in HierarchyInfo hierarchy, in CallbackData data)
+	{
+		ArrayBuilder<string> genericParameters = new ArrayBuilder<string>(3);
+		ArrayBuilder<string> callbackParameters = new ArrayBuilder<string>(3);
+		ArrayBuilder<char> callback = new ArrayBuilder<char>(64);
+
+		try
+		{
+			genericParameters.Add(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+			genericParameters.Add(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+
+			callbackParameters.Add("action");
+			callbackParameters.Add("item");
+			callbackParameters.Add("context");
+
+			callback.AddRange("context.");
+			callback.AddRange(data.CallbackName);
+			callback.AddRange("(action, item);");
+
+			WriteCachedField(in writer, "global::Hertzole.ScriptableValues.PoolEventArgsWithContext", genericParameters.AsSpan(), data.CachedFieldName.AsSpan(),
+				callbackParameters.AsSpan(), callback.AsSpan());
+		}
+		finally
+		{
+			genericParameters.Dispose();
+			callbackParameters.Dispose();
+			callback.Dispose();
+		}
+	}
+
 	private static void WriteCachedField(in CodeWriter writer,
 		string action,
 		in ReadOnlySpan<string> genericParameters,
