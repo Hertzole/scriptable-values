@@ -99,33 +99,16 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("#endif // UNITY_EDITOR");
 		}
 
-		int actualCount = 0;
-		for (int i = 0; i < data.Length; i++)
-		{
-			context.CancellationToken.ThrowIfCancellationRequested();
-
-			if (data[i].CallbackType == CallbackType.Value)
-			{
-				// If it's a value and has both pre and post invoke, we need to count it as two.
-				if ((data[i].Flags & CallbackFlags.PreAndPostInvoke) == CallbackFlags.PreAndPostInvoke)
-				{
-					actualCount++;
-				}
-			}
-
-			actualCount++;
-		}
-
 		writer.Append("private enum SubscribedCallbacksMask : ");
-		if (actualCount < 8)
+		if (data.Length < 8)
 		{
 			writer.AppendLine("byte");
 		}
-		else if (actualCount < 16)
+		else if (data.Length < 16)
 		{
 			writer.AppendLine("ushort");
 		}
-		else if (actualCount < 32)
+		else if (data.Length < 32)
 		{
 			writer.AppendLine("uint");
 		}
@@ -139,34 +122,14 @@ partial class ScriptableCallbackGenerator
 
 		writer.Append("None = 0");
 
-		int actualIndex = 0;
 		for (int i = 0; i < data.Length; i++)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
 			writer.AppendLine(",");
-			writer.Append(data[i].Name);
-			if (data[i].CallbackType == CallbackType.Value)
-			{
-				// If it's a value and has both pre and post invoke, we need to count it as two.
-				if ((data[i].Flags & CallbackFlags.PreAndPostInvoke) == CallbackFlags.PreAndPostInvoke)
-				{
-					writer.Append("Changing = 1 << ");
-					writer.Append(actualIndex);
-					actualIndex++;
-					writer.AppendLine(",");
-					writer.Append(data[i].Name);
-					writer.Append("Changed");
-				}
-				else
-				{
-					writer.Append((data[i].Flags & CallbackFlags.PostInvoke) != 0 ? "Changed" : "Changing");
-				}
-			}
-
+			writer.Append(data[i].MaskName);
 			writer.Append(" = 1 << ");
-			writer.Append(actualIndex);
-			actualIndex++;
+			writer.Append(i);
 		}
 
 		writer.AppendLine();
@@ -211,6 +174,9 @@ partial class ScriptableCallbackGenerator
 				case CallbackType.Value:
 					WriteValueField(writer, in hierarchy, in data);
 					break;
+				case CallbackType.Event:
+					WriteEventField(writer, in hierarchy, in data);
+					break;
 			}
 		}
 	}
@@ -231,17 +197,7 @@ partial class ScriptableCallbackGenerator
 		for (int i = 0; i < elements.Length; i++)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
-
-			CallbackFlags overrideFlags = CallbackFlags.None;
-
-			if ((elements[i].Flags & CallbackFlags.PreAndPostInvoke) == CallbackFlags.PreAndPostInvoke)
-			{
-				WriteIfCheck(in writer, in hierarchy, in elements[i], true, CallbackFlags.PreInvoke);
-
-				overrideFlags = CallbackFlags.PostInvoke;
-			}
-
-			WriteIfCheck(in writer, in hierarchy, in elements[i], true, overrideFlags);
+			WriteIfCheck(in writer, in hierarchy, in elements[i], true);
 		}
 
 		writer.Indent--;
@@ -257,17 +213,7 @@ partial class ScriptableCallbackGenerator
 		for (int i = 0; i < elements.Length; i++)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
-
-			CallbackFlags overrideFlags = CallbackFlags.None;
-
-			if ((elements[i].Flags & CallbackFlags.PreAndPostInvoke) == CallbackFlags.PreAndPostInvoke)
-			{
-				WriteIfCheck(in writer, in hierarchy, in elements[i], false, CallbackFlags.PreInvoke);
-
-				overrideFlags = CallbackFlags.PostInvoke;
-			}
-
-			WriteIfCheck(in writer, in hierarchy, in elements[i], false, overrideFlags);
+			WriteIfCheck(in writer, in hierarchy, in elements[i], false);
 		}
 
 		writer.Indent--;
@@ -277,19 +223,10 @@ partial class ScriptableCallbackGenerator
 		static void WriteIfCheck(in CodeWriter writer,
 			in HierarchyInfo hierarchy,
 			in CallbackData data,
-			bool subscribe,
-			CallbackFlags overrideFlags = CallbackFlags.None)
+			bool subscribe)
 		{
-			if (overrideFlags == CallbackFlags.None)
-			{
-				overrideFlags = data.Flags;
-			}
-
-			ReadOnlySpan<char> flagsSuffix = data.GetFlagsSuffix(overrideFlags);
-
 			writer.Append("if ((subscribedCallbacks & SubscribedCallbacksMask.");
-			writer.Append(data.Name);
-			writer.Append(flagsSuffix);
+			writer.Append(data.MaskName);
 			writer.Append(") ");
 			writer.Append(subscribe ? "== 0" : "!= 0");
 			writer.AppendLine(")");
@@ -303,11 +240,10 @@ partial class ScriptableCallbackGenerator
 				switch (data.CallbackType)
 				{
 					case CallbackType.Value:
-						writer.Append(".RegisterValue");
-						writer.Append(data.GetFlagsSuffix(overrideFlags));
-						writer.Append("Listener(");
-						writer.Append(data.Name);
-						writer.Append((overrideFlags & CallbackFlags.PreInvoke) != 0 ? ScriptableValueChanging : ScriptableValueChanged);
+						writer.Append(".");
+						writer.Append(data.RegisterCallbackMethod);
+						writer.Append("(");
+						writer.Append(data.CachedFieldName);
 						break;
 					case CallbackType.Event:
 						break;
@@ -327,13 +263,12 @@ partial class ScriptableCallbackGenerator
 				switch (data.CallbackType)
 				{
 					case CallbackType.Value:
-						writer.Append(".UnregisterValue");
-						writer.Append(data.GetFlagsSuffix(overrideFlags));
-						writer.Append("Listener<");
+						writer.Append(".");
+						writer.Append(data.UnregisterCallbackMethod);
+						writer.Append("<");
 						writer.Append(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
 						writer.Append(">(");
-						writer.Append(data.Name);
-						writer.Append((overrideFlags & CallbackFlags.PreInvoke) != 0 ? ScriptableValueChanging : ScriptableValueChanged);
+						writer.Append(data.CachedFieldName);
 						break;
 					case CallbackType.Event:
 						break;
@@ -349,8 +284,7 @@ partial class ScriptableCallbackGenerator
 				writer.Append("subscribedCallbacks &= ~SubscribedCallbacksMask.");
 			}
 
-			writer.Append(data.Name);
-			writer.Append(flagsSuffix);
+			writer.Append(data.MaskName);
 			writer.AppendLine(";");
 
 			writer.Indent--;
@@ -400,16 +334,7 @@ partial class ScriptableCallbackGenerator
 				parameterTypes.Add(genericType);
 				parameterNames.Add("newValue");
 
-				if ((data.Flags & CallbackFlags.PreAndPostInvoke) == CallbackFlags.PreAndPostInvoke)
-				{
-					WriteCallbackMethod(in writer, data.GetCallbackName(CallbackFlags.PreInvoke), parameterTypes.AsSpan(), parameterNames.AsSpan());
-					writer.AppendLine();
-					WriteCallbackMethod(in writer, data.GetCallbackName(CallbackFlags.PostInvoke), parameterTypes.AsSpan(), parameterNames.AsSpan());
-				}
-				else
-				{
-					WriteCallbackMethod(in writer, data.GetCallbackName(), parameterTypes.AsSpan(), parameterNames.AsSpan());
-				}
+				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
 			}
 			finally
 			{

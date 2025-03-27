@@ -8,13 +8,13 @@ public sealed class CodeWriter
 	private readonly StringBuilder sb = new StringBuilder(1024);
 
 	private bool shouldWriteIndent = false;
-	
+
 	public int Indent { get; set; }
 
 	public void Append(string value)
 	{
 		WriteIndentIfNeeded();
-		
+
 		sb.Append(value);
 	}
 
@@ -31,11 +31,11 @@ public sealed class CodeWriter
 
 		sb.Append(value);
 	}
-	
+
 	public void AppendLine(string value)
 	{
 		WriteIndentIfNeeded();
-		
+
 		sb.AppendLine(value);
 		shouldWriteIndent = true;
 	}
@@ -49,7 +49,7 @@ public sealed class CodeWriter
 	public void AppendGeneratedCodeAttribute(string generator, string version)
 	{
 		WriteIndentIfNeeded();
-		
+
 		sb.Append("[global::System.CodeDom.Compiler.GeneratedCode(\"");
 		sb.Append(generator);
 		sb.Append("\", \"");
@@ -57,7 +57,7 @@ public sealed class CodeWriter
 		sb.Append("\")]\n");
 		shouldWriteIndent = true;
 	}
-	
+
 	public void AppendExcludeFromCodeCoverageAttribute(bool withIfDefines = true)
 	{
 		if (withIfDefines)
@@ -67,10 +67,10 @@ public sealed class CodeWriter
 				sb.AppendLine("#if UNITY_INCLUDE_TESTS");
 			}
 		}
-		
+
 		WriteIndentIfNeeded();
 		sb.Append("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]\n");
-		
+
 		if (withIfDefines)
 		{
 			using (WithIndent(0))
@@ -78,12 +78,14 @@ public sealed class CodeWriter
 				sb.AppendLine("#endif // UNITY_INCLUDE_TESTS");
 			}
 		}
-		
+
 		shouldWriteIndent = true;
 	}
 
 	public void Clear()
 	{
+		Indent = 0;
+		shouldWriteIndent = false;
 		sb.Clear();
 	}
 
@@ -91,9 +93,9 @@ public sealed class CodeWriter
 	{
 		if (!shouldWriteIndent)
 		{
-			 return;
+			return;
 		}
-		
+
 		shouldWriteIndent = false;
 		sb.Append('\t', Indent);
 	}
@@ -107,7 +109,7 @@ public sealed class CodeWriter
 	{
 		return sb.ToString();
 	}
-	
+
 	public readonly ref struct IndentScope
 	{
 		private readonly CodeWriter writer;

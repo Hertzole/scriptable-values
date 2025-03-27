@@ -24,6 +24,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 			                                                                                        IsValidDeclaration,
 			                                                                                        (syntaxContext, token) =>
 				                                                                                        Get(in syntaxContext, CallbackType.Value, in token))
+		                                                                                        .SelectMany(static (array, _) => array)
 		                                                                                        .Where(static x => x != default)
 		                                                                                        .Collect();
 
@@ -33,6 +34,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 			                                                                                        IsValidDeclaration,
 			                                                                                        (syntaxContext, token) =>
 				                                                                                        Get(in syntaxContext, CallbackType.Event, in token))
+		                                                                                        .SelectMany(static (array, _) => array)
 		                                                                                        .Where(static x => x != default)
 		                                                                                        .Collect();
 
@@ -43,6 +45,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 			                                                                                             (syntaxContext, token) =>
 				                                                                                             Get(in syntaxContext, CallbackType.Collection,
 					                                                                                             in token))
+		                                                                                             .SelectMany(static (array, _) => array)
 		                                                                                             .Where(static x => x != default)
 		                                                                                             .Collect();
 
@@ -52,6 +55,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 			                                                                                       IsValidDeclaration,
 			                                                                                       (syntaxContext, token) =>
 				                                                                                       Get(in syntaxContext, CallbackType.Pool, in token))
+		                                                                                       .SelectMany(static (array, _) => array)
 		                                                                                       .Where(static x => x != default)
 		                                                                                       .Collect();
 
@@ -135,7 +139,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		return parentTypeNode.AttributeLists.Count > 0;
 	}
 
-	private static (HierarchyInfo, CallbackData) Get(in GeneratorAttributeSyntaxContext context,
+	private static ImmutableArray<(HierarchyInfo, CallbackData)> Get(in GeneratorAttributeSyntaxContext context,
 		in CallbackType callbackType,
 		in CancellationToken cancellationToken)
 	{
@@ -191,77 +195,76 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 			return default;
 		}
 
-		CallbackFlags callbackFlags = GetCallbackFlags(in context, in callbackType, in cancellationToken);
+		HierarchyInfo hierarchy = HierarchyInfo.FromSymbol(context.TargetSymbol.ContainingType);
 
-		return new ValueTuple<HierarchyInfo, CallbackData>(
-			HierarchyInfo.FromSymbol(context.TargetSymbol.ContainingType),
-			new CallbackData(context.TargetSymbol.Name, callbackType, callbackFlags, memberType, scriptableType, genericType!));
+		using ArrayBuilder<(HierarchyInfo, CallbackData)> builder = new ArrayBuilder<(HierarchyInfo, CallbackData)>(context.Attributes.Length);
+
+		for (int i = 0; i < context.Attributes.Length; i++)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			CallbackFlags callbackFlags = GetCallbackFlags(in context, in callbackType, context.Attributes[i], in cancellationToken);
+
+			builder.Add((hierarchy, new CallbackData(context.TargetSymbol.Name, callbackType, callbackFlags, memberType, scriptableType, genericType!)));
+		}
+
+		return builder.ToImmutable();
 	}
 
 	private static CallbackFlags GetCallbackFlags(in GeneratorAttributeSyntaxContext context,
 		in CallbackType callbackType,
+		in AttributeData attribute,
 		in CancellationToken cancellationToken)
 	{
 		switch (callbackType)
 		{
 			case CallbackType.Value:
-				return GetValueCallbackFlags(in context, in cancellationToken);
+				return GetValueCallbackFlags(in attribute, in cancellationToken);
 			default:
 				return CallbackFlags.None;
 		}
 
-		static CallbackFlags GetValueCallbackFlags(in GeneratorAttributeSyntaxContext context, in CancellationToken cancellationToken)
+		static CallbackFlags GetValueCallbackFlags(in AttributeData attribute, in CancellationToken cancellationToken)
 		{
-			ImmutableArray<AttributeData> attributes = context.Attributes;
-			if (attributes.IsDefaultOrEmpty)
+			if (attribute.AttributeClass == null ||
+			    attribute.AttributeClass.ToDisplayString() != "Hertzole.ScriptableValues.GenerateValueCallbackAttribute")
 			{
 				return CallbackFlags.None;
 			}
 
+			cancellationToken.ThrowIfCancellationRequested();
+
 			CallbackFlags flags = CallbackFlags.None;
 
-			for (int i = 0; i < attributes.Length; i++)
+			bool hasChanged = false;
+			bool hasChanging = false;
+
+			// No arguments mean it's a OnXChanged
+			if (attribute.ConstructorArguments.Length == 0)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
-
-				AttributeData attribute = attributes[i];
-
-				if (attribute.AttributeClass == null ||
-				    attribute.AttributeClass.ToDisplayString() != "Hertzole.ScriptableValues.GenerateValueCallbackAttribute")
+				hasChanged = true;
+			}
+			else if (attribute.ConstructorArguments.Length > 0)
+			{
+				// If the argument is 0, it's a OnXChanging.
+				if (attribute.ConstructorArguments[0].Value is int value && value == 0)
 				{
-					continue;
+					hasChanging = true;
 				}
-
-				bool hasChanged = false;
-				bool hasChanging = false;
-
-				// No arguments means it's a OnXChanged
-				if (attributes[i].ConstructorArguments.Length == 0)
+				else
 				{
 					hasChanged = true;
 				}
-				else if (attribute.ConstructorArguments.Length > 0)
-				{
-					// If the argument is 0, it's a OnXChanging.
-					if (attribute.ConstructorArguments[0].Value is int value && value == 0)
-					{
-						hasChanging = true;
-					}
-					else
-					{
-						hasChanged = true;
-					}
-				}
+			}
 
-				if (hasChanging)
-				{
-					flags |= CallbackFlags.PreInvoke;
-				}
+			if (hasChanging)
+			{
+				flags |= CallbackFlags.PreInvoke;
+			}
 
-				if (hasChanged)
-				{
-					flags |= CallbackFlags.PostInvoke;
-				}
+			if (hasChanged)
+			{
+				flags |= CallbackFlags.PostInvoke;
 			}
 
 			return flags;
@@ -285,42 +288,88 @@ internal readonly record struct CallbackData(
 	ScriptableType ScriptableType,
 	ITypeSymbol GenericType)
 {
-	public ReadOnlySpan<char> GetFlagsSuffix(CallbackFlags overrideFlags = CallbackFlags.None)
-	{
-		if (overrideFlags != CallbackFlags.None)
-		{
-			if ((overrideFlags & CallbackFlags.PreInvoke) != 0)
-			{
-				return "Changing".AsSpan();
-			}
+	public string MaskName { get; } = CreateMaskName(Name, in CallbackType, in Flags);
+	public string CachedFieldName { get; } = CreateCachedFieldName(Name, in CallbackType, in Flags);
 
-			if ((overrideFlags & CallbackFlags.PostInvoke) != 0)
-			{
-				return "Changed".AsSpan();
-			}
-		}
+	public string RegisterCallbackMethod { get; } = CreateRegisterMethodName(true, in CallbackType, in Flags);
 
-		if ((Flags & CallbackFlags.PostInvoke) != 0)
-		{
-			return "Changed".AsSpan();
-		}
+	public string UnregisterCallbackMethod { get; } = CreateRegisterMethodName(false, in CallbackType, in Flags);
 
-		if ((Flags & CallbackFlags.PreInvoke) != 0)
-		{
-			return "Changing".AsSpan();
-		}
+	public string CallbackName { get; } = CreateCallbackName(Name, in CallbackType, in Flags);
 
-		return ReadOnlySpan<char>.Empty;
-	}
-
-	public ReadOnlySpan<char> GetCallbackName(CallbackFlags overrideFlags = CallbackFlags.None)
+	private static string CreateMaskName(string name, in CallbackType callbackType, in CallbackFlags flags)
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
 
-		switch (CallbackType)
+		builder.AddRange(name);
+		AppendFlagSuffix(in builder, in callbackType, in flags);
+
+		return builder.ToString();
+	}
+
+	private static string CreateCachedFieldName(string name, in CallbackType callbackType, in CallbackFlags flags)
+	{
+		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
+
+		builder.AddRange(name);
+
+		switch (callbackType)
 		{
 			case CallbackType.Value:
-				AppendValueCallbackName(in builder, Name, overrideFlags == CallbackFlags.None ? Flags : overrideFlags);
+				builder.AddRange("ScriptableValueCallback");
+				AppendFlagSuffix(in builder, in callbackType, in flags);
+				break;
+			case CallbackType.Event:
+				break;
+			case CallbackType.Collection:
+				break;
+			case CallbackType.Pool:
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
+		}
+
+		return builder.ToString();
+	}
+
+	private static string CreateRegisterMethodName(bool subscribe, in CallbackType callbackType, in CallbackFlags flags)
+	{
+		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
+
+		switch (callbackType)
+		{
+			case CallbackType.Value:
+				builder.AddRange(subscribe ? "Register" : "Unregister");
+				builder.AddRange("Value");
+				AppendFlagSuffix(in builder, in callbackType, in flags);
+				builder.AddRange("Listener");
+				break;
+			case CallbackType.Event:
+				break;
+			case CallbackType.Collection:
+				break;
+			case CallbackType.Pool:
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
+		}
+
+		return builder.ToString();
+	}
+
+	private static string CreateCallbackName(string name, in CallbackType callbackType, in CallbackFlags flags)
+	{
+		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
+
+		ReadOnlySpan<char> prettyName = Naming.FormatVariableName(name.AsSpan());
+
+		builder.AddRange("On");
+		builder.AddRange(prettyName);
+
+		switch (callbackType)
+		{
+			case CallbackType.Value:
+				AppendFlagSuffix(in builder, in callbackType, in flags);
 				break;
 			case CallbackType.Event:
 				break;
@@ -332,7 +381,22 @@ internal readonly record struct CallbackData(
 				throw new ArgumentOutOfRangeException();
 		}
 
-		return builder.AsSpan();
+		return builder.ToString();
+	}
+
+	private static void AppendFlagSuffix(in ArrayBuilder<char> builder, in CallbackType type, in CallbackFlags flags)
+	{
+		if (type == CallbackType.Value)
+		{
+			if ((flags & CallbackFlags.PostInvoke) != 0)
+			{
+				builder.AddRange("Changed");
+			}
+			else if ((flags & CallbackFlags.PreInvoke) != 0)
+			{
+				builder.AddRange("Changing");
+			}
+		}
 	}
 
 	private static void AppendValueCallbackName(in ArrayBuilder<char> builder, in string name, CallbackFlags flags)
