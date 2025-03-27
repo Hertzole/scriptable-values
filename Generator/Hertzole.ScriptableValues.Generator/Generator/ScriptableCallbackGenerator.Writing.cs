@@ -27,7 +27,8 @@ partial class ScriptableCallbackGenerator
 			callback.AddRange(data.CallbackName);
 			callback.AddRange("(oldValue, newValue);");
 
-			WriteCachedField(in writer, genericParameters.AsSpan(), data.CachedFieldName.AsSpan(), callbackParameters.AsSpan(), callback.AsSpan());
+			WriteCachedField(in writer, "global::System.Action", genericParameters.AsSpan(), data.CachedFieldName.AsSpan(), callbackParameters.AsSpan(),
+				callback.AsSpan());
 		}
 		finally
 		{
@@ -40,31 +41,41 @@ partial class ScriptableCallbackGenerator
 
 	private static void WriteEventField(in CodeWriter writer, in HierarchyInfo hierarchy, in CallbackData data)
 	{
-		// string genericTypeName = data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+		ArrayBuilder<string> genericParameters = new ArrayBuilder<string>(3);
+		ArrayBuilder<string> callbackParameters = new ArrayBuilder<string>(3);
+		ArrayBuilder<char> callback = new ArrayBuilder<char>(64);
 
-		using ArrayBuilder<string> genericParameters = new ArrayBuilder<string>(3);
-		genericParameters.Add("object");
-
-		if (data.ScriptableType == ScriptableType.GenericEvent)
+		try
 		{
-			genericParameters.Add(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+			// If it's a generic event, write the generic type. 
+			if (data.ScriptableType == ScriptableType.GenericEvent)
+			{
+				genericParameters.Add(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+			}
+
+			genericParameters.Add(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+
+			callbackParameters.Add("sender");
+			callbackParameters.Add("args");
+			callbackParameters.Add("context");
+
+			callback.AddRange("context.");
+			callback.AddRange(data.CallbackName);
+			callback.AddRange("(sender, args);");
+
+			WriteCachedField(in writer, "global::Hertzole.ScriptableValues.EventHandlerWithContext", genericParameters.AsSpan(), data.CachedFieldName.AsSpan(),
+				callbackParameters.AsSpan(), callback.AsSpan());
 		}
-		else
+		finally
 		{
-			genericParameters.Add("global::System.EventArgs");
+			genericParameters.Dispose();
+			callbackParameters.Dispose();
+			callback.Dispose();
 		}
-
-		genericParameters.Add(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-
-		using ArrayBuilder<string> callbackParameters = new ArrayBuilder<string>(3);
-		callbackParameters.Add("sender");
-		callbackParameters.Add("args");
-		callbackParameters.Add("context");
-
-		WriteCachedField(in writer, genericParameters.AsSpan(), "tesxt".AsSpan(), callbackParameters.AsSpan(), "callback.AsSpan()".AsSpan());
 	}
 
 	private static void WriteCachedField(in CodeWriter writer,
+		string action,
 		in ReadOnlySpan<string> genericParameters,
 		in ReadOnlySpan<char> name,
 		in ReadOnlySpan<string> callbackParameters,
@@ -82,7 +93,9 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("#endif // UNITY_EDITOR");
 		}
 
-		writer.Append("private static global::System.Action<");
+		writer.Append("private static ");
+		writer.Append(action);
+		writer.Append("<");
 		for (int i = 0; i < genericParameters.Length; i++)
 		{
 			if (i > 0)

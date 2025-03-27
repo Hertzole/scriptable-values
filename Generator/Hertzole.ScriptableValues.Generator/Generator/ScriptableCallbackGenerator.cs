@@ -320,6 +320,7 @@ internal readonly record struct CallbackData(
 				AppendFlagSuffix(in builder, in callbackType, in flags);
 				break;
 			case CallbackType.Event:
+				builder.AddRange("ScriptableEventCallback");
 				break;
 			case CallbackType.Collection:
 				break;
@@ -336,15 +337,16 @@ internal readonly record struct CallbackData(
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
 
+		builder.AddRange(subscribe ? "Register" : "Unregister");
 		switch (callbackType)
 		{
 			case CallbackType.Value:
-				builder.AddRange(subscribe ? "Register" : "Unregister");
 				builder.AddRange("Value");
 				AppendFlagSuffix(in builder, in callbackType, in flags);
 				builder.AddRange("Listener");
 				break;
 			case CallbackType.Event:
+				builder.AddRange("InvokedListener");
 				break;
 			case CallbackType.Collection:
 				break;
@@ -372,6 +374,7 @@ internal readonly record struct CallbackData(
 				AppendFlagSuffix(in builder, in callbackType, in flags);
 				break;
 			case CallbackType.Event:
+				builder.AddRange("Invoked");
 				break;
 			case CallbackType.Collection:
 				break;

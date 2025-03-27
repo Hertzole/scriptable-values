@@ -8,16 +8,6 @@ namespace Hertzole.ScriptableValues.Generator;
 
 partial class ScriptableCallbackGenerator
 {
-	private static ReadOnlySpan<char> ScriptableValueChanging
-	{
-		get { return "ScriptableValueCallbackChanging".AsSpan(); }
-	}
-
-	private static ReadOnlySpan<char> ScriptableValueChanged
-	{
-		get { return "ScriptableValueCallbackChanged".AsSpan(); }
-	}
-
 	private static void GenerateCode(SourceProductionContext context, (HierarchyInfo Key, EquatableArray<CallbackData> Elements) item)
 	{
 		CodeWriter writer = new CodeWriter();
@@ -234,52 +224,25 @@ partial class ScriptableCallbackGenerator
 			writer.Indent++;
 
 			writer.Append(data.Name);
+			writer.Append(".");
+			writer.Append(subscribe ? data.RegisterCallbackMethod : data.UnregisterCallbackMethod);
 
+			if (!subscribe)
+			{
+				writer.Append("<");
+				writer.Append(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+				writer.Append(">");
+			}
+
+			writer.Append("(");
+			writer.Append(data.CachedFieldName);
 			if (subscribe)
 			{
-				switch (data.CallbackType)
-				{
-					case CallbackType.Value:
-						writer.Append(".");
-						writer.Append(data.RegisterCallbackMethod);
-						writer.Append("(");
-						writer.Append(data.CachedFieldName);
-						break;
-					case CallbackType.Event:
-						break;
-					case CallbackType.Collection:
-						break;
-					case CallbackType.Pool:
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-
 				writer.AppendLine(", this);");
 				writer.Append("subscribedCallbacks |= SubscribedCallbacksMask.");
 			}
 			else
 			{
-				switch (data.CallbackType)
-				{
-					case CallbackType.Value:
-						writer.Append(".");
-						writer.Append(data.UnregisterCallbackMethod);
-						writer.Append("<");
-						writer.Append(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-						writer.Append(">(");
-						writer.Append(data.CachedFieldName);
-						break;
-					case CallbackType.Event:
-						break;
-					case CallbackType.Collection:
-						break;
-					case CallbackType.Pool:
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-
 				writer.AppendLine(");");
 				writer.Append("subscribedCallbacks &= ~SubscribedCallbacksMask.");
 			}
@@ -309,6 +272,7 @@ partial class ScriptableCallbackGenerator
 					WriteValueCallbackMethod(in writer, in elements[i]);
 					break;
 				case CallbackType.Event:
+					WriteEventCallbackMethod(in writer, in elements[i]);
 					break;
 				case CallbackType.Collection:
 					break;
@@ -333,6 +297,37 @@ partial class ScriptableCallbackGenerator
 
 				parameterTypes.Add(genericType);
 				parameterNames.Add("newValue");
+
+				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
+			}
+			finally
+			{
+				parameterTypes.Dispose();
+				parameterNames.Dispose();
+			}
+		}
+
+		static void WriteEventCallbackMethod(in CodeWriter writer, in CallbackData data)
+		{
+			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(2);
+			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(2);
+
+			try
+			{
+				parameterTypes.Add("object");
+				parameterNames.Add("sender");
+
+				if (data.ScriptableType == ScriptableType.GenericEvent)
+				{
+					string genericType = data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+					parameterTypes.Add(genericType);
+				}
+				else
+				{
+					parameterTypes.Add("global::System.EventArgs");
+				}
+
+				parameterNames.Add("args");
 
 				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
 			}
