@@ -56,5 +56,11 @@ namespace Hertzole.ScriptableValues.Generator {
                 return ResourceManager.GetString("HSV0001MessageFormat", resourceCulture);
             }
         }
+        
+        internal static string HSV0001CodeFixTitle {
+            get {
+                return ResourceManager.GetString("HSV0001CodeFixTitle", resourceCulture);
+            }
+        }
     }
 }

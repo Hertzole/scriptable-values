@@ -398,7 +398,7 @@ partial class ScriptableCallbackGenerator
 			in ReadOnlySpan<string> parameterTypes,
 			in ReadOnlySpan<string> parameterNames)
 		{
-			writer.Append("partial void ");
+			writer.Append("private partial void ");
 			writer.Append(name);
 			writer.Append("(");
 

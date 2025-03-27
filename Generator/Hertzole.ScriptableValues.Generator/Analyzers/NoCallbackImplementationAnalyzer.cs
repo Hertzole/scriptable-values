@@ -170,6 +170,7 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 
 			ImmutableDictionary<string, string?>.Builder properties = ImmutableDictionary.CreateBuilder<string, string?>();
 			properties.Add("callbackName", callbackName);
+			properties.Add("fieldName", wrapper.Name);
 
 			context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.NoCallbackImplementation, attribute.GetLocation(), properties.ToImmutableDictionary(),
 				callbackName));

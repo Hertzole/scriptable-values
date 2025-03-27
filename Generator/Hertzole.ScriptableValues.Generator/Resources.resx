@@ -29,4 +29,7 @@
     <data name="HSV0001MessageFormat" xml:space="preserve">
         <value>The partial callback method '{0}' must be implemented</value>
     </data>
+    <data name="HSV0001CodeFixTitle" xml:space="preserve">
+        <value>Implement '{0}'</value>
+    </data>
 </root>
