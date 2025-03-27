@@ -29,7 +29,7 @@ partial class ScriptableCallbackGenerator
 
 			//TODO: Support other types?
 			writer.Append("partial class ");
-			writer.AppendLine(item.Key.MetadataName);
+			writer.AppendLine(item.Key.TypeName);
 			writer.AppendLine("{");
 			writer.Indent++;
 

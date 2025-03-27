@@ -273,11 +273,12 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 	}
 }
 
-internal readonly record struct HierarchyInfo(string FilenameHint, string MetadataName, string? Namespace, ISymbol Symbol)
+internal readonly record struct HierarchyInfo(string FilenameHint, string TypeName, string? Namespace, ISymbol Symbol)
 {
 	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
 	{
-		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.MetadataName, symbol.ContainingNamespace.ToDisplayString(), symbol);
+		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+			symbol.ContainingNamespace.ToDisplayString(), symbol);
 	}
 }
 
