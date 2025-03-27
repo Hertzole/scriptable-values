@@ -7,6 +7,5 @@ internal enum CallbackFlags : byte
 {
 	None = 0,
 	PreInvoke = 1 << 0,
-	PostInvoke = 1 << 1,
-	PreAndPostInvoke = PreInvoke | PostInvoke
+	PostInvoke = 1 << 1
 }

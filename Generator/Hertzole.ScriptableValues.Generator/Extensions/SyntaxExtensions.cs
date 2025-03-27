@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,5 +29,27 @@ internal static class SyntaxExtensions
 
 		fieldDeclaration = null;
 		return false;
+	}
+
+	public static bool TryGetFieldOrPropertyWrapper(this SyntaxNode node, in SemanticModel semanticModel, out ImmutableArray<FieldOrPropertyWrapper> wrapper)
+	{
+		using ArrayBuilder<FieldOrPropertyWrapper> builder = new ArrayBuilder<FieldOrPropertyWrapper>();
+
+		if (node is FieldDeclarationSyntax fieldSyntax)
+		{
+			foreach (VariableDeclaratorSyntax variable in fieldSyntax.Declaration.Variables)
+			{
+				ISymbol? declareSymbol = semanticModel.GetDeclaredSymbol(variable);
+				if (declareSymbol is not IFieldSymbol fieldSymbol)
+				{
+					continue;
+				}
+
+				builder.Add(new FieldOrPropertyWrapper(fieldSymbol));
+			}
+		}
+
+		wrapper = builder.ToImmutable();
+		return wrapper.Length > 0;
 	}
 }

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace Hertzole.ScriptableValues.Generator;
@@ -12,7 +13,7 @@ internal static class Log
 {
 	private static bool isInitialized;
 
-	public static readonly string path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "ScriptableValuesGenerator.log"));
+	public static readonly string path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Assembly.GetCallingAssembly().GetName().Name + ".log"));
 
 	[Conditional("DEBUG")]
 	public static void Info(string message)

@@ -18,6 +18,8 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 	/// <inheritdoc />
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
+		Log.Info<ScriptableCallbackGenerator>("Initialized");
+
 		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> values = context.SyntaxProvider
 		                                                                                        .ForAttributeWithMetadataName(
 			                                                                                        "Hertzole.ScriptableValues.GenerateValueCallbackAttribute",
@@ -290,122 +292,83 @@ internal readonly record struct CallbackData(
 	ScriptableType ScriptableType,
 	ITypeSymbol GenericType)
 {
-	public string MaskName { get; } = CreateMaskName(Name, in CallbackType, in Flags);
-	public string CachedFieldName { get; } = CreateCachedFieldName(Name, in CallbackType, in Flags);
+	public string MaskName { get; } = CreateMaskName(Name, in ScriptableType, in Flags);
+	public string CachedFieldName { get; } = CreateCachedFieldName(Name, in ScriptableType, in Flags);
 
-	public string RegisterCallbackMethod { get; } = CreateRegisterMethodName(true, in CallbackType, in Flags);
+	public string RegisterCallbackMethod { get; } = CreateRegisterMethodName(true, in ScriptableType, in Flags);
 
-	public string UnregisterCallbackMethod { get; } = CreateRegisterMethodName(false, in CallbackType, in Flags);
+	public string UnregisterCallbackMethod { get; } = CreateRegisterMethodName(false, in ScriptableType, in Flags);
 
-	public string CallbackName { get; } = CreateCallbackName(Name, in CallbackType, in Flags);
+	public string CallbackName { get; } = Naming.CreateCallbackName(Name, in ScriptableType, in Flags);
 
-	private static string CreateMaskName(string name, in CallbackType callbackType, in CallbackFlags flags)
+	private static string CreateMaskName(string name, in ScriptableType scriptableType, in CallbackFlags flags)
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
 
 		builder.AddRange(name);
-		AppendFlagSuffix(in builder, in callbackType, in flags);
+		Naming.AppendFlagSuffix(in builder, in scriptableType, in flags);
 
 		return builder.ToString();
 	}
 
-	private static string CreateCachedFieldName(string name, in CallbackType callbackType, in CallbackFlags flags)
+	private static string CreateCachedFieldName(string name, in ScriptableType scriptableType, in CallbackFlags flags)
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
 
 		builder.AddRange(name);
 
-		switch (callbackType)
+		switch (scriptableType)
 		{
-			case CallbackType.Value:
+			case ScriptableType.Value:
 				builder.AddRange("ScriptableValueCallback");
-				AppendFlagSuffix(in builder, in callbackType, in flags);
+				Naming.AppendFlagSuffix(in builder, in scriptableType, in flags);
 				break;
-			case CallbackType.Event:
+			case ScriptableType.Event:
+			case ScriptableType.GenericEvent:
 				builder.AddRange("ScriptableEventCallback");
 				break;
-			case CallbackType.Collection:
+			case ScriptableType.List:
+			case ScriptableType.Dictionary:
 				builder.AddRange("ScriptableCollectionChanged");
 				break;
-			case CallbackType.Pool:
+			case ScriptableType.Pool:
 				builder.AddRange("ScriptablePoolCallback");
 				break;
 			default:
-				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
+				throw new ArgumentOutOfRangeException(nameof(scriptableType), scriptableType, null);
 		}
 
 		return builder.ToString();
 	}
 
-	private static string CreateRegisterMethodName(bool subscribe, in CallbackType callbackType, in CallbackFlags flags)
+	private static string CreateRegisterMethodName(bool subscribe, in ScriptableType scriptableType, in CallbackFlags flags)
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
 
 		builder.AddRange(subscribe ? "Register" : "Unregister");
-		switch (callbackType)
+		switch (scriptableType)
 		{
-			case CallbackType.Value:
+			case ScriptableType.Value:
 				builder.AddRange("Value");
-				AppendFlagSuffix(in builder, in callbackType, in flags);
+				Naming.AppendFlagSuffix(in builder, in scriptableType, in flags);
 				builder.AddRange("Listener");
 				break;
-			case CallbackType.Event:
+			case ScriptableType.Event:
+			case ScriptableType.GenericEvent:
 				builder.AddRange("InvokedListener");
 				break;
-			case CallbackType.Collection:
+			case ScriptableType.List:
+			case ScriptableType.Dictionary:
 				builder.AddRange("ChangedListener");
 				break;
-			case CallbackType.Pool:
+			case ScriptableType.Pool:
 				builder.AddRange("ChangedCallback");
 				break;
 			default:
-				throw new ArgumentOutOfRangeException(nameof(callbackType), callbackType, null);
+				throw new ArgumentOutOfRangeException(nameof(scriptableType), scriptableType, null);
 		}
 
 		return builder.ToString();
-	}
-
-	private static string CreateCallbackName(string name, in CallbackType callbackType, in CallbackFlags flags)
-	{
-		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
-
-		ReadOnlySpan<char> prettyName = Naming.FormatVariableName(name.AsSpan());
-
-		builder.AddRange("On");
-		builder.AddRange(prettyName);
-
-		switch (callbackType)
-		{
-			case CallbackType.Value:
-				AppendFlagSuffix(in builder, in callbackType, in flags);
-				break;
-			case CallbackType.Event:
-				builder.AddRange("Invoked");
-				break;
-			case CallbackType.Collection:
-			case CallbackType.Pool:
-				builder.AddRange("Changed");
-				break;
-			default:
-				throw new ArgumentOutOfRangeException();
-		}
-
-		return builder.ToString();
-	}
-
-	private static void AppendFlagSuffix(in ArrayBuilder<char> builder, in CallbackType type, in CallbackFlags flags)
-	{
-		if (type == CallbackType.Value)
-		{
-			if ((flags & CallbackFlags.PostInvoke) != 0)
-			{
-				builder.AddRange("Changed");
-			}
-			else if ((flags & CallbackFlags.PreInvoke) != 0)
-			{
-				builder.AddRange("Changing");
-			}
-		}
 	}
 }
 

@@ -60,6 +60,11 @@ public sealed class CodeWriter
 
 	public void AppendExcludeFromCodeCoverageAttribute(bool withIfDefines = true)
 	{
+		AppendWithinIfDefines(withIfDefines, static s => s.Append("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]\n"));
+	}
+
+	private void AppendWithinIfDefines(bool withIfDefines, Action<StringBuilder> writeAction)
+	{
 		if (withIfDefines)
 		{
 			using (WithIndent(0))
@@ -69,7 +74,7 @@ public sealed class CodeWriter
 		}
 
 		WriteIndentIfNeeded();
-		sb.Append("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]\n");
+		writeAction.Invoke(sb);
 
 		if (withIfDefines)
 		{

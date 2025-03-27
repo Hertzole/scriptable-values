@@ -186,7 +186,7 @@ partial class ScriptableCallbackGenerator
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
-		writer.AppendLine("private void SubscribeToScriptableCallbacks()");
+		writer.AppendLine("private void SubscribeToAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
 
@@ -202,7 +202,7 @@ partial class ScriptableCallbackGenerator
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
-		writer.AppendLine("private void UnsubscribeFromScriptableCallbacks()");
+		writer.AppendLine("private void UnsubscribeFromAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
 

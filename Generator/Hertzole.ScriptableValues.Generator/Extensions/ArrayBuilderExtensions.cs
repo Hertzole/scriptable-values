@@ -2,7 +2,7 @@ using System;
 
 namespace Hertzole.ScriptableValues.Generator;
 
-public static class ArrayBuilderExtensions
+internal static class ArrayBuilderExtensions
 {
 	public static void AddRange(this ArrayBuilder<char> builder, string value)
 	{

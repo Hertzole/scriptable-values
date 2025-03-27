@@ -2,7 +2,7 @@
 
 namespace Hertzole.ScriptableValues.Generator;
 
-public enum ScriptableType
+internal enum ScriptableType
 {
 	None = 0,
 	Event = 1,
