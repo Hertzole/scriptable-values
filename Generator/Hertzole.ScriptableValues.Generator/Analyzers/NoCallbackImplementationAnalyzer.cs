@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -83,8 +84,19 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
+		// Get the containing type of the member
+		SyntaxNode? containingTypeNode = memberDeclaration.Parent;
+		if (containingTypeNode == null || context.SemanticModel.GetDeclaredSymbol(containingTypeNode) is not INamedTypeSymbol containingType)
+		{
+			return;
+		}
+
+		using ArrayBuilder<ITypeSymbol> parametersBuilder = new ArrayBuilder<ITypeSymbol>();
+
 		for (int i = 0; i < wrappers.Length; i++)
 		{
+			parametersBuilder.Clear();
+
 			CallbackFlags flags = CallbackFlags.None;
 			FieldOrPropertyWrapper wrapper = wrappers.ItemRef(i);
 
@@ -122,8 +134,95 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 
 			string callbackName = Naming.CreateCallbackName(wrapper.Name, in scriptableType, flags);
 
-			context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.NoCallbackImplementation, attribute.GetLocation(), callbackName));
+			if (!ScriptableValueHelper.TryGetScriptableType(context.SemanticModel, (INamedTypeSymbol?) wrapper.Type, out ScriptableType actualScriptableType,
+				    out ITypeSymbol? genericType))
+			{
+				continue;
+			}
+
+			switch (actualScriptableType)
+			{
+				case ScriptableType.Value:
+					parametersBuilder.Add(genericType!);
+					parametersBuilder.Add(genericType!);
+					break;
+				case ScriptableType.GenericEvent:
+					break;
+				case ScriptableType.Event:
+					break;
+				case ScriptableType.Pool:
+					break;
+				case ScriptableType.List:
+					break;
+				case ScriptableType.Dictionary:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			ImmutableArray<ITypeSymbol> parameters = parametersBuilder.ToImmutable();
+
+			// Check if the method is already implemented with correct parameters
+			if (HasCorrectCallbackImplementation(containingType, callbackName, parameters))
+			{
+				continue; // Skip reporting diagnostic if method exists
+			}
+
+			ImmutableDictionary<string, string?>.Builder properties = ImmutableDictionary.CreateBuilder<string, string?>();
+			properties.Add("callbackName", callbackName);
+
+			context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.NoCallbackImplementation, attribute.GetLocation(), properties.ToImmutableDictionary(),
+				callbackName));
 		}
+	}
+
+	private static bool HasCorrectCallbackImplementation(INamedTypeSymbol containingType, string callbackName, ImmutableArray<ITypeSymbol> parameters)
+	{
+		// Get all methods from the class with the matching name
+		ImmutableArray<IMethodSymbol> candidateMethods = containingType.GetMembers(callbackName)
+		                                                               .OfType<IMethodSymbol>()
+		                                                               .Where(static m => m.MethodKind == MethodKind.Ordinary && m.IsPartialDefinition)
+		                                                               .ToImmutableArray();
+
+		if (!candidateMethods.Any())
+		{
+			return false; // No method with the correct name found
+		}
+
+		for (int i = 0; i < candidateMethods.Length; i++)
+		{
+			IMethodSymbol method = candidateMethods.ItemRef(i);
+
+			if (method.PartialImplementationPart == null)
+			{
+				Log.Info("Method is not a partial implementation");
+				continue;
+			}
+
+			if (method.Parameters.Length != parameters.Length)
+			{
+				Log.Info($"Method has incorrect number of parameters. Expected {parameters.Length} but was {method.Parameters.Length}");
+				continue;
+			}
+
+			// Check if the parameters match the expected types
+			bool allParametersMatch = true;
+			for (int j = 0; j < method.Parameters.Length; j++)
+			{
+				if (!SymbolEqualityComparer.Default.Equals(method.Parameters[j].Type, parameters[j]))
+				{
+					allParametersMatch = false;
+					break;
+				}
+			}
+
+			if (allParametersMatch)
+			{
+				return true; // Found a matching method
+			}
+		}
+
+		return false;
 	}
 
 	private static bool TryGetCallbackAttribute(INamedTypeSymbol symbol, out ScriptableType scriptableType)
