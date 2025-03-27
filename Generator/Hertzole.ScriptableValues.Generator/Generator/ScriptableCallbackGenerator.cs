@@ -190,7 +190,8 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		cancellationToken.ThrowIfCancellationRequested();
 
 		// Try to get the scriptable type from the member type.
-		if (!ScriptableValueHelper.TryGetScriptableType(namedMemberType, out ScriptableType scriptableType, out ITypeSymbol? genericType))
+		if (!ScriptableValueHelper.TryGetScriptableType(context.SemanticModel, namedMemberType, out ScriptableType scriptableType,
+			    out ITypeSymbol? genericType))
 		{
 			return default;
 		}
@@ -323,6 +324,7 @@ internal readonly record struct CallbackData(
 				builder.AddRange("ScriptableEventCallback");
 				break;
 			case CallbackType.Collection:
+				builder.AddRange("ScriptableCollectionChanged");
 				break;
 			case CallbackType.Pool:
 				builder.AddRange("ScriptablePoolCallback");
@@ -350,6 +352,7 @@ internal readonly record struct CallbackData(
 				builder.AddRange("InvokedListener");
 				break;
 			case CallbackType.Collection:
+				builder.AddRange("ChangedListener");
 				break;
 			case CallbackType.Pool:
 				builder.AddRange("ChangedCallback");
@@ -379,7 +382,6 @@ internal readonly record struct CallbackData(
 				builder.AddRange("Invoked");
 				break;
 			case CallbackType.Collection:
-				break;
 			case CallbackType.Pool:
 				builder.AddRange("Changed");
 				break;
@@ -403,13 +405,6 @@ internal readonly record struct CallbackData(
 				builder.AddRange("Changing");
 			}
 		}
-	}
-
-	private static void AppendValueCallbackName(in ArrayBuilder<char> builder, in string name, CallbackFlags flags)
-	{
-		builder.AddRange("On");
-		builder.AddRange(Naming.FormatVariableName(name.AsSpan()));
-		builder.AddRange((flags & CallbackFlags.PreInvoke) != 0 ? "Changing" : "Changed");
 	}
 }
 

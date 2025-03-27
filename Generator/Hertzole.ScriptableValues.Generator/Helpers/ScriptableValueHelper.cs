@@ -8,23 +8,28 @@ public enum ScriptableType
 	Event = 1,
 	GenericEvent = 2,
 	Value = 3,
-	Pool = 4
+	Pool = 4,
+	List = 5,
+	Dictionary = 6
 }
 
 internal static class ScriptableValueHelper
 {
-	public static bool TryGetScriptableType(INamedTypeSymbol? type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
+	public static bool TryGetScriptableType(in SemanticModel semanticModel,
+		INamedTypeSymbol? type,
+		out ScriptableType scriptableType,
+		out ITypeSymbol? genericType)
 	{
 		genericType = null;
 
 		if (type != null)
 		{
-			if (TryGetScriptableTypeFromType(type, out scriptableType, out genericType))
+			if (TryGetScriptableTypeFromType(in semanticModel, type, out scriptableType, out genericType))
 			{
 				return true;
 			}
 
-			if (TryGetScriptableTypeFromAddressable(type, out scriptableType, out genericType))
+			if (TryGetScriptableTypeFromAddressable(in semanticModel, type, out scriptableType, out genericType))
 			{
 				return true;
 			}
@@ -34,7 +39,10 @@ internal static class ScriptableValueHelper
 		return false;
 	}
 
-	private static bool TryGetScriptableTypeFromType(INamedTypeSymbol type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
+	private static bool TryGetScriptableTypeFromType(in SemanticModel semanticModel,
+		INamedTypeSymbol type,
+		out ScriptableType scriptableType,
+		out ITypeSymbol? genericType)
 	{
 		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE))
 		{
@@ -64,9 +72,34 @@ internal static class ScriptableValueHelper
 			return true;
 		}
 
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_LIST))
+		{
+			genericType = type.TypeArguments[0];
+			scriptableType = ScriptableType.List;
+			return true;
+		}
+
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_DICTIONARY))
+		{
+			// Get the key and value types from ScriptableDictionary<TKey, TValue>
+			ITypeSymbol keyType = type.TypeArguments[0];
+			ITypeSymbol valueType = type.TypeArguments[1];
+
+			// Get the KeyValuePair<,> generic type definition
+			INamedTypeSymbol? keyValuePairType = semanticModel.Compilation.GetTypeByMetadataName("System.Collections.Generic.KeyValuePair`2");
+
+			if (keyValuePairType != null)
+			{
+				// Construct the KeyValuePair<TKey, TValue> with the specific type arguments
+				genericType = keyValuePairType.Construct(keyType, valueType);
+				scriptableType = ScriptableType.Dictionary;
+				return true;
+			}
+		}
+
 		if (type.BaseType != null)
 		{
-			return TryGetScriptableTypeFromType(type.BaseType, out scriptableType, out genericType);
+			return TryGetScriptableTypeFromType(in semanticModel, type.BaseType, out scriptableType, out genericType);
 		}
 
 		scriptableType = ScriptableType.None;
@@ -74,7 +107,10 @@ internal static class ScriptableValueHelper
 		return false;
 	}
 
-	private static bool TryGetScriptableTypeFromAddressable(INamedTypeSymbol type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
+	private static bool TryGetScriptableTypeFromAddressable(in SemanticModel semanticModel,
+		INamedTypeSymbol type,
+		out ScriptableType scriptableType,
+		out ITypeSymbol? genericType)
 	{
 		while (true)
 		{
@@ -87,7 +123,7 @@ internal static class ScriptableValueHelper
 					return false;
 				}
 
-				return TryGetScriptableTypeFromType(namedTypeSymbol, out scriptableType, out genericType);
+				return TryGetScriptableTypeFromType(in semanticModel, namedTypeSymbol, out scriptableType, out genericType);
 			}
 
 			if (type.BaseType != null)

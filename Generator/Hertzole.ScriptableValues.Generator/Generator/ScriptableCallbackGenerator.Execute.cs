@@ -170,6 +170,9 @@ partial class ScriptableCallbackGenerator
 				case CallbackType.Pool:
 					WritePoolField(in writer, in hierarchy, in data);
 					break;
+				case CallbackType.Collection:
+					WriteCollectionField(in writer, in hierarchy, in data);
+					break;
 			}
 		}
 	}
@@ -278,6 +281,7 @@ partial class ScriptableCallbackGenerator
 					WriteEventCallbackMethod(in writer, in elements[i]);
 					break;
 				case CallbackType.Collection:
+					WriteCollectionCallbackMethod(in writer, in elements[i]);
 					break;
 				case CallbackType.Pool:
 					WritePoolCallbackMethod(in writer, in elements[i]);
@@ -339,6 +343,31 @@ partial class ScriptableCallbackGenerator
 			{
 				parameterTypes.Dispose();
 				parameterNames.Dispose();
+			}
+		}
+
+		static void WriteCollectionCallbackMethod(in CodeWriter writer, in CallbackData data)
+		{
+			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(1);
+			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(1);
+			ArrayBuilder<char> nameBuilder = new ArrayBuilder<char>(64);
+
+			try
+			{
+				nameBuilder.AddRange("global::Hertzole.ScriptableValues.CollectionChangedArgs<");
+				nameBuilder.AddRange(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+				nameBuilder.Add('>');
+
+				parameterTypes.Add(nameBuilder.ToString());
+				parameterNames.Add("args");
+
+				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
+			}
+			finally
+			{
+				parameterTypes.Dispose();
+				parameterNames.Dispose();
+				nameBuilder.Dispose();
 			}
 		}
 
