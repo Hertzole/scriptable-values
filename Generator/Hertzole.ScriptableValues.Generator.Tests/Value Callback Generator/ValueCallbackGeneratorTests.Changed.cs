@@ -85,6 +85,6 @@ public partial class ChangedClass
 	[Fact]
 	public void Changed()
 	{
-		GeneratorTest.RunTest<ValueCallbackGenerator>("ChangedClass.g.cs", CHANGED, CHANGED_EXPECTED);
+		GeneratorTest.RunTest<ScriptableCallbackGenerator>("ChangedClass.g.cs", CHANGED, CHANGED_EXPECTED);
 	}
 }

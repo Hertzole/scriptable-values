@@ -46,6 +46,42 @@ public sealed class CodeWriter
 		shouldWriteIndent = true;
 	}
 
+	public void AppendGeneratedCodeAttribute(string generator, string version)
+	{
+		WriteIndentIfNeeded();
+		
+		sb.Append("[global::System.CodeDom.Compiler.GeneratedCode(\"");
+		sb.Append(generator);
+		sb.Append("\", \"");
+		sb.Append(version);
+		sb.Append("\")]\n");
+		shouldWriteIndent = true;
+	}
+	
+	public void AppendExcludeFromCodeCoverageAttribute(bool withIfDefines = true)
+	{
+		if (withIfDefines)
+		{
+			using (WithIndent(0))
+			{
+				sb.AppendLine("#if UNITY_INCLUDE_TESTS");
+			}
+		}
+		
+		WriteIndentIfNeeded();
+		sb.Append("[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]\n");
+		
+		if (withIfDefines)
+		{
+			using (WithIndent(0))
+			{
+				sb.AppendLine("#endif // UNITY_INCLUDE_TESTS");
+			}
+		}
+		
+		shouldWriteIndent = true;
+	}
+
 	public void Clear()
 	{
 		sb.Clear();

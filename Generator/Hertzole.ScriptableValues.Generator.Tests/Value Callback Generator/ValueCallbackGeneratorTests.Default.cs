@@ -30,6 +30,6 @@ public partial class ChangedClass
 	public void Default()
 	{
 		// Default is the same as Changed
-		GeneratorTest.RunTest<ValueCallbackGenerator>("ChangedClass.g.cs", DEFAULT, CHANGED_EXPECTED);
+		GeneratorTest.RunTest<ScriptableCallbackGenerator>("ChangedClass.g.cs", DEFAULT, CHANGED_EXPECTED);
 	}
 }

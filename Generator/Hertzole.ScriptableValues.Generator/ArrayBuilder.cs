@@ -14,9 +14,30 @@ public readonly struct ArrayBuilder<T> : IDisposable
 		writer = new Writer();
 	}
 
+	public ArrayBuilder(int capacity)
+	{
+		writer = new Writer(capacity);
+	}
+
+	public ArrayBuilder(ReadOnlySpan<T> items)
+	{
+		writer = new Writer(items.Length);
+		writer.AddRange(items);
+	}
+
 	public void Add(T item)
 	{
 		writer.Add(item);
+	}
+
+	public void AddRange(ReadOnlySpan<T> items)
+	{
+		writer.AddRange(items);
+	}
+
+	public void Clear()
+	{
+		writer.Clear();
 	}
 
 	public void Dispose()
@@ -31,30 +52,62 @@ public readonly struct ArrayBuilder<T> : IDisposable
 		return Unsafe.As<T[], ImmutableArray<T>>(ref array);
 	}
 
+	public ReadOnlySpan<T> AsSpan()
+	{
+		return writer.AsSpan();
+	}
+
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		return writer.AsSpan().ToString();
+	}
+
 	private sealed class Writer : IDisposable
 	{
-		private T[] array = Array.Empty<T>();
+		private T[] array;
 		private int index = 0;
+
+		public Writer(int capacity = 0)
+		{
+			array = capacity == 0 ? Array.Empty<T>() : ArrayPool<T>.Shared.Rent(capacity);
+		}
 
 		public void Add(T value)
 		{
-			EnsureCapacity(index + 1);
+			EnsureCapacity(1);
 
 			array[index++] = value;
 		}
 
-		private void EnsureCapacity(int capacity)
+		public void AddRange(ReadOnlySpan<T> items)
 		{
-			if (array.Length <= capacity)
+			EnsureCapacity(items.Length);
+
+			items.CopyTo(array.AsSpan(index));
+			index += items.Length;
+		}
+
+		public void Clear()
+		{
+			Array.Clear(array, 0, index);
+			index = 0;
+		}
+
+		private void EnsureCapacity(int requestedSize)
+		{
+			if (requestedSize > array.Length - index)
 			{
-				ResizeBuffer(capacity);
+				ResizeBuffer(requestedSize);
 			}
 		}
 
 		private void ResizeBuffer(int capacity)
 		{
+			int minimumSize = index + capacity;
+
 			T[] oldBuffer = array;
-			T[]? newBuffer = ArrayPool<T>.Shared.Rent(capacity);
+			T[]? newBuffer = ArrayPool<T>.Shared.Rent(minimumSize);
 
 			Array.Copy(oldBuffer, newBuffer, oldBuffer.Length);
 
@@ -62,7 +115,7 @@ public readonly struct ArrayBuilder<T> : IDisposable
 
 			if (oldBuffer.Length > 0)
 			{
-				ArrayPool<T>.Shared.Return(oldBuffer, true);
+				ArrayPool<T>.Shared.Return(oldBuffer, typeof(T) != typeof(char));
 			}
 		}
 
@@ -70,7 +123,7 @@ public readonly struct ArrayBuilder<T> : IDisposable
 		{
 			if (array.Length > 0)
 			{
-				ArrayPool<T>.Shared.Return(array, true);
+				ArrayPool<T>.Shared.Return(array, typeof(T) != typeof(char));
 			}
 		}
 
