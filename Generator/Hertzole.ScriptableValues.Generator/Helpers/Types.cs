@@ -9,4 +9,7 @@ internal static class Types
 	public const string SCRIPTABLE_POOL = "global::Hertzole.ScriptableValues.ScriptablePool<T>";
 	public const string SCRIPTABLE_LIST = "global::Hertzole.ScriptableValues.ScriptableList<T>";
 	public const string SCRIPTABLE_DICTIONARY = "global::Hertzole.ScriptableValues.ScriptableDictionary<TKey, TValue>";
+
+	// Attributes
+	public const string MARKER_ATTRIBUTE = "global::Hertzole.ScriptableValues.GenerateScriptableCallbacksAttribute";
 }

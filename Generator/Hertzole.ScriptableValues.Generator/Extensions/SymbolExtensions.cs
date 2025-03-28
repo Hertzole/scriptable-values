@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
 namespace Hertzole.ScriptableValues.Generator;
@@ -65,5 +66,32 @@ internal static class SymbolExtensions
 					break;
 			}
 		}
+	}
+
+	public static bool HasAttribute(this ISymbol symbol, string fullyQualifiedAttributeName)
+	{
+		ImmutableArray<AttributeData> attributes = symbol.GetAttributes();
+		if (attributes.IsDefaultOrEmpty)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < attributes.Length; i++)
+		{
+			AttributeData attribute = attributes.ItemRef(i);
+
+			if (attribute.AttributeClass == null)
+			{
+				return false;
+			}
+
+			string name = attribute.AttributeClass.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat);
+			if (string.Equals(name, fullyQualifiedAttributeName, StringComparison.Ordinal))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

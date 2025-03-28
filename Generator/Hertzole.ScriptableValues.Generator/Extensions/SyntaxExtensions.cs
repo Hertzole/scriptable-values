@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -51,5 +52,22 @@ internal static class SyntaxExtensions
 
 		wrapper = builder.ToImmutable();
 		return wrapper.Length > 0;
+	}
+
+	public static INamedTypeSymbol? GetAttributeSymbol(this AttributeSyntax syntax, SemanticModel semanticModel, CancellationToken cancellation)
+	{
+		if (semanticModel.GetSymbolInfo(syntax).Symbol is not IMethodSymbol methodSymbol)
+		{
+			return null;
+		}
+
+		cancellation.ThrowIfCancellationRequested();
+
+		if (methodSymbol.ContainingType is INamedTypeSymbol attributeSymbol)
+		{
+			return attributeSymbol;
+		}
+
+		return null;
 	}
 }

@@ -91,6 +91,13 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
+		// Must have the marker attribute.
+		if (!containingType.HasAttribute(Types.MARKER_ATTRIBUTE))
+		{
+			Log.Info($"No marker attribute found on containing type {containingType}. Skipping.");
+			return;
+		}
+
 		using ArrayBuilder<ITypeSymbol> parametersBuilder = new ArrayBuilder<ITypeSymbol>();
 
 		for (int i = 0; i < wrappers.Length; i++)
