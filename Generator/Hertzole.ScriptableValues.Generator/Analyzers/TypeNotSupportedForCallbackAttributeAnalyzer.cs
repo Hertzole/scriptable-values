@@ -89,8 +89,13 @@ public sealed class TypeNotSupportedForCallbackAttributeAnalyzer : DiagnosticAna
 			return;
 		}
 
-		context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.TypeNotSupportedForCallbackAttribute, attributeSyntax.GetLocation(), attributeSymbol.Name,
-			GetCorrectAttributeName(wrapperType)));
+		string correctAttributeName = GetCorrectAttributeName(wrapperType);
+
+		ImmutableDictionary<string, string?>.Builder propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string?>();
+		propertiesBuilder.Add("correctAttributeName", correctAttributeName);
+
+		context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.TypeNotSupportedForCallbackAttribute, attributeSyntax.GetLocation(),
+			propertiesBuilder.ToImmutable(), attributeSymbol.Name, correctAttributeName));
 	}
 
 	private static string GetCorrectAttributeName(in ScriptableType scriptableType)

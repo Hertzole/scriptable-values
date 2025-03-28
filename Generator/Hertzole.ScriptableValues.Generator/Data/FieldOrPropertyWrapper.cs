@@ -14,4 +14,11 @@ public readonly record struct FieldOrPropertyWrapper
 		Type = fieldSymbol.Type;
 		Symbol = fieldSymbol;
 	}
+
+	public FieldOrPropertyWrapper(IPropertySymbol propertySymbol)
+	{
+		Name = propertySymbol.Name;
+		Type = propertySymbol.Type;
+		Symbol = propertySymbol;
+	}
 }

@@ -47,4 +47,7 @@
     <data name="HSV0003MessageFormat" xml:space="preserve">
         <value>'{0}' can't be used on this type, consider using the '{1}' attribute instead</value>
     </data>
+    <data name="HSV0003CodeFixTitle" xml:space="preserve">
+        <value>Replace attribute with '{0}'</value>
+    </data>
 </root>
