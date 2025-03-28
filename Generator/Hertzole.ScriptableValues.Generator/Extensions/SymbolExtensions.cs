@@ -94,4 +94,44 @@ internal static class SymbolExtensions
 
 		return false;
 	}
+
+	public static bool TryGetCallbackAttribute(this ISymbol symbol, out CallbackType callbackType)
+	{
+		string name;
+		if (symbol is ITypeSymbol typeSymbol)
+		{
+			name = typeSymbol.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat);
+		}
+		else
+		{
+			name = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+		}
+
+		if (name.Equals(Types.GLOBAL_GENERATE_VALUE_CALLBACK_ATTRIBUTE, StringComparison.Ordinal))
+		{
+			callbackType = CallbackType.Value;
+			return true;
+		}
+
+		if (name.Equals(Types.GLOBAL_GENERATE_EVENT_CALLBACK_ATTRIBUTE, StringComparison.Ordinal))
+		{
+			callbackType = CallbackType.Event;
+			return true;
+		}
+
+		if (name.Equals(Types.GLOBAL_GENERATE_POOL_CALLBACK_ATTRIBUTE, StringComparison.Ordinal))
+		{
+			callbackType = CallbackType.Pool;
+			return true;
+		}
+
+		if (name.Equals(Types.GLOBAL_GENERATE_COLLECTION_CALLBACK_ATTRIBUTE, StringComparison.Ordinal))
+		{
+			callbackType = CallbackType.Collection;
+			return true;
+		}
+
+		callbackType = (CallbackType) byte.MaxValue;
+		return false;
+	}
 }

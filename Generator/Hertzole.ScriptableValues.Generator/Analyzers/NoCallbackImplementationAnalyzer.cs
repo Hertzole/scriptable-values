@@ -52,7 +52,7 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 		}
 
 		// Check if the attribute is a callback
-		if (!TryGetCallbackAttribute(attributeType, out ScriptableType scriptableType))
+		if (!attributeType.TryGetCallbackAttribute(out CallbackType callbackType))
 		{
 			return;
 		}
@@ -107,6 +107,18 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 			CallbackFlags flags = CallbackFlags.None;
 			FieldOrPropertyWrapper wrapper = wrappers.ItemRef(i);
 
+			if (!ScriptableValueHelper.TryGetScriptableType(context.SemanticModel, (INamedTypeSymbol?) wrapper.Type, out ScriptableType scriptableType,
+				    out ITypeSymbol? genericType))
+			{
+				continue;
+			}
+
+			// Check if the attribute supports this type.
+			if (!ScriptableValueHelper.IsSupportedType(in callbackType, in scriptableType))
+			{
+				continue;
+			}
+
 			if (scriptableType == ScriptableType.Value)
 			{
 				ImmutableArray<AttributeData> attributes = wrapper.Symbol.GetAttributes();
@@ -141,13 +153,7 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 
 			string callbackName = Naming.CreateCallbackName(wrapper.Name, in scriptableType, flags);
 
-			if (!ScriptableValueHelper.TryGetScriptableType(context.SemanticModel, (INamedTypeSymbol?) wrapper.Type, out ScriptableType actualScriptableType,
-				    out ITypeSymbol? genericType))
-			{
-				continue;
-			}
-
-			switch (actualScriptableType)
+			switch (scriptableType)
 			{
 				case ScriptableType.Value:
 					parametersBuilder.Add(genericType!);
@@ -234,39 +240,6 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 			}
 		}
 
-		return false;
-	}
-
-	private static bool TryGetCallbackAttribute(INamedTypeSymbol symbol, out ScriptableType scriptableType)
-	{
-		string name = symbol.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat);
-
-		if (string.Equals("global::Hertzole.ScriptableValues.GenerateValueCallbackAttribute", name, StringComparison.Ordinal))
-		{
-			scriptableType = ScriptableType.Value;
-			return true;
-		}
-
-		if (string.Equals("global::Hertzole.ScriptableValues.GenerateEventCallbackAttribute", name, StringComparison.Ordinal))
-		{
-			scriptableType = ScriptableType.Event;
-			return true;
-		}
-
-		if (string.Equals("global::Hertzole.ScriptableValues.GeneratePoolCallbackAttribute", name, StringComparison.Ordinal))
-		{
-			scriptableType = ScriptableType.Pool;
-			return true;
-		}
-
-		if (string.Equals("global::Hertzole.ScriptableValues.GenerateCollectionCallbackAttribute", name, StringComparison.Ordinal))
-		{
-			// This may cause issues if it's a dictionary? 
-			scriptableType = ScriptableType.List;
-			return true;
-		}
-
-		scriptableType = ScriptableType.None;
 		return false;
 	}
 }

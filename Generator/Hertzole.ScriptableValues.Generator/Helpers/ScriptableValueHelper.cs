@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace Hertzole.ScriptableValues.Generator;
 
@@ -135,6 +136,23 @@ internal static class ScriptableValueHelper
 			scriptableType = ScriptableType.None;
 			genericType = null;
 			return false;
+		}
+	}
+
+	public static bool IsSupportedType(in CallbackType callbackType, in ScriptableType scriptableType)
+	{
+		switch (callbackType)
+		{
+			case CallbackType.Value:
+				return scriptableType == ScriptableType.Value;
+			case CallbackType.Event:
+				return scriptableType == ScriptableType.Event || scriptableType == ScriptableType.GenericEvent;
+			case CallbackType.Collection:
+				return scriptableType == ScriptableType.List || scriptableType == ScriptableType.Dictionary;
+			case CallbackType.Pool:
+				return scriptableType == ScriptableType.Pool;
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 	}
 }

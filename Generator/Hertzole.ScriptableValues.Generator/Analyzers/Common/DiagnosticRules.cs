@@ -14,6 +14,11 @@ internal static class DiagnosticRules
 	private static readonly LocalizableResourceString noMarkerAttributeMessage = new LocalizableResourceString(
 		nameof(Resources.HSV0002Message), Resources.ResourceManager, typeof(Resources));
 
+	private static readonly LocalizableResourceString typeNotSupportedForCallbackAttributeTitle = new LocalizableResourceString(
+		nameof(Resources.HSV0003Title), Resources.ResourceManager, typeof(Resources));
+	private static readonly LocalizableResourceString typeNotSupportedForCallbackAttributeMessage = new LocalizableResourceString(
+		nameof(Resources.HSV0003MessageFormat), Resources.ResourceManager, typeof(Resources));
+
 	public static readonly DiagnosticDescriptor NoCallbackImplementation = new DiagnosticDescriptor(
 		DiagnosticIdentifiers.NoCallbackImplementation,
 		noCallbackImplementationTitle,
@@ -28,5 +33,13 @@ internal static class DiagnosticRules
 		noMarkerAttributeMessage,
 		DiagnosticCategories.Usage,
 		DiagnosticSeverity.Warning,
+		true);
+
+	public static readonly DiagnosticDescriptor TypeNotSupportedForCallbackAttribute = new DiagnosticDescriptor(
+		DiagnosticIdentifiers.TypeNotSupportedForCallbackAttribute,
+		typeNotSupportedForCallbackAttributeTitle,
+		typeNotSupportedForCallbackAttributeMessage,
+		DiagnosticCategories.Usage,
+		DiagnosticSeverity.Error,
 		true);
 }
