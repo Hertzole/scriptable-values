@@ -92,7 +92,7 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 		}
 
 		// Must have the marker attribute.
-		if (!containingType.HasAttribute(Types.MARKER_ATTRIBUTE))
+		if (!containingType.HasAttribute(Types.GLOBAL_MARKER_ATTRIBUTE))
 		{
 			Log.Info($"No marker attribute found on containing type {containingType}. Skipping.");
 			return;
