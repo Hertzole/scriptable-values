@@ -49,6 +49,16 @@ internal static class SyntaxExtensions
 				builder.Add(new FieldOrPropertyWrapper(fieldSymbol));
 			}
 		}
+		else if (node is PropertyDeclarationSyntax propertySyntax)
+		{
+			IPropertySymbol? symbol = semanticModel.GetDeclaredSymbol(propertySyntax);
+			if (symbol is not IPropertySymbol propertySymbol)
+			{
+				return false;
+			}
+
+			builder.Add(new FieldOrPropertyWrapper(propertySymbol));
+		}
 
 		wrapper = builder.ToImmutable();
 		return wrapper.Length > 0;
