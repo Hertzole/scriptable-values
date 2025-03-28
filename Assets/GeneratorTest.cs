@@ -1,19 +1,13 @@
 ﻿using Hertzole.ScriptableValues;
 
-public partial class ChangingClass
+namespace My.Namespace
 {
-	[GenerateCallback(CallbackType.PreInvoke)]
-	public ScriptableBool valueField;
-	[GenerateCallback(CallbackType.PreInvoke)]
-	public ScriptableString ValueProperty { get; set; }
-
-	private partial void OnValueFieldChanging(bool oldValue, bool newValue)
+	[GenerateScriptableCallbacks]
+	public partial class ChangingClass
 	{
-		throw new System.NotImplementedException();
-	}
+		[GenerateValueCallback]
+		public ScriptableString ValueProperty { get; set; }
 
-	private partial void OnValuePropertyChanging(string oldValue, string newValue)
-	{
-		throw new System.NotImplementedException();
+		private partial void OnValuePropertyChanged(string oldValue, string newValue) { }
 	}
 }
