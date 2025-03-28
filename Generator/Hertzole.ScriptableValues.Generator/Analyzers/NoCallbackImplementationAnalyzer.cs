@@ -147,14 +147,20 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 					parametersBuilder.Add(genericType!);
 					break;
 				case ScriptableType.GenericEvent:
+					parametersBuilder.Add(context.Compilation.GetSpecialType(SpecialType.System_Object));
+					parametersBuilder.Add(genericType!);
 					break;
 				case ScriptableType.Event:
+					parametersBuilder.Add(context.Compilation.GetSpecialType(SpecialType.System_Object));
+					parametersBuilder.Add(context.Compilation.GetTypeByMetadataName("System.EventArgs")!);
 					break;
 				case ScriptableType.Pool:
+					parametersBuilder.Add(context.Compilation.GetTypeByMetadataName("Hertzole.ScriptableValues.PoolAction")!);
+					parametersBuilder.Add(genericType!);
 					break;
 				case ScriptableType.List:
-					break;
 				case ScriptableType.Dictionary:
+					parametersBuilder.Add(context.Compilation.GetCollectionChangedArgs(in genericType!));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -196,13 +202,11 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 
 			if (method.PartialImplementationPart == null)
 			{
-				Log.Info("Method is not a partial implementation");
 				continue;
 			}
 
 			if (method.Parameters.Length != parameters.Length)
 			{
-				Log.Info($"Method has incorrect number of parameters. Expected {parameters.Length} but was {method.Parameters.Length}");
 				continue;
 			}
 

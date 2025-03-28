@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
@@ -28,7 +29,7 @@ public sealed class NoCallbackImplementationCodeFixProvider : CodeFixProvider
 		return WellKnownFixAllProviders.BatchFixer;
 	}
 
-	public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+	public override Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
 		Diagnostic diagnostic = context.Diagnostics[0];
 		if (!diagnostic.Properties.TryGetValue("callbackName", out string? callbackName))
@@ -40,6 +41,8 @@ public sealed class NoCallbackImplementationCodeFixProvider : CodeFixProvider
 			string.Format(Resources.HSV0001CodeFixTitle, callbackName),
 			token => CreateChangedDocument(context, token),
 			nameof(Resources.HSV0001CodeFixTitle)), diagnostic);
+
+		return Task.CompletedTask;
 	}
 
 	private static async Task<Document> CreateChangedDocument(CodeFixContext context, CancellationToken cancellationToken)
@@ -108,31 +111,63 @@ public sealed class NoCallbackImplementationCodeFixProvider : CodeFixProvider
 		}
 
 		DocumentEditor editor = await DocumentEditor.CreateAsync(context.Document, cancellationToken).ConfigureAwait(false);
+
+		SyntaxNode? newMethod = GetImplementationMethod(in editor, in semanticModel, in callbackName!, in scriptableType, in genericType!);
+
+		editor.InsertAfter(memberDeclaration, newMethod);
+
+		return editor.GetChangedDocument();
+	}
+
+	private static SyntaxNode GetImplementationMethod(in DocumentEditor editor,
+		in SemanticModel semanticModel,
+		in string callbackName,
+		in ScriptableType scriptableType,
+		in ITypeSymbol? genericType)
+	{
 		SyntaxGenerator generator = editor.Generator;
-
-		SyntaxNode newMethod = null;
-
 		using ArrayBuilder<SyntaxNode> parametersBuilder = new ArrayBuilder<SyntaxNode>();
 
-		if (scriptableType == ScriptableType.Value)
+		switch (scriptableType)
 		{
-			SyntaxNode typeExpression = generator.TypeExpression(genericType!, true);
+			case ScriptableType.Value:
+				SyntaxNode genericTypeExpression = generator.TypeExpression(genericType!, true);
 
-			parametersBuilder.Add(generator.ParameterDeclaration("oldValue", typeExpression));
-			parametersBuilder.Add(generator.ParameterDeclaration("newValue", typeExpression));
+				parametersBuilder.Add(generator.ParameterDeclaration("oldValue", genericTypeExpression));
+				parametersBuilder.Add(generator.ParameterDeclaration("newValue", genericTypeExpression));
+				break;
+			case ScriptableType.GenericEvent:
+			case ScriptableType.Event:
+				SyntaxNode senderExpression = generator.TypeExpression(semanticModel.Compilation.GetSpecialType(SpecialType.System_Object));
+				SyntaxNode argsExpression = generator.TypeExpression(genericType ?? semanticModel.Compilation.GetTypeByMetadataName("System.EventArgs")!, true);
 
-			newMethod = generator.MethodDeclaration(
-				callbackName!,
-				parametersBuilder.ToImmutable(),
-				accessibility: Accessibility.Private,
-				modifiers: DeclarationModifiers.Partial);
+				parametersBuilder.Add(generator.ParameterDeclaration("sender", senderExpression));
+				parametersBuilder.Add(generator.ParameterDeclaration("args", argsExpression));
+				break;
+			case ScriptableType.Pool:
+				SyntaxNode poolActionExpression =
+					generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("Hertzole.ScriptableValues.PoolAction")!, true);
+
+				SyntaxNode poolItemExpression = generator.TypeExpression(genericType!, true);
+
+				parametersBuilder.Add(generator.ParameterDeclaration("action", poolActionExpression));
+				parametersBuilder.Add(generator.ParameterDeclaration("item", poolItemExpression));
+				break;
+			case ScriptableType.List:
+			case ScriptableType.Dictionary:
+				SyntaxNode collectionArgsExpression = generator.TypeExpression(semanticModel.Compilation.GetCollectionChangedArgs(in genericType!), true);
+
+				parametersBuilder.Add(generator.ParameterDeclaration("args", collectionArgsExpression));
+				break;
+			default:
+				throw new NotSupportedException("Unsupported scriptable type: " + scriptableType);
 		}
 
-		//TODO: Remove when all types are supported
-		if (newMethod == null)
-		{
-			return context.Document;
-		}
+		SyntaxNode newMethod = generator.MethodDeclaration(
+			callbackName,
+			parametersBuilder.ToImmutable(),
+			accessibility: Accessibility.Private,
+			modifiers: DeclarationModifiers.Partial);
 
 		ThrowStatementSyntax throwStatement = SyntaxFactory.ThrowStatement(
 			SyntaxFactory.ObjectCreationExpression(
@@ -141,8 +176,7 @@ public sealed class NoCallbackImplementationCodeFixProvider : CodeFixProvider
 				null));
 
 		newMethod = generator.WithStatements(newMethod, [throwStatement]);
-		editor.InsertAfter(memberDeclaration, newMethod);
 
-		return editor.GetChangedDocument();
+		return newMethod;
 	}
 }
