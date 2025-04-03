@@ -9,14 +9,13 @@ internal static class CompilationExtensions
 {
 	private static readonly string packagePath = Path.GetFullPath("../../../../../Packages/se.hertzole.scriptable-values");
 	private static readonly string runtimePath = Path.Combine(packagePath, "Runtime");
-	private static readonly SyntaxTree[] runtimeTrees = GetScriptFiles(runtimePath);
 
-	public static CSharpCompilation AddScriptableValuesRuntime(this CSharpCompilation compilation)
+	public static CSharpCompilation AddScriptableValuesRuntime(this CSharpCompilation compilation, CSharpParseOptions options)
 	{
-		return compilation.AddSyntaxTrees(runtimeTrees);
+		return compilation.AddSyntaxTrees(GetScriptFiles(runtimePath, options));
 	}
 
-	private static SyntaxTree[] GetScriptFiles(string path)
+	private static SyntaxTree[] GetScriptFiles(string path, CSharpParseOptions options)
 	{
 		string[] files = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
 
@@ -31,7 +30,7 @@ internal static class CompilationExtensions
 				continue;
 			}
 
-			trees.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(files[i])));
+			trees.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(files[i]), options));
 		}
 
 		return trees.ToArray();
