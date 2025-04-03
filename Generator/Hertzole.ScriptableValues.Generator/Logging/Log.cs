@@ -74,7 +74,7 @@ internal static class Log
 
 		using (FileStream stream = File.Open(path, FileMode.Append, FileAccess.Write, FileShare.Read))
 		{
-			byte[] bytes = Encoding.UTF8.GetBytes($"[{DateTime.Now:HH:mm:ss.fff}] {value}{Environment.NewLine}");
+			byte[] bytes = Encoding.UTF8.GetBytes($"[{DateTimeOffset.Now:HH:mm:ss.fff}] {value}{Environment.NewLine}");
 			stream.Write(bytes, 0, bytes.Length);
 		}
 	}
