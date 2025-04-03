@@ -324,23 +324,7 @@ partial class ScriptableCallbackGenerator
 			in ReadOnlySpan<(string name, string type)> parameters,
 			in ReadOnlySpan<(string argName, string description)> parameterDescriptions)
 		{
-			writer.Append("/// <summary>Called when <see cref=\"");
-			writer.Append(data.Name);
-			writer.Append("\" /> is ");
-			if (data.CallbackType == CallbackType.Event)
-			{
-				writer.Append("invoked");
-			}
-			else if (data.CallbackType == CallbackType.Value && (data.Flags & CallbackFlags.PreInvoke) != 0)
-			{
-				writer.Append("changing");
-			}
-			else
-			{
-				writer.Append("changed");
-			}
-
-			writer.AppendLine(".</summary>");
+			writer.AppendLine(DocumentationHelper.GetMethodCallbackDescription(data.Name.AsSpan(), data.CallbackType, data.Flags));
 
 			for (int i = 0; i < parameterDescriptions.Length; i++)
 			{

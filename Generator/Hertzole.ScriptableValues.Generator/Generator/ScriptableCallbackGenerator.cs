@@ -347,21 +347,18 @@ internal readonly record struct CallbackData(
 		switch (CallbackType)
 		{
 			case CallbackType.Value:
-				builder.Add((
-					"oldValue",
-					(Flags & CallbackFlags.PreInvoke) != 0 ? "The previous value that is being replaced." : "The previous value that was replaced."));
-
-				builder.Add(("newValue", (Flags & CallbackFlags.PreInvoke) != 0 ? "The new value being set." : "The new value that was set."));
+				builder.Add(("oldValue", DocumentationHelper.GetOldValueDescription(Flags)));
+				builder.Add(("newValue", DocumentationHelper.GetNewValueDescription(Flags)));
 				break;
 			case CallbackType.Event:
-				builder.Add(("sender", "The object that sent the event."));
-				builder.Add(("args", "The event arguments."));
+				builder.Add(("sender", DocumentationHelper.EVENT_SENDER));
+				builder.Add(("args", DocumentationHelper.EVENT_ARGS));
 				break;
 			case CallbackType.Collection:
-				builder.Add(("args", "The collection changed arguments."));
+				builder.Add(("args", DocumentationHelper.COLLECTION_ARGS));
 				break;
 			case CallbackType.Pool:
-				builder.Add(("args", "The pool changed arguments."));
+				builder.Add(("args", DocumentationHelper.POOL_ARGS));
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

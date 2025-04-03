@@ -39,6 +39,11 @@ public sealed class CodeWriter
 		sb.AppendLine(value);
 		shouldWriteIndent = true;
 	}
+	
+	public void AppendLine(ReadOnlySpan<char> value)
+	{
+		AppendLine(value.ToString());
+	}
 
 	public void AppendLine()
 	{
