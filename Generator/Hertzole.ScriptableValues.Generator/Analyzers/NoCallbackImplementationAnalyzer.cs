@@ -24,8 +24,6 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 	/// <inheritdoc />
 	public override void Initialize(AnalysisContext context)
 	{
-		Log.Info<NoCallbackImplementationAnalyzer>("Initialized");
-
 		context.EnableConcurrentExecution();
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 

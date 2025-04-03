@@ -28,7 +28,6 @@ public sealed class NoMarkerAttributeAnalyzer : DiagnosticAnalyzer
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
 		context.RegisterSyntaxNodeAction(Action, supportedSyntaxKinds);
-		// context.RegisterSyntaxNodeAction(ActionOld, supportedSyntaxKinds);
 	}
 
 	private static void Action(SyntaxNodeAnalysisContext context)
@@ -71,53 +70,6 @@ public sealed class NoMarkerAttributeAnalyzer : DiagnosticAnalyzer
 		}
 
 		context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.NoMarkerAttribute, attribute.GetLocation()));
-	}
-
-	private static void ActionOld(SyntaxNodeAnalysisContext context)
-	{
-		if (context.Node is not ClassDeclarationSyntax classDeclaration)
-		{
-			return;
-		}
-
-		if (context.SemanticModel.GetDeclaredSymbol(classDeclaration) is not ITypeSymbol classSymbol)
-		{
-			return;
-		}
-
-		// Check if the class has any callback attributes
-		if (!classSymbol.GetMembers().Any(HasAnyGenerateCallbackAttributes))
-		{
-			return;
-		}
-
-		if (classSymbol.GetAttributes().Any(static a =>
-			    a.AttributeClass != null && a.AttributeClass.StringEquals("global::Hertzole.ScriptableValues.GenerateScriptableCallbacksAttribute")))
-		{
-			return;
-		}
-
-		context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.NoMarkerAttribute, classDeclaration.Identifier.GetLocation()));
-	}
-
-	private static bool HasAnyGenerateCallbackAttributes(ISymbol arg)
-	{
-		if (arg is not IFieldSymbol or IPropertySymbol)
-		{
-			return false;
-		}
-
-		return arg.GetAttributes().Any(IsGenerateCallbackAttribute);
-	}
-
-	private static bool IsGenerateCallbackAttribute(AttributeData arg)
-	{
-		if (arg.AttributeClass == null)
-		{
-			return false;
-		}
-
-		return IsGenerateCallbackAttribute(arg.AttributeClass);
 	}
 
 	private static bool IsGenerateCallbackAttribute(ITypeSymbol arg)
