@@ -24,6 +24,12 @@ public sealed class TypeNotSupportedForCallbackAttributeCodeFixProvider : CodeFi
 	}
 
 	/// <inheritdoc />
+	public override FixAllProvider? GetFixAllProvider()
+	{
+		return WellKnownFixAllProviders.BatchFixer;
+	}
+
+	/// <inheritdoc />
 	public override Task RegisterCodeFixesAsync(CodeFixContext context)
 	{
 		Diagnostic diagnostic = context.Diagnostics[0];
