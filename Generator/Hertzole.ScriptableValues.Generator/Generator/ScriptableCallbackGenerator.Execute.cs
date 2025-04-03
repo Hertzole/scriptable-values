@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using SourceProductionContext = Microsoft.CodeAnalysis.SourceProductionContext;
 using SymbolDisplayFormat = Microsoft.CodeAnalysis.SymbolDisplayFormat;
@@ -27,6 +28,19 @@ partial class ScriptableCallbackGenerator
 				writer.Indent++;
 			}
 
+			int nestLevel = 0;
+			INamedTypeSymbol? containingType = item.Key.Symbol.ContainingType;
+			while (containingType != null && !containingType.IsNamespace)
+			{
+				writer.Append("partial class ");
+				writer.AppendLine(containingType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+				writer.AppendLine("{");
+				writer.Indent++;
+
+				nestLevel++;
+				containingType = containingType.ContainingType;
+			}
+
 			//TODO: Support other types?
 			writer.Append("partial class ");
 			writer.AppendLine(item.Key.TypeName);
@@ -37,6 +51,13 @@ partial class ScriptableCallbackGenerator
 
 			writer.Indent--;
 			writer.Append("}");
+
+			for (int i = 0; i < nestLevel; i++)
+			{
+				writer.AppendLine();
+				writer.Indent--;
+				writer.Append("}");
+			}
 
 			if (hasNamespace)
 			{
@@ -224,7 +245,7 @@ partial class ScriptableCallbackGenerator
 		writer.AppendLine("void SubscribeToAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
-		
+
 		if (hierarchy.ShouldInherit)
 		{
 			writer.AppendLine("base.SubscribeToAllScriptableCallbacks();");
@@ -244,7 +265,7 @@ partial class ScriptableCallbackGenerator
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
-		
+
 		// If it should be inherited, it should be protected override.
 		// If it should not be inherited, and is sealed, it should be private.
 		// If it should not be inherited, and is not sealed, it should be protected virtual.
@@ -256,7 +277,7 @@ partial class ScriptableCallbackGenerator
 		{
 			writer.Append(hierarchy.IsSealed ? "private " : "protected virtual ");
 		}
-		
+
 		writer.AppendLine("void UnsubscribeFromAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
