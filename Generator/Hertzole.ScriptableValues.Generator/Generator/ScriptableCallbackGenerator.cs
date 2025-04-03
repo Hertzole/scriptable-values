@@ -301,6 +301,73 @@ internal readonly record struct CallbackData(
 
 	public string CallbackName { get; } = Naming.CreateCallbackName(Name, in ScriptableType, in Flags);
 
+	public void AppendParameterTypes(in ArrayBuilder<(string name, string type)> builder)
+	{
+		string genericType = GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+		switch (CallbackType)
+		{
+			case CallbackType.Value:
+				builder.Add(("oldValue", genericType));
+				builder.Add(("newValue", genericType));
+				break;
+			case CallbackType.Event:
+				builder.Add(("object", "sender"));
+				builder.Add(("args", ScriptableType == ScriptableType.GenericEvent ? genericType : "global::System.EventArgs"));
+				break;
+			case CallbackType.Collection:
+				using (ArrayBuilder<char> nameBuilder = new ArrayBuilder<char>(57 + genericType.Length))
+				{
+					nameBuilder.AddRange("global::Hertzole.ScriptableValues.CollectionChangedArgs<");
+					nameBuilder.AddRange(genericType);
+					nameBuilder.Add('>');
+
+					builder.Add(("args", nameBuilder.ToString()));
+				}
+
+				break;
+			case CallbackType.Pool:
+				using (ArrayBuilder<char> nameBuilder = new ArrayBuilder<char>(51 + genericType.Length))
+				{
+					nameBuilder.AddRange("global::Hertzole.ScriptableValues.PoolChangedArgs<");
+					nameBuilder.AddRange(genericType);
+					nameBuilder.Add('>');
+
+					builder.Add(("args", nameBuilder.ToString()));
+				}
+
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+	}
+
+	public void AppendParameterDescriptions(in ArrayBuilder<(string name, string description)> builder)
+	{
+		switch (CallbackType)
+		{
+			case CallbackType.Value:
+				builder.Add((
+					"oldValue",
+					(Flags & CallbackFlags.PreInvoke) != 0 ? "The previous value that is being replaced." : "The previous value that was replaced."));
+
+				builder.Add(("newValue", (Flags & CallbackFlags.PreInvoke) != 0 ? "The new value being set." : "The new value that was set."));
+				break;
+			case CallbackType.Event:
+				builder.Add(("sender", "The object that sent the event."));
+				builder.Add(("args", "The event arguments."));
+				break;
+			case CallbackType.Collection:
+				builder.Add(("args", "The collection changed arguments."));
+				break;
+			case CallbackType.Pool:
+				builder.Add(("args", "The pool changed arguments."));
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+	}
+
 	private static string CreateMaskName(string name, in ScriptableType scriptableType, in CallbackFlags flags)
 	{
 		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);

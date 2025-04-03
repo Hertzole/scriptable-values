@@ -77,6 +77,7 @@ partial class ScriptableCallbackGenerator
 	{
 		context.CancellationToken.ThrowIfCancellationRequested();
 
+		writer.AppendLine("/// <summary>A bitmask of all the possible subscribed callbacks.</summary>");
 		using (writer.WithIndent(0))
 		{
 			writer.AppendLine("#if UNITY_EDITOR");
@@ -128,6 +129,7 @@ partial class ScriptableCallbackGenerator
 		writer.AppendLine("}");
 
 		writer.AppendLine();
+		writer.AppendLine("/// <summary>The current mask of all subscribed callbacks.</summary>");
 		using (writer.WithIndent(0))
 		{
 			writer.AppendLine("#if UNITY_EDITOR");
@@ -159,6 +161,24 @@ partial class ScriptableCallbackGenerator
 
 		static void WriteField(CodeWriter writer, in HierarchyInfo hierarchy, in CallbackData data)
 		{
+			writer.Append("/// <summary>Cached callback for when <see cref=\"");
+			writer.Append(data.Name);
+			writer.Append("\" /> is ");
+			if (data.CallbackType == CallbackType.Event)
+			{
+				writer.Append("invoked");
+			}
+			else if (data.CallbackType == CallbackType.Value && (data.Flags & CallbackFlags.PreInvoke) != 0)
+			{
+				writer.Append("changing");
+			}
+			else
+			{
+				writer.Append("changed");
+			}
+
+			writer.AppendLine(".</summary>");
+
 			switch (data.CallbackType)
 			{
 				case CallbackType.Value:
@@ -184,6 +204,8 @@ partial class ScriptableCallbackGenerator
 	{
 		context.CancellationToken.ThrowIfCancellationRequested();
 
+		writer.AppendLine("/// <summary>Subscribes to all scriptable callbacks.</summary>");
+
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
 		writer.AppendLine("private void SubscribeToAllScriptableCallbacks()");
@@ -199,6 +221,8 @@ partial class ScriptableCallbackGenerator
 		writer.Indent--;
 		writer.AppendLine("}");
 		writer.AppendLine();
+
+		writer.AppendLine("/// <summary>Unsubscribes from all scriptable callbacks.</summary>");
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
@@ -263,155 +287,84 @@ partial class ScriptableCallbackGenerator
 
 	private static void WriteCallbacksMethods(in CodeWriter writer, in SourceProductionContext context, in EquatableArray<CallbackData> elements)
 	{
-		for (int i = 0; i < elements.Length; i++)
+		ArrayBuilder<(string name, string type)> parametersBuilder = new ArrayBuilder<(string name, string type)>(2);
+		ArrayBuilder<(string name, string description)> descriptionsBuilder = new ArrayBuilder<(string name, string description)>(2);
+
+		try
 		{
-			if (i > 0)
+			for (int i = 0; i < elements.Length; i++)
 			{
-				writer.AppendLine();
-			}
+				context.CancellationToken.ThrowIfCancellationRequested();
 
-			context.CancellationToken.ThrowIfCancellationRequested();
+				parametersBuilder.Clear();
+				descriptionsBuilder.Clear();
 
-			switch (elements[i].CallbackType)
-			{
-				case CallbackType.Value:
-					WriteValueCallbackMethod(in writer, in elements[i]);
-					break;
-				case CallbackType.Event:
-					WriteEventCallbackMethod(in writer, in elements[i]);
-					break;
-				case CallbackType.Collection:
-					WriteCollectionCallbackMethod(in writer, in elements[i]);
-					break;
-				case CallbackType.Pool:
-					WritePoolCallbackMethod(in writer, in elements[i]);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-		}
-
-		static void WriteValueCallbackMethod(in CodeWriter writer, in CallbackData data)
-		{
-			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(2);
-			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(2);
-
-			try
-			{
-				string genericType = data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-				parameterTypes.Add(genericType);
-				parameterNames.Add("oldValue");
-
-				parameterTypes.Add(genericType);
-				parameterNames.Add("newValue");
-
-				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
-			}
-			finally
-			{
-				parameterTypes.Dispose();
-				parameterNames.Dispose();
-			}
-		}
-
-		static void WriteEventCallbackMethod(in CodeWriter writer, in CallbackData data)
-		{
-			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(2);
-			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(2);
-
-			try
-			{
-				parameterTypes.Add("object");
-				parameterNames.Add("sender");
-
-				if (data.ScriptableType == ScriptableType.GenericEvent)
+				if (i > 0)
 				{
-					string genericType = data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-					parameterTypes.Add(genericType);
-				}
-				else
-				{
-					parameterTypes.Add("global::System.EventArgs");
+					writer.AppendLine();
 				}
 
-				parameterNames.Add("args");
+				elements[i].AppendParameterTypes(in parametersBuilder);
+				elements[i].AppendParameterDescriptions(in descriptionsBuilder);
 
-				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
-			}
-			finally
-			{
-				parameterTypes.Dispose();
-				parameterNames.Dispose();
+				WriteCallbackMethod(in writer, in elements[i], elements[i].CallbackName.AsSpan(), parametersBuilder.AsSpan(), descriptionsBuilder.AsSpan());
 			}
 		}
-
-		static void WriteCollectionCallbackMethod(in CodeWriter writer, in CallbackData data)
+		finally
 		{
-			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(1);
-			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(1);
-			ArrayBuilder<char> nameBuilder = new ArrayBuilder<char>(64);
-
-			try
-			{
-				nameBuilder.AddRange("global::Hertzole.ScriptableValues.CollectionChangedArgs<");
-				nameBuilder.AddRange(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-				nameBuilder.Add('>');
-
-				parameterTypes.Add(nameBuilder.ToString());
-				parameterNames.Add("args");
-
-				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
-			}
-			finally
-			{
-				parameterTypes.Dispose();
-				parameterNames.Dispose();
-				nameBuilder.Dispose();
-			}
+			parametersBuilder.Dispose();
+			descriptionsBuilder.Dispose();
 		}
 
-		static void WritePoolCallbackMethod(in CodeWriter writer, in CallbackData data)
-		{
-			ArrayBuilder<string> parameterTypes = new ArrayBuilder<string>(2);
-			ArrayBuilder<string> parameterNames = new ArrayBuilder<string>(2);
-
-			try
-			{
-				parameterTypes.Add("global::Hertzole.ScriptableValues.PoolAction");
-				parameterNames.Add("action");
-
-				parameterTypes.Add(data.GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-				parameterNames.Add("item");
-
-				WriteCallbackMethod(in writer, data.CallbackName.AsSpan(), parameterTypes.AsSpan(), parameterNames.AsSpan());
-			}
-			finally
-			{
-				parameterTypes.Dispose();
-				parameterNames.Dispose();
-			}
-		}
+		return;
 
 		static void WriteCallbackMethod(in CodeWriter writer,
+			in CallbackData data,
 			in ReadOnlySpan<char> name,
-			in ReadOnlySpan<string> parameterTypes,
-			in ReadOnlySpan<string> parameterNames)
+			in ReadOnlySpan<(string name, string type)> parameters,
+			in ReadOnlySpan<(string argName, string description)> parameterDescriptions)
 		{
+			writer.Append("/// <summary>Called when <see cref=\"");
+			writer.Append(data.Name);
+			writer.Append("\" /> is ");
+			if (data.CallbackType == CallbackType.Event)
+			{
+				writer.Append("invoked");
+			}
+			else if (data.CallbackType == CallbackType.Value && (data.Flags & CallbackFlags.PreInvoke) != 0)
+			{
+				writer.Append("changing");
+			}
+			else
+			{
+				writer.Append("changed");
+			}
+
+			writer.AppendLine(".</summary>");
+
+			for (int i = 0; i < parameterDescriptions.Length; i++)
+			{
+				writer.Append("/// <param name=\"");
+				writer.Append(parameterDescriptions[i].argName);
+				writer.Append("\">");
+				writer.Append(parameterDescriptions[i].description);
+				writer.AppendLine("</param>");
+			}
+
 			writer.Append("private partial void ");
 			writer.Append(name);
 			writer.Append("(");
 
-			for (int i = 0; i < parameterTypes.Length; i++)
+			for (int i = 0; i < parameters.Length; i++)
 			{
 				if (i > 0)
 				{
 					writer.Append(", ");
 				}
 
-				writer.Append(parameterTypes[i]);
+				writer.Append(parameters[i].type);
 				writer.Append(" ");
-				writer.Append(parameterNames[i]);
+				writer.Append(parameters[i].name);
 			}
 
 			writer.AppendLine(");");
