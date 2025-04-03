@@ -279,8 +279,15 @@ internal readonly record struct HierarchyInfo(string FilenameHint, string TypeNa
 {
 	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
 	{
+		string? nspace = null;
+
+		if (!symbol.ContainingNamespace.IsGlobalNamespace)
+		{
+			nspace = symbol.ContainingNamespace.ToDisplayString();
+		}
+		
 		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-			symbol.ContainingNamespace.ToDisplayString(), symbol);
+			nspace, symbol);
 	}
 }
 
