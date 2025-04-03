@@ -12,6 +12,7 @@
         <RootNamespace>Hertzole.ScriptableValues.Generator</RootNamespace>
         <PackageId>Hertzole.ScriptableValues.Generator</PackageId>
         <AssemblyName>Hertzole.ScriptableValues.Generator</AssemblyName>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
         <Company>Hertzole</Company>
     </PropertyGroup>
 
