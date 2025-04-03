@@ -164,7 +164,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		// Check if the marker attribute was found.
 		if (!hasMarkerAttribute)
 		{
-			return default;
+			return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
 		}
 
 		cancellationToken.ThrowIfCancellationRequested();
@@ -179,13 +179,13 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 				memberType = propertySymbol.Type;
 				break;
 			default:
-				return default;
+				return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
 		}
 
 		// Just a safety check to make sure we have a valid type.
 		if (memberType is not INamedTypeSymbol namedMemberType)
 		{
-			return default;
+			return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
 		}
 
 		cancellationToken.ThrowIfCancellationRequested();
@@ -194,7 +194,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		if (!ScriptableValueHelper.TryGetScriptableType(context.SemanticModel, namedMemberType, out ScriptableType scriptableType,
 			    out ITypeSymbol? genericType))
 		{
-			return default;
+			return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
 		}
 
 		HierarchyInfo hierarchy = HierarchyInfo.FromSymbol(context.TargetSymbol.ContainingType);
