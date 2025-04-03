@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 namespace Hertzole.ScriptableValues.Generator;
 
-internal readonly struct ArrayBuilder<T> : IDisposable
+internal readonly struct ArrayBuilder<T> : IEquatable<ArrayBuilder<T>>, IDisposable
 {
 	private readonly Writer writer;
 
@@ -137,5 +138,68 @@ internal readonly struct ArrayBuilder<T> : IDisposable
 		{
 			return new ReadOnlySpan<T>(array, 0, index);
 		}
+	}
+
+	/// <inheritdoc />
+	public bool Equals(ArrayBuilder<T> other)
+	{
+		ReadOnlySpan<T> otherSpan = other.AsSpan();
+		ReadOnlySpan<T> thisSpan = AsSpan();
+
+		if (thisSpan.Length != otherSpan.Length)
+		{
+			return false;
+		}
+
+		EqualityComparer<T> equalityComparer = EqualityComparer<T>.Default;
+
+		for (int i = 0; i < thisSpan.Length; i++)
+		{
+			if (!equalityComparer.Equals(thisSpan[i], otherSpan[i]))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/// <inheritdoc />
+	public override bool Equals(object? obj)
+	{
+		return obj is ArrayBuilder<T> other && Equals(other);
+	}
+
+	/// <inheritdoc />
+	public override int GetHashCode()
+	{
+		ReadOnlySpan<T> thisSpan = AsSpan();
+
+		if (thisSpan.Length == 0)
+		{
+			return 0;
+		}
+
+		EqualityComparer<T> equalityComparer = EqualityComparer<T>.Default;
+		int hash = 17;
+		unchecked
+		{
+			foreach (T item in thisSpan)
+			{
+				hash = hash * 23 * equalityComparer.GetHashCode(item);
+			}
+		}
+
+		return hash;
+	}
+
+	public static bool operator ==(ArrayBuilder<T> left, ArrayBuilder<T> right)
+	{
+		return left.Equals(right);
+	}
+
+	public static bool operator !=(ArrayBuilder<T> left, ArrayBuilder<T> right)
+	{
+		return !left.Equals(right);
 	}
 }
