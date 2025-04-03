@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,7 +12,7 @@ namespace Hertzole.ScriptableValues.Generator;
 public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 {
 	internal static readonly string generatorName = "Hertzole.ScriptableValues.Generator." + nameof(ScriptableCallbackGenerator);
-	internal static readonly string generatorVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+	internal static readonly string generatorVersion = typeof(ScriptableCallbackGenerator).Assembly.GetName().Version.ToString();
 
 	/// <inheritdoc />
 	public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -281,7 +280,7 @@ internal readonly record struct HierarchyInfo(string FilenameHint, string TypeNa
 	{
 		get { return Symbol.IsSealed; }
 	}
-	
+
 	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
 	{
 		string? nspace = null;
@@ -292,7 +291,7 @@ internal readonly record struct HierarchyInfo(string FilenameHint, string TypeNa
 		}
 
 		bool shouldInherit = HasParentWithCallbacks(symbol);
-		
+
 		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
 			nspace, symbol, shouldInherit);
 	}
