@@ -208,9 +208,27 @@ partial class ScriptableCallbackGenerator
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
-		writer.AppendLine("private void SubscribeToAllScriptableCallbacks()");
+
+		// If it should be inherited, it should be protected override.
+		// If it should not be inherited, and is sealed, it should be private.
+		// If it should not be inherited, and is not sealed, it should be protected virtual.
+		if (hierarchy.ShouldInherit)
+		{
+			writer.Append("protected override ");
+		}
+		else
+		{
+			writer.Append(hierarchy.IsSealed ? "private " : "protected virtual ");
+		}
+
+		writer.AppendLine("void SubscribeToAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
+		
+		if (hierarchy.ShouldInherit)
+		{
+			writer.AppendLine("base.SubscribeToAllScriptableCallbacks();");
+		}
 
 		for (int i = 0; i < elements.Length; i++)
 		{
@@ -226,9 +244,27 @@ partial class ScriptableCallbackGenerator
 
 		WriteGeneratedCodeAttribute(in writer, true);
 		writer.AppendExcludeFromCodeCoverageAttribute();
-		writer.AppendLine("private void UnsubscribeFromAllScriptableCallbacks()");
+		
+		// If it should be inherited, it should be protected override.
+		// If it should not be inherited, and is sealed, it should be private.
+		// If it should not be inherited, and is not sealed, it should be protected virtual.
+		if (hierarchy.ShouldInherit)
+		{
+			writer.Append("protected override ");
+		}
+		else
+		{
+			writer.Append(hierarchy.IsSealed ? "private " : "protected virtual ");
+		}
+		
+		writer.AppendLine("void UnsubscribeFromAllScriptableCallbacks()");
 		writer.AppendLine("{");
 		writer.Indent++;
+
+		if (hierarchy.ShouldInherit)
+		{
+			writer.AppendLine("base.UnsubscribeFromAllScriptableCallbacks();");
+		}
 
 		for (int i = 0; i < elements.Length; i++)
 		{

@@ -66,7 +66,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void SubscribeToAllScriptableCallbacks()
+		protected virtual void SubscribeToAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) == 0)
 			{{
@@ -82,7 +82,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void UnsubscribeFromAllScriptableCallbacks()
+		protected virtual void UnsubscribeFromAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) != 0)
 			{{
@@ -156,7 +156,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void SubscribeToAllScriptableCallbacks()
+		protected virtual void SubscribeToAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) == 0)
 			{{
@@ -172,7 +172,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void UnsubscribeFromAllScriptableCallbacks()
+		protected virtual void UnsubscribeFromAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) != 0)
 			{{
@@ -243,7 +243,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void SubscribeToAllScriptableCallbacks()
+		protected virtual void SubscribeToAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) == 0)
 			{{
@@ -259,7 +259,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void UnsubscribeFromAllScriptableCallbacks()
+		protected virtual void UnsubscribeFromAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) != 0)
 			{{
@@ -333,7 +333,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void SubscribeToAllScriptableCallbacks()
+		protected virtual void SubscribeToAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) == 0)
 			{{
@@ -349,7 +349,7 @@ namespace My.Namespace
 #if UNITY_INCLUDE_TESTS
 		[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-		private void UnsubscribeFromAllScriptableCallbacks()
+		protected virtual void UnsubscribeFromAllScriptableCallbacks()
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) != 0)
 			{{
@@ -415,7 +415,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void SubscribeToAllScriptableCallbacks()
+	protected virtual void SubscribeToAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) == 0)
 		{{
@@ -431,7 +431,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void UnsubscribeFromAllScriptableCallbacks()
+	protected virtual void UnsubscribeFromAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) != 0)
 		{{
@@ -499,7 +499,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void SubscribeToAllScriptableCallbacks()
+	protected virtual void SubscribeToAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) == 0)
 		{{
@@ -515,7 +515,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void UnsubscribeFromAllScriptableCallbacks()
+	protected virtual void UnsubscribeFromAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) != 0)
 		{{
@@ -580,7 +580,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void SubscribeToAllScriptableCallbacks()
+	protected virtual void SubscribeToAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) == 0)
 		{{
@@ -596,7 +596,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void UnsubscribeFromAllScriptableCallbacks()
+	protected virtual void UnsubscribeFromAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) != 0)
 		{{
@@ -664,7 +664,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void SubscribeToAllScriptableCallbacks()
+	protected virtual void SubscribeToAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) == 0)
 		{{
@@ -680,7 +680,7 @@ partial class MyClass
 #if UNITY_INCLUDE_TESTS
 	[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 #endif // UNITY_INCLUDE_TESTS
-	private void UnsubscribeFromAllScriptableCallbacks()
+	protected virtual void UnsubscribeFromAllScriptableCallbacks()
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) != 0)
 		{{

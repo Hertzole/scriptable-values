@@ -275,8 +275,13 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 	}
 }
 
-internal readonly record struct HierarchyInfo(string FilenameHint, string TypeName, string? Namespace, ISymbol Symbol)
+internal readonly record struct HierarchyInfo(string FilenameHint, string TypeName, string? Namespace, ISymbol Symbol, bool ShouldInherit)
 {
+	public bool IsSealed
+	{
+		get { return Symbol.IsSealed; }
+	}
+	
 	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
 	{
 		string? nspace = null;
@@ -285,9 +290,26 @@ internal readonly record struct HierarchyInfo(string FilenameHint, string TypeNa
 		{
 			nspace = symbol.ContainingNamespace.ToDisplayString();
 		}
+
+		bool shouldInherit = HasParentWithCallbacks(symbol);
 		
 		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-			nspace, symbol);
+			nspace, symbol, shouldInherit);
+	}
+
+	private static bool HasParentWithCallbacks(INamedTypeSymbol symbol)
+	{
+		if (symbol.BaseType == null)
+		{
+			return false;
+		}
+
+		if (symbol.BaseType.HasAttribute(Types.GLOBAL_MARKER_ATTRIBUTE))
+		{
+			return true;
+		}
+
+		return HasParentWithCallbacks(symbol.BaseType);
 	}
 }
 
