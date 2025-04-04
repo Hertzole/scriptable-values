@@ -40,7 +40,7 @@ jobs:
         run: |
           cd Generator
           dotnet build -c Release
-          dotnet test Generator/Generator.csproj -c Release --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=opencover" --results-directory TestResults --logger:"trx;LogFileName=TestResults.trx" --logger:"console;verbosity=normal"
+          dotnet test -c Release --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=opencover" --results-directory TestResults --logger:"trx;LogFileName=TestResults.trx" --logger:"console;verbosity=normal"
 
       # Upload the generator test results
       - name: Upload test results
@@ -102,7 +102,7 @@ jobs:
           path: ${{ steps.tests.outputs.coveragePath }}
 
   sonarscan:
-    needs: [tests]
+    needs: [tests, generator-tests]
     name: SonarScan
     runs-on: ubuntu-latest
     container: unityci/editor:ubuntu-6000.0.32f1-base-3.1.0
