@@ -281,6 +281,11 @@ internal readonly record struct HierarchyInfo(string FilenameHint, string TypeNa
 		get { return Symbol.IsSealed; }
 	}
 
+	public bool IsStruct
+	{
+		get { return ((ITypeSymbol) Symbol).IsValueType; }
+	}
+
 	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
 	{
 		string? nspace = null;

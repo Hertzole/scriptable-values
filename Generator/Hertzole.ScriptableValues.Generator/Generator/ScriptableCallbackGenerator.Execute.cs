@@ -41,8 +41,11 @@ partial class ScriptableCallbackGenerator
 				containingType = containingType.ContainingType;
 			}
 
+			writer.Append("partial ");
+
+			writer.Append(item.Key.IsStruct ? "struct " : "class ");
+
 			//TODO: Support other types?
-			writer.Append("partial class ");
 			writer.AppendLine(item.Key.TypeName);
 			writer.AppendLine("{");
 			writer.Indent++;
@@ -82,7 +85,7 @@ partial class ScriptableCallbackGenerator
 		in HierarchyInfo hierarchy,
 		in EquatableArray<CallbackData> elements)
 	{
-		WriteSubscribedBitMask(writer, in context, in elements);
+		WriteSubscribedBitMask(writer, in context, in hierarchy, in elements);
 		writer.AppendLine();
 
 		WriteCachedFields(writer, in context, in hierarchy, in elements);
@@ -94,7 +97,10 @@ partial class ScriptableCallbackGenerator
 		WriteCallbacksMethods(in writer, in context, in elements);
 	}
 
-	private static void WriteSubscribedBitMask(CodeWriter writer, in SourceProductionContext context, in EquatableArray<CallbackData> data)
+	private static void WriteSubscribedBitMask(CodeWriter writer,
+		in SourceProductionContext context,
+		in HierarchyInfo hierarchy,
+		in EquatableArray<CallbackData> data)
 	{
 		context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -163,7 +169,14 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("#endif // UNITY_EDITOR");
 		}
 
-		writer.AppendLine("private SubscribedCallbacksMask subscribedCallbacks = SubscribedCallbacksMask.None;");
+		writer.Append("private SubscribedCallbacksMask subscribedCallbacks");
+
+		if (!hierarchy.IsStruct)
+		{
+			writer.Append(" = SubscribedCallbacksMask.None");
+		}
+
+		writer.AppendLine(";");
 	}
 
 	private static void WriteCachedFields(CodeWriter writer,
