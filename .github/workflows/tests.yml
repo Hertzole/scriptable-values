@@ -158,9 +158,9 @@ jobs:
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@5.4.5
         with:
-          # .NET coverage reports are located in "Coverage/net/GUID/coverage.opencover.xml"
-          # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/Unity-opencov/Edit/PlayMode/"
-          reports: "Coverage/generator/*/*.xml;Coverage/unity/*/Unity-opencov/*/*.xml"
+          # .NET coverage reports are located in "Coverage/generator/generator-test-results/GUID/coverage.opencover.xml"
+          # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/workspace-opencov/Edit/PlayMode/"
+          reports: "Coverage/generator/*/*/*.xml;Coverage/unity/*/workspace-opencov/*/*.xml"
           targetdir: "CoverageReport/coverage"
           reporttypes: "Html;Badges"
 
