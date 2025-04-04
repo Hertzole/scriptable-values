@@ -152,8 +152,11 @@ jobs:
           chmod +x ./ci/fix_paths.sh
           ./ci/fix_paths.sh Coverage
 
+      - name: What do we have here
+        run: ls -R Coverage
+
       - name: Generate report
-        uses: danielpalme/ReportGenerator-GitHub-Action@v5
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.4.5
         with:
           # .NET coverage reports are located in "Coverage/net/GUID/coverage.opencover.xml"
           # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/Unity-opencov/Edit/PlayMode/"
