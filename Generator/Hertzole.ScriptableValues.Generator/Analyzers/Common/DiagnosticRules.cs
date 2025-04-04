@@ -15,9 +15,14 @@ internal static class DiagnosticRules
 		nameof(Resources.HSV0002Message), Resources.ResourceManager, typeof(Resources));
 
 	private static readonly LocalizableResourceString typeNotSupportedForCallbackAttributeTitle = new LocalizableResourceString(
-		nameof(Resources.HSV0003Title), Resources.ResourceManager, typeof(Resources));
+		nameof(Resources.HSV0100Title), Resources.ResourceManager, typeof(Resources));
 	private static readonly LocalizableResourceString typeNotSupportedForCallbackAttributeMessage = new LocalizableResourceString(
-		nameof(Resources.HSV0003MessageFormat), Resources.ResourceManager, typeof(Resources));
+		nameof(Resources.HSV0100MessageFormat), Resources.ResourceManager, typeof(Resources));
+
+	private static readonly LocalizableResourceString typeNotSupportedTitle = new LocalizableResourceString(
+		nameof(Resources.HSV0101Title), Resources.ResourceManager, typeof(Resources));
+	private static readonly LocalizableResourceString typeNotSupportedMessage = new LocalizableResourceString(
+		nameof(Resources.HSV0101MessageFormat), Resources.ResourceManager, typeof(Resources));
 
 	public static readonly DiagnosticDescriptor NoCallbackImplementation = new DiagnosticDescriptor(
 		DiagnosticIdentifiers.NoCallbackImplementation,
@@ -39,6 +44,14 @@ internal static class DiagnosticRules
 		DiagnosticIdentifiers.TypeNotSupportedForCallbackAttribute,
 		typeNotSupportedForCallbackAttributeTitle,
 		typeNotSupportedForCallbackAttributeMessage,
+		DiagnosticCategories.Usage,
+		DiagnosticSeverity.Error,
+		true);
+
+	public static readonly DiagnosticDescriptor TypeNotSupported = new DiagnosticDescriptor(
+		DiagnosticIdentifiers.TypeNotSupported,
+		typeNotSupportedTitle,
+		typeNotSupportedMessage,
 		DiagnosticCategories.Usage,
 		DiagnosticSeverity.Error,
 		true);

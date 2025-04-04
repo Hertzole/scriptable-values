@@ -11,6 +11,11 @@ partial class ScriptableCallbackGenerator
 {
 	private static void GenerateCode(SourceProductionContext context, (HierarchyInfo Key, EquatableArray<CallbackData> Elements) item)
 	{
+		if (!ScriptableValueHelper.DoesTypeSupportCallbacks((ITypeSymbol) item.Key.Symbol, out _))
+		{
+			return;
+		}
+
 		CodeWriter writer = new CodeWriter();
 
 		try

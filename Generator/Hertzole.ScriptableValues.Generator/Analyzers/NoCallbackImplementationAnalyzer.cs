@@ -96,6 +96,11 @@ public sealed class NoCallbackImplementationAnalyzer : DiagnosticAnalyzer
 			return;
 		}
 
+		if (!ScriptableValueHelper.DoesTypeSupportCallbacks(containingType, out _))
+		{
+			return;
+		}
+
 		using ArrayBuilder<ITypeSymbol> parametersBuilder = new ArrayBuilder<ITypeSymbol>();
 
 		for (int i = 0; i < wrappers.Length; i++)

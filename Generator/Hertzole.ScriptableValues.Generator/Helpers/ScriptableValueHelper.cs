@@ -155,4 +155,22 @@ internal static class ScriptableValueHelper
 				throw new ArgumentOutOfRangeException();
 		}
 	}
+
+	public static bool DoesTypeSupportCallbacks(in ITypeSymbol symbol, out NotSupportedReason reason)
+	{
+		if (symbol.IsValueType && symbol.IsReadOnly)
+		{
+			reason = NotSupportedReason.ReadOnlyStruct;
+			return false;
+		}
+
+		reason = NotSupportedReason.None;
+		return true;
+	}
+}
+
+public enum NotSupportedReason
+{
+	None = 0,
+	ReadOnlyStruct = 1
 }

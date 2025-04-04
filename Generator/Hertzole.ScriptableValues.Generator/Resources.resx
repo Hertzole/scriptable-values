@@ -41,13 +41,19 @@
     <data name="HSV0002CodeFixTitle" xml:space="preserve">
         <value>Add 'GenerateScriptableCallbacks' attribute to containing type</value>
     </data>
-    <data name="HSV0003Title" xml:space="preserve">
+    <data name="HSV0100Title" xml:space="preserve">
         <value>Incorrect scriptable type for attribute</value>
     </data>
-    <data name="HSV0003MessageFormat" xml:space="preserve">
+    <data name="HSV0100MessageFormat" xml:space="preserve">
         <value>'{0}' can't be used on this type, consider using the '{1}' attribute instead</value>
     </data>
-    <data name="HSV0003CodeFixTitle" xml:space="preserve">
+    <data name="HSV0100CodeFixTitle" xml:space="preserve">
         <value>Replace attribute with '{0}'</value>
+    </data>
+    <data name="HSV0101Title" xml:space="preserve">
+        <value>Callbacks are not supported on this type</value>
+    </data>
+    <data name="HSV0101MessageFormat" xml:space="preserve">
+        <value>{0} does not support generating callbacks</value>
     </data>
 </root>

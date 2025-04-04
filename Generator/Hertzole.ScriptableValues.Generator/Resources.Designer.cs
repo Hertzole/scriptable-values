@@ -81,21 +81,33 @@ namespace Hertzole.ScriptableValues.Generator {
             }
         }
         
-        internal static string HSV0003Title {
+        internal static string HSV0100Title {
             get {
-                return ResourceManager.GetString("HSV0003Title", resourceCulture);
+                return ResourceManager.GetString("HSV0100Title", resourceCulture);
             }
         }
         
-        internal static string HSV0003MessageFormat {
+        internal static string HSV0100MessageFormat {
             get {
-                return ResourceManager.GetString("HSV0003MessageFormat", resourceCulture);
+                return ResourceManager.GetString("HSV0100MessageFormat", resourceCulture);
             }
         }
         
-        internal static string HSV0003CodeFixTitle {
+        internal static string HSV0100CodeFixTitle {
             get {
-                return ResourceManager.GetString("HSV0003CodeFixTitle", resourceCulture);
+                return ResourceManager.GetString("HSV0100CodeFixTitle", resourceCulture);
+            }
+        }
+        
+        internal static string HSV0101Title {
+            get {
+                return ResourceManager.GetString("HSV0101Title", resourceCulture);
+            }
+        }
+        
+        internal static string HSV0101MessageFormat {
+            get {
+                return ResourceManager.GetString("HSV0101MessageFormat", resourceCulture);
             }
         }
     }

@@ -40,9 +40,9 @@ public sealed class TypeNotSupportedForCallbackAttributeCodeFixProvider : CodeFi
 		}
 
 		context.RegisterCodeFix(CodeAction.Create(
-			string.Format(Resources.HSV0003CodeFixTitle, attributeName),
+			string.Format(Resources.HSV0100CodeFixTitle, attributeName),
 			token => CreateChangedDocument(context, token),
-			nameof(Resources.HSV0003CodeFixTitle)), diagnostic);
+			nameof(Resources.HSV0100CodeFixTitle)), diagnostic);
 
 		return Task.CompletedTask;
 	}

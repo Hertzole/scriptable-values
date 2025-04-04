@@ -4,5 +4,6 @@ internal static class DiagnosticIdentifiers
 {
 	public const string NoCallbackImplementation = "HSV0001";
 	public const string NoMarkerAttribute = "HSV0002";
-	public const string TypeNotSupportedForCallbackAttribute = "HSV0003";
+	public const string TypeNotSupportedForCallbackAttribute = "HSV0100";
+	public const string TypeNotSupported = "HSV0101";
 }
