@@ -65,6 +65,9 @@ public sealed class TypeNotSupportedAnalyzer : DiagnosticAnalyzer
 			case NotSupportedReason.ReadOnlyStruct:
 				type = "'readonly struct'";
 				break;
+			case NotSupportedReason.StaticClass:
+				type = "'static class'";
+				break;
 			default:
 				type = "ERROR";
 				break;

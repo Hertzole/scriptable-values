@@ -164,6 +164,12 @@ internal static class ScriptableValueHelper
 			return false;
 		}
 
+		if (symbol.IsStatic)
+		{
+			reason = NotSupportedReason.StaticClass;
+			return false;
+		}
+
 		reason = NotSupportedReason.None;
 		return true;
 	}
@@ -172,5 +178,6 @@ internal static class ScriptableValueHelper
 public enum NotSupportedReason
 {
 	None = 0,
-	ReadOnlyStruct = 1
+	ReadOnlyStruct = 1,
+	StaticClass = 2
 }
