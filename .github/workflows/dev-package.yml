@@ -63,7 +63,8 @@ jobs:
           git add CHANGELOG.md
         fi
         if [[ -d "/tmp/Plugins" ]]; then
-          mv /tmp/Plugins "$PKG_ROOT/Plugins"
+          mkdir "$PKG_ROOT/Plugins" -p
+          mv /tmp/Plugins/* "$PKG_ROOT/Plugins"
           git add "$PKG_ROOT/Plugins"
         fi
         if [[ -d "Tests" ]]; then

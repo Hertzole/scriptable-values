@@ -83,7 +83,7 @@ jobs:
         id: tests
         with:
           unityVersion: ${{ matrix.unity-version }}
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.ScriptableValues'
+          coverageOptions: 'generateAdditionalMetrics;assemblyFilters:+Hertzole.ScriptableValues'
 
       # Upload test results
       - name: Upload test results
@@ -136,7 +136,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: 'Coverage results - *'
-          path: Coverage
+          path: Coverage/unity
+
+      - name: Download generator coverage results
+        id: download-generator-coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'generator-test-results'
+          path: Coverage/generator
 
       # The test results have a different path than what SonarQube can read.
       # We need to remove the github/workspace/ path.
@@ -147,18 +154,16 @@ jobs:
 
       - name: Generate report
         uses: danielpalme/ReportGenerator-GitHub-Action@v5
-        # Only run on master branch
-        if: github.ref == 'refs/heads/master'
         with:
-          reports: "${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml"
+          # .NET coverage reports are located in "Coverage/net/GUID/coverage.opencover.xml"
+          # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/Unity-opencov/Edit/PlayMode/"
+          reports: "Coverage/generator/*/*.xml;Coverage/unity/*/Unity-opencov/*/*.xml"
           targetdir: "CoverageReport/coverage"
           reporttypes: "Html;Badges"
 
       - name: Upload report
         uses: actions/upload-pages-artifact@v3
         id: upload_report
-        # Only run on master branch
-        if: github.ref == 'refs/heads/master'
         with:
           path: CoverageReport
 
