@@ -150,7 +150,7 @@ jobs:
       - name: Fix paths
         run: |
           chmod +x ./ci/fix_paths.sh
-          ./ci/fix_paths.sh Coverage
+          ./ci/fix_paths.sh
 
       - name: What do we have here
         run: ls -R Coverage
