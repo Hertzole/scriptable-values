@@ -27,7 +27,8 @@ partial class ScriptableCallbackGenerator
 			INamedTypeSymbol? containingType = item.Key.Symbol.ContainingType;
 			while (containingType != null && !containingType.IsNamespace)
 			{
-				writer.Append("partial class ");
+				writer.Append("partial  ");
+				writer.Append(containingType.IsValueType ? "struct" : "class");
 				writer.AppendLine(containingType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
 				writer.AppendLine("{");
 				writer.Indent++;
