@@ -10,7 +10,9 @@ internal static class DocumentationHelper
 	public const string COLLECTION_ARGS = "The collection changed arguments.";
 
 	public const string POOL_ARGS = "The pool changed arguments.";
-	
+
+	public const string SUBSCRIBED_MASK_SUMMARY = "/// <summary>A bitmask of all the possible subscribed callbacks.</summary>";
+
 	public static ReadOnlySpan<char> GetMethodCallbackDescription(in ReadOnlySpan<char> name, in CallbackType callbackType, in CallbackFlags flags)
 	{
 		using (ArrayBuilder<char> builder = new ArrayBuilder<char>(64))
@@ -35,7 +37,7 @@ internal static class DocumentationHelper
 			return builder.AsSpan();
 		}
 	}
-	
+
 	public static string GetOldValueDescription(in CallbackFlags flags)
 	{
 		if ((flags & CallbackFlags.PreInvoke) != 0)

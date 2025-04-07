@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using SourceProductionContext = Microsoft.CodeAnalysis.SourceProductionContext;
@@ -17,6 +18,7 @@ partial class ScriptableCallbackGenerator
 		}
 
 		CodeWriter writer = new CodeWriter();
+		CancellationToken cancellationToken = context.CancellationToken;
 
 		try
 		{
@@ -45,7 +47,7 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("{");
 			writer.Indent++;
 
-			WriteElements(writer, in context, in item.Key, in item.Elements);
+			WriteElements(writer, in context, in item.Key, in item.Elements, in cancellationToken);
 
 			writer.Indent--;
 			writer.Append("}");
@@ -71,9 +73,10 @@ partial class ScriptableCallbackGenerator
 	private static void WriteElements(CodeWriter writer,
 		in SourceProductionContext context,
 		in HierarchyInfo hierarchy,
-		in EquatableArray<CallbackData> elements)
+		in EquatableArray<CallbackData> elements,
+		in CancellationToken cancellationToken)
 	{
-		WriteSubscribedBitMask(writer, in context, in hierarchy, in elements);
+		WriteSubscribedBitMask(writer, in hierarchy, in elements, in cancellationToken);
 		writer.AppendLine();
 
 		WriteCachedFields(writer, in context, in hierarchy, in elements);
@@ -86,13 +89,13 @@ partial class ScriptableCallbackGenerator
 	}
 
 	private static void WriteSubscribedBitMask(CodeWriter writer,
-		in SourceProductionContext context,
 		in HierarchyInfo hierarchy,
-		in EquatableArray<CallbackData> data)
+		in EquatableArray<CallbackData> data,
+		in CancellationToken cancellationToken)
 	{
-		context.CancellationToken.ThrowIfCancellationRequested();
+		cancellationToken.ThrowIfCancellationRequested();
 
-		writer.AppendLine("/// <summary>A bitmask of all the possible subscribed callbacks.</summary>");
+		writer.AppendLine(DocumentationHelper.SUBSCRIBED_MASK_SUMMARY);
 		using (writer.WithIndent(0))
 		{
 			writer.AppendLine("#if UNITY_EDITOR");
@@ -105,43 +108,7 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("#endif // UNITY_EDITOR");
 		}
 
-		writer.Append("private enum SubscribedCallbacksMask : ");
-		if (data.Length < 8)
-		{
-			writer.AppendLine("byte");
-		}
-		else if (data.Length < 16)
-		{
-			writer.AppendLine("ushort");
-		}
-		else if (data.Length < 32)
-		{
-			writer.AppendLine("uint");
-		}
-		else
-		{
-			writer.AppendLine("ulong");
-		}
-
-		writer.AppendLine("{");
-		writer.Indent++;
-
-		writer.Append("None = 0");
-
-		for (int i = 0; i < data.Length; i++)
-		{
-			context.CancellationToken.ThrowIfCancellationRequested();
-
-			writer.AppendLine(",");
-			writer.Append(data[i].MaskName);
-			writer.Append(" = 1 << ");
-			writer.Append(i);
-		}
-
-		writer.AppendLine();
-
-		writer.Indent--;
-		writer.AppendLine("}");
+		WriteSubscribedEnumMask(in writer, in data, in cancellationToken);
 
 		writer.AppendLine();
 		writer.AppendLine("/// <summary>The current mask of all subscribed callbacks.</summary>");
@@ -165,6 +132,49 @@ partial class ScriptableCallbackGenerator
 		}
 
 		writer.AppendLine(";");
+	}
+
+	internal static void WriteSubscribedEnumMask(in CodeWriter writer, in EquatableArray<CallbackData> data, in CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		writer.Append("private enum SubscribedCallbacksMask : ");
+		if (data.Length <= 8)
+		{
+			writer.AppendLine("byte");
+		}
+		else if (data.Length <= 16)
+		{
+			writer.AppendLine("ushort");
+		}
+		else if (data.Length <= 32)
+		{
+			writer.AppendLine("uint");
+		}
+		else
+		{
+			writer.AppendLine("ulong");
+		}
+
+		writer.AppendLine("{");
+		writer.Indent++;
+
+		writer.Append("None = 0");
+
+		for (int i = 0; i < data.Length; i++)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+
+			writer.AppendLine(",");
+			writer.Append(data[i].MaskName);
+			writer.Append(" = 1 << ");
+			writer.Append(i);
+		}
+
+		writer.AppendLine();
+
+		writer.Indent--;
+		writer.AppendLine("}");
 	}
 
 	private static void WriteCachedFields(CodeWriter writer,

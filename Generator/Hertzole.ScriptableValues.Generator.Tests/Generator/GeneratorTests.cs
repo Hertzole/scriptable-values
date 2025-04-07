@@ -49,7 +49,7 @@ public partial class GeneratorTests
 		// Find the generated file.
 		SyntaxTree generatedTree = outputCompilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == filename);
 
-		Assert.That(result, Is.EqualTo(generatedTree.ToString()));
+		Assert.That(generatedTree.ToString(), Is.EqualTo(result));
 	}
 
 	private static void AssertDoesNotGenerate<T>(string source, LanguageVersion languageVersion = DEFAULT_LANGUAGE_VERSION)
@@ -73,15 +73,7 @@ public partial class GeneratorTests
 		out ImmutableArray<Diagnostic> diagnostics)
 		where T : IIncrementalGenerator, new()
 	{
-		List<PortableExecutableReference> assemblyReferences =
-		[
-			// Include the standard library
-			MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
-		];
-
-		CSharpParseOptions parseOptions = CSharpParseOptions.Default
-		                                                    .WithLanguageVersion(languageVersion)
-		                                                    .WithPreprocessorSymbols("UNITY_2022_3_OR_NEWER"); // Required to compile attributes
+		CSharpParseOptions parseOptions = CompilationHelper.CreateStandardParseOptions(languageVersion);
 
 		SyntaxTree[] trees = new SyntaxTree[sources.Length];
 
@@ -90,12 +82,7 @@ public partial class GeneratorTests
 			trees[i] = CSharpSyntaxTree.ParseText(SourceText.From(sources[i], Encoding.UTF8), parseOptions);
 		}
 
-		CSharpCompilation compilation = CSharpCompilation.Create(
-			                                                 "Hertzole.ScriptableValues.Tests",
-			                                                 trees,
-			                                                 assemblyReferences,
-			                                                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, true))
-		                                                 .AddScriptableValuesRuntime(parseOptions); // Add the runtime files to the compilation.
+		CSharpCompilation compilation = CompilationHelper.CreateStandardCompilation(trees, parseOptions);
 
 		GeneratorDriver driver = CSharpGeneratorDriver.Create(new T()).WithUpdatedParseOptions(parseOptions);
 
