@@ -11,9 +11,12 @@ namespace Hertzole.ScriptableValues.Generator;
 	Justification = "This is only used in debug builds.")]
 internal static class Log
 {
+#if DEBUG
 	private static bool isInitialized;
 
-	public static readonly string path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Assembly.GetCallingAssembly().GetName().Name + ".log"));
+	private static readonly string path =
+		Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Assembly.GetCallingAssembly().GetName().Name + ".log"));
+#endif
 
 	[Conditional("DEBUG")]
 	public static void Info(string message)
