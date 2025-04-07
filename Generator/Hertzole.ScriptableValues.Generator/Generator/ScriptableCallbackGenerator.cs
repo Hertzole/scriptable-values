@@ -144,24 +144,8 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 
-		bool hasMarkerAttribute = false;
-
-		// Make sure the containing type has the GenerateScriptableCallbacks attribute.
-		ImmutableArray<AttributeData> containingTypeAttributes = context.TargetSymbol.ContainingType.GetAttributes();
-		foreach (AttributeData attribute in containingTypeAttributes)
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (attribute.AttributeClass?.ToDisplayString() == "Hertzole.ScriptableValues.GenerateScriptableCallbacksAttribute")
-			{
-				hasMarkerAttribute = true;
-				break;
-			}
-		}
-
 		// Check if the marker attribute was found.
-		//TODO: Use HasAttribute instead.
-		if (!hasMarkerAttribute)
+		if (!context.TargetSymbol.ContainingType.HasAttribute(Types.GLOBAL_MARKER_ATTRIBUTE))
 		{
 			return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
 		}
