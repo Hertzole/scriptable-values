@@ -18,46 +18,45 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 	{
 		Log.Info<ScriptableCallbackGenerator>("Initialized");
 
-		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> values = context.SyntaxProvider
-		                                                                                        .ForAttributeWithMetadataName(
-			                                                                                        "Hertzole.ScriptableValues.GenerateValueCallbackAttribute",
-			                                                                                        IsValidDeclaration,
-			                                                                                        (syntaxContext, token) =>
-				                                                                                        Get(in syntaxContext, CallbackType.Value, in token))
-		                                                                                        .SelectMany(static (array, _) => array)
-		                                                                                        .Where(static x => x != default)
-		                                                                                        .Collect();
+		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> values =
+			context.SyntaxProvider
+			       .ForAttributeWithMetadataName(
+				       "Hertzole.ScriptableValues.GenerateValueCallbackAttribute",
+				       IsValidDeclaration,
+				       (syntaxContext, token) => Get(in syntaxContext, CallbackType.Value, in token))
+			       .SelectMany(static (array, _) => array)
+			       .Where(static x => x != default)
+			       .Collect();
 
-		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> events = context.SyntaxProvider
-		                                                                                        .ForAttributeWithMetadataName(
-			                                                                                        "Hertzole.ScriptableValues.GenerateEventCallbackAttribute",
-			                                                                                        IsValidDeclaration,
-			                                                                                        (syntaxContext, token) =>
-				                                                                                        Get(in syntaxContext, CallbackType.Event, in token))
-		                                                                                        .SelectMany(static (array, _) => array)
-		                                                                                        .Where(static x => x != default)
-		                                                                                        .Collect();
+		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> events =
+			context.SyntaxProvider
+			       .ForAttributeWithMetadataName(
+				       "Hertzole.ScriptableValues.GenerateEventCallbackAttribute",
+				       IsValidDeclaration,
+				       (syntaxContext, token) => Get(in syntaxContext, CallbackType.Event, in token))
+			       .SelectMany(static (array, _) => array)
+			       .Where(static x => x != default)
+			       .Collect();
 
-		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> collections = context.SyntaxProvider
-		                                                                                             .ForAttributeWithMetadataName(
-			                                                                                             "Hertzole.ScriptableValues.GenerateCollectionCallbackAttribute",
-			                                                                                             IsValidDeclaration,
-			                                                                                             (syntaxContext, token) =>
-				                                                                                             Get(in syntaxContext, CallbackType.Collection,
-					                                                                                             in token))
-		                                                                                             .SelectMany(static (array, _) => array)
-		                                                                                             .Where(static x => x != default)
-		                                                                                             .Collect();
+		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> collections =
+			context.SyntaxProvider
+			       .ForAttributeWithMetadataName(
+				       "Hertzole.ScriptableValues.GenerateCollectionCallbackAttribute",
+				       IsValidDeclaration,
+				       (syntaxContext, token) => Get(in syntaxContext, CallbackType.Collection, in token))
+			       .SelectMany(static (array, _) => array)
+			       .Where(static x => x != default)
+			       .Collect();
 
-		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> pools = context.SyntaxProvider
-		                                                                                       .ForAttributeWithMetadataName(
-			                                                                                       "Hertzole.ScriptableValues.GeneratePoolCallbackAttribute",
-			                                                                                       IsValidDeclaration,
-			                                                                                       (syntaxContext, token) =>
-				                                                                                       Get(in syntaxContext, CallbackType.Pool, in token))
-		                                                                                       .SelectMany(static (array, _) => array)
-		                                                                                       .Where(static x => x != default)
-		                                                                                       .Collect();
+		IncrementalValueProvider<ImmutableArray<(HierarchyInfo, CallbackData)>> pools =
+			context.SyntaxProvider
+			       .ForAttributeWithMetadataName(
+				       "Hertzole.ScriptableValues.GeneratePoolCallbackAttribute",
+				       IsValidDeclaration,
+				       (syntaxContext, token) => Get(in syntaxContext, CallbackType.Pool, in token))
+			       .SelectMany(static (array, _) => array)
+			       .Where(static x => x != default)
+			       .Collect();
 
 		IncrementalValuesProvider<(HierarchyInfo Key, EquatableArray<CallbackData> Elements)> allCallbacks = values.Combine(events).Combine(collections)
 			.Combine(pools)
@@ -161,6 +160,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		}
 
 		// Check if the marker attribute was found.
+		//TODO: Use HasAttribute instead.
 		if (!hasMarkerAttribute)
 		{
 			return ImmutableArray<(HierarchyInfo, CallbackData)>.Empty;
@@ -204,7 +204,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			CallbackFlags callbackFlags = GetCallbackFlags(in context, in callbackType, context.Attributes[i], in cancellationToken);
+			CallbackFlags callbackFlags = GetCallbackFlags(in callbackType, context.Attributes[i], in cancellationToken);
 
 			builder.Add((hierarchy, new CallbackData(context.TargetSymbol.Name, callbackType, callbackFlags, memberType, scriptableType, genericType!)));
 		}
@@ -212,8 +212,7 @@ public sealed partial class ScriptableCallbackGenerator : IIncrementalGenerator
 		return builder.ToImmutable();
 	}
 
-	private static CallbackFlags GetCallbackFlags(in GeneratorAttributeSyntaxContext context,
-		in CallbackType callbackType,
+	private static CallbackFlags GetCallbackFlags(in CallbackType callbackType,
 		in AttributeData attribute,
 		in CancellationToken cancellationToken)
 	{

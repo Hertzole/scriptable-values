@@ -50,7 +50,6 @@ partial class ScriptableCallbackGenerator
 
 			writer.Append(item.Key.IsStruct ? "struct " : "class ");
 
-			//TODO: Support other types?
 			writer.AppendLine(item.Key.TypeName);
 			writer.AppendLine("{");
 			writer.Indent++;
