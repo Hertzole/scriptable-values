@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -440,7 +441,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="predicate">The <see cref="Predicate{T}" /> to check against.</param>
 		/// <param name="key">The key if it was found. Will be the default value if it wasn't found.</param>
 		/// <returns>True if the key was found; otherwise, false.</returns>
-		public bool TryFindKey(Predicate<TKey> predicate, out TKey key)
+		public bool TryFindKey(Predicate<TKey> predicate, [NotNullWhen(true)] out TKey? key)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
 
@@ -463,7 +464,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="predicate">The <see cref="Predicate{T}" /> to check against.</param>
 		/// <param name="value">The value if it was found. Will be the default value if it wasn't found.</param>
 		/// <returns>True if the key was found; otherwise, false.</returns>
-		public bool TryFindValue(Predicate<TValue> predicate, out TValue value)
+		public bool TryFindValue(Predicate<TValue> predicate, out TValue? value)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
 

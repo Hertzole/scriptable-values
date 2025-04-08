@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+
+using System.Diagnostics;
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
@@ -57,7 +59,7 @@ namespace Hertzole.ScriptableValues
 			remove { OnStackTraceAddedInternal -= value; }
 		}
 
-		private event Action OnStackTraceAddedInternal;
+		private event Action? OnStackTraceAddedInternal;
 #endif
 	}
 }
