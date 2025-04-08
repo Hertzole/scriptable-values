@@ -855,7 +855,7 @@ namespace Hertzole.ScriptableValues
 		private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
 		{
 			onCollectionChanged.Invoke(args);
-			OnInternalCollectionChanged?.Invoke(this, args);
+			OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
 		}
 
 		void ISerializationCallbackReceiver.OnBeforeSerialize()

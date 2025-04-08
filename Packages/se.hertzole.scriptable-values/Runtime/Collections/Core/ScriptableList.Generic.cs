@@ -564,7 +564,7 @@ namespace Hertzole.ScriptableValues
 				UpdateCounts();
 				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
 				onCollectionChanged.Invoke(args);
-				OnInternalCollectionChanged?.Invoke(this, args);
+				OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
 			}
 
 			AddStackTrace();
@@ -748,7 +748,7 @@ namespace Hertzole.ScriptableValues
 		private void InvokeCollectionChanged(in CollectionChangedArgs<T> args)
 		{
 			onCollectionChanged.Invoke(args);
-			OnInternalCollectionChanged?.Invoke(this, args);
+			OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
 		}
 
 		/// <summary>

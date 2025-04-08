@@ -7,7 +7,35 @@ namespace Hertzole.ScriptableValues
 {
 	public delegate void CollectionChangedEventHandler<T>(CollectionChangedArgs<T> e);
 
-	public delegate void CollectionChangedWithContextEventHandler<T, TContext>(CollectionChangedArgs<T> e, TContext context);
+	public delegate void CollectionChangedWithContextEventHandler<T, in TContext>(CollectionChangedArgs<T> e, TContext context);
+
+	public static class CollectionChangedArgsExtensions
+	{
+		/// <summary>
+		///     Converts the <see cref="CollectionChangedArgs{T}" /> to a <see cref="NotifyCollectionChangedEventArgs" />.
+		/// </summary>
+		/// <param name="args">The current args.</param>
+		/// <typeparam name="T">The type of the items in the collection.</typeparam>
+		/// <returns>The converted <see cref="NotifyCollectionChangedEventArgs" />.</returns>
+		/// <exception cref="NotSupportedException">If the action is not supported.</exception>
+		public static NotifyCollectionChangedEventArgs ToNotifyCollectionChangedEventArgs<T>(this CollectionChangedArgs<T> args)
+		{
+			switch (args.Action)
+			{
+				case NotifyCollectionChangedAction.Add:
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, args.NewItems.ToArray(), args.NewIndex);
+				case NotifyCollectionChangedAction.Remove:
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, args.OldItems.ToArray(), args.OldIndex);
+				case NotifyCollectionChangedAction.Replace:
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, args.NewItems.ToArray(), args.OldItems.ToArray(),
+						args.NewIndex);
+				case NotifyCollectionChangedAction.Reset:
+					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+			}
+
+			throw new NotSupportedException($"Can't create NotifyCollectionChangedEventArgs from this action ({args.Action}).");
+		}
+	}
 
 	[StructLayout(LayoutKind.Auto)]
 	public readonly struct CollectionChangedArgs<T> : IEquatable<CollectionChangedArgs<T>>
@@ -109,33 +137,13 @@ namespace Hertzole.ScriptableValues
 			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset, newIndex, oldIndex: oldIndex, oldItems: memory);
 		}
 
-		public static implicit operator NotifyCollectionChangedEventArgs(CollectionChangedArgs<T> args)
-		{
-			switch (args.Action)
-			{
-				case NotifyCollectionChangedAction.Add:
-					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, args.NewItems.ToArray(), args.NewIndex);
-				case NotifyCollectionChangedAction.Move:
-					break;
-				case NotifyCollectionChangedAction.Remove:
-					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, args.OldItems.ToArray(), args.OldIndex);
-				case NotifyCollectionChangedAction.Replace:
-					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, args.NewItems.ToArray(), args.OldItems.ToArray(),
-						args.NewIndex);
-				case NotifyCollectionChangedAction.Reset:
-					return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-			}
-
-			throw new NotSupportedException($"Can't create NotifyCollectionChangedEventArgs from this action ({args.Action}).");
-		}
-
 		public bool Equals(CollectionChangedArgs<T> other)
 		{
 			return Action == other.Action && NewIndex == other.NewIndex && OldIndex == other.OldIndex && OldItems.Equals(other.OldItems) &&
 			       NewItems.Equals(other.NewItems);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return obj is CollectionChangedArgs<T> other && Equals(other);
 		}
