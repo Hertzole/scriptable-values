@@ -32,9 +32,9 @@ namespace Hertzole.ScriptableValues.Tests
 #endif // UNITY_EDITOR
 
 		[Test]
-		public void SetValue_ReadOnly([ValueSource(nameof(StaticsValue))] TValue value)
+		public void SetValue_ReadOnly_ThrowsException()
 		{
-			TestSetValue_ReadOnly(value, MakeDifferentValue(value));
+			TestSetValue_ReadOnly_ThrowsException();
 		}
 
 		[Test]

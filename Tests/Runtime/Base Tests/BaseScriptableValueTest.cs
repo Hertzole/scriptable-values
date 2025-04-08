@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel;
-using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.TestTools;
+using NUnit.Framework;
+using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -118,17 +118,14 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
 		}
 
-		protected void TestSetValue_ReadOnly(TValue value, TValue startValue = default)
+		protected void TestSetValue_ReadOnly_ThrowsException()
 		{
 			// Arrange
 			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
 			instance.ResetValueOnStart = true;
 			instance.ResetValue();
 
 			instance.IsReadOnly = true;
-
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
 			TValue originalValue = instance.Value;
 
@@ -155,12 +152,8 @@ namespace Hertzole.ScriptableValues.Tests
 				}
 			};
 
-			LogAssert.Expect(LogType.Error, $"'{instance.name}' is marked as read only and cannot be changed at runtime.");
-
-			// Act
-			instance.Value = value;
-
-			// Assert
+			// Act & Assert
+			AssertThrowsReadOnlyException(instance, type => type.Value = MakeDifferentValue(type.Value));
 			Assert.AreEqual(originalValue, instance.Value, "Value should not be changed.");
 			Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
 			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
@@ -405,6 +398,42 @@ namespace Hertzole.ScriptableValues.Tests
 				context.invokeCount++;
 				Assert.AreEqual(context.targetValue, newValue, "New value is not the same as the instance value.");
 			}
+		}
+
+		public static IEnumerable PropertyChangeCases
+		{
+			get
+			{
+				yield return MakeTestCaseData(ScriptableValue.isReadOnlyChangingArgs, ScriptableValue.isReadOnlyChangedArgs,
+					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
+
+				yield return MakeTestCaseData(ScriptableValue.resetValueOnStartChangingArgs, ScriptableValue.resetValueOnStartChangedArgs,
+					i => i.ResetValueOnStart = MakeDifferentValue(i.ResetValueOnStart));
+
+				yield return MakeTestCaseData(ScriptableValue.setEqualityCheckChangingArgs, ScriptableValue.setEqualityCheckChangedArgs,
+					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
+
+				yield return MakeTestCaseData(ScriptableValue.valueChangingArgs, ScriptableValue.valueChangedArgs,
+					i => i.Value = MakeDifferentValue(i.Value));
+
+				yield return MakeTestCaseData(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
+
+				yield return MakeTestCaseData(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
+			}
+		}
+
+		[Test]
+		[TestCaseSource(nameof(PropertyChangeCases))]
+		public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
+		{
+			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue);
+		}
+
+		private static TestCaseData MakeTestCaseData(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
+		{
+			return new TestCaseData(changingArgs, changedArgs, setValue).SetName(changedArgs.PropertyName);
 		}
 
 		private class Context

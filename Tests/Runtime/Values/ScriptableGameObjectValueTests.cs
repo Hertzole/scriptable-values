@@ -51,11 +51,9 @@ namespace Hertzole.ScriptableValues.Tests.Values
 #endif // UNITY_EDITOR
 
 		[Test]
-		public void SetValue_ReadOnly()
+		public void SetValue_ReadOnly_ThrowsException()
 		{
-			GameObject go = CreateGameObject();
-
-			TestSetValue_ReadOnly(go);
+			TestSetValue_ReadOnly_ThrowsException();
 		}
 
 		[Test]
