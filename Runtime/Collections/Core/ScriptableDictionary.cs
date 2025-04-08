@@ -117,7 +117,7 @@ namespace Hertzole.ScriptableValues
 
 		object? IDictionary.this[object key]
 		{
-			get { return EqualityHelper.IsSameType(key, out TKey newKey) ? dictionary[newKey] : null; }
+			get { return EqualityHelper.IsSameType(key, out TKey? newKey) ? dictionary[newKey] : null; }
 			set
 			{
 				ThrowHelper.ThrowIfNull(key, nameof(key));
@@ -585,7 +585,7 @@ namespace Hertzole.ScriptableValues
 		/// <returns>True if the key type is the same as the generic type and the dictionary contains the key; otherwise, false.</returns>
 		bool IDictionary.Contains(object key)
 		{
-			return EqualityHelper.IsSameType(key, out TKey newKey) && ContainsKey(newKey);
+			return EqualityHelper.IsSameType(key, out TKey? newKey) && ContainsKey(newKey);
 		}
 
 		/// <summary>
@@ -602,7 +602,7 @@ namespace Hertzole.ScriptableValues
 		/// <param name="key">The key of the element to remove.</param>
 		void IDictionary.Remove(object key)
 		{
-			if (EqualityHelper.IsSameType(key, out TKey newKey))
+			if (EqualityHelper.IsSameType(key, out TKey? newKey))
 			{
 				RemoveInternal(newKey);
 			}

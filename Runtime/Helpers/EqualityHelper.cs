@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -22,8 +25,8 @@ namespace Hertzole.ScriptableValues.Helpers
 			// Do special checking on Unity objects.
 			if (typeof(T).IsSubclassOf(typeof(Object)) || typeof(T) == typeof(Object))
 			{
-				Object xUnityObject = x as Object;
-				Object yUnityObject = y as Object;
+				Object? xUnityObject = x as Object;
+				Object? yUnityObject = y as Object;
 
 				return xUnityObject == yUnityObject;
 			}
@@ -43,7 +46,7 @@ namespace Hertzole.ScriptableValues.Helpers
 			// Do special checking on Unity objects.
 			if (typeof(T).IsSubclassOf(typeof(Object)) || typeof(T) == typeof(Object))
 			{
-				Object unityObject = obj as Object;
+				Object? unityObject = obj as Object;
 				return unityObject == null;
 			}
 
@@ -58,7 +61,7 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// <typeparam name="TType">The type to match.</typeparam>
 		/// <returns>True if the value is the same type; otherwise false.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsSameType<TType>(object value, out TType newValue)
+		public static bool IsSameType<TType>(object? value, [NotNullWhen(true)] out TType? newValue)
 		{
 			if (value is TType newValueT)
 			{
