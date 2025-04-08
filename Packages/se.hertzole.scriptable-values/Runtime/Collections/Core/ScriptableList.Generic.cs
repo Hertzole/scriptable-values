@@ -746,7 +746,7 @@ namespace Hertzole.ScriptableValues
 		bool IList.Contains(object? value)
 		{
 			// Check if the value is the same type as the generic type and then call the Contains method.
-			return EqualityHelper.IsSameType(value, out T newValue) && Contains(newValue);
+			return EqualityHelper.IsSameType(value, out T? newValue) && Contains(newValue);
 		}
 
 		/// <summary>
@@ -758,7 +758,7 @@ namespace Hertzole.ScriptableValues
 		int IList.IndexOf(object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (EqualityHelper.IsSameType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T? newValue))
 			{
 				return IndexOf(newValue);
 			}
@@ -793,7 +793,7 @@ namespace Hertzole.ScriptableValues
 		void IList.Remove(object value)
 		{
 			// Check if the value is the same type as the generic type.
-			if (EqualityHelper.IsSameType(value, out T newValue))
+			if (EqualityHelper.IsSameType(value, out T? newValue))
 			{
 				Remove(newValue);
 			}
