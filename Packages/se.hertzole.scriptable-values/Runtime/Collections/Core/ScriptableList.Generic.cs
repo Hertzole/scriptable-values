@@ -559,7 +559,7 @@ namespace Hertzole.ScriptableValues
 				}
 
 				int index = list.Count;
-				using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
+				using CollectionEnumerator<T> enumerator = scope.GetEnumerator();
 				list.AddRange(enumerator);
 				UpdateCounts();
 				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
@@ -596,7 +596,7 @@ namespace Hertzole.ScriptableValues
 					return;
 				}
 
-				using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
+				using CollectionEnumerator<T> enumerator = scope.GetEnumerator();
 				list.InsertRange(index, enumerator);
 				UpdateCounts();
 				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);

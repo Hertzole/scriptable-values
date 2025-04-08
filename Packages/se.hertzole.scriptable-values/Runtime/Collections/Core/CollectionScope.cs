@@ -2,33 +2,21 @@
 
 using System;
 using System.Buffers;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
-using UnityEngine.Pool;
 
 namespace Hertzole.ScriptableValues
 {
-	internal struct CollectionScope<T> : IDisposable
+	internal struct CollectionScope<T> : IDisposable, IEquatable<CollectionScope<T>>
 	{
 		private T[]? array;
 
-		private static readonly ObjectPool<Enumerator> enumeratorPool =
-			new ObjectPool<Enumerator>(static () => new Enumerator());
-		
 		public int Length { get; private set; }
 
 		public ReadOnlySpan<T> Span
 		{
 			get { return array == null ? ReadOnlySpan<T>.Empty : new ReadOnlySpan<T>(array, 0, Length); }
-		}
-
-		public CollectionScope(T item)
-		{
-			array = ArrayPool<T>.Shared.Rent(1);
-			array[0] = item;
-			Length = 1;
 		}
 
 		public CollectionScope(IEnumerable<T> items)
@@ -69,11 +57,46 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public Enumerator GetEnumerator()
+		/// <inheritdoc />
+		public bool Equals(CollectionScope<T> other)
+		{
+			return Length == other.Length && ArrayHelpers.SequenceEquals(Span, other.Span);
+		}
+
+		/// <inheritdoc />
+		public override bool Equals(object? obj)
+		{
+			return obj is CollectionScope<T> other && Equals(other);
+		}
+
+		/// <inheritdoc />
+		public override int GetHashCode()
+		{
+			if (array == null)
+			{
+				return 0;
+			}
+
+			EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
+			unchecked
+			{
+				int hash = 17;
+
+				for (int i = 0; i < Length; i++)
+				{
+					hash = hash * 31 + comparer.GetHashCode(array[i]);
+				}
+
+				return hash;
+			}
+		}
+
+		public CollectionEnumerator<T> GetEnumerator()
 		{
 			ThrowHelper.ThrowIfNull(array, nameof(array));
 
-			Enumerator enumerator = enumeratorPool.Get();
+			CollectionEnumerator<T> enumerator = CollectionEnumerator<T>.enumeratorPool.Get();
 			enumerator.SetArray(array!, Length);
 			return enumerator;
 		}
@@ -103,73 +126,14 @@ namespace Hertzole.ScriptableValues
 			};
 		}
 
-		public class Enumerator : ICollection<T>, IDisposable
+		public static bool operator ==(CollectionScope<T> left, CollectionScope<T> right)
 		{
-			private T[]? array;
+			return left.Equals(right);
+		}
 
-			public int Count { get; private set; }
-			public bool IsReadOnly
-			{
-				get { return true; }
-			}
-
-			public void SetArray(T[] newArray, int newCount)
-			{
-				array = newArray;
-				Count = newCount;
-			}
-
-			public void Dispose()
-			{
-				array = null;
-				Count = 0;
-				enumeratorPool.Release(this);
-			}
-
-			public IEnumerator<T> GetEnumerator()
-			{
-				if (array == null || Count == 0)
-				{
-					yield break;
-				}
-
-				for (int i = 0; i < Count; i++)
-				{
-					yield return array[i];
-				}
-			}
-
-			IEnumerator IEnumerable.GetEnumerator()
-			{
-				return GetEnumerator();
-			}
-
-			public void Add(T item)
-			{
-				throw new NotSupportedException();
-			}
-
-			public void Clear()
-			{
-				throw new NotSupportedException();
-			}
-
-			public bool Contains(T item)
-			{
-				throw new NotSupportedException();
-			}
-
-			public void CopyTo(T[] destination, int arrayIndex)
-			{
-				ThrowHelper.ThrowIfNull(array, nameof(array));
-
-				Array.Copy(array, 0, destination, arrayIndex, Count);
-			}
-
-			public bool Remove(T item)
-			{
-				throw new NotSupportedException();
-			}
+		public static bool operator !=(CollectionScope<T> left, CollectionScope<T> right)
+		{
+			return !left.Equals(right);
 		}
 	}
 }
