@@ -8,7 +8,7 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Base class for a ScriptableValue without a value.
 	/// </summary>
-	public abstract partial class ScriptableValue : RuntimeScriptableObject
+	public abstract partial class ScriptableValue : RuntimeScriptableObject, ICanBeReadOnly
 	{
 		[SerializeField]
 		[EditorTooltip("If read only, the value cannot be changed at runtime.")]
