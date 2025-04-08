@@ -164,7 +164,6 @@ namespace Hertzole.ScriptableValues
 		///     Registers a callback that is invoked before the value is changed.
 		/// </summary>
 		/// <param name="callback">The callback that is invoked before the value is changed.</param>
-		/// '
 		/// <exception cref="ArgumentNullException">The callback is null.</exception>
 		public void RegisterValueChangingListener(OldNewValue<T> callback)
 		{

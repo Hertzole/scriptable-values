@@ -404,22 +404,22 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			get
 			{
-				yield return MakeTestCaseData(ScriptableValue.isReadOnlyChangingArgs, ScriptableValue.isReadOnlyChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.isReadOnlyChangingArgs, ScriptableValue.isReadOnlyChangedArgs,
 					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
 
-				yield return MakeTestCaseData(ScriptableValue.resetValueOnStartChangingArgs, ScriptableValue.resetValueOnStartChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.resetValueOnStartChangingArgs, ScriptableValue.resetValueOnStartChangedArgs,
 					i => i.ResetValueOnStart = MakeDifferentValue(i.ResetValueOnStart));
 
-				yield return MakeTestCaseData(ScriptableValue.setEqualityCheckChangingArgs, ScriptableValue.setEqualityCheckChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.setEqualityCheckChangingArgs, ScriptableValue.setEqualityCheckChangedArgs,
 					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
 
-				yield return MakeTestCaseData(ScriptableValue.valueChangingArgs, ScriptableValue.valueChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.valueChangingArgs, ScriptableValue.valueChangedArgs,
 					i => i.Value = MakeDifferentValue(i.Value));
 
-				yield return MakeTestCaseData(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
 					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
 
-				yield return MakeTestCaseData(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
 					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
 			}
 		}
@@ -429,11 +429,6 @@ namespace Hertzole.ScriptableValues.Tests
 		public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
 		{
 			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue);
-		}
-
-		private static TestCaseData MakeTestCaseData(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
-		{
-			return new TestCaseData(changingArgs, changedArgs, setValue).SetName(changedArgs.PropertyName);
 		}
 
 		private class Context
