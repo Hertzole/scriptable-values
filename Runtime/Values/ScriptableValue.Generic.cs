@@ -1,11 +1,10 @@
-﻿#if SCRIPTABLE_VALUES_PROPERTIES
-using Unity.Properties;
-#endif
-using System;
+﻿using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
-using Debug = UnityEngine.Debug;
+#if SCRIPTABLE_VALUES_PROPERTIES
+using Unity.Properties;
+#endif
 
 namespace Hertzole.ScriptableValues
 {
@@ -129,11 +128,7 @@ namespace Hertzole.ScriptableValues
 		protected virtual void SetValue(T newValue, bool notify)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
-			if (Application.isPlaying && IsReadOnly)
-			{
-				Debug.LogError($"'{name}' is marked as read only and cannot be changed at runtime.");
-				return;
-			}
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
 			// If the equality check is enabled, we don't want to set the value if it's the same as the current value.
 			if (SetEqualityCheck && IsSameValue(newValue, value))
@@ -225,7 +220,7 @@ namespace Hertzole.ScriptableValues
 		public void RegisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			
+
 			onValueChangedEvents.RegisterCallback(callback);
 		}
 
