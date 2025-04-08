@@ -492,6 +492,9 @@ namespace Hertzole.ScriptableValues
 			{
 				list.Clear();
 			}
+
+			internalCount = list.Count;
+			internalCapacity = list.Capacity;
 		}
 
 		[Conditional("DEBUG")]
