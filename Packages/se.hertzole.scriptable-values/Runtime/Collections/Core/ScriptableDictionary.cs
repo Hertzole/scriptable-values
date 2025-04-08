@@ -235,7 +235,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the number of key/value pairs contained in the dictionary.
 		/// </summary>
-		public override int Count
+		public sealed override int Count
 		{
 			get
 			{
@@ -897,18 +897,19 @@ namespace Hertzole.ScriptableValues
 		public int EnsureCapacity(int capacity)
 		{
 			int result = dictionary.EnsureCapacity(capacity);
-			if(keys.Capacity < capacity)
+			if (keys.Capacity < capacity)
 			{
 				keys.Capacity = capacity;
 			}
-			if(values.Capacity < capacity)
+
+			if (values.Capacity < capacity)
 			{
 				values.Capacity = capacity;
 			}
 
 			return result;
 		}
-		
+
 		/// <inheritdoc />
 		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
 		{
