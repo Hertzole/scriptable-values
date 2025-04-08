@@ -119,7 +119,7 @@ namespace Hertzole.ScriptableValues.Debugging
 		}
 
 		[Serializable]
-		public struct UserSettingsData
+		public struct UserSettingsData : IEquatable<UserSettingsData>
 		{
 			public bool collectStackTraces;
 			public List<CollectStackTracesData> collectStackTracesData;
@@ -152,13 +152,88 @@ namespace Hertzole.ScriptableValues.Debugging
 
 				collectStackTracesData.Add(new CollectStackTracesData { key = key, value = value });
 			}
+
+			/// <inheritdoc />
+			public bool Equals(UserSettingsData other)
+			{
+				if (collectStackTraces != other.collectStackTraces || collectStackTracesData.Count != other.collectStackTracesData.Count)
+				{
+					return false;
+				}
+
+				for (int i = 0; i < collectStackTracesData.Count; i++)
+				{
+					if (!collectStackTracesData[i].Equals(other.collectStackTracesData[i]))
+					{
+						return false;
+					}
+				}
+
+				return true;
+			}
+
+			/// <inheritdoc />
+			public override bool Equals(object obj)
+			{
+				return obj is UserSettingsData other && Equals(other);
+			}
+
+			/// <inheritdoc />
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					return (collectStackTraces.GetHashCode() * 397) ^ (collectStackTracesData != null ? collectStackTracesData.GetHashCode() : 0);
+				}
+			}
+
+			public static bool operator ==(UserSettingsData left, UserSettingsData right)
+			{
+				return left.Equals(right);
+			}
+
+			public static bool operator !=(UserSettingsData left, UserSettingsData right)
+			{
+				return !left.Equals(right);
+			}
 		}
 
 		[Serializable]
-		public struct CollectStackTracesData
+		public struct CollectStackTracesData : IEquatable<CollectStackTracesData>
 		{
 			public string key;
 			public bool value;
+
+			/// <inheritdoc />
+			public bool Equals(CollectStackTracesData other)
+			{
+				return key == other.key && value == other.value;
+			}
+
+			/// <inheritdoc />
+			public override bool Equals(object obj)
+			{
+				return obj is CollectStackTracesData other && Equals(other);
+			}
+
+			/// <inheritdoc />
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					return ((key != null ? key.GetHashCode() : 0) * 397) ^ value.GetHashCode();
+				}
+			}
+
+			public static bool operator ==(CollectStackTracesData left, CollectStackTracesData right)
+			{
+				return left.Equals(right);
+			}
+
+			public static bool operator !=(CollectStackTracesData left, CollectStackTracesData right)
+			{
+				return !left.Equals(right);
+			}
 		}
 	}
 }
