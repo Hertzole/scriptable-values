@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
@@ -18,8 +20,8 @@ namespace Hertzole.ScriptableValues
 		INotifyPropertyChanging,
 		INotifyPropertyChanged
 	{
-		private event PropertyChangingEventHandler OnNotifyPropertyChanging;
-		private event PropertyChangedEventHandler OnNotifyPropertyChanged;
+		private event PropertyChangingEventHandler? OnNotifyPropertyChanging;
+		private event PropertyChangedEventHandler? OnNotifyPropertyChanged;
 
 		event PropertyChangingEventHandler INotifyPropertyChanging.PropertyChanging
 		{
@@ -81,7 +83,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING
-		private event EventHandler<BindablePropertyChangedEventArgs> OnPropertyChanged;
+		private event EventHandler<BindablePropertyChangedEventArgs>? OnPropertyChanged;
 
 		event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
 		{
