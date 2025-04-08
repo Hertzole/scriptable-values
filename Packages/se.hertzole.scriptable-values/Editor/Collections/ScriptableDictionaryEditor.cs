@@ -12,10 +12,9 @@ namespace Hertzole.ScriptableValues.Editor
 	{
 		private bool previousIsValid = true;
 
-		
 		private IList keysValue;
 		private IList valuesValue;
-		
+
 		private ListView dictionaryListView;
 		private HelpBox errorBox;
 
@@ -31,7 +30,10 @@ namespace Hertzole.ScriptableValues.Editor
 		private SerializedProperty keys;
 		private SerializedProperty values;
 
-		protected override string StackTracesLabel { get { return "Dictionary Change Stack Traces"; } }
+		protected override string StackTracesLabel
+		{
+			get { return "Dictionary Change Stack Traces"; }
+		}
 
 		protected override void OnEnable()
 		{
@@ -71,10 +73,14 @@ namespace Hertzole.ScriptableValues.Editor
 
 			if (keys == null || values == null)
 			{
-				FieldInfo keysFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.keys), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				FieldInfo keysFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.keys),
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+
 				keysValue = keysFieldInfo!.GetValue(target) as IList;
 
-				FieldInfo valuesFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.values), BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+				FieldInfo valuesFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.values),
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+
 				valuesValue = valuesFieldInfo!.GetValue(target) as IList;
 
 				FixLists(keysValue, valuesValue);
@@ -172,6 +178,10 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private void UpdateEnabledState()
 		{
+			// Find the isReadOnly property again because it may have been disposed.
+			// The property is always disposed when exiting play mode.
+			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
+
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
 			isReadOnlyField.SetEnabled(enabled);
 			dictionaryListView.SetEnabled(enabled);

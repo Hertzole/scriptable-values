@@ -25,7 +25,10 @@ namespace Hertzole.ScriptableValues.Editor
 		private SerializedProperty onValueChanged;
 		private SerializedProperty collectStackTraces;
 
-		protected override string StackTracesLabel { get { return "Set Value Stack Traces"; } }
+		protected override string StackTracesLabel
+		{
+			get { return "Set Value Stack Traces"; }
+		}
 
 		private FieldInfo valueFieldInfo;
 
@@ -35,7 +38,7 @@ namespace Hertzole.ScriptableValues.Editor
 
 			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-			
+
 			valueFieldInfo = target.GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
 		}
 
@@ -61,11 +64,11 @@ namespace Hertzole.ScriptableValues.Editor
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
 			TextElementField valueLabel = null;
-			
+
 			if (value == null || string.IsNullOrEmpty(value.propertyPath))
 			{
 				object currentValue = valueFieldInfo.GetValue(target);
-				
+
 				valueLabel = new TextElementField("Value")
 				{
 					value = currentValue == null ? "null" : currentValue.ToString(),
@@ -74,6 +77,7 @@ namespace Hertzole.ScriptableValues.Editor
 						marginBottom = 16
 					}
 				};
+
 				valueLabel.AddToClassList(TextElementField.alignedFieldUssClassName);
 			}
 			else
@@ -86,6 +90,7 @@ namespace Hertzole.ScriptableValues.Editor
 					}
 				};
 			}
+
 			isReadOnlyField = new PropertyField(isReadOnly);
 			defaultValueField = new PropertyField(defaultValue);
 			resetValueOnStartField = new PropertyField(resetValueOnStart);
@@ -114,13 +119,14 @@ namespace Hertzole.ScriptableValues.Editor
 			{
 				root.Add(valueLabel);
 			}
+
 			root.Add(isReadOnlyField);
 			root.Add(defaultValueField);
 			root.Add(resetValueOnStartField);
 			root.Add(setEqualityCheckField);
-			
+
 			CreateDefaultInspectorGUI(root);
-			
+
 			root.Add(onValueChangingField);
 			root.Add(onValueChangedField);
 		}
@@ -136,6 +142,10 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private void UpdateEnabledState()
 		{
+			// Find the isReadOnly property again because it may have been disposed.
+			// The property is always disposed when exiting play mode.
+			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
+
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
 			valueField?.SetEnabled(enabled);
 			isReadOnlyField.SetEnabled(enabled);
