@@ -17,7 +17,7 @@ namespace Hertzole.ScriptableValues.Tests
 {
 	public abstract partial class BaseTest
 	{
-		protected readonly List<Object> objects = new List<Object>();
+		protected static readonly List<Object> objects = new List<Object>();
 
 		public static readonly bool[] bools = { true, false };
 		public static readonly byte[] bytes = { byte.MinValue, byte.MaxValue, 1 };
@@ -125,7 +125,7 @@ namespace Hertzole.ScriptableValues.Tests
 			return instance;
 		}
 
-		protected GameObject CreateGameObject(string name = "")
+		protected static GameObject CreateGameObject(string name = "")
 		{
 			GameObject go = new GameObject(name);
 			objects.Add(go);
@@ -133,7 +133,7 @@ namespace Hertzole.ScriptableValues.Tests
 			return go;
 		}
 
-		protected T CreateComponent<T>(GameObject go = null) where T : Component
+		protected static T CreateComponent<T>(GameObject go = null) where T : Component
 		{
 			if (go == null)
 			{
@@ -146,7 +146,7 @@ namespace Hertzole.ScriptableValues.Tests
 			return comp;
 		}
 
-		protected T Instantiate<T>(T prefab) where T : Object
+		protected static T Instantiate<T>(T prefab) where T : Object
 		{
 			T instance = Object.Instantiate(prefab);
 			objects.Add(instance);
@@ -154,13 +154,13 @@ namespace Hertzole.ScriptableValues.Tests
 			return instance;
 		}
 
-		protected void Destroy(Object obj)
+		protected static void Destroy(Object obj)
 		{
 			objects.Remove(obj);
 			Object.Destroy(obj);
 		}
 
-		protected T MakeDifferentValue<T>(T value)
+		protected static T MakeDifferentValue<T>(T value)
 		{
 			if (typeof(T) == typeof(bool))
 			{
@@ -333,7 +333,7 @@ namespace Hertzole.ScriptableValues.Tests
 			ShuffleArray(items);
 			return items;
 		}
-		
+
 		protected static int GetRandomNumber(int tolerance = 10)
 		{
 			int result = 0;
@@ -386,7 +386,7 @@ namespace Hertzole.ScriptableValues.Tests
 			// Act & Assert
 			AssertThrows<ReadOnlyException>(() => action.Invoke(obj));
 		}
-		
+
 		protected void AssertPropertyChangesAreInvoked<T>(PropertyChangingEventArgs changingArgs,
 			PropertyChangedEventArgs changedArgs,
 			Action<T> action,
@@ -403,6 +403,7 @@ namespace Hertzole.ScriptableValues.Tests
 			List<PropertyChangedEventArgs> changedEventArgs = new List<PropertyChangedEventArgs>();
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING
 			List<BindablePropertyChangedEventArgs> bindableEventArgs = new List<BindablePropertyChangedEventArgs>();
+			long originalHashCode = ((IDataSourceViewHashProvider) instance).GetViewHashCode();
 #endif
 
 			((INotifyPropertyChanged) instance).PropertyChanged += (_, args) => { changedEventArgs.Add(args); };
@@ -429,10 +430,11 @@ namespace Hertzole.ScriptableValues.Tests
 			Assert.IsTrue(changedEventArgs.Any(x => x.PropertyName == changedArgs.PropertyName));
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING
 			Assert.IsTrue(bindableEventArgs.Any(x => x.propertyName == changedArgs.PropertyName));
+			Assert.AreNotEqual(originalHashCode, ((IDataSourceViewHashProvider) instance).GetViewHashCode(), "Hashcode should've changed between the events.");
 #endif
 		}
 
-		private class ComparisonComparer<T> : IComparer<T>
+		private sealed class ComparisonComparer<T> : IComparer<T>
 		{
 			public readonly Comparison<T> comparison;
 
