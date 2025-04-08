@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -15,6 +16,48 @@ namespace Hertzole.ScriptableValues.Tests
 	public partial class ScriptableDictionaryTests : BaseCollectionTest
 	{
 		private TestScriptableDictionary dictionary;
+
+		public static IEnumerable PropertyChangeCases
+		{
+			get
+			{
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.isReadOnlyChangingEventArgs,
+					ScriptableList.isReadOnlyChangedArgs,
+					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.setEqualityCheckChangingEventArgs,
+					ScriptableList.setEqualityCheckChangedArgs,
+					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.clearOnStartChangingEventArgs,
+					ScriptableList.clearOnStartChangedArgs,
+					i => i.ClearOnStart = MakeDifferentValue(i.ClearOnStart));
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => i.Add(2, int.MinValue), "Count - Add");
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => ((IDictionary) i).Add(2, int.MinValue), "Count - Add (object)");
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => i.TryAdd(2, int.MinValue), "Count - TryAdd");
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => i.Remove(1), "Count - Remove");
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => ((IDictionary) i).Remove(1), "Count - Remove (object)");
+
+				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
+					ScriptableDictionary.countChangedEventArgs,
+					i => i.Clear(), "Count - Clear");
+			}
+		}
 
 		public bool IsReadOnly
 		{
@@ -930,7 +973,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			// Act
 			dictionary.EnsureCapacity(capacity);
-			
+
 			// Assert
 			Assert.IsTrue(dictionary.keys.Capacity >= capacity);
 			Assert.IsTrue(dictionary.values.Capacity >= capacity);
@@ -942,12 +985,25 @@ namespace Hertzole.ScriptableValues.Tests
 			// Arrange
 			dictionary.EnsureCapacity(500);
 			int initialCapacity = dictionary.keys.Capacity;
-			
+
 			// Act
 			dictionary.EnsureCapacity(16);
-			
+
 			// Assert
 			Assert.IsTrue(dictionary.keys.Capacity >= initialCapacity);
+		}
+
+		[Test]
+		[TestCaseSource(nameof(PropertyChangeCases))]
+		public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs,
+			PropertyChangedEventArgs changedArgs,
+			Action<TestScriptableDictionary> setValue)
+		{
+			// Add some items to the list to ensure that all the property change events can be invoked
+			dictionary.Add(1, int.MaxValue);
+			dictionary.EnsureCapacity(16);
+
+			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue, dictionary);
 		}
 
 		private class ReverseComparer<T> : IEqualityComparer<T>
