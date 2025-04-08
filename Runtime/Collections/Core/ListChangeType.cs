@@ -1,11 +1,12 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
 	///     Types of change events that can be raised by a <see cref="ScriptableList{T}" />.
 	/// </summary>
-	[Obsolete]
+	[Obsolete("No longer used. This will be removed in builds.")]
 	public enum ListChangeType
 	{
 		/// <summary>
@@ -42,3 +43,4 @@ namespace Hertzole.ScriptableValues
 		Trimmed = 7
 	}
 }
+#endif

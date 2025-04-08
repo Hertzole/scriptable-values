@@ -268,32 +268,6 @@ namespace Hertzole.ScriptableValues
 			get { return dictionary.Values; }
 		}
 
-		/// <summary>
-		///     Called when an item was added. Gives you the key and value of the newly added item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<TKey, TValue>? OnAdded;
-		/// <summary>
-		///     Called when an item was set. Gives you the key, the old value, and the new value of the item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<TKey, TValue, TValue>? OnSet;
-		/// <summary>
-		///     Called when an item was removed. Gives you the key and value of the removed item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<TKey, TValue>? OnRemoved;
-		/// <summary>
-		///     Called when the dictionary is cleared.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action? OnCleared;
-		/// <summary>
-		///     Called when the dictionary is changed in any way.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<DictionaryChangeType>? OnChanged;
-
 		// Internal event for the INotifyCollectionChanged interface as we don't want to expose that event directly.
 		private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
 
@@ -889,7 +863,8 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		/// Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its backing storage.
+		///     Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its
+		///     backing storage.
 		/// </summary>
 		/// <param name="capacity">The number of entries.</param>
 		/// <returns>The current capacity of the dictionary.</returns>
@@ -942,5 +917,37 @@ namespace Hertzole.ScriptableValues
 
 			onCollectionChanged.RemoveCallback(callback);
 		}
+
+		#region Obsolete
+#if UNITY_EDITOR // Don't include in builds.
+		/// <summary>
+		///     Called when an item was added. Gives you the key and value of the newly added item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+#pragma warning disable CS0067 // Event is never used
+		public event Action<TKey, TValue>? OnAdded;
+		/// <summary>
+		///     Called when an item was set. Gives you the key, the old value, and the new value of the item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<TKey, TValue, TValue>? OnSet;
+		/// <summary>
+		///     Called when an item was removed. Gives you the key and value of the removed item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<TKey, TValue>? OnRemoved;
+		/// <summary>
+		///     Called when the dictionary is cleared.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action? OnCleared;
+		/// <summary>
+		///     Called when the dictionary is changed in any way.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<DictionaryChangeType>? OnChanged;
+#pragma warning restore CS0067 // Event is never used
+#endif // UNITY_EDITOR
+		#endregion
 	}
 }
