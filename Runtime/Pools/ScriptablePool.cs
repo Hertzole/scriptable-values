@@ -91,7 +91,7 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		public sealed override int CountInactive
 		{
-			get { return pool.Count; }
+			get { return countInactive; }
 			protected set
 			{
 				Assert.AreEqual(pool.Count, value, $"CountInactive should be equal to the number of inactive objects but was {value} instead.");
@@ -152,7 +152,7 @@ namespace Hertzole.ScriptableValues
 		public void Release(T item)
 		{
 			ThrowHelper.ThrowIfNull(item, nameof(item));
-			
+
 			activeObjects.Remove(item);
 
 			OnReturnInternal(item);
