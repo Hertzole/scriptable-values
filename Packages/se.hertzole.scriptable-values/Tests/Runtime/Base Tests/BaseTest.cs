@@ -434,6 +434,13 @@ namespace Hertzole.ScriptableValues.Tests
 #endif
 		}
 
+		protected static TestCaseData MakePropertyChangeTestCase<TType>(PropertyChangingEventArgs changingArgs,
+			PropertyChangedEventArgs changedArgs,
+			Action<TType> setValue)
+		{
+			return new TestCaseData(changingArgs, changedArgs, setValue).SetName(changedArgs.PropertyName);
+		}
+
 		private sealed class ComparisonComparer<T> : IComparer<T>
 		{
 			public readonly Comparison<T> comparison;
