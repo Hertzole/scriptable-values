@@ -888,6 +888,27 @@ namespace Hertzole.ScriptableValues
 			Count = dictionary.Count;
 		}
 
+		/// <summary>
+		/// Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its backing storage.
+		/// </summary>
+		/// <param name="capacity">The number of entries.</param>
+		/// <returns>The current capacity of the dictionary.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is less than 0.</exception>
+		public int EnsureCapacity(int capacity)
+		{
+			int result = dictionary.EnsureCapacity(capacity);
+			if(keys.Capacity < capacity)
+			{
+				keys.Capacity = capacity;
+			}
+			if(values.Capacity < capacity)
+			{
+				values.Capacity = capacity;
+			}
+
+			return result;
+		}
+		
 		/// <inheritdoc />
 		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
 		{

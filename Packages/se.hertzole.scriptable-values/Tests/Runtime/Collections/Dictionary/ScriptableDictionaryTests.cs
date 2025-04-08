@@ -922,6 +922,34 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
+		[Test]
+		[TestCase(3)]
+		[TestCase(16)]
+		[TestCase(100)]
+		public void EnsureCapacity(int capacity)
+		{
+			// Act
+			dictionary.EnsureCapacity(capacity);
+			
+			// Assert
+			Assert.IsTrue(dictionary.keys.Capacity >= capacity);
+			Assert.IsTrue(dictionary.values.Capacity >= capacity);
+		}
+
+		[Test]
+		public void EnsureCapacity_LessThanCapacity_DoesNothing()
+		{
+			// Arrange
+			dictionary.EnsureCapacity(500);
+			int initialCapacity = dictionary.keys.Capacity;
+			
+			// Act
+			dictionary.EnsureCapacity(16);
+			
+			// Assert
+			Assert.IsTrue(dictionary.keys.Capacity >= initialCapacity);
+		}
+
 		private class ReverseComparer<T> : IEqualityComparer<T>
 		{
 			public bool Equals(T x, T y)
