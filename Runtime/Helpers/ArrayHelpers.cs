@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Hertzole.ScriptableValues.Helpers
@@ -15,6 +16,26 @@ namespace Hertzole.ScriptableValues.Helpers
 				ArrayPool<T>.Shared.Return(array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 				array = newArray;
 			}
+		}
+
+		public static bool SequenceEquals<T>(in ReadOnlySpan<T> left, in ReadOnlySpan<T> right)
+		{
+			if (left.Length != right.Length)
+			{
+				return false;
+			}
+
+			EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
+			for (int i = 0; i < left.Length; i++)
+			{
+				if (!comparer.Equals(left[i], right[i]))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }
