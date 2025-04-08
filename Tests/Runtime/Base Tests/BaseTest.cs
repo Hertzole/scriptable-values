@@ -68,7 +68,7 @@ namespace Hertzole.ScriptableValues.Tests
 			EventInvokeEvents.ToValue
 		};
 
-		protected void DestroyObjects(bool destroyImmediate)
+		protected static void DestroyObjects(bool destroyImmediate)
 		{
 			for (int i = 0; i < objects.Count; i++)
 			{
@@ -436,9 +436,10 @@ namespace Hertzole.ScriptableValues.Tests
 
 		protected static TestCaseData MakePropertyChangeTestCase<TType>(PropertyChangingEventArgs changingArgs,
 			PropertyChangedEventArgs changedArgs,
-			Action<TType> setValue)
+			Action<TType> setValue,
+			string? name = null)
 		{
-			return new TestCaseData(changingArgs, changedArgs, setValue).SetName(changedArgs.PropertyName);
+			return new TestCaseData(changingArgs, changedArgs, setValue).SetName(string.IsNullOrEmpty(name) ? changedArgs.PropertyName : name);
 		}
 
 		private sealed class ComparisonComparer<T> : IComparer<T>

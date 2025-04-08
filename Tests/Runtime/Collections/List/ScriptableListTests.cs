@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -18,6 +19,91 @@ namespace Hertzole.ScriptableValues.Tests
 	public partial class ScriptableListTests : BaseCollectionTest
 	{
 		private TestScriptableList list = null!;
+
+		public static IEnumerable PropertyChangeCases
+		{
+			get
+			{
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.isReadOnlyChangingArgs, ScriptableList.isReadOnlyChangedArgs,
+					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.clearOnStartChangingArgs, ScriptableList.clearOnStartChangedArgs,
+					i => i.ClearOnStart = MakeDifferentValue(i.ClearOnStart));
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.setEqualityCheckChangingArgs,
+					ScriptableList.setEqualityCheckChangedArgs,
+					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i => i.Capacity = 100);
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i => i.EnsureCapacity(100), "Capacity - EnsureCapacity");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.Add(1), "Count - Add");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i =>
+					{
+						for (int j = 0; j < 100; j++)
+						{
+							i.Add(j);
+						}
+					}, "Capacity - Add");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => ((IList) i).Add(1), "Count - Add (object)");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i =>
+					{
+						for (int j = 0; j < 100; j++)
+						{
+							((IList) i).Add(j);
+						}
+					}, "Capacity - Add (object)");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.AddRange(Enumerable.Range(0, 100)), "Count - AddRange");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i => i.AddRange(Enumerable.Range(0, 100)), "Capacity - AddRange");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.Insert(0, 1), "Count - Insert");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i =>
+					{
+						for (int j = 0; j < 100; j++)
+						{
+							i.Insert(0, j);
+						}
+					}, "Capacity - Insert");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.Clear(), "Count - Clear");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.Remove(1), "Count - Remove");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => ((IList) i).Remove(1), "Count - Remove (object)");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.RemoveAt(0), "Count - RemoveAt");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.RemoveRange(0, 1), "Count - RemoveRange");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.countChangingArgs, ScriptableList.countChangedArgs,
+					i => i.RemoveAll(x => x == 1), "Count - RemoveAll");
+
+				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
+					i => i.TrimExcess(), "Capacity - TrimExcess");
+			}
+		}
 
 		protected override void OnSetup()
 		{
@@ -542,6 +628,19 @@ namespace Hertzole.ScriptableValues.Tests
 			{
 				context.invokeCount++;
 			}
+		}
+
+		[Test]
+		[TestCaseSource(nameof(PropertyChangeCases))]
+		public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs,
+			PropertyChangedEventArgs changedArgs,
+			Action<TestScriptableList> setValue)
+		{
+			// Add some items to the list to ensure that all the property change events can be invoked
+			list.Add(1);
+			list.EnsureCapacity(16);
+
+			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue, list);
 		}
 	}
 }

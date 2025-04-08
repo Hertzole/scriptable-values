@@ -54,6 +54,9 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal List<T> list = new List<T>();
 
+		private int internalCapacity;
+		private int internalCount;
+
 		private readonly DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>> onCollectionChanged =
 			new DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>>();
 
@@ -85,16 +88,21 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the total number of elements the internal data structure can hold without resizing.
 		/// </summary>
-		public override int Capacity
+		public sealed override int Capacity
 		{
-			get { return list.Capacity; }
+			get { return internalCapacity; }
+			set
+			{
+				list.Capacity = value;
+				SetField(ref internalCapacity, list.Capacity, capacityChangingArgs, capacityChangedArgs);
+				Assert.AreEqual(internalCapacity, list.Capacity);
+			}
 		}
 
 		/// <summary>
 		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
 		///     not the same as the old one.
 		/// </summary>
-
 		public override bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
@@ -135,9 +143,14 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the number of elements contained in the list.
 		/// </summary>
-		public override int Count
+		public sealed override int Count
 		{
-			get { return list.Count; }
+			get { return internalCount; }
+			protected set
+			{
+				SetField(ref internalCount, value, countChangingArgs, countChangedArgs);
+				Assert.AreEqual(internalCount, list.Count);
+			}
 		}
 #if UNITY_EDITOR
 		// Used in the CreateAssetMenu attribute.
@@ -232,44 +245,42 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			using (new ChangeScope(this))
+			T[]? removed = ArrayPool<T>.Shared.Rent(list.Count);
+			try
 			{
-				T[]? removed = ArrayPool<T>.Shared.Rent(list.Count);
-				try
+				int removeLength = 0;
+				int firstIndex = -1;
+				for (int i = 0; i < list.Count; i++)
 				{
-					int count = 0;
-					int firstIndex = -1;
-					for (int i = 0; i < list.Count; i++)
+					if (match(list[i]))
 					{
-						if (match(list[i]))
+						if (firstIndex == -1)
 						{
-							if (firstIndex == -1)
-							{
-								firstIndex = i;
-							}
-
-							removed[count] = list[i];
-							count++;
+							firstIndex = i;
 						}
-					}
 
-					if (count > 0)
-					{
-						int removeCount = list.RemoveAll(match);
-						InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removed.AsSpan(0, count), firstIndex));
-
-						Assert.AreEqual(count, removeCount, "The expected count of removed items is not the same as the actually removed items count.");
-
-						return removeCount;
+						removed[removeLength] = list[i];
+						removeLength++;
 					}
 				}
-				finally
+
+				if (removeLength > 0)
 				{
-					ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-				}
+					int removeCount = list.RemoveAll(match);
+					InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removed.AsSpan(0, removeLength), firstIndex));
 
-				return 0;
+					Assert.AreEqual(removeLength, removeCount, "The expected count of removed items is not the same as the actually removed items count.");
+
+					UpdateCounts();
+					return removeCount;
+				}
 			}
+			finally
+			{
+				ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+			}
+
+			return 0;
 		}
 
 		/// <summary>
@@ -409,10 +420,8 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		public void TrimExcess()
 		{
-			using (new ChangeScope(this))
-			{
-				list.TrimExcess();
-			}
+			list.TrimExcess();
+			UpdateCounts();
 
 			AddStackTrace();
 		}
@@ -466,13 +475,7 @@ namespace Hertzole.ScriptableValues
 		{
 			if (list.Capacity < capacity)
 			{
-				int originalCapacity = list.Capacity;
-				list.Capacity = capacity;
-
-				if (originalCapacity != list.Capacity)
-				{
-					NotifyPropertyChanged(nameof(Capacity));
-				}
+				Capacity = capacity;
 			}
 		}
 
@@ -545,22 +548,20 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			using (new ChangeScope(this))
+			using (CollectionScope<T> scope = new CollectionScope<T>(collection))
 			{
-				using (CollectionScope<T> scope = new CollectionScope<T>(collection))
+				if (scope.Length == 0)
 				{
-					if (scope.Length == 0)
-					{
-						return;
-					}
-
-					int index = list.Count;
-					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
-					list.AddRange(enumerator);
-					CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
-					onCollectionChanged.Invoke(args);
-					OnInternalCollectionChanged?.Invoke(this, args);
+					return;
 				}
+
+				int index = list.Count;
+				using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
+				list.AddRange(enumerator);
+				UpdateCounts();
+				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
+				onCollectionChanged.Invoke(args);
+				OnInternalCollectionChanged?.Invoke(this, args);
 			}
 
 			AddStackTrace();
@@ -585,20 +586,18 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			using (new ChangeScope(this))
+			using (CollectionScope<T> scope = new CollectionScope<T>(collection))
 			{
-				using (CollectionScope<T> scope = new CollectionScope<T>(collection))
+				if (scope.Length == 0)
 				{
-					if (scope.Length == 0)
-					{
-						return;
-					}
-
-					using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
-					list.InsertRange(index, enumerator);
-					CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
-					InvokeCollectionChanged(args);
+					return;
 				}
+
+				using CollectionScope<T>.Enumerator enumerator = scope.GetEnumerator();
+				list.InsertRange(index, enumerator);
+				UpdateCounts();
+				CollectionChangedArgs<T> args = CollectionChangedArgs<T>.Add(scope.Span, index);
+				InvokeCollectionChanged(args);
 			}
 
 			AddStackTrace();
@@ -641,26 +640,24 @@ namespace Hertzole.ScriptableValues
 
 			if (countToRemove > 0)
 			{
-				using (new ChangeScope(this))
+				T[]? removed = ArrayPool<T>.Shared.Rent(countToRemove);
+				try
 				{
-					T[]? removed = ArrayPool<T>.Shared.Rent(countToRemove);
-					try
+					for (int i = 0; i < countToRemove; i++)
 					{
-						for (int i = 0; i < countToRemove; i++)
-						{
-							removed[i] = list[index + i];
-						}
-
-						list.RemoveRange(index, count);
-
-						Span<T> span = removed.AsSpan(0, countToRemove);
-
-						InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(span, index));
+						removed[i] = list[index + i];
 					}
-					finally
-					{
-						ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-					}
+
+					list.RemoveRange(index, count);
+
+					Span<T> span = removed.AsSpan(0, countToRemove);
+
+					UpdateCounts();
+					InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(span, index));
+				}
+				finally
+				{
+					ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 				}
 			}
 
@@ -781,7 +778,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="value">The object to locate in the list.</param>
 		/// <returns>True if the item is found in the list; otherwise false.</returns>
-		bool IList.Contains(object value)
+		bool IList.Contains(object? value)
 		{
 			// Check if the value is the same type as the generic type and then call the Contains method.
 			return EqualityHelper.IsSameType(value, out T newValue) && Contains(newValue);
@@ -857,12 +854,10 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			using (new ChangeScope(this))
-			{
-				int index = Count;
-				list.Add(item);
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
-			}
+			int index = Count;
+			list.Add(item);
+			UpdateCounts();
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
 
 			AddStackTrace();
 		}
@@ -879,7 +874,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Returns an enumerator that iterates through the list.
 		/// </summary>
-		/// <returns>A enumerator for the list.</returns>
+		/// <returns>An enumerator for the list.</returns>
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ((IEnumerable) list).GetEnumerator();
@@ -896,11 +891,9 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 			ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
 
-			using (new ChangeScope(this))
-			{
-				list.Insert(index, item);
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
-			}
+			list.Insert(index, item);
+			UpdateCounts();
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Add(item, index));
 
 			AddStackTrace();
 		}
@@ -924,12 +917,10 @@ namespace Hertzole.ScriptableValues
 				return false;
 			}
 
-			using (new ChangeScope(this))
-			{
-				T? itemToRemove = list[index];
-				list.RemoveAt(index);
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(itemToRemove, index));
-			}
+			T? itemToRemove = list[index];
+			list.RemoveAt(index);
+			UpdateCounts();
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(itemToRemove, index));
 
 			AddStackTrace();
 
@@ -945,12 +936,10 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			using (new ChangeScope(this))
-			{
-				T? removedItem = list[index];
-				list.RemoveAt(index);
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removedItem, index));
-			}
+			T? removedItem = list[index];
+			list.RemoveAt(index);
+			UpdateCounts();
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removedItem, index));
 
 			AddStackTrace();
 		}
@@ -968,13 +957,11 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			using (new ChangeScope(this))
-			{
-				using CollectionScope<T> scope = new CollectionScope<T>(list);
+			using CollectionScope<T> scope = new CollectionScope<T>(list);
 
-				list.Clear();
-				InvokeCollectionChanged(CollectionChangedArgs<T>.Clear(scope.Span));
-			}
+			list.Clear();
+			UpdateCounts();
+			InvokeCollectionChanged(CollectionChangedArgs<T>.Clear(scope.Span));
 
 			AddStackTrace();
 		}
@@ -1010,35 +997,12 @@ namespace Hertzole.ScriptableValues
 			list.CopyTo(array, arrayIndex);
 		}
 
-		/// <summary>
-		///     Helper scope for notifying if the count and/or capacity has changed between changes.
-		/// </summary>
-		private readonly ref struct ChangeScope
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void UpdateCounts()
 		{
-			private readonly int originalCount;
-			private readonly int originalCapacity;
-
-			private readonly ScriptableList<T> list;
-
-			public ChangeScope(ScriptableList<T> list)
-			{
-				this.list = list;
-				originalCount = list.Count;
-				originalCapacity = list.Capacity;
-			}
-
-			public void Dispose()
-			{
-				if (originalCount != list.Count)
-				{
-					list.NotifyPropertyChanged(countChangedArgs);
-				}
-
-				if (originalCapacity != list.Capacity)
-				{
-					list.NotifyPropertyChanged(capacityChangedArgs);
-				}
-			}
+			// Update the count and capacity properties.
+			Count = list.Count;
+			Capacity = list.Capacity;
 		}
 	}
 }

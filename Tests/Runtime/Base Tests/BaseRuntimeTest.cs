@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -8,8 +7,6 @@ namespace Hertzole.ScriptableValues.Tests
 		[SetUp]
 		public void Setup()
 		{
-			Assert.AreEqual(0, objects.Count);
-
 			OnSetup();
 		}
 
