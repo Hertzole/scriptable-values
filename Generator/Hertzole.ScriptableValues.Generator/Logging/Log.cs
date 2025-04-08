@@ -9,6 +9,7 @@ namespace Hertzole.ScriptableValues.Generator;
 
 [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1035:Do not use APIs banned for analyzers",
 	Justification = "This is only used in debug builds.")]
+[ExcludeFromCodeCoverage]
 internal static class Log
 {
 #if DEBUG
