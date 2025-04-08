@@ -324,29 +324,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 #if UNITY_EDITOR
-		/// <summary>
-		///     Called when an object is created.
-		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
-		public event Action<T>? OnCreateObject;
-		/// <summary>
-		///     Called when an object is destroyed.
-		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
-		public event Action<T>? OnDestroyObject;
-		/// <summary>
-		///     Called when an object is retrieved.
-		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
-		public event Action<T>? OnGetObject;
-		/// <summary>
-		///     Called when an object is put back into the pool.
-		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead.", true)]
-		public event Action<T>? OnReturnObject;
-#endif
-
-#if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
 			WarnLeftOverSubscribers();
@@ -354,9 +331,40 @@ namespace Hertzole.ScriptableValues
 			Clear();
 		}
 
-		[Obsolete("Use 'Release' instead.", true)]
-		[ExcludeFromCodeCoverage]
-		public void Return(T item) { }
 #endif // UNITY_EDITOR
+
+		#region Obsolete
+#if UNITY_EDITOR
+		/// <summary>
+		///     Called when an object is created.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+#pragma warning disable CS0067 // Event is never used
+		public event Action<T>? OnCreateObject;
+		/// <summary>
+		///     Called when an object is destroyed.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		public event Action<T>? OnDestroyObject;
+		/// <summary>
+		///     Called when an object is retrieved.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		public event Action<T>? OnGetObject;
+		/// <summary>
+		///     Called when an object is put back into the pool.
+		/// </summary>
+		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		public event Action<T>? OnReturnObject;
+#pragma warning restore CS0067 // Event is never used
+
+		[Obsolete("Use 'Release' instead. This will be removed in build.", true)]
+		[ExcludeFromCodeCoverage]
+		public void Return(T item)
+		{
+			throw new NotSupportedException("'Return' is obsolete. Use 'Release' instead.");
+		}
+#endif
+		#endregion
 	}
 }
