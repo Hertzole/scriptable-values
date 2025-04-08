@@ -157,44 +157,6 @@ namespace Hertzole.ScriptableValues
 		internal const int ORDER = ScriptableEvent.ORDER + 50;
 #endif
 
-		/// <summary>
-		///     Called when something was added. Gives you the newly added item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<T>? OnAdded;
-		/// <summary>
-		///     Called when something was inserted. Gives you the index it was inserted at and the newly inserted item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<int, T>? OnInserted;
-		/// <summary>
-		///     Called when something was added or inserted. Gives you the index it was added/inserted at and the newly
-		///     added/inserted item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<int, T>? OnAddedOrInserted;
-		/// <summary>
-		///     Called when something was set using the indexer. Gives you the index it was set at, the old value and the new
-		///     value.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<int, T, T>? OnSet;
-		/// <summary>
-		///     Called when something was removed. Gives you the index it was removed at and the removed item.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<int, T>? OnRemoved;
-		/// <summary>
-		///     Called when the list is cleared.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action? OnCleared;
-		/// <summary>
-		///     Called when the list is changed in any way.
-		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead.", true)]
-		public event Action<ListChangeType>? OnChanged;
-
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
 		{
 			add { RegisterChangedListener(value); }
@@ -754,23 +716,23 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
 		/// </summary>
-		/// <param name="item">The item to add.</param>
+		/// <param name="value">The item to add.</param>
 		/// <returns>The new count of the list.</returns>
 		/// <exception cref="ArgumentNullException"><c>item</c> is null and <c>T</c> does not allow it.</exception>
 		/// <exception cref="ArgumentException"><c>item</c> is of a type that is not assignable to the list.</exception>
-		int IList.Add(object? item)
+		int IList.Add(object? value)
 		{
 			// If the item is null and typeof(T) doesn't allow nulls, throw an exception.
-			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(item, nameof(item));
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
 
 			try
 			{
-				Add((T) item!);
+				Add((T) value!);
 			}
 			catch (InvalidCastException)
 			{
 				// The item was not the correct type, throw an exception.
-				ThrowHelper.ThrowWrongExpectedValueType<T>(item);
+				ThrowHelper.ThrowWrongExpectedValueType<T>(value);
 			}
 
 			return Count - 1;
@@ -809,18 +771,18 @@ namespace Hertzole.ScriptableValues
 		///     Inserts an element into the list at the specified index.
 		/// </summary>
 		/// <param name="index">The zero-based index at which item should be inserted.</param>
-		/// <param name="item">The item to insert.</param>
-		void IList.Insert(int index, object? item)
+		/// <param name="value">The item to insert.</param>
+		void IList.Insert(int index, object? value)
 		{
-			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(item, nameof(item));
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
 
 			try
 			{
-				Insert(index, (T) item!);
+				Insert(index, (T) value!);
 			}
 			catch (InvalidCastException)
 			{
-				ThrowHelper.ThrowWrongExpectedValueType<T>(item);
+				ThrowHelper.ThrowWrongExpectedValueType<T>(value);
 			}
 		}
 
@@ -1007,5 +969,49 @@ namespace Hertzole.ScriptableValues
 			Count = list.Count;
 			Capacity = list.Capacity;
 		}
+
+		#region Obsolete
+#if UNITY_EDITOR // Don't include in build.
+#pragma warning disable CS0067 // Event is never used
+		/// <summary>
+		///     Called when something was added. Gives you the newly added item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<T>? OnAdded;
+		/// <summary>
+		///     Called when something was inserted. Gives you the index it was inserted at and the newly inserted item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<int, T>? OnInserted;
+		/// <summary>
+		///     Called when something was added or inserted. Gives you the index it was added/inserted at and the newly
+		///     added/inserted item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<int, T>? OnAddedOrInserted;
+		/// <summary>
+		///     Called when something was set using the indexer. Gives you the index it was set at, the old value and the new
+		///     value.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<int, T, T>? OnSet;
+		/// <summary>
+		///     Called when something was removed. Gives you the index it was removed at and the removed item.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<int, T>? OnRemoved;
+		/// <summary>
+		///     Called when the list is cleared.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action? OnCleared;
+		/// <summary>
+		///     Called when the list is changed in any way.
+		/// </summary>
+		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		public event Action<ListChangeType>? OnChanged;
+#pragma warning restore CS0067 // Event is never used
+#endif // UNITY_EDITOR
+		#endregion
 	}
 }
