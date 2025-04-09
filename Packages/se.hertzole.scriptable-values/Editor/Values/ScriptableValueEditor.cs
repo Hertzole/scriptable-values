@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -9,28 +11,29 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableValue<>), true)]
 	public class ScriptableValueEditor : RuntimeScriptableObjectEditor
 	{
-		private PropertyField valueField;
-		private PropertyField isReadOnlyField;
-		private PropertyField defaultValueField;
-		private PropertyField resetValueOnStartField;
-		private PropertyField setEqualityCheckField;
-		private PropertyField onValueChangingField;
-		private PropertyField onValueChangedField;
-		private SerializedProperty value;
-		private SerializedProperty isReadOnly;
-		private SerializedProperty defaultValue;
-		private SerializedProperty resetValueOnStart;
-		private SerializedProperty setEqualityCheck;
-		private SerializedProperty onValueChanging;
-		private SerializedProperty onValueChanged;
-		private SerializedProperty collectStackTraces;
+		private PropertyField? valueField;
+		private PropertyField isReadOnlyField = null!;
+		private PropertyField defaultValueField = null!;
+		private PropertyField resetValueOnStartField = null!;
+		private PropertyField setEqualityCheckField = null!;
+		private PropertyField onValueChangingField = null!;
+		private PropertyField onValueChangedField = null!;
+
+		private SerializedProperty? value;
+		private SerializedProperty isReadOnly = null!;
+		private SerializedProperty defaultValue = null!;
+		private SerializedProperty resetValueOnStart = null!;
+		private SerializedProperty setEqualityCheck = null!;
+		private SerializedProperty onValueChanging = null!;
+		private SerializedProperty onValueChanged = null!;
+		private SerializedProperty collectStackTraces = null!;
 
 		protected override string StackTracesLabel
 		{
 			get { return "Set Value Stack Traces"; }
 		}
 
-		private FieldInfo valueFieldInfo;
+		private FieldInfo valueFieldInfo = null!;
 
 		protected override void OnEnable()
 		{
@@ -39,7 +42,7 @@ namespace Hertzole.ScriptableValues.Editor
 			EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 			EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 
-			valueFieldInfo = target.GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic);
+			valueFieldInfo = target.GetType().GetField("value", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		}
 
 		protected override void OnDisable()
@@ -63,7 +66,7 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
 		{
-			TextElementField valueLabel = null;
+			TextElementField? valueLabel = null;
 
 			if (value == null || string.IsNullOrEmpty(value.propertyPath))
 			{
@@ -158,7 +161,11 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected override void GetExcludingProperties(List<SerializedProperty> properties)
 		{
-			properties.Add(value);
+			if (value != null)
+			{
+				properties.Add(value);
+			}
+
 			properties.Add(isReadOnly);
 			properties.Add(defaultValue);
 			properties.Add(resetValueOnStart);

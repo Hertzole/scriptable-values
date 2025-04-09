@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
 	public class TextElementField : BaseField<string>
 	{
-		private Label textElement;
+		private readonly Label textElement;
 
 		public override string value
 		{
@@ -22,25 +24,13 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 		}
 
-		public TextElementField() : base(string.Empty, null)
-		{
-			Setup(string.Empty, string.Empty);
-		}
+		public TextElementField() : this(string.Empty, string.Empty) { }
 
-		public TextElementField(string label) : base(label, null)
-		{
-			Setup(label, string.Empty);
-		}
+		public TextElementField(string label) : this(label, string.Empty) { }
 
 		public TextElementField(string label, string value) : base(label, null)
 		{
-			Setup(label, value);
-		}
-
-		private void Setup(string labelText, string text)
-		{
-			label = labelText;
-			textElement = new Label(text)
+			textElement = new Label(value)
 			{
 				style =
 				{

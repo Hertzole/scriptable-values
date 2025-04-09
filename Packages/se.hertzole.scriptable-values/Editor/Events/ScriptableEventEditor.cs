@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -8,8 +10,8 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableEvent), true)]
 	public class ScriptableEventEditor : RuntimeScriptableObjectEditor
 	{
-		private ScriptableEvent scriptableEvent;
-		private SerializedProperty onInvoked;
+		private ScriptableEvent scriptableEvent = null!;
+		private SerializedProperty onInvoked = null!;
 
 		protected override void GatherProperties()
 		{
@@ -23,7 +25,7 @@ namespace Hertzole.ScriptableValues.Editor
 			PropertyField onInvokedField = new PropertyField(onInvoked);
 			onInvokedField.Bind(serializedObject);
 
-			VisualElement invokeElement = CreateInvokeButton();
+			VisualElement? invokeElement = CreateInvokeButton();
 
 			if (invokeElement != null)
 			{
@@ -34,7 +36,7 @@ namespace Hertzole.ScriptableValues.Editor
 			root.Add(onInvokedField);
 		}
 
-		protected virtual VisualElement CreateInvokeButton()
+		protected virtual VisualElement? CreateInvokeButton()
 		{
 			return new Button(OnClickInvoke)
 			{

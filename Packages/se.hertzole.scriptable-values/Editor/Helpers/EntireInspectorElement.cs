@@ -1,12 +1,14 @@
-﻿using UnityEngine.Assertions;
+﻿#nullable enable
+
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
 	public sealed class EntireInspectorElement : VisualElement
 	{
-		private IMGUIContainer imguiContainer;
-		private VisualElement contentViewport;
+		private IMGUIContainer? imguiContainer;
+		private VisualElement? contentViewport;
 
 		public EntireInspectorElement()
 		{
@@ -18,7 +20,7 @@ namespace Hertzole.ScriptableValues.Editor
 				// Only do this if the view port is null to save resources.
 				if (element.contentViewport == null)
 				{
-					VisualElement editorElement = FindParent(element, "EditorElement");
+					VisualElement? editorElement = FindParent(element, "EditorElement");
 					if (editorElement != null)
 					{
 						element.imguiContainer = editorElement.Q<IMGUIContainer>();
@@ -27,9 +29,9 @@ namespace Hertzole.ScriptableValues.Editor
 							element.contentViewport = FindParent<VisualElement>(element, "unity-content-viewport");
 							Assert.IsNotNull(element.contentViewport);
 
-							element.contentViewport.RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, args) => { args.UpdateHeight(); },
+							element.contentViewport!.RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, args) => { args.UpdateHeight(); },
 								element);
-							
+
 							UpdateHeight();
 						}
 					}
@@ -45,7 +47,7 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 		}
 
-		private static VisualElement FindParent(VisualElement element, string typeName)
+		private static VisualElement? FindParent(VisualElement element, string typeName)
 		{
 			VisualElement parent = element;
 			do
@@ -60,7 +62,7 @@ namespace Hertzole.ScriptableValues.Editor
 			return null;
 		}
 
-		private static T FindParent<T>(VisualElement element, string name = null) where T : VisualElement
+		private static T? FindParent<T>(VisualElement element, string? name = null) where T : VisualElement
 		{
 			VisualElement parent = element;
 			do

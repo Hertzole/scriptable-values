@@ -8,7 +8,7 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableComponentPool<>), true)]
 	public class ScriptableComponentPoolEditor : ScriptablePoolEditor
 	{
-		private SerializedProperty prefab;
+		private SerializedProperty prefab = null!;
 
 		protected override void GatherProperties()
 		{

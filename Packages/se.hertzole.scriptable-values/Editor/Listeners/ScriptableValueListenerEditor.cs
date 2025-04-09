@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#nullable enable
+
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -7,37 +9,33 @@ namespace Hertzole.ScriptableValues.Editor
 	// This editor is mainly used for Odin Inspector to understand that it shouldn't override this inspector.
 	[CustomEditor(typeof(ScriptableListenerBase), true)]
 	public class ScriptableValueListenerBaseEditor : UnityEditor.Editor { }
-	
+
 	[CustomEditor(typeof(ScriptableValueListener<>), true)]
 	public class ScriptableValueListenerEditor : ScriptableValueListenerBaseEditor
 	{
-		private PropertyField valueField;
-		private PropertyField startListeningField;
-		private PropertyField stopListeningField;
-		private PropertyField invokeOnField;
-		private PropertyField fromValueField;
-		private PropertyField toValueField;
-		private PropertyField invokeParametersField;
-		private PropertyField onValueChangingSingleField;
-		private PropertyField onValueChangedSingleField;
-		private PropertyField onValueChangingMultipleField;
-		private PropertyField onValueChangedMultipleField;
+		private PropertyField valueField = null!;
+		private PropertyField startListeningField = null!;
+		private PropertyField stopListeningField = null!;
+		private PropertyField invokeOnField = null!;
+		private PropertyField fromValueField = null!;
+		private PropertyField toValueField = null!;
+		private PropertyField invokeParametersField = null!;
+		private PropertyField onValueChangingSingleField = null!;
+		private PropertyField onValueChangedSingleField = null!;
+		private PropertyField onValueChangingMultipleField = null!;
+		private PropertyField onValueChangedMultipleField = null!;
 
-		private SerializedProperty targetValue;
-		private SerializedProperty startListening;
-		private SerializedProperty stopListening;
-		private SerializedProperty invokeOn;
-		private SerializedProperty fromValue;
-		private SerializedProperty toValue;
-		private SerializedProperty invokeParameters;
-		private SerializedProperty onValueChangingSingle;
-		private SerializedProperty onValueChangedSingle;
-		private SerializedProperty onValueChangingMultiple;
-		private SerializedProperty onValueChangedMultiple;
-
-		private readonly VisualElement[] spaces = new VisualElement[SPACES_COUNT];
-
-		private const int SPACES_COUNT = 4;
+		private SerializedProperty targetValue = null!;
+		private SerializedProperty startListening = null!;
+		private SerializedProperty stopListening = null!;
+		private SerializedProperty invokeOn = null!;
+		private SerializedProperty fromValue = null!;
+		private SerializedProperty toValue = null!;
+		private SerializedProperty invokeParameters = null!;
+		private SerializedProperty onValueChangingSingle = null!;
+		private SerializedProperty onValueChangedSingle = null!;
+		private SerializedProperty onValueChangingMultiple = null!;
+		private SerializedProperty onValueChangedMultiple = null!;
 
 		protected virtual void OnEnable()
 		{
@@ -108,11 +106,14 @@ namespace Hertzole.ScriptableValues.Editor
 			bool hasValue = targetValue.objectReferenceValue != null;
 			bool showFromValue = invokeOn.enumValueIndex == (int) InvokeEvents.FromValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
 			bool showToValue = invokeOn.enumValueIndex == (int) InvokeEvents.ToValue || invokeOn.enumValueIndex == (int) InvokeEvents.FromValueToValue;
-			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
-			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple || invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
+			bool showSingleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Single ||
+			                       invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
+
+			bool showMultipleEvent = invokeParameters.enumValueFlag == (int) InvokeParameters.Multiple ||
+			                         invokeParameters.enumValueFlag == (int) InvokeParameters.Both;
 
 			startListeningField.SetVisibility(hasValue);
-			
+
 			startListeningField.SetVisibility(hasValue);
 			stopListeningField.SetVisibility(hasValue);
 			invokeOnField.SetVisibility(hasValue);

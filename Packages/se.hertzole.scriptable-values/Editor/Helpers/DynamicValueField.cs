@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -10,9 +12,9 @@ namespace Hertzole.ScriptableValues.Editor
 	{
 		private readonly VisualElement container;
 
-		private ObjectField objectField;
-		private TextField textField;
-		private Label labelField;
+		private ObjectField? objectField;
+		private TextField? textField;
+		private Label? labelField;
 
 		public override object value
 		{
@@ -119,7 +121,7 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 		}
 
-		private static ValueType GetValueType(object value)
+		private static ValueType GetValueType(object? value)
 		{
 			if (value == null)
 			{
