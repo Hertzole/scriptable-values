@@ -86,25 +86,16 @@ namespace Hertzole.ScriptableValues.Editor
 			invokeOnField.RegisterValueChangeCallback(_ => UpdateVisibility());
 			invokeParametersField.RegisterValueChangeCallback(_ => UpdateVisibility());
 
-			for (int i = 0; i < SPACES_COUNT; i++)
-			{
-				spaces[i] = GetSpace();
-			}
-
 			UpdateVisibility();
 
 			root.Add(valueField);
-			root.Add(spaces[0]);
-			root.Add(startListeningField);
+			root.Add(startListeningField.AddSpace());
 			root.Add(stopListeningField);
-			root.Add(spaces[1]);
-			root.Add(invokeOnField);
+			root.Add(invokeOnField.AddSpace());
 			root.Add(fromValueField);
 			root.Add(toValueField);
-			root.Add(spaces[2]);
-			root.Add(invokeParametersField);
-			root.Add(spaces[3]);
-			root.Add(onValueChangingSingleField);
+			root.Add(invokeParametersField.AddSpace());
+			root.Add(onValueChangingSingleField.AddSpace());
 			root.Add(onValueChangedSingleField);
 			root.Add(onValueChangingMultipleField);
 			root.Add(onValueChangedMultipleField);
@@ -132,16 +123,6 @@ namespace Hertzole.ScriptableValues.Editor
 			onValueChangedSingleField.SetVisibility(hasValue && showSingleEvent);
 			onValueChangingMultipleField.SetVisibility(hasValue && showMultipleEvent);
 			onValueChangedMultipleField.SetVisibility(hasValue && showMultipleEvent);
-
-			for (int i = 0; i < SPACES_COUNT; i++)
-			{
-				spaces[i].SetVisibility(hasValue);
-			}
-		}
-
-		private static VisualElement GetSpace(float height = 8f)
-		{
-			return new VisualElement { style = { height = height } };
 		}
 	}
 }
