@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using Hertzole.ScriptableValues.Debugging;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine.Pool;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
@@ -11,7 +14,7 @@ namespace Hertzole.ScriptableValues.Editor
 	public class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
 		private bool hasCreatedDefaultInspector;
-		private StackTraceElement stackTraces;
+		private StackTraceElement stackTraces = null!;
 
 		protected virtual string StackTracesLabel
 		{
@@ -66,12 +69,10 @@ namespace Hertzole.ScriptableValues.Editor
 			SerializedProperty iterator = serializedObject.GetIterator();
 			bool enterChildren = true;
 
-			List<SerializedProperty> ignoreProperties = new List<SerializedProperty>();
+			using PooledObject<List<SerializedProperty>> propertiesScope = ListPool<SerializedProperty>.Get(out List<SerializedProperty> ignoreProperties);
+			using PooledObject<HashSet<string>> propertyNamesScope = HashSetPool<string>.Get(out HashSet<string> ignorePropertyNames);
 
-			HashSet<string> ignorePropertyNames = new HashSet<string>
-			{
-				"m_Script"
-			};
+			ignorePropertyNames.Add("m_Script");
 
 			GetExcludingProperties(ignoreProperties);
 
