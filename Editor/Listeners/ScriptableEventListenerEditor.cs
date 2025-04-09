@@ -49,19 +49,12 @@ namespace Hertzole.ScriptableValues.Editor
 				UpdateVisibility();
 			});
 
-			for (int i = 0; i < SPACES_COUNT; i++)
-			{
-				spaces[i] = GetSpace();
-			}
-
 			UpdateVisibility();
 
 			root.Add(targetEventField);
-			root.Add(spaces[0]);
-			root.Add(startListeningField);
+			root.Add(startListeningField.AddSpace());
 			root.Add(stopListeningField);
-			root.Add(spaces[1]);
-			root.Add(onInvokedField);
+			root.Add(onInvokedField.AddSpace());
 
 			return root;
 		}
@@ -73,16 +66,6 @@ namespace Hertzole.ScriptableValues.Editor
 			startListeningField.SetVisibility(hasValue);
 			stopListeningField.SetVisibility(hasValue);
 			onInvokedField.SetVisibility(hasValue);
-			
-			for (int i = 0; i < SPACES_COUNT; i++)
-			{
-				spaces[i].SetVisibility(hasValue);
-			}
-		}
-
-		private static VisualElement GetSpace(float height = 8f)
-		{
-			return new VisualElement { style = { height = height } };
 		}
 	}
 }
