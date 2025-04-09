@@ -1,8 +1,11 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
@@ -10,9 +13,9 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableEvent<>), true)]
 	public class GenericScriptableEventEditor : RuntimeScriptableObjectEditor
 	{
-		private MethodInfo invokeMethod;
-		private SerializedProperty onInvokedWithArgs;
-		private SerializedProperty editorInvokeValue;
+		private MethodInfo invokeMethod = null!;
+		private SerializedProperty onInvokedWithArgs = null!;
+		private SerializedProperty? editorInvokeValue;
 
 		protected override void GatherProperties()
 		{
@@ -21,10 +24,11 @@ namespace Hertzole.ScriptableValues.Editor
 			onInvokedWithArgs = serializedObject.FindProperty(nameof(onInvokedWithArgs));
 			editorInvokeValue = serializedObject.FindProperty(nameof(editorInvokeValue));
 
-			Type baseType = target.GetType().BaseType;
+			Type? baseType = target.GetType().BaseType;
 			if (baseType != null)
 			{
-				invokeMethod = baseType.GetMethod("Invoke", new[] { typeof(object), baseType.GenericTypeArguments[0] });
+				invokeMethod = baseType.GetMethod("Invoke", new[] { typeof(object), baseType.GenericTypeArguments[0] })!;
+				Assert.IsNotNull(invokeMethod);
 			}
 		}
 
@@ -66,25 +70,25 @@ namespace Hertzole.ScriptableValues.Editor
 			return root;
 		}
 
-		private object GetInvokeValue()
+		private object? GetInvokeValue()
 		{
-			Type targetObject = target.GetType().BaseType;
+			Type? targetObject = target.GetType().BaseType;
 			if (targetObject == null)
 			{
-				return default;
+				return null;
 			}
 
-			FieldInfo targetField = targetObject.GetField("editorInvokeValue", BindingFlags.Instance | BindingFlags.NonPublic);
+			FieldInfo? targetField = targetObject.GetField("editorInvokeValue", BindingFlags.Instance | BindingFlags.NonPublic);
 
 			if (targetField == null)
 			{
-				return default;
+				return null;
 			}
 
 			return targetField.GetValue(target);
 		}
 
-		private void OnClickInvoke(object args)
+		private void OnClickInvoke(object? args)
 		{
 			invokeMethod.Invoke(target, new[] { this, args });
 		}
@@ -93,7 +97,11 @@ namespace Hertzole.ScriptableValues.Editor
 		{
 			base.GetExcludingProperties(properties);
 			properties.Add(onInvokedWithArgs);
-			properties.Add(editorInvokeValue);
+
+			if (editorInvokeValue != null)
+			{
+				properties.Add(editorInvokeValue);
+			}
 		}
 	}
 }

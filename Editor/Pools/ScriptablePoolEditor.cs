@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿#nullable enable
+
+using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -7,18 +10,21 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptablePool<>), true)]
 	public class ScriptablePoolEditor : RuntimeScriptableObjectEditor
 	{
-		private PropertyInfo countAllProperty;
-		private PropertyInfo countActiveProperty;
-		private PropertyInfo countInactiveProperty;
-		private TextElementField countAllLabel;
-		private TextElementField countActiveLabel;
-		private TextElementField countInactiveLabel;
+		private PropertyInfo countAllProperty = null!;
+		private PropertyInfo countActiveProperty = null!;
+		private PropertyInfo countInactiveProperty = null!;
+
+		private TextElementField? countAllLabel;
+		private TextElementField? countActiveLabel;
+		private TextElementField? countInactiveLabel;
 
 		protected override void GatherProperties()
 		{
-			countAllProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountAll));
-			countActiveProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountActive));
-			countInactiveProperty = target.GetType().GetProperty(nameof(ScriptablePool<object>.CountInactive));
+			Type type = target.GetType();
+
+			countAllProperty = type.GetProperty(nameof(ScriptablePool<object>.CountAll))!;
+			countActiveProperty = type.GetProperty(nameof(ScriptablePool<object>.CountActive))!;
+			countInactiveProperty = type.GetProperty(nameof(ScriptablePool<object>.CountInactive))!;
 		}
 
 		protected override void OnStackTraceAdded()

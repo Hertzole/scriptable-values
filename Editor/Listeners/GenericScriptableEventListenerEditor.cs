@@ -1,6 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -9,25 +7,21 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableEventListener<>), true)]
 	public class GenericScriptableEventListenerEditor : UnityEditor.Editor
 	{
-		private PropertyField targetEventField;
-		private PropertyField startListeningField;
-		private PropertyField stopListeningField;
-		private PropertyField invokeOnField;
-		private PropertyField fromValueField;
-		private PropertyField toValueField;
-		private PropertyField onInvokedField;
+		private PropertyField targetEventField = null!;
+		private PropertyField startListeningField = null!;
+		private PropertyField stopListeningField = null!;
+		private PropertyField invokeOnField = null!;
+		private PropertyField fromValueField = null!;
+		private PropertyField toValueField = null!;
+		private PropertyField onInvokedField = null!;
 
-		private SerializedProperty targetEvent;
-		private SerializedProperty startListening;
-		private SerializedProperty stopListening;
-		private SerializedProperty invokeOn;
-		private SerializedProperty fromValue;
-		private SerializedProperty toValue;
-		private SerializedProperty onInvoked;
-
-		private readonly VisualElement[] spaces = new VisualElement[SPACES_COUNT];
-
-		private const int SPACES_COUNT = 3;
+		private SerializedProperty targetEvent = null!;
+		private SerializedProperty startListening = null!;
+		private SerializedProperty stopListening = null!;
+		private SerializedProperty invokeOn = null!;
+		private SerializedProperty fromValue = null!;
+		private SerializedProperty toValue = null!;
+		private SerializedProperty onInvoked = null!;
 
 		protected virtual void OnEnable()
 		{
@@ -51,7 +45,7 @@ namespace Hertzole.ScriptableValues.Editor
 			fromValueField = new PropertyField(fromValue);
 			toValueField = new PropertyField(toValue);
 			onInvokedField = new PropertyField(onInvoked);
-			
+
 			targetEventField.Bind(serializedObject);
 			startListeningField.Bind(serializedObject);
 			stopListeningField.Bind(serializedObject);
