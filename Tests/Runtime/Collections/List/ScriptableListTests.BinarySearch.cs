@@ -11,11 +11,6 @@ namespace Hertzole.ScriptableValues.Tests
 		// I'll be honest, I don't know what these types do. But they are based on the ones from the .NET runtime source code, so I guess they'll do.
 		// https://github.com/dotnet/runtime/blob/main/src/libraries/System.Collections/tests/Generic/List/List.Generic.Tests.BinarySearch.cs
 
-		public static readonly int[] validCollectionSizes =
-		{
-			0, 1, 75
-		};
-
 		[Test]
 		public void BinarySearch_ForEveryItemWithoutDuplicates([ValueSource(nameof(validCollectionSizes))] int count)
 		{
@@ -81,24 +76,6 @@ namespace Hertzole.ScriptableValues.Tests
 			AssertThrows<ArgumentOutOfRangeException>(() => list.BinarySearch(0, -1, element, Comparer<int>.Default));
 			AssertThrows<ArgumentException>(() => list.BinarySearch(count + 1, count, element, Comparer<int>.Default));
 			AssertThrows<ArgumentException>(() => list.BinarySearch(0, count + 1, element, Comparer<int>.Default));
-		}
-
-		private static IEnumerable<int> CreateList(int count)
-		{
-			List<int> list = new List<int>(count);
-
-			while (list.Count < count)
-			{
-				int toAdd = Random.Range(int.MinValue, int.MaxValue);
-				while (list.Contains(toAdd))
-				{
-					toAdd = Random.Range(int.MinValue, int.MaxValue);
-				}
-
-				list.Add(toAdd);
-			}
-
-			return list;
 		}
 	}
 }

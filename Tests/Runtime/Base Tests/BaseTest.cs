@@ -115,7 +115,7 @@ namespace Hertzole.ScriptableValues.Tests
 			objects.Clear();
 		}
 
-		protected T CreateInstance<T>() where T : ScriptableObject
+		protected static T CreateInstance<T>() where T : ScriptableObject
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
 			// Set DontSave so it doesn't get destroyed when exiting play mode.
