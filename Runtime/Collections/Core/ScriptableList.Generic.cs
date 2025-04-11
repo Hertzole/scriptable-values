@@ -865,9 +865,54 @@ namespace Hertzole.ScriptableValues
 			AddStackTrace();
 		}
 
-		//TODO: Implement LastIndexOf(T, int int)
-		//TODO: Implement LastIndexOf(T, int)
-		//TODO: Implement LastIndexOf(T)
+		/// <summary>
+		///     Searches for the specified object and returns the zero-based index of the last occurrence within the entire list.
+		/// </summary>
+		/// <param name="item">The object to locate in the list.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of <c>item</c> within the entire the list, if found; otherwise,
+		///     -1.
+		/// </returns>
+		public int LastIndexOf(T item)
+		{
+			return list.LastIndexOf(item);
+		}
+
+		/// <summary>
+		///     Searches for the specified object and returns the zero-based index of the last occurrence within the range of
+		///     elements in the list that extends from the first element to the specified index.
+		/// </summary>
+		/// <param name="item">The object to locate in the list.</param>
+		/// <param name="index">The zero-based starting index of the backward search.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of <c>item</c> within the range of elements in the list that
+		///     extends from the first element to <c>index</c>, if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is outside the range of valid indexes for the list.</exception>
+		public int LastIndexOf(T item, int index)
+		{
+			return list.LastIndexOf(item, index);
+		}
+
+		/// <summary>
+		///     Searches for the specified object and returns the zero-based index of the last occurrence within the range of
+		///     elements in the list that contains the specified number of elements and ends at the specified index.
+		/// </summary>
+		/// <param name="item">The object to locate in the list.</param>
+		/// <param name="index">The zero-based starting index of the backward search.</param>
+		/// <param name="count">The number of elements in the section to search.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of <c>item</c> within the range of elements in the list that
+		///     contains <c>count</c> number of elements and ends at <c>index</c>, if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <c>index</c> is outside the range of valid indexes for the list. Or
+		///     <c>count</c> is less than 0. Or <c>index</c> and <c>count</c> do not specify a valid section in the list.
+		/// </exception>
+		public int LastIndexOf(T item, int index, int count)
+		{
+			return list.LastIndexOf(item, index, count);
+		}
 
 		/// <summary>
 		///     Removes the first occurrence of a specific object from the list.
