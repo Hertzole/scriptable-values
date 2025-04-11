@@ -17,12 +17,11 @@ namespace Hertzole.ScriptableValues
 				hash = hash * 23 + ClearOnStart.GetHashCode();
 				hash = hash * 23 + SetEqualityCheck.GetHashCode();
 
+				EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
 				for (int i = 0; i < list.Count; i++)
 				{
-					if (list[i] != null)
-					{
-						hash = hash * 23 + EqualityComparer<T>.Default.GetHashCode(list[i]);
-					}
+					hash = hash * 23 + comparer.GetHashCode(list[i]);
 				}
 
 				return hash;
