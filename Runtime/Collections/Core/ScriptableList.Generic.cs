@@ -723,8 +723,41 @@ namespace Hertzole.ScriptableValues
 			return list.IndexOf(item);
 		}
 
-		//TODO: Implement IndexOf(T, int)
-		//TODO: Implement IndexOf(T, int, int)
+		/// <summary>
+		///     Searches for the specified object and returns the zero-based index of the first occurrence within the range of
+		///     elements in the list that extends from the specified index to the last element.
+		/// </summary>
+		/// <param name="item">The object to locate in the list.</param>
+		/// <param name="index">The zero-based starting index of the search. 0 (zero) is valid in an empty list.</param>
+		/// <returns>
+		///     The zero-based index of the first occurrence of <c>item</c> within the range of elements in the list that
+		///     extends from <c>index</c> to the last element, if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is outside the range of valid indexes for the list.</exception>
+		public int IndexOf(T item, int index)
+		{
+			return list.IndexOf(item, index);
+		}
+
+		/// <summary>
+		///     Searches for the specified object and returns the zero-based index of the first occurrence within the range of
+		///     elements in the list that starts at the specified index and contains the specified number of elements.
+		/// </summary>
+		/// <param name="item">The object to locate in the list.</param>
+		/// <param name="index">The zero-based starting index of the search. 0 (zero) is valid in an empty list.</param>
+		/// <param name="count">The number of elements in the section to search.</param>
+		/// <returns>
+		///     The zero-based index of the first occurrence of <c>item</c> within the range of elements in the list that
+		///     extends from <c>index</c> to the last element, if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <c>index</c> is outside the range of valid indexes for the list. Or
+		///     <c>count</c> is less than 0. Or <c>index</c> and <c>count</c> do not specify a valid section in the list.
+		/// </exception>
+		public int IndexOf(T item, int index, int count)
+		{
+			return list.IndexOf(item, index, count);
+		}
 
 		/// <summary>
 		///     Searches for the specified object and returns the zero-based index of the first occurrence within the entire list.

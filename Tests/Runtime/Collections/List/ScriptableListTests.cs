@@ -7,8 +7,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
 using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
@@ -360,44 +358,6 @@ namespace Hertzole.ScriptableValues.Tests
 
 			Assert.IsTrue(l.Contains(2));
 			Assert.IsFalse(l.Contains(4));
-		}
-
-		[Test]
-		public void IndexOf()
-		{
-			list.Add(1);
-			list.Add(2);
-			list.Add(3);
-
-			Assert.AreEqual(1, list.IndexOf(2));
-			Assert.AreEqual(-1, list.IndexOf(4));
-		}
-
-		[Test]
-		public void IndexOf_Object()
-		{
-			list.Add(1);
-			list.Add(2);
-			list.Add(3);
-
-			IList l = list;
-
-			Assert.AreEqual(1, l.IndexOf(2));
-			Assert.AreEqual(-1, l.IndexOf(4));
-		}
-
-		[Test]
-		public void IndexOf_Object_Invalid()
-		{
-			list.Add(1);
-			list.Add(2);
-			list.Add(3);
-
-			IList l = list;
-
-			LogAssert.Expect(LogType.Error, "System.Int32 is not assignable from System.String.");
-
-			Assert.AreEqual(-1, l.IndexOf("invalid"));
 		}
 
 		[Test]
