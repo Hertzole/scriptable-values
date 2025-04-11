@@ -507,7 +507,61 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		//TODO: Implement FindIndex
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the first occurrence within the entire list.
+		/// </summary>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
+		///     , if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		public int FindIndex(Predicate<T> match)
+		{
+			return list.FindIndex(match);
+		}
+
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the first occurrence within the range of elements in the list that extends from the specified index to the
+		///     last element.
+		/// </summary>
+		/// <param name="startIndex">The zero-based starting index of the search.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
+		///     , if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><c>startIndex</c> is outside the range of valid indexes for the list.</exception>
+		public int FindIndex(int startIndex, Predicate<T> match)
+		{
+			return list.FindIndex(startIndex, match);
+		}
+
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the first occurrence within the range of elements in the list that starts at the specified index and
+		///     contains the specified number of elements.
+		/// </summary>
+		/// <param name="startIndex">The zero-based starting index of the search.</param>
+		/// <param name="count">The number of elements in the section to search.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
+		///     , if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <c>startIndex</c> is outside the range of valid indexes for the list. Or
+		///     <c>count</c> is less than 0. Or <c>startIndex</c> and <c>count</c> do not specify a valid section in the list.
+		/// </exception>
+		public int FindIndex(int startIndex, int count, Predicate<T> match)
+		{
+			return list.FindIndex(startIndex, count, match);
+		}
+
 		//TODO: Implement FindLast
 		//TODO: Implement FindLastIndex
 		//TODO: Implement ForEach
