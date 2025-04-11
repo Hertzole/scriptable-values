@@ -577,8 +577,61 @@ namespace Hertzole.ScriptableValues
 			return list.FindLast(match);
 		}
 
-		//TODO: Implement FindLast
-		//TODO: Implement FindLastIndex
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the last occurrence within the entire list.
+		/// </summary>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of an element that matches the conditions defined by <c>match</c>,
+		///     if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		public int FindLastIndex(Predicate<T> match)
+		{
+			return list.FindLastIndex(match);
+		}
+
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the last occurrence within the range of elements in the list that extends from the first element to the
+		///     specified index.
+		/// </summary>
+		/// <param name="startIndex">The zero-based starting index of the backward search.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of an element that matches the conditions defined by <c>match</c>,
+		///     if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><c>startIndex</c> is outside the range of valid indexes for the list.</exception>
+		public int FindLastIndex(int startIndex, Predicate<T> match)
+		{
+			return list.FindLastIndex(startIndex, match);
+		}
+
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the zero-based
+		///     index of the last occurrence within the range of elements in the list that contains the specified number of
+		///     elements and ends at the specified index.
+		/// </summary>
+		/// <param name="startIndex">The zero-based starting index of the backward search.</param>
+		/// <param name="count">The number of elements in the section to search.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The zero-based index of the last occurrence of an element that matches the conditions defined by <c>match</c>,
+		///     if found; otherwise, -1.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <c>startIndex</c> is outside the range of valid indexes for the list. Or
+		///     <c>count</c> is less than 0. Or <c>startIndex</c> and <c>count</c> do not specify a valid section in the list.
+		/// </exception>
+		public int FindLastIndex(int startIndex, int count, Predicate<T> match)
+		{
+			return list.FindLastIndex(startIndex, count, match);
+		}
+
 		//TODO: Implement ForEach
 
 		/// <summary>
