@@ -157,6 +157,9 @@ namespace Hertzole.ScriptableValues
 		internal const int ORDER = ScriptableEvent.ORDER + 50;
 #endif
 
+		/// <summary>
+		///     Occurs when an item is added, removed, replaced, or the entire list is refreshed.
+		/// </summary>
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
 		{
 			add { RegisterChangedListener(value); }
