@@ -278,7 +278,10 @@ namespace Hertzole.ScriptableValues
 			add { OnInternalCollectionChanged += value; }
 			remove { OnInternalCollectionChanged -= value; }
 		}
-		/// <inheritdoc />
+
+		/// <summary>
+		///     Occurs when an item is added, removed, replaced, or the entire dictionary is refreshed.
+		/// </summary>
 		public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> OnCollectionChanged
 		{
 			add { RegisterChangedListener(value); }
