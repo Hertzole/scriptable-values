@@ -170,21 +170,20 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
-		///     not the same as the old one.
+		///     Gets the number of key/value pairs contained in the dictionary.
 		/// </summary>
-		public override bool SetEqualityCheck
+		public sealed override int Count
 		{
-			get { return setEqualityCheck; }
-			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingEventArgs, setEqualityCheckChangedEventArgs); }
-		}
-		/// <summary>
-		///     If true, the dictionary will be cleared on play mode start/game boot.
-		/// </summary>
-		public override bool ClearOnStart
-		{
-			get { return clearOnStart; }
-			set { SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs); }
+			get
+			{
+				Assert.AreEqual(dictionary.Count, count, "Dictionary count is not the same as the internal count.");
+				return count;
+			}
+			protected set
+			{
+				SetField(ref count, value, countChangingEventArgs, countChangedEventArgs);
+				Assert.AreEqual(dictionary.Count, count);
+			}
 		}
 
 		/// <summary>
@@ -201,6 +200,34 @@ namespace Hertzole.ScriptableValues
 		public Dictionary<TKey, TValue>.ValueCollection Values
 		{
 			get { return dictionary.Values; }
+		}
+
+		/// <summary>
+		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
+		/// </summary>
+		public override bool IsReadOnly
+		{
+			get { return isReadOnly; }
+			set { SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs); }
+		}
+
+		/// <summary>
+		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
+		///     not the same as the old one.
+		/// </summary>
+		public override bool SetEqualityCheck
+		{
+			get { return setEqualityCheck; }
+			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingEventArgs, setEqualityCheckChangedEventArgs); }
+		}
+
+		/// <summary>
+		///     If true, the dictionary will be cleared on play mode start/game boot.
+		/// </summary>
+		public override bool ClearOnStart
+		{
+			get { return clearOnStart; }
+			set { SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs); }
 		}
 
 		bool IDictionary.IsFixedSize
@@ -223,33 +250,6 @@ namespace Hertzole.ScriptableValues
 		{
 			get { return dictionary.Keys; }
 		}
-
-		/// <summary>
-		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
-		/// </summary>
-		public override bool IsReadOnly
-		{
-			get { return isReadOnly; }
-			set { SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs); }
-		}
-
-		/// <summary>
-		///     Gets the number of key/value pairs contained in the dictionary.
-		/// </summary>
-		public sealed override int Count
-		{
-			get
-			{
-				Assert.AreEqual(dictionary.Count, count, "Dictionary count is not the same as the internal count.");
-				return count;
-			}
-			protected set
-			{
-				SetField(ref count, value, countChangingEventArgs, countChangedEventArgs);
-				Assert.AreEqual(dictionary.Count, count);
-			}
-		}
-
 		ICollection<TKey> IDictionary<TKey, TValue>.Keys
 		{
 			get { return dictionary.Keys; }
@@ -351,6 +351,304 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Adds the specified key and value to the dictionary.
+		/// </summary>
+		/// <param name="key">The key of the element to add.</param>
+		/// <param name="value">The value of the element to add.</param>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		public void Add(TKey key, TValue value)
+		{
+			AddInternal(key, value);
+		}
+
+		/// <summary>
+		///     Adds the specified key and value to the dictionary.
+		/// </summary>
+		/// <param name="key">The key of the element to add.</param>
+		/// <param name="value">The value of the element to add.</param>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		void IDictionary.Add(object key, object? value)
+		{
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
+			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
+
+			try
+			{
+				TKey tempKey = (TKey) key;
+
+				try
+				{
+					AddInternal(tempKey, (TValue) value!);
+				}
+				catch (InvalidCastException)
+				{
+					ThrowHelper.ThrowWrongExpectedValueType<TValue>(value);
+				}
+			}
+			catch (InvalidCastException)
+			{
+				ThrowHelper.ThrowWrongExpectedValueType<TKey>(key);
+			}
+		}
+
+		/// <summary>
+		///     Adds a key/value pair to the dictionary.
+		/// </summary>
+		/// <param name="item">The key/value pair to add.</param>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+		{
+			AddInternal(item.Key, item.Value);
+		}
+
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		private void AddInternal(TKey key, TValue value)
+		{
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			dictionary.Add(key, value);
+
+			keys.Add(key);
+			values.Add(value);
+
+			Count = dictionary.Count;
+
+			Assert.AreEqual(dictionary.Keys.Count, keys.Count);
+			Assert.AreEqual(dictionary.Values.Count, values.Count);
+
+			InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Add(new KeyValuePair<TKey, TValue>(key, value), -1));
+
+			AddStackTrace(1);
+		}
+
+		/// <summary>
+		///     Removes all elements from the dictionary.
+		/// </summary>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		public void Clear()
+		{
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			if (Count == 0)
+			{
+				return;
+			}
+
+			using (CollectionScope<KeyValuePair<TKey, TValue>> scope = new CollectionScope<KeyValuePair<TKey, TValue>>(dictionary))
+			{
+				dictionary.Clear();
+
+				keys.Clear();
+				values.Clear();
+
+				Count = 0;
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Clear(scope.Span, -1, -1));
+
+				AddStackTrace();
+			}
+		}
+
+		/// <summary>
+		///     Determines whether the dictionary contains the specified key.
+		/// </summary>
+		/// <param name="key">The key to check.</param>
+		/// <returns>True if the dictionary contains the key; otherwise, false.</returns>
+		public bool ContainsKey(TKey key)
+		{
+			return dictionary.ContainsKey(key);
+		}
+
+		/// <summary>
+		///     Determines whether the dictionary contains a specific value.
+		/// </summary>
+		/// <param name="value">The value to locate in the dictionary.</param>
+		/// <returns>True if the dictionary contains the value; otherwise, false.</returns>
+		public bool ContainsValue(TValue value)
+		{
+			return dictionary.ContainsValue(value);
+		}
+
+		/// <summary>
+		///     Determines whether the dictionary contains the specified key.
+		/// </summary>
+		/// <param name="key">The key to check.</param>
+		/// <returns>True if the key type is the same as the generic type and the dictionary contains the key; otherwise, false.</returns>
+		bool IDictionary.Contains(object key)
+		{
+			return EqualityHelper.IsSameType(key, out TKey? newKey) && ContainsKey(newKey);
+		}
+
+		/// <summary>
+		///     Determines if the dictionary contains the specified key/value pair.
+		/// </summary>
+		/// <param name="item">The key value pair to check.</param>
+		/// <returns>True if the key and value both exist in the dictionary; otherwise, false.</returns>
+		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
+		{
+			return dictionary.ContainsKey(item.Key) && dictionary.ContainsValue(item.Value);
+		}
+
+		/// <summary>
+		///     Copies the elements of the dictionary to an <see cref="Array" />, starting at a particular array index.
+		/// </summary>
+		/// <param name="array">The destination array.</param>
+		/// <param name="index">The index at which copying beings.</param>
+		void ICollection.CopyTo(Array array, int index)
+		{
+			((ICollection) dictionary).CopyTo(array, index);
+		}
+
+		/// <summary>
+		///     Copies the elements of the dictionary to an <see cref="Array" />, starting at a particular array index.
+		/// </summary>
+		/// <param name="array">The destination array.</param>
+		/// <param name="arrayIndex">The index at which copying beings.</param>
+		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+		{
+			((ICollection<KeyValuePair<TKey, TValue>>) dictionary).CopyTo(array, arrayIndex);
+		}
+
+		/// <summary>
+		///     Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its
+		///     backing storage.
+		/// </summary>
+		/// <param name="capacity">The number of entries.</param>
+		/// <returns>The current capacity of the dictionary.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is less than 0.</exception>
+		public int EnsureCapacity(int capacity)
+		{
+			int result = dictionary.EnsureCapacity(capacity);
+			if (keys.Capacity < capacity)
+			{
+				keys.Capacity = capacity;
+			}
+
+			if (values.Capacity < capacity)
+			{
+				values.Capacity = capacity;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the dictionary.
+		/// </summary>
+		/// <returns>A <see cref="Dictionary{TKey, TValue}.Enumerator" /> for the dictionary.</returns>
+		public Dictionary<TKey, TValue>.Enumerator GetEnumerator()
+		{
+			return dictionary.GetEnumerator();
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the dictionary.
+		/// </summary>
+		/// <returns>A <see cref="Dictionary{TKey, TValue}.Enumerator" /> for the dictionary.</returns>
+		IDictionaryEnumerator IDictionary.GetEnumerator()
+		{
+			return ((IDictionary) dictionary).GetEnumerator();
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the dictionary.
+		/// </summary>
+		/// <returns>A <see cref="Dictionary{TKey, TValue}.Enumerator" /> for the dictionary.</returns>
+		IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+		{
+			return ((IEnumerable<KeyValuePair<TKey, TValue>>) dictionary).GetEnumerator();
+		}
+
+		/// <summary>
+		///     Returns an enumerator that iterates through the dictionary.
+		/// </summary>
+		/// <returns>A <see cref="Dictionary{TKey, TValue}.Enumerator" /> for the dictionary.</returns>
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable) dictionary).GetEnumerator();
+		}
+
+		/// <summary>
+		///     Removes the value with the specified key from the dictionary.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
+		/// <returns>
+		///     True if the element was found and removed; otherwise, false. This method returns false if the key is not found
+		///     in the dictionary.
+		/// </returns>
+		/// <inheritdoc cref="RemoveInternal" path="exception" />
+		public bool Remove(TKey key)
+		{
+			return RemoveInternal(key, out _);
+		}
+
+		/// <summary>
+		///     Removes the value with the specified key from the dictionary, and copies the element to the <c>value</c> parameter.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
+		/// <param name="value">The removed element.</param>
+		/// <returns><c>true</c> if the element is successfully found and removed; otherwise, <c>false</c>.</returns>
+		/// <inheritdoc cref="RemoveInternal" path="exception" />
+		public bool Remove(TKey key, out TValue value)
+		{
+			return RemoveInternal(key, out value);
+		}
+
+		/// <summary>
+		///     Removes the value with the specified key from the dictionary.
+		/// </summary>
+		/// <param name="key">The key of the element to remove.</param>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		void IDictionary.Remove(object key)
+		{
+			if (EqualityHelper.IsSameType(key, out TKey? newKey))
+			{
+				RemoveInternal(newKey, out _);
+			}
+		}
+
+		/// <summary>
+		///     Removes a key/value pair from the dictionary.
+		/// </summary>
+		/// <param name="item">The key/value pair to remove.</param>
+		/// <returns>True if the key/value pair was found and removed; otherwise, false.</returns>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
+		{
+			if (dictionary.TryGetValue(item.Key, out TValue value) && EqualityHelper.Equals(item.Value, value))
+			{
+				return RemoveInternal(item.Key, out _);
+			}
+
+			return false;
+		}
+
+		/// <exception cref="ArgumentNullException"><c>key</c> is <c>null</c>.</exception>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		private bool RemoveInternal(TKey key, out TValue value)
+		{
+			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+
+			bool removed = dictionary.Remove(key, out value);
+			if (removed)
+			{
+				keys.Remove(key);
+				values.Remove(value);
+
+				Count = dictionary.Count;
+
+				Assert.AreEqual(dictionary.Keys.Count, keys.Count);
+				Assert.AreEqual(dictionary.Values.Count, values.Count);
+
+				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Remove(new KeyValuePair<TKey, TValue>(key, value), -1));
+
+				AddStackTrace(1);
+			}
+
+			return removed;
+		}
+
+		/// <summary>
 		///     Sets or adds a value to the dictionary.
 		/// </summary>
 		/// <param name="key">The key of the element to set.</param>
@@ -392,11 +690,41 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Sets the capacity of this dictionary to what it would be if it had been originally initialized with all its
+		///     entries.
+		/// </summary>
+		public void TrimExcess()
+		{
+			dictionary.TrimExcess();
+
+			keys.TrimExcess();
+			values.TrimExcess();
+
+			AddStackTrace();
+		}
+
+		/// <summary>
+		///     Sets the capacity of this dictionary to hold up a specified number of entries without any further expansion of its
+		///     backing storage.
+		/// </summary>
+		/// <param name="capacity">The new capacity.</param>
+		public void TrimExcess(int capacity)
+		{
+			dictionary.TrimExcess(capacity);
+
+			keys.TrimExcess();
+			values.TrimExcess();
+
+			AddStackTrace();
+		}
+
+		/// <summary>
 		///     Attempts to add the specified key and value to the dictionary.
 		/// </summary>
 		/// <param name="key">The key of the element to add-</param>
 		/// <param name="value">The value of the element to add.</param>
 		/// <returns>True if the key/value pair was added to the dictionary; otherwise, false.</returns>
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
 		public bool TryAdd(TKey key, TValue value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -426,16 +754,6 @@ namespace Hertzole.ScriptableValues
 			}
 
 			return result;
-		}
-
-		/// <summary>
-		///     Determines whether the dictionary contains a specific value.
-		/// </summary>
-		/// <param name="value">The value to locate in the dictionary.</param>
-		/// <returns>True if the dictionary contains the value; otherwise, false.</returns>
-		public bool ContainsValue(TValue value)
-		{
-			return dictionary.ContainsValue(value);
 		}
 
 		/// <summary>
@@ -485,32 +803,83 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sets the capacity of this dictionary to what it would be if it had been originally initialized with all its
-		///     entries.
+		///     Gets the value associated with the specified key.
 		/// </summary>
-		public void TrimExcess()
+		/// <param name="key">The key of the element to get.</param>
+		/// <param name="value">The value if it was found. Will be the default value if it wasn't found.</param>
+		/// <returns>True if the dictionary contains an element with the specified key; otherwise, false.</returns>
+		public bool TryGetValue(TKey key, out TValue value)
 		{
-			dictionary.TrimExcess();
+			return dictionary.TryGetValue(key, out value);
+		}
 
-			keys.TrimExcess();
-			values.TrimExcess();
+		/// <inheritdoc />
+		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			AddStackTrace();
+			onCollectionChanged.RegisterCallback(callback);
+		}
+
+		/// <inheritdoc />
+		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback, TContext context)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
+
+			onCollectionChanged.RegisterCallback(callback, context);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
+		}
+
+		/// <inheritdoc />
+		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback)
+		{
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+
+			onCollectionChanged.RemoveCallback(callback);
+		}
+
+		private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
+		{
+			onCollectionChanged.Invoke(args);
+			OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
+		}
+
+		void ISerializationCallbackReceiver.OnBeforeSerialize()
+		{
+			// Does nothing.
 		}
 
 		/// <summary>
-		///     Sets the capacity of this dictionary to hold up a specified number of entries without any further expansion of its
-		///     backing storage.
+		///     Called after Unity has deserialized this type.
 		/// </summary>
-		/// <param name="capacity">The new capacity.</param>
-		public void TrimExcess(int capacity)
+		void ISerializationCallbackReceiver.OnAfterDeserialize()
 		{
-			dictionary.TrimExcess(capacity);
+#if DEBUG
+			// If the dictionary is invalid, stop here.
+			if (!IsValid())
+			{
+				return;
+			}
+#endif
 
-			keys.TrimExcess();
-			values.TrimExcess();
+			// Update the dictionary with the serialized keys and values.
+			dictionary.Clear();
+			dictionary.EnsureCapacity(keys.Count);
 
-			AddStackTrace();
+			for (int i = 0; i < keys.Count; i++)
+			{
+				dictionary.Add(keys[i], values[i]);
+			}
+
+			Count = dictionary.Count;
 		}
 
 		/// <inheritdoc />
@@ -572,355 +941,6 @@ namespace Hertzole.ScriptableValues
 			dictionary.TrimExcess();
 		}
 #endif
-
-		/// <summary>
-		///     Returns an enumerator that iterates through the dictionary.
-		/// </summary>
-		/// <returns>A enumerator for the dictionary.</returns>
-		public Dictionary<TKey, TValue>.Enumerator GetEnumerator()
-		{
-			return dictionary.GetEnumerator();
-		}
-
-		/// <summary>
-		///     Determines whether the dictionary contains the specified key.
-		/// </summary>
-		/// <param name="key">The key to check.</param>
-		/// <returns>True if the key type is the same as the generic type and the dictionary contains the key; otherwise, false.</returns>
-		bool IDictionary.Contains(object key)
-		{
-			return EqualityHelper.IsSameType(key, out TKey? newKey) && ContainsKey(newKey);
-		}
-
-		/// <summary>
-		///     Returns an enumerator that iterates through the dictionary.
-		/// </summary>
-		IDictionaryEnumerator IDictionary.GetEnumerator()
-		{
-			return ((IDictionary) dictionary).GetEnumerator();
-		}
-
-		/// <summary>
-		///     Removes the value with the specified key from the dictionary.
-		/// </summary>
-		/// <param name="key">The key of the element to remove.</param>
-		void IDictionary.Remove(object key)
-		{
-			if (EqualityHelper.IsSameType(key, out TKey? newKey))
-			{
-				RemoveInternal(newKey);
-			}
-		}
-
-		/// <summary>
-		///     Adds the specified key and value to the dictionary.
-		/// </summary>
-		/// <param name="key">The key of the element to add.</param>
-		/// <param name="value">The value of the element to add.</param>
-		void IDictionary.Add(object key, object? value)
-		{
-			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
-			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
-
-			try
-			{
-				TKey tempKey = (TKey) key;
-
-				try
-				{
-					AddInternal(tempKey, (TValue) value!);
-				}
-				catch (InvalidCastException)
-				{
-					ThrowHelper.ThrowWrongExpectedValueType<TValue>(value);
-				}
-			}
-			catch (InvalidCastException)
-			{
-				ThrowHelper.ThrowWrongExpectedValueType<TKey>(key);
-			}
-		}
-
-		/// <summary>
-		///     Copies the elements of the dictionary to an <see cref="Array" />, starting at a particular array index.
-		/// </summary>
-		/// <param name="array">The destination array.</param>
-		/// <param name="index">The index at which copying beings.</param>
-		void ICollection.CopyTo(Array array, int index)
-		{
-			((ICollection) dictionary).CopyTo(array, index);
-		}
-
-		/// <summary>
-		///     Returns an enumerator that iterates through the dictionary.
-		/// </summary>
-		/// <returns>A enumerator for the dictionary.</returns>
-		IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
-		{
-			return ((IEnumerable<KeyValuePair<TKey, TValue>>) dictionary).GetEnumerator();
-		}
-
-		/// <summary>
-		///     Returns an enumerator that iterates through the dictionary.
-		/// </summary>
-		/// <returns>A enumerator for the dictionary.</returns>
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return ((IEnumerable) dictionary).GetEnumerator();
-		}
-
-		/// <summary>
-		///     Adds a key/value pair to the dictionary.
-		/// </summary>
-		/// <param name="item">The key/value pair to add.</param>
-		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
-		{
-			AddInternal(item.Key, item.Value);
-		}
-
-		/// <summary>
-		///     Removes all elements from the dictionary.
-		/// </summary>
-		public void Clear()
-		{
-			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
-
-			if (Count == 0)
-			{
-				return;
-			}
-
-			using (CollectionScope<KeyValuePair<TKey, TValue>> scope = new CollectionScope<KeyValuePair<TKey, TValue>>(dictionary))
-			{
-				dictionary.Clear();
-
-				keys.Clear();
-				values.Clear();
-
-				Count = 0;
-
-				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Clear(scope.Span, -1, -1));
-
-				AddStackTrace();
-			}
-		}
-
-		/// <summary>
-		///     Determines if the dictionary contains the specified key/value pair.
-		/// </summary>
-		/// <param name="item">The key value pair to check.</param>
-		/// <returns>True if the key and value both exist in the dictionary; otherwise, false.</returns>
-		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
-		{
-			return dictionary.ContainsKey(item.Key) && dictionary.ContainsValue(item.Value);
-		}
-
-		/// <summary>
-		///     Copies the elements of the dictionary to an <see cref="Array" />, starting at a particular array index.
-		/// </summary>
-		/// <param name="array">The destination array.</param>
-		/// <param name="arrayIndex">The index at which copying beings.</param>
-		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-		{
-			((ICollection<KeyValuePair<TKey, TValue>>) dictionary).CopyTo(array, arrayIndex);
-		}
-
-		/// <summary>
-		///     Removes a key/value pair from the dictionary.
-		/// </summary>
-		/// <param name="item">The key/value pair to remove.</param>
-		/// <returns>True if the key/value pair was found and removed; otherwise, false.</returns>
-		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
-		{
-			if (dictionary.TryGetValue(item.Key, out TValue value) && EqualityHelper.Equals(item.Value, value))
-			{
-				return RemoveInternal(item.Key);
-			}
-
-			return false;
-		}
-
-		/// <summary>
-		///     Adds the specified key and value to the dictionary.
-		/// </summary>
-		/// <param name="key">The key of the element to add.</param>
-		/// <param name="value">The value of the element to add.</param>
-		public void Add(TKey key, TValue value)
-		{
-			AddInternal(key, value);
-		}
-
-		private void AddInternal(TKey key, TValue value)
-		{
-			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
-
-			dictionary.Add(key, value);
-
-			keys.Add(key);
-			values.Add(value);
-
-			Count = dictionary.Count;
-
-			Assert.AreEqual(dictionary.Keys.Count, keys.Count);
-			Assert.AreEqual(dictionary.Values.Count, values.Count);
-
-			InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Add(new KeyValuePair<TKey, TValue>(key, value), -1));
-
-			AddStackTrace(1);
-		}
-
-		/// <summary>
-		///     Determines whether the dictionary contains the specified key.
-		/// </summary>
-		/// <param name="key">The key to check.</param>
-		/// <returns>True if the dictionary contains the key; otherwise, false.</returns>
-		public bool ContainsKey(TKey key)
-		{
-			return dictionary.ContainsKey(key);
-		}
-
-		/// <summary>
-		///     Removes the value with the specified key from the dictionary.
-		/// </summary>
-		/// <param name="key">The key of the element to remove.</param>
-		/// <returns>
-		///     True if the element was found and removed; otherwise, false. This method returns false if the key is not found
-		///     in the dictionary.
-		/// </returns>
-		public bool Remove(TKey key)
-		{
-			return RemoveInternal(key);
-		}
-
-		/// <summary>
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		private bool RemoveInternal(TKey key)
-		{
-			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
-
-			bool removed = dictionary.Remove(key, out TValue oldItem);
-			if (removed)
-			{
-				keys.Remove(key);
-				values.Remove(oldItem);
-
-				Count = dictionary.Count;
-
-				Assert.AreEqual(dictionary.Keys.Count, keys.Count);
-				Assert.AreEqual(dictionary.Values.Count, values.Count);
-
-				InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>>.Remove(new KeyValuePair<TKey, TValue>(key, oldItem), -1));
-
-				AddStackTrace(1);
-			}
-
-			return removed;
-		}
-
-		/// <summary>
-		///     Gets the value associated with the specified key.
-		/// </summary>
-		/// <param name="key">The key of the element to get.</param>
-		/// <param name="value">The value if it was found. Will be the default value if it wasn't found.</param>
-		/// <returns>True if the dictionary contains an element with the specified key; otherwise, false.</returns>
-		public bool TryGetValue(TKey key, out TValue value)
-		{
-			return dictionary.TryGetValue(key, out value);
-		}
-
-		private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
-		{
-			onCollectionChanged.Invoke(args);
-			OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
-		}
-
-		void ISerializationCallbackReceiver.OnBeforeSerialize()
-		{
-			// Does nothing.
-		}
-
-		/// <summary>
-		///     Called after Unity has deserialized this type.
-		/// </summary>
-		void ISerializationCallbackReceiver.OnAfterDeserialize()
-		{
-#if DEBUG
-			// If the dictionary is invalid, stop here.
-			if (!IsValid())
-			{
-				return;
-			}
-#endif
-
-			// Update the dictionary with the serialized keys and values.
-			dictionary.Clear();
-			dictionary.EnsureCapacity(keys.Count);
-
-			for (int i = 0; i < keys.Count; i++)
-			{
-				dictionary.Add(keys[i], values[i]);
-			}
-
-			Count = dictionary.Count;
-		}
-
-		/// <summary>
-		///     Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its
-		///     backing storage.
-		/// </summary>
-		/// <param name="capacity">The number of entries.</param>
-		/// <returns>The current capacity of the dictionary.</returns>
-		/// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is less than 0.</exception>
-		public int EnsureCapacity(int capacity)
-		{
-			int result = dictionary.EnsureCapacity(capacity);
-			if (keys.Capacity < capacity)
-			{
-				keys.Capacity = capacity;
-			}
-
-			if (values.Capacity < capacity)
-			{
-				values.Capacity = capacity;
-			}
-
-			return result;
-		}
-
-		/// <inheritdoc />
-		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.RegisterCallback(callback);
-		}
-
-		/// <inheritdoc />
-		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(context, nameof(context));
-
-			onCollectionChanged.RegisterCallback(callback, context);
-		}
-
-		/// <inheritdoc />
-		public void UnregisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.RemoveCallback(callback);
-		}
-
-		/// <inheritdoc />
-		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.RemoveCallback(callback);
-		}
 
 		#region Obsolete
 #if UNITY_EDITOR // Don't include in builds.
