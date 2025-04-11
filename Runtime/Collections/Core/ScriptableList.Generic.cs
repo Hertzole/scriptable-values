@@ -1149,7 +1149,17 @@ namespace Hertzole.ScriptableValues
 			AddStackTrace(1);
 		}
 
-		//TODO: Implement Slice(int, int)
+		/// <inheritdoc cref="GetRange(int,int)" />
+		public List<T> Slice(int index, int count)
+		{
+			return GetRange(index, count);
+		}
+
+		/// <inheritdoc cref="GetRange(int,int,IList{T})" />
+		public void Slice(int index, int count, IList<T> destinationList)
+		{
+			GetRange(index, count, destinationList);
+		}
 
 		/// <summary>
 		///     Sets the value at the given index.
