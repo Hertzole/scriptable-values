@@ -348,7 +348,57 @@ namespace Hertzole.ScriptableValues
 			return EqualityHelper.IsSameType(value, out T? newValue) && Contains(newValue);
 		}
 
-		//TODO: Implement ConvertAll
+		/// <summary>
+		///     Converts the elements in the current list to another type, and returns a list containing the converted elements.
+		/// </summary>
+		/// <param name="converter">
+		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to
+		///     another type.
+		/// </param>
+		/// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
+		/// <returns>A <see cref="List{TOutput}" /> of the target type containing the converted elements of the current list.</returns>
+		/// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
+		public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
+		{
+			return list.ConvertAll(converter);
+		}
+
+		/// <summary>
+		///     Converts the elements in the current list to another type, and copies the converted elements to the specified list.
+		/// </summary>
+		/// <param name="destinationList">The destination list where the converted items will be copied to.</param>
+		/// <param name="converter">
+		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to
+		///     another type.
+		/// </param>
+		/// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
+		/// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
+		public void ConvertAll<TOutput>(IList<TOutput> destinationList, Converter<T, TOutput> converter)
+		{
+			ThrowHelper.ThrowIfNull(converter, nameof(converter));
+			ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
+
+			destinationList.Clear();
+
+			if (destinationList is List<TOutput> genericList)
+			{
+				// Make sure the capacity is at least the same as the internal count.
+				if (genericList.Capacity < internalCount)
+				{
+					genericList.Capacity = internalCount;
+				}
+			}
+			else if (destinationList is ScriptableList<TOutput> scriptableList)
+			{
+				// Make sure the capacity is at least the same as the internal count.
+				scriptableList.EnsureCapacity(internalCount);
+			}
+
+			for (int i = 0; i < internalCount; i++)
+			{
+				destinationList.Add(converter(list[i]));
+			}
+		}
 
 		/// <summary>
 		///     Copies the entire list to a compatible one-dimensional array.
