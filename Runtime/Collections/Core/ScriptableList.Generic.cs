@@ -498,6 +498,8 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(match, nameof(match));
 			ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
 
+			destinationList.Clear();
+
 			for (int i = 0; i < internalCount; i++)
 			{
 				if (match(list[i]))
