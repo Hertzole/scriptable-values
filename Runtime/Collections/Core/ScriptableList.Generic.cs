@@ -562,6 +562,21 @@ namespace Hertzole.ScriptableValues
 			return list.FindIndex(startIndex, count, match);
 		}
 
+		/// <summary>
+		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the last
+		///     occurrence within the entire list.
+		/// </summary>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
+		/// <returns>
+		///     The last element that matches the conditions defined by the specified predicate, if found; otherwise, the
+		///     default value for type <c>T</c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		public T? FindLast(Predicate<T> match)
+		{
+			return list.FindLast(match);
+		}
+
 		//TODO: Implement FindLast
 		//TODO: Implement FindLastIndex
 		//TODO: Implement ForEach
