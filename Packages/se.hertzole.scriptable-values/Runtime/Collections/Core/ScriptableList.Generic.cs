@@ -380,19 +380,8 @@ namespace Hertzole.ScriptableValues
 
 			destinationList.Clear();
 
-			if (destinationList is List<TOutput> genericList)
-			{
-				// Make sure the capacity is at least the same as the internal count.
-				if (genericList.Capacity < internalCount)
-				{
-					genericList.Capacity = internalCount;
-				}
-			}
-			else if (destinationList is ScriptableList<TOutput> scriptableList)
-			{
-				// Make sure the capacity is at least the same as the internal count.
-				scriptableList.EnsureCapacity(internalCount);
-			}
+			// Make sure the capacity is at least the same as the internal count.
+			destinationList.TryEnsureCapacity(internalCount);
 
 			for (int i = 0; i < internalCount; i++)
 			{
@@ -672,7 +661,56 @@ namespace Hertzole.ScriptableValues
 			return ((IEnumerable) list).GetEnumerator();
 		}
 
-		//TODO: Implement GetRange
+		/// <summary>
+		///     Creates a shallow copy of a range of elements in the source list.
+		/// </summary>
+		/// <param name="index">The zero-based list index at which the range starts.</param>
+		/// <param name="count">The number of elements in the range.</param>
+		/// <returns>A shallow copy of a range of elements in the source list.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0. Or <c>count</c> is less than 0.</exception>
+		/// <exception cref="ArgumentException"><c>index</c> and <c>count</c> do not denote a valid range of elements in the list.</exception>
+		public List<T> GetRange(int index, int count)
+		{
+			return list.GetRange(index, count);
+		}
+
+		/// <summary>
+		///     Copies a range of elements from the source list to the specified destination list.
+		/// </summary>
+		/// <param name="index">The zero-based list index at which the range starts.</param>
+		/// <param name="count">The number of elements in the range.</param>
+		/// <param name="destinationList">The list where the copied elements will be stored.</param>
+		/// <exception cref="ArgumentNullException"><c>destinationList</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0. Or <c>count</c> is less than 0.</exception>
+		/// <exception cref="ArgumentException"><c>index</c> and <c>count</c> do not denote a valid range of elements in the list.</exception>
+		public void GetRange(int index, int count, IList<T> destinationList)
+		{
+			ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
+			if (index < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
+
+			if (count < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(count));
+			}
+
+			if (internalCount - index < count)
+			{
+				throw new ArgumentException(nameof(index) + " and " + nameof(index) + " do not denote a valid range of elements in the list.");
+			}
+
+			destinationList.Clear();
+
+			// Make sure the capacity is at least the same as the internal count.
+			destinationList.TryEnsureCapacity(count);
+
+			for (int i = index; i < index + count; i++)
+			{
+				destinationList.Add(list[i]);
+			}
+		}
 
 		/// <summary>
 		///     Searches for the specified object and returns the zero-based index of the first occurrence within the entire list.
