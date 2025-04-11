@@ -470,7 +470,42 @@ namespace Hertzole.ScriptableValues
 			return list.Find(match);
 		}
 
-		//TODO: Implement FindAll
+		/// <summary>
+		///     Retrieves all the elements that match the conditions defined by the specified predicate.
+		/// </summary>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to search for.</param>
+		/// <returns>
+		///     A <see cref="List{T}" /> containing all the elements that match the conditions defined by the specified
+		///     predicate, if found; otherwise, an empty <see cref="List{T}" />
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		public List<T> FindAll(Predicate<T> match)
+		{
+			ThrowHelper.ThrowIfNull(match, nameof(match));
+
+			return list.FindAll(match);
+		}
+
+		/// <summary>
+		///     Retrieves all the elements that match the conditions defined by the specified predicate and copies them to the
+		///     specified list.
+		/// </summary>
+		/// <param name="destinationList"> The list where the found elements will be copied to.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to search for.</param>
+		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		public void FindAll(IList<T> destinationList, Predicate<T> match)
+		{
+			ThrowHelper.ThrowIfNull(match, nameof(match));
+
+			for (int i = 0; i < internalCount; i++)
+			{
+				if (match(list[i]))
+				{
+					destinationList.Add(list[i]);
+				}
+			}
+		}
+
 		//TODO: Implement FindIndex
 		//TODO: Implement FindLast
 		//TODO: Implement FindLastIndex

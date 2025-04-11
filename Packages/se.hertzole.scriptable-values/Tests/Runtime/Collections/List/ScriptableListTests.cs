@@ -13,12 +13,18 @@ using UnityEngine.TestTools.Constraints;
 using Assert = UnityEngine.Assertions.Assert;
 using AssertionException = UnityEngine.Assertions.AssertionException;
 using Is = UnityEngine.TestTools.Constraints.Is;
+using Random = UnityEngine.Random;
 
 namespace Hertzole.ScriptableValues.Tests
 {
 	public partial class ScriptableListTests : BaseCollectionTest
 	{
 		private TestScriptableList list = null!;
+
+		public static readonly int[] validCollectionSizes =
+		{
+			0, 1, 75
+		};
 
 		public static IEnumerable PropertyChangeCases
 		{
@@ -102,6 +108,15 @@ namespace Hertzole.ScriptableValues.Tests
 
 				yield return MakePropertyChangeTestCase<TestScriptableList>(ScriptableList.capacityChangingArgs, ScriptableList.capacityChangedArgs,
 					i => i.TrimExcess(), "Capacity - TrimExcess");
+			}
+		}
+
+		public static IEnumerable DestinationLists
+		{
+			get
+			{
+				yield return new TestCaseData(new List<int>()).SetName("List<int>");
+				yield return new TestCaseData(CreateInstance<TestScriptableList>()).SetName("ScriptableList<int>");
 			}
 		}
 
@@ -641,6 +656,24 @@ namespace Hertzole.ScriptableValues.Tests
 			list.EnsureCapacity(16);
 
 			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue, list);
+		}
+
+		private static IEnumerable<int> CreateList(int count)
+		{
+			List<int> list = new List<int>(count);
+
+			while (list.Count < count)
+			{
+				int toAdd = Random.Range(int.MinValue, int.MaxValue);
+				while (list.Contains(toAdd))
+				{
+					toAdd = Random.Range(int.MinValue, int.MaxValue);
+				}
+
+				list.Add(toAdd);
+			}
+
+			return list;
 		}
 	}
 }

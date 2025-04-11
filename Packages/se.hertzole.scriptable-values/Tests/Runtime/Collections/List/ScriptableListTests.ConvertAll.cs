@@ -29,34 +29,12 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void ConvertAll_GenericList()
+		[TestCaseSource(nameof(DestinationLists))]
+		public void ConvertAll_DestinationList(IList<int> destinationList)
 		{
 			// Arrange
 			list.AddRange(new[] { 1, 2, 3, 4, 5 });
 			List<int> before = list.ToList();
-			List<int> destinationList = new List<int>();
-
-			// Act
-			list.ConvertAll(destinationList, i => 10 * i);
-
-			// Assert
-			Assert.AreEqual(before.Count, list.Count);
-			Assert.AreEqual(before.Count, destinationList.Count);
-
-			for (int i = 0; i < before.Count; i++)
-			{
-				Assert.AreEqual(before[i], list[i]);
-				Assert.AreEqual(10 * before[i], destinationList[i]);
-			}
-		}
-
-		[Test]
-		public void ConvertAll_ScriptableList()
-		{
-			// Arrange
-			list.AddRange(new[] { 1, 2, 3, 4, 5 });
-			List<int> before = list.ToList();
-			TestScriptableList destinationList = CreateInstance<TestScriptableList>();
 
 			// Act
 			list.ConvertAll(destinationList, i => 10 * i);
