@@ -16,10 +16,13 @@ namespace Hertzole.ScriptableValues
 				hash = hash * 23 + ClearOnStart.GetHashCode();
 				hash = hash * 23 + SetEqualityCheck.GetHashCode();
 
+				EqualityComparer<TKey> keyComparer = EqualityComparer<TKey>.Default;
+				EqualityComparer<TValue> valueComparer = EqualityComparer<TValue>.Default;
+
 				for (int i = 0; i < keys.Count; i++)
 				{
-					hash = hash * 23 + EqualityComparer<TKey>.Default.GetHashCode(keys[i]);
-					hash = hash * 23 + EqualityComparer<TValue>.Default.GetHashCode(values[i]);
+					hash = hash * 23 + keyComparer.GetHashCode(keys[i]);
+					hash = hash * 23 + valueComparer.GetHashCode(values[i]);
 				}
 
 				return hash;
