@@ -496,6 +496,7 @@ namespace Hertzole.ScriptableValues
 		public void FindAll(IList<T> destinationList, Predicate<T> match)
 		{
 			ThrowHelper.ThrowIfNull(match, nameof(match));
+			ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
 
 			for (int i = 0; i < internalCount; i++)
 			{
