@@ -632,7 +632,16 @@ namespace Hertzole.ScriptableValues
 			return list.FindLastIndex(startIndex, count, match);
 		}
 
-		//TODO: Implement ForEach
+		/// <summary>
+		///     Performs the specified action on each element of the list.
+		/// </summary>
+		/// <param name="action">The <see cref="Action{T}" /> delegate to perform on each element of the list.</param>
+		/// <exception cref="ArgumentNullException"><c>action</c> is <c>null</c>.</exception>
+		/// <exception cref="InvalidOperationException">An element in the collection has been modified.</exception>
+		public void ForEach(Action<T> action)
+		{
+			list.ForEach(action);
+		}
 
 		/// <summary>
 		///     Returns an enumerator that iterates through the list.
