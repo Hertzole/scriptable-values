@@ -266,12 +266,48 @@ namespace Hertzole.ScriptableValues
 			AddStackTrace();
 		}
 
-		//TODO: Implement BinarySearch
+		/// <summary>
+		///     Searches the entire sorted list for an element using the specified comparer and returns the zero-based index of the
+		///     element.
+		/// </summary>
+		/// <param name="item">The object to locate. The value can be <c>null</c> for reference types.</param>
+		/// <param name="comparer">
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements. Or <c>null</c> to
+		///     use the default comparer.
+		/// </param>
+		/// <returns>
+		///     The zero-based index of <c>item</c> in the sorted list, if <c>item</c> is found; otherwise, a negative number
+		///     that is the bitwise complement of the index of the next element that is larger than <c>item</c> or, if there is no
+		///     larger element, the bitwise complement of <see cref="Count" />
+		/// </returns>
+		/// <exception cref="InvalidOperationException">
+		///     <c>comparer</c> is <c>null</c>, and the default comparer cannot find an
+		///     implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for
+		///     type <c>T</c>
+		/// </exception>
+		public int BinarySearch(T item, IComparer<T>? comparer = null)
+		{
+			return BinarySearch(0, internalCount, item, comparer);
+		}
+
+		/// <summary>
+		///     Searches a range of elements in the sorted list for an element using the specified comparer and returns the
+		///     zero-based index of the element.
+		/// </summary>
+		/// <param name="index">The zero-based starting index of the range to search.</param>
+		/// <param name="count">The length of the range to search.</param>
+		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0. Or <c>count</c> is less than 0.</exception>
+		/// <exception cref="ArgumentException"><c>index</c> and <c>count</c> do not denote a valid range in the list.</exception>
+		/// <inheritdoc cref="BinarySearch(T,System.Collections.Generic.IComparer{T}?)" path='/returns' />
+		public int BinarySearch(int index, int count, T item, IComparer<T>? comparer = null)
+		{
+			return list.BinarySearch(index, count, item, comparer);
+		}
 
 		/// <summary>
 		///     Removes all elements from the list.
 		/// </summary>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="/returns" />
 		public void Clear()
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
