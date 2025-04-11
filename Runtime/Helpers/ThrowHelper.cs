@@ -42,7 +42,7 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// </summary>
 		/// <param name="isReadOnly">Weather or not the object is read-only.</param>
 		/// <param name="context">The object that is read-only.</param>
-		/// <exception cref="ReadOnlyException">If the object is read-only.</exception>
+		/// <exception cref="ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public static void ThrowIfIsReadOnly(in bool isReadOnly, object context)
 		{
 #if UNITY_EDITOR
@@ -66,16 +66,16 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 		}
 
-        /// <summary>
-        /// Throws an <see cref="ArgumentOutOfRangeException"/> if the value is outside the specified range.
-        /// </summary>
-        /// <remarks>This only throws in development builds and never release builds.</remarks>
-        /// <param name="paramName">The name of the parameter that was wrong.</param>
-        /// <param name="value">The actual value.</param>
-        /// <param name="min">The minimum value.</param>
-        /// <param name="max">The maximum value.</param>
-        /// <exception cref="ArgumentOutOfRangeException">If <c>value</c> is below <c>min</c> or above <c>max</c>.</exception>
-        [Conditional("DEBUG")]
+		/// <summary>
+		///     Throws an <see cref="ArgumentOutOfRangeException" /> if the value is outside the specified range.
+		/// </summary>
+		/// <remarks>This only throws in development builds and never release builds.</remarks>
+		/// <param name="paramName">The name of the parameter that was wrong.</param>
+		/// <param name="value">The actual value.</param>
+		/// <param name="min">The minimum value.</param>
+		/// <param name="max">The maximum value.</param>
+		/// <exception cref="ArgumentOutOfRangeException">If <c>value</c> is below <c>min</c> or above <c>max</c>.</exception>
+		[Conditional("DEBUG")]
 		public static void ThrowIfOutOfBounds(string paramName, in int value, in int min, in int max)
 		{
 			if (value < min || value > max)
@@ -115,7 +115,7 @@ namespace Hertzole.ScriptableValues.Helpers
 		{
 			throw new ReadOnlyException($"{context} is marked as read only and cannot be modified at runtime.");
 		}
-		
+
 		/// <summary>
 		/// Throws an <see cref="ArgumentOutOfRangeException"/> with the specified message.
 		/// </summary>
