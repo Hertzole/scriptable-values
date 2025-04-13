@@ -178,23 +178,23 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds an item to the list.
+		/// Adds an item to the end of the <see cref="ScriptableList{T}"/>.
 		/// </summary>
-		/// <param name="item">The item to add.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="item">The object to be added to the end of the <see cref="ScriptableList{T}"/>. The value can be <c>null</c> for reference types.</param>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Add(T item)
 		{
 			AddInternal(item);
 		}
 
 		/// <summary>
-		///     Adds an item to the list. May fail if the value is not the same type as the generic type.
+		/// Adds an item to the end of the <see cref="ScriptableList{T}"/>.
 		/// </summary>
-		/// <param name="value">The item to add.</param>
-		/// <returns>The new count of the list.</returns>
-		/// <exception cref="ArgumentNullException"><c>item</c> is null and <c>T</c> does not allow it.</exception>
-		/// <exception cref="ArgumentException"><c>item</c> is of a type that is not assignable to the list.</exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="value">The object to be added to the end of the <see cref="ScriptableList{T}"/>. The value can be <c>null</c> for reference types.</param>
+		/// <returns>The position into which the new element was inserted.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c> and <c>T</c> does not allow it.</exception>
+		/// <exception cref="ArgumentException"><paramref name="value"/> is of a type that is not assignable to the list.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		int IList.Add(object? value)
 		{
 			// If the item is null and typeof(T) doesn't allow nulls, throw an exception.
@@ -213,12 +213,7 @@ namespace Hertzole.ScriptableValues
 			return Count - 1;
 		}
 
-		/// <summary>
-		///     Internal method to add an item to the list. Skips one frame in the stack traces to give the impression that the
-		///     calling method added the item.
-		/// </summary>
-		/// <param name="item">The item to add.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private void AddInternal(T item)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -233,11 +228,11 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds the elements of the specified collection to the end of the list.
+		///     Adds the elements of the specified collection to the end of the <see cref="ScriptableList{T}"/>.
 		/// </summary>
-		/// <param name="collection">The collection whose elements should be added to the end of the list.</param>
-		/// <exception cref="ArgumentNullException">If <paramref name="collection" /> is null.</exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="collection">The collection whose elements should be added to the end of the <see cref="ScriptableList{T}"/>. The collection itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference type.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="collection" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void AddRange(IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
