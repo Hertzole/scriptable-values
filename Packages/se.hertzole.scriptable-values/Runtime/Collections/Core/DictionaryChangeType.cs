@@ -1,8 +1,12 @@
-﻿namespace Hertzole.ScriptableValues
+﻿#if UNITY_EDITOR
+using System;
+
+namespace Hertzole.ScriptableValues
 {
 	/// <summary>
 	///     Type of change events that can be raised by a <see cref="ScriptableDictionary{TKey, TValue}" />.
 	/// </summary>
+	[Obsolete("No longer used. This will be removed in builds.", true)] 
 	public enum DictionaryChangeType
 	{
 		/// <summary>
@@ -27,3 +31,4 @@
 		Trimmed = 4
 	}
 }
+#endif
