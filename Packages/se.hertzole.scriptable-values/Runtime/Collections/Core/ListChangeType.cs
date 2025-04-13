@@ -6,7 +6,7 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Types of change events that can be raised by a <see cref="ScriptableList{T}" />.
 	/// </summary>
-	[Obsolete("No longer used. This will be removed in builds.")]
+	[Obsolete("No longer used. This will be removed in builds.", true)]
 	public enum ListChangeType
 	{
 		/// <summary>

@@ -8,6 +8,10 @@ using UnityEngine.Pool;
 
 namespace Hertzole.ScriptableValues
 {
+	/// <summary>
+	///     Internal reusable collection enumerator for collections.
+	/// </summary>
+	/// <typeparam name="T">The type of hte items in the collection.</typeparam>
 	internal sealed class CollectionEnumerator<T> : ICollection<T>, IDisposable
 	{
 		private T[]? currentArray;

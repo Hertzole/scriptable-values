@@ -187,22 +187,6 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Gets a collection containing the keys in the dictionary.
-		/// </summary>
-		public Dictionary<TKey, TValue>.KeyCollection Keys
-		{
-			get { return dictionary.Keys; }
-		}
-
-		/// <summary>
-		///     Gets a collection containing the values in the dictionary.
-		/// </summary>
-		public Dictionary<TKey, TValue>.ValueCollection Values
-		{
-			get { return dictionary.Values; }
-		}
-
-		/// <summary>
 		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
 		/// </summary>
 		public override bool IsReadOnly
@@ -228,6 +212,22 @@ namespace Hertzole.ScriptableValues
 		{
 			get { return clearOnStart; }
 			set { SetField(ref clearOnStart, value, clearOnStartChangingEventArgs, clearOnStartChangedEventArgs); }
+		}
+
+		/// <summary>
+		///     Gets a collection containing the keys in the dictionary.
+		/// </summary>
+		public Dictionary<TKey, TValue>.KeyCollection Keys
+		{
+			get { return dictionary.Keys; }
+		}
+
+		/// <summary>
+		///     Gets a collection containing the values in the dictionary.
+		/// </summary>
+		public Dictionary<TKey, TValue>.ValueCollection Values
+		{
+			get { return dictionary.Values; }
 		}
 
 		bool IDictionary.IsFixedSize
@@ -291,7 +291,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Checks if the dictionary is a valid dictionary by checking the keys and values.
 		/// </summary>
-		/// <returns>True if the dictionary is valid; otherwise, false.</returns>
+		/// <returns><c>true</c> if the dictionary is valid; otherwise, <c>false</c>.</returns>
 		internal override bool IsValid()
 		{
 			// If the keys and values are not the same length, the dictionary is invalid.
@@ -327,7 +327,7 @@ namespace Hertzole.ScriptableValues
 		///     Checks if a key at a specific index is unique.
 		/// </summary>
 		/// <param name="index">The index to check.</param>
-		/// <returns>True if the index is unique; otherwise, false.</returns>
+		/// <returns><c>true</c> if the index is unique; otherwise, <c>false</c>.</returns>
 		internal override bool IsIndexUnique(int index)
 		{
 			// Check for duplicate keys with the key at index.
@@ -351,22 +351,27 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds the specified key and value to the dictionary.
+		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
 		/// </summary>
 		/// <param name="key">The key of the element to add.</param>
 		/// <param name="value">The value of the element to add.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Add(TKey key, TValue value)
 		{
 			AddInternal(key, value);
 		}
 
 		/// <summary>
-		///     Adds the specified key and value to the dictionary.
+		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
 		/// </summary>
 		/// <param name="key">The key of the element to add.</param>
 		/// <param name="value">The value of the element to add.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
+		/// <exception cref="ArgumentException"><paramref name="key"/> does not match <typeparamref name="TKey"/> or <paramref name="value"/> does not match <typeparamref name="TValue"/></exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void IDictionary.Add(object key, object? value)
 		{
 			ThrowHelper.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
@@ -392,16 +397,23 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds a key/value pair to the dictionary.
+		///     Adds a key/value pair to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
 		/// </summary>
-		/// <param name="item">The key/value pair to add.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
-		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
+		/// <param name="keyValuePair">The key/value pair to add.</param>
+		/// <exception cref="ArgumentNullException">The key of <paramref name="keyValuePair"/> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
 		{
-			AddInternal(item.Key, item.Value);
+			AddInternal(keyValuePair.Key, keyValuePair.Value);
 		}
 
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+		/// <exception cref="ArgumentException">
+		///     An element with the same key already exists in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />
+		/// </exception>
 		private void AddInternal(TKey key, TValue value)
 		{
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
@@ -422,9 +434,9 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes all elements from the dictionary.
+		///     Removes all elements from the <see cref="ScriptableDictionary{TKey,TValue}"/>
 		/// </summary>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Clear()
 		{
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
@@ -450,47 +462,49 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Determines whether the dictionary contains the specified key.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the specified key.
 		/// </summary>
-		/// <param name="key">The key to check.</param>
-		/// <returns>True if the dictionary contains the key; otherwise, false.</returns>
+		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
+		/// <returns><c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the key; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
 		public bool ContainsKey(TKey key)
 		{
 			return dictionary.ContainsKey(key);
 		}
 
 		/// <summary>
-		///     Determines whether the dictionary contains a specific value.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains a specific value.
 		/// </summary>
-		/// <param name="value">The value to locate in the dictionary.</param>
-		/// <returns>True if the dictionary contains the value; otherwise, false.</returns>
+		/// <param name="value">The value to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
+		/// <returns><c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the value; otherwise, <c>false</c>.</returns>
 		public bool ContainsValue(TValue value)
 		{
 			return dictionary.ContainsValue(value);
 		}
 
 		/// <summary>
-		///     Determines whether the dictionary contains the specified key.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains an element with the specified key.
 		/// </summary>
-		/// <param name="key">The key to check.</param>
-		/// <returns>True if the key type is the same as the generic type and the dictionary contains the key; otherwise, false.</returns>
+		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
+		/// <returns><c>true</c> if the key type is the same as <typeparamref name="TKey"/> and the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the key; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
 		bool IDictionary.Contains(object key)
 		{
 			return EqualityHelper.IsSameType(key, out TKey? newKey) && ContainsKey(newKey);
 		}
 
 		/// <summary>
-		///     Determines if the dictionary contains the specified key/value pair.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains a specific key and value.
 		/// </summary>
-		/// <param name="item">The key value pair to check.</param>
-		/// <returns>True if the key and value both exist in the dictionary; otherwise, false.</returns>
+		/// <param name="item">The <see cref="KeyValuePair{TKey,TValue}"/> structure to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/></param>
+		/// <returns><c>true</c> if the key and value both exist in the dictionary; otherwise, <c>false</c>.</returns>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
 		{
 			return dictionary.ContainsKey(item.Key) && dictionary.ContainsValue(item.Value);
 		}
 
 		/// <summary>
-		///     Copies the elements of the dictionary to an <see cref="Array" />, starting at a particular array index.
+		///     Copies the elements of the <see cref="ScriptableDictionary{TKey,TValue}"/> to an <see cref="Array" />, starting at the specified array index.
 		/// </summary>
 		/// <param name="array">The destination array.</param>
 		/// <param name="index">The index at which copying beings.</param>
