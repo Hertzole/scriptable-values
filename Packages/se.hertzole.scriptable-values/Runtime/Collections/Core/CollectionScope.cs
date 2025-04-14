@@ -8,7 +8,7 @@ using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
-	internal struct CollectionScope<T> : IDisposable, IEquatable<CollectionScope<T>>
+	internal ref struct CollectionScope<T>
 	{
 		private T[]? array;
 
@@ -57,41 +57,6 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		/// <inheritdoc />
-		public bool Equals(CollectionScope<T> other)
-		{
-			return Length == other.Length && ArrayHelpers.SequenceEquals(Span, other.Span);
-		}
-
-		/// <inheritdoc />
-		public override bool Equals(object? obj)
-		{
-			return obj is CollectionScope<T> other && Equals(other);
-		}
-
-		/// <inheritdoc />
-		public override int GetHashCode()
-		{
-			if (array == null)
-			{
-				return 0;
-			}
-
-			EqualityComparer<T> comparer = EqualityComparer<T>.Default;
-
-			unchecked
-			{
-				int hash = 17;
-
-				for (int i = 0; i < Length; i++)
-				{
-					hash = hash * 31 + comparer.GetHashCode(array[i]);
-				}
-
-				return hash;
-			}
-		}
-
 		public CollectionEnumerator<T> GetEnumerator()
 		{
 			ThrowHelper.ThrowIfNull(array, nameof(array));
@@ -124,16 +89,6 @@ namespace Hertzole.ScriptableValues
 				array = array,
 				Length = count
 			};
-		}
-
-		public static bool operator ==(CollectionScope<T> left, CollectionScope<T> right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator !=(CollectionScope<T> left, CollectionScope<T> right)
-		{
-			return !left.Equals(right);
 		}
 	}
 }
