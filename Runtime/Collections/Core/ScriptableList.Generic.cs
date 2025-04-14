@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -1113,25 +1112,18 @@ namespace Hertzole.ScriptableValues
 
 			if (countToRemove > 0)
 			{
-				T[]? removed = ArrayPool<T>.Shared.Rent(countToRemove);
-				try
+				using SpanOwner<T> removed = SpanOwner<T>.Allocate(countToRemove);
+				Span<T> removedSpan = removed.Span;
+
+				for (int i = 0; i < countToRemove; i++)
 				{
-					for (int i = 0; i < countToRemove; i++)
-					{
-						removed[i] = list[index + i];
-					}
-
-					list.RemoveRange(index, count);
-
-					Span<T> span = removed.AsSpan(0, countToRemove);
-
-					UpdateCounts();
-					InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(span, index));
+					removedSpan[i] = list[index + i];
 				}
-				finally
-				{
-					ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-				}
+
+				list.RemoveRange(index, count);
+
+				UpdateCounts();
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removedSpan, index));
 			}
 
 			AddStackTrace();
