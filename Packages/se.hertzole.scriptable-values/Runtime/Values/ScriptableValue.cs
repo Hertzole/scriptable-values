@@ -41,7 +41,7 @@ namespace Hertzole.ScriptableValues
 			set { SetField(ref isReadOnly, value, isReadOnlyChangingArgs, isReadOnlyChangedArgs); }
 		}
 		/// <summary>
-		///     If true, the value will be reset to the default value on play mode start/game boot.
+		///     If <c>true</c>, the value will be reset to the default value on play mode start/game boot.
 		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
@@ -52,7 +52,7 @@ namespace Hertzole.ScriptableValues
 			set { SetField(ref resetValueOnStart, value, resetValueOnStartChangingArgs, resetValueOnStartChangedArgs); }
 		}
 		/// <summary>
-		///     If true, an equality check will be run before setting the value to make sure the new value is not the same as the
+		///     If <c>true</c>, an equality check will be run before setting the value to make sure the new value is not the same as the
 		///     old one.
 		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES

@@ -14,6 +14,11 @@ namespace Hertzole.ScriptableValues
 		: IStackTraceProvider
 #endif
 	{
+		/// <summary>
+		///     Adds a stack trace.
+		/// </summary>
+		/// <remarks>This only does something in the Unity editor. This method is completely blank in builds.</remarks>
+		/// <param name="skipFrames">How many frames/calls to skip.</param>
 		[Conditional("UNITY_EDITOR")]
 		protected void AddStackTrace(int skipFrames = 0)
 		{
@@ -38,6 +43,10 @@ namespace Hertzole.ScriptableValues
 #endif
 		}
 
+		/// <summary>
+		///     Removes all stack traces.
+		/// </summary>
+		/// <remarks>>This only does something in the Unity editor. This method is completely blank in builds.</remarks>
 		[Conditional("UNITY_EDITOR")]
 		protected void ResetStackTraces()
 		{

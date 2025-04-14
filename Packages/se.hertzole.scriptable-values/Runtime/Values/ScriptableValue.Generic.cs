@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -161,10 +162,10 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback that is invoked before the value is changed.
+		///     Registers a callback to be called before <see cref="Value"/> changes.
 		/// </summary>
-		/// <param name="callback">The callback that is invoked before the value is changed.</param>
-		/// <exception cref="ArgumentNullException">The callback is null.</exception>
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterValueChangingListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -173,26 +174,26 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback that is invoked before the value is changed with additional context. The context can be used
-		///     to avoid closures.
+		///     Registers a callback to be called before <see cref="Value" /> changes with additional context.
 		/// </summary>
-		/// <param name="callback">The callback that is invoked before the value is changed.</param>
-		/// <param name="args">The context that is passed to the callback.</param>
-		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">The callback is null.</exception>
-		/// <exception cref="ArgumentNullException">The context is null.</exception>
-		public void RegisterValueChangingListener<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to call.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is <c>null</c>.</exception>
+		public void RegisterValueChangingListener<TContext>(Action<T, T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(args, nameof(args));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onValueChangingEvents.RegisterCallback(callback, args);
+			onValueChangingEvents.RegisterCallback(callback, context);
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the OnValueChanging event.
+		///     Unregisters a callback from the <see cref="Value" /> changing event.
 		/// </summary>
-		/// <param name="callback">The callback that should be unregistered.</param>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterValueChangingListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -201,11 +202,12 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the OnValueChanging event.
+		///     Unregisters a callback with context from the <see cref="Value" /> changing event.
 		/// </summary>
-		/// <param name="callback">The callback that should be unregistered.</param>
-		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void UnregisterValueChangingListener<TArgs>(Action<T, T, TArgs> callback)
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+		public void UnregisterValueChangingListener<TContext>(Action<T, T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
@@ -213,9 +215,10 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback that is invoked after the value is changed.
+		///     Registers a callback to be called after <see cref="Value"/> has been changed.
 		/// </summary>
-		/// <param name="callback">The callback that is invoked after the value is changed.</param>
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -224,24 +227,26 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback that is invoked after the value is changed with additional context. The context can be used to
-		///     avoid closures.
+		///     Registers a callback to be called after <see cref="Value" /> has been changed with additional context.
 		/// </summary>
-		/// <param name="callback">The callback that is invoked after the value is changed.</param>
-		/// <param name="args">The context that is passed to the callback.</param>
-		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void RegisterValueChangedListener<TArgs>(Action<T, T, TArgs> callback, TArgs args)
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to call.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is <c>null</c>.</exception>
+		public void RegisterValueChangedListener<TContext>(Action<T, T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(args, nameof(args));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onValueChangedEvents.RegisterCallback(callback, args);
+			onValueChangedEvents.RegisterCallback(callback, context);
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the OnValueChanged event.
+		///     Unregisters a callback from the <see cref="Value" /> changed event.
 		/// </summary>
-		/// <param name="callback">The callback that should be unregistered.</param>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterValueChangedListener(OldNewValue<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -250,17 +255,24 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the OnValueChanged event.
+		///     Unregisters a callback with context from the <see cref="Value" /> changed event.
 		/// </summary>
-		/// <param name="callback">The callback that should be unregistered.</param>
-		/// <typeparam name="TArgs">The type of the context.</typeparam>
-		public void UnregisterValueChangedListener<TArgs>(Action<T, T, TArgs> callback)
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+		public void UnregisterValueChangedListener<TContext>(Action<T, T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
 			onValueChangedEvents.RemoveCallback(callback);
 		}
 
+		/// <summary>
+		///     Helper method to check if the new value is the same as the old value.
+		/// </summary>
+		/// <param name="newValue">Thew new value.</param>
+		/// <param name="oldValue">The old value.</param>
+		/// <returns><c>true</c> if the values are the same; otherwise, <c>false</c>.</returns>
 		protected bool IsSameValue(T newValue, T oldValue)
 		{
 			// If the new value is the default value and the old value isn't, we do allow setting a new value.
@@ -275,7 +287,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sets the current value without invoking the OnValueChanging and OnValueChanged events.
+		///     Sets the current value without invoking the <see cref="OnValueChanging"/> and <see cref="OnValueChanged"/> events.
 		/// </summary>
 		/// <param name="newValue">The new value.</param>
 		public void SetValueWithoutNotify(T newValue)
@@ -314,6 +326,17 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Warns if there are any left-over subscribers to the events.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
+		[Conditional("DEBUG")]
+		protected void WarnIfLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
+			EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
+		}
+
+		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
 		/// <param name="warnIfLeftOver">
@@ -325,8 +348,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
-				EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
+				WarnIfLeftOverSubscribers();
 			}
 #endif
 
@@ -354,8 +376,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
-			EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
+			WarnIfLeftOverSubscribers();
 		}
 
 		internal void CallOnValidate_TestOnly()

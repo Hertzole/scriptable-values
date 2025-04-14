@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
+using UnityEngine;
 using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
@@ -50,7 +51,7 @@ namespace Hertzole.ScriptableValues
 	}
 
 	/// <summary>
-	///     A scriptable object that holds a pool of values.
+	///     A <see cref="ScriptableObject"/> that holds a pool of values.
 	/// </summary>
 	/// <typeparam name="T">The type of to pool. Must be a class.</typeparam>
 	public abstract partial class ScriptablePool<T> : ScriptablePool, IPoolCallbacks<T> where T : class
@@ -110,8 +111,9 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Returns an object from the pool.
+		///     Gets an object from the pool.
 		/// </summary>
+		/// <returns>The newly acquired object from the pool.</returns>
 		public T Get()
 		{
 			T? item = null;
@@ -166,7 +168,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Clears the pool.
+		///     Clears the pool. All objects, both active and inactive, will be destroyed.
 		/// </summary>
 		public void Clear()
 		{
@@ -259,7 +261,11 @@ namespace Hertzole.ScriptableValues
 		/// <param name="item">The object that was returned to the pool.</param>
 		protected virtual void OnReturn(T item) { }
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptablePool{T}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterChangedCallback(PoolEventArgs<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -267,7 +273,18 @@ namespace Hertzole.ScriptableValues
 			onPoolChanged.RegisterCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptablePool{T}" /> changes with additional
+		///     context.
+		/// </summary>
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to call.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -275,7 +292,11 @@ namespace Hertzole.ScriptableValues
 			onPoolChanged.RegisterCallback(callback, context);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback from the <see cref="ScriptablePool{T}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedCallback(PoolEventArgs<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -283,7 +304,12 @@ namespace Hertzole.ScriptableValues
 			onPoolChanged.RemoveCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback with context from the <see cref="ScriptablePool{T}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -298,6 +324,10 @@ namespace Hertzole.ScriptableValues
 			ClearSubscribers();
 		}
 
+		/// <summary>
+		///     Warns if there are any left-over subscribers to the events.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
 		[Conditional("DEBUG")]
 		protected void WarnLeftOverSubscribers()
 		{

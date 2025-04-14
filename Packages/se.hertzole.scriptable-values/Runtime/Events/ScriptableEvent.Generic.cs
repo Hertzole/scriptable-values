@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,7 +11,7 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     A ScriptableObject that can be invoked to trigger an event with an argument.
+	///     A <see cref="ScriptableObject"/> that can be invoked to trigger an event with an argument.
 	/// </summary>
 	/// <typeparam name="T">The type of the argument.</typeparam>
 	public abstract partial class ScriptableEvent<T> : RuntimeScriptableObject
@@ -77,6 +78,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Invokes the event with the specified argument and this <see cref="ScriptableEvent{T}" /> as the sender.
+		/// </summary>
+		/// <param name="args">The argument to send with the event.</param>
+		public void Invoke(T args)
+		{
+			InvokeInternal(this, args, 1);
+		}
+
+		/// <summary>
 		///     Invokes the event with the specified sender and argument.
 		/// </summary>
 		/// <param name="sender">The object that invoked the event.</param>
@@ -84,15 +94,6 @@ namespace Hertzole.ScriptableValues
 		public void Invoke(object sender, T args)
 		{
 			InvokeInternal(sender, args, 1);
-		}
-
-		/// <summary>
-		///     Invokes the event with the specified argument. The sender will be the scriptable object.
-		/// </summary>
-		/// <param name="args">The argument to send with the event.</param>
-		public void Invoke(T args)
-		{
-			InvokeInternal(this, args, 1);
 		}
 
 		/// <summary>
@@ -114,55 +115,56 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback that will be called when the event has been invoked.
+		///     Registers a callback to be called when <see cref="ScriptableEvent{T}"/> is invoked.
 		/// </summary>
-		/// <param name="action">The callback to register.</param>
-		public void RegisterInvokedListener(EventHandler<T> action)
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback"/> is <c>null</c>.</exception>
+		public void RegisterInvokedListener(EventHandler<T> callback)
 		{
-			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onInvokedInternal.RegisterCallback(action);
+			onInvokedInternal.RegisterCallback(callback);
 		}
 
 		/// <summary>
-		///     Registers a callback that will be called when the event has been invoked. The provided args will be passed to the
-		///     callback.
+		///     Registers a callback to be called when the <see cref="ScriptableEvent{T}" /> is invoked with additional context.
 		/// </summary>
-		/// <remarks>
-		///     This method is useful for avoiding closure allocations when registering a callback.
-		/// </remarks>
-		/// <param name="action">The callback to register.</param>
-		/// <param name="args">The arguments to pass to the callback.</param>
-		/// <typeparam name="TArgs">The type of the arguments.</typeparam>
-		public void RegisterInvokedListener<TArgs>(EventHandlerWithContext<T, TArgs> action, TArgs args)
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback to register.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback"/> is <c>null</c>. Or <paramref name="context"/> is <c>null</c>.</exception>
+		public void RegisterInvokedListener<TContext>(EventHandlerWithContext<T, TContext> callback, TContext context)
 		{
-			ThrowHelper.ThrowIfNull(action, nameof(action));
-			ThrowHelper.ThrowIfNull(args, nameof(args));
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
+			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onInvokedInternal.RegisterCallback(action, args);
+			onInvokedInternal.RegisterCallback(callback, context);
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the event.
+		///     Unregisters a callback from the <see cref="ScriptableEvent{T}" /> event.
 		/// </summary>
-		/// <param name="action">The callback to unregister.</param>
-		public void UnregisterInvokedListener(EventHandler<T> action)
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+		public void UnregisterInvokedListener(EventHandler<T> callback)
 		{
-			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onInvokedInternal.RemoveCallback(action);
+			onInvokedInternal.RemoveCallback(callback);
 		}
 
 		/// <summary>
-		///     Unregisters a callback from the event.
+		///     Unregisters a callback with context from the <see cref="ScriptableEvent{T}" /> event.
 		/// </summary>
-		/// <param name="action">The callback to unregister.</param>
-		/// <typeparam name="TArgs">The type of the arguments that were used when registering.</typeparam>
-		public void UnregisterInvokedListener<TArgs>(EventHandlerWithContext<T, TArgs> action)
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
+		public void UnregisterInvokedListener<TContext>(EventHandlerWithContext<T, TContext> callback)
 		{
-			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onInvokedInternal.RemoveCallback(action);
+			onInvokedInternal.RemoveCallback(callback);
 		}
 
 		/// <inheritdoc />
@@ -179,10 +181,20 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
+		///     Warns if there are any left-over subscribers to the event.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
+		[Conditional("DEBUG")]
+		protected void WarnIfLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
+		}
+
+		/// <summary>
 		///     Removes any subscribers from the event.
 		/// </summary>
 		/// <param name="warnIfLeftOver">
-		///     If true, a warning will be printed in the console if there are any subscribers.
+		///     If <c>true</c>, a warning will be printed in the console if there are any subscribers.
 		///     The warning will only be printed in the editor and debug builds.
 		/// </param>
 		public void ClearSubscribers(bool warnIfLeftOver = false)
@@ -190,7 +202,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
+				WarnIfLeftOverSubscribers();
 			}
 #endif
 
@@ -201,7 +213,7 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		protected override void OnExitPlayMode()
 		{
-			EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
+			WarnIfLeftOverSubscribers();
 		}
 #endif
 	}

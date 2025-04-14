@@ -34,20 +34,35 @@ namespace Hertzole.ScriptableValues
 		public static readonly PropertyChangedEventArgs countChangedEventArgs = new PropertyChangedEventArgs(nameof(Count));
 		public static readonly PropertyChangingEventArgs countChangingEventArgs = new PropertyChangingEventArgs(nameof(Count));
 
+		/// <summary>
+		///     If <c>true</c>, an equality check will be run before setting an item through the indexer to make sure the new
+		///     object is not the same as the old one.
+		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
 		public abstract bool SetEqualityCheck { get; set; }
+
+		/// <summary>
+		///     If <c>true</c>, the <see cref="ScriptableDictionary{TKey,TValue}" /> will be cleared on play mode start/game boot.
+		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
 		public abstract bool ClearOnStart { get; set; }
+
+		/// <summary>
+		///     Gets the number of key/value pairs contained in the <see cref="ScriptableDictionary{TKey,TValue}" />.
+		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
 		public abstract int Count { get; protected set; }
 
-		/// <inheritdoc />
+		/// <summary>
+		///     If read only, the <see cref="ScriptableDictionary{TKey,TValue}" /> cannot be changed at runtime and won't be
+		///     cleared on start.
+		/// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
@@ -65,7 +80,7 @@ namespace Hertzole.ScriptableValues
 	}
 
 	/// <summary>
-	///     A scriptable object that holds a dictionary.
+	///     A <see cref="ScriptableObject"/> that holds a <see cref="System.Collections.Generic.Dictionary{TKey, TValue}"/>.
 	/// </summary>
 	/// <typeparam name="TKey">The key of the dictionary.</typeparam>
 	/// <typeparam name="TValue">The value of the dictionary.</typeparam>
@@ -150,7 +165,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Gets or sets the <see cref="IEqualityComparer{T}" /> that is used to determine equality of keys for the dictionary.
+		///     Gets or sets the <see cref="IEqualityComparer{T}" /> that is used to determine equality of keys for the <see cref="ScriptableDictionary{TKey,TValue}"/>.
 		/// </summary>
 		public IEqualityComparer<TKey> Comparer
 		{
@@ -168,9 +183,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		/// <summary>
-		///     Gets the number of key/value pairs contained in the dictionary.
-		/// </summary>
+		/// <inheritdoc cref="ScriptableDictionary.Count" />
 		public sealed override int Count
 		{
 			get
@@ -185,28 +198,21 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		/// <summary>
-		///     If read only, the dictionary cannot be changed at runtime and won't be cleared on start.
-		/// </summary>
+		/// <inheritdoc cref="ScriptableDictionary.IsReadOnly" />
 		public override bool IsReadOnly
 		{
 			get { return isReadOnly; }
 			set { SetField(ref isReadOnly, value, isReadOnlyChangingEventArgs, isReadOnlyChangedEventArgs); }
 		}
 
-		/// <summary>
-		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
-		///     not the same as the old one.
-		/// </summary>
+		/// <inheritdoc />
 		public override bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
 			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingEventArgs, setEqualityCheckChangedEventArgs); }
 		}
 
-		/// <summary>
-		///     If true, the dictionary will be cleared on play mode start/game boot.
-		/// </summary>
+		/// <inheritdoc />
 		public override bool ClearOnStart
 		{
 			get { return clearOnStart; }
@@ -222,7 +228,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Gets a collection containing the values in the dictionary.
+		///     Gets a collection containing the values in the <see cref="ScriptableDictionary{TKey,TValue}"/>.
 		/// </summary>
 		public Dictionary<TKey, TValue>.ValueCollection Values
 		{
@@ -279,7 +285,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Occurs when an item is added, removed, replaced, or the entire dictionary is refreshed.
+		///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableDictionary{TKey, TValue}"/> is refreshed.
 		/// </summary>
 		public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> OnCollectionChanged
 		{
@@ -350,12 +356,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
+		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}" />.
 		/// </summary>
 		/// <param name="key">The key of the element to add.</param>
-		/// <param name="value">The value of the element to add.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
+		/// <param name="value">The value of the element to add. The value can be <c>null</c> for reference types.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">
+		///     An element with the same key already exists in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />
+		/// </exception>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Add(TKey key, TValue value)
 		{
@@ -363,13 +372,19 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
+		///     Adds the specified key and value to the <see cref="ScriptableDictionary{TKey, TValue}" />.
 		/// </summary>
 		/// <param name="key">The key of the element to add.</param>
 		/// <param name="value">The value of the element to add.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
-		/// <exception cref="ArgumentException"><paramref name="key"/> does not match <typeparamref name="TKey"/> or <paramref name="value"/> does not match <typeparamref name="TValue"/></exception>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">
+		///     An element with the same key already exists in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />
+		/// </exception>
+		/// <exception cref="ArgumentException">
+		///     <paramref name="key" /> does not match <typeparamref name="TKey" /> or
+		///     <paramref name="value" /> does not match <typeparamref name="TValue" />
+		/// </exception>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void IDictionary.Add(object key, object? value)
 		{
@@ -396,11 +411,14 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds a key/value pair to the <see cref="ScriptableDictionary{TKey, TValue}"/>.
+		///     Adds a key/value pair to the <see cref="ScriptableDictionary{TKey, TValue}" />.
 		/// </summary>
 		/// <param name="keyValuePair">The key/value pair to add.</param>
-		/// <exception cref="ArgumentNullException">The key of <paramref name="keyValuePair"/> is <c>null</c>.</exception>
-		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="ScriptableDictionary{TKey,TValue}"/></exception>
+		/// <exception cref="ArgumentNullException">The key of <paramref name="keyValuePair" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">
+		///     An element with the same key already exists in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />
+		/// </exception>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
 		{
@@ -433,7 +451,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes all elements from the <see cref="ScriptableDictionary{TKey,TValue}"/>
+		///     Removes all keys and values from the <see cref="ScriptableDictionary{TKey,TValue}" />.
 		/// </summary>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Clear()
@@ -461,41 +479,56 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the specified key.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}" /> contains the specified key.
 		/// </summary>
-		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
-		/// <returns><c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the key; otherwise, <c>false</c>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}" />.</param>
+		/// <returns>
+		///     <c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}" /> contains an element with the specified
+		///     key; otherwise, <c>false</c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
 		public bool ContainsKey(TKey key)
 		{
 			return dictionary.ContainsKey(key);
 		}
 
 		/// <summary>
-		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains a specific value.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}" /> contains a specific value.
 		/// </summary>
-		/// <param name="value">The value to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
-		/// <returns><c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the value; otherwise, <c>false</c>.</returns>
+		/// <param name="value">
+		///     The value to locate in the <see cref="ScriptableDictionary{TKey,TValue}" />. The value can be
+		///     <c>null</c> for reference types.
+		/// </param>
+		/// <returns>
+		///     <c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}" /> contains the value; otherwise,
+		///     <c>false</c>.
+		/// </returns>
 		public bool ContainsValue(TValue value)
 		{
 			return dictionary.ContainsValue(value);
 		}
 
 		/// <summary>
-		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains an element with the specified key.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}" /> contains an element with the specified key.
 		/// </summary>
-		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/>.</param>
-		/// <returns><c>true</c> if the key type is the same as <typeparamref name="TKey"/> and the <see cref="ScriptableDictionary{TKey,TValue}"/> contains the key; otherwise, <c>false</c>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
+		/// <param name="key">The key to locate in the <see cref="ScriptableDictionary{TKey,TValue}" />.</param>
+		/// <returns>
+		///     <c>true</c> if the key type is the same as <typeparamref name="TKey" /> and the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" /> contains the key; otherwise, <c>false</c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
 		bool IDictionary.Contains(object key)
 		{
 			return EqualityHelper.IsSameType(key, out TKey? newKey) && ContainsKey(newKey);
 		}
 
 		/// <summary>
-		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}"/> contains a specific key and value.
+		///     Determines whether the <see cref="ScriptableDictionary{TKey,TValue}" /> contains a specific key and value.
 		/// </summary>
-		/// <param name="item">The <see cref="KeyValuePair{TKey,TValue}"/> structure to locate in the <see cref="ScriptableDictionary{TKey,TValue}"/></param>
+		/// <param name="item">
+		///     The <see cref="KeyValuePair{TKey,TValue}" /> structure to locate in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />
+		/// </param>
 		/// <returns><c>true</c> if the key and value both exist in the dictionary; otherwise, <c>false</c>.</returns>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
 		{
@@ -503,7 +536,8 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Copies the elements of the <see cref="ScriptableDictionary{TKey,TValue}"/> to an <see cref="Array" />, starting at the specified array index.
+		///     Copies the elements of the <see cref="ScriptableDictionary{TKey,TValue}" /> to an <see cref="Array" />, starting at
+		///     the specified array index.
 		/// </summary>
 		/// <param name="array">The destination array.</param>
 		/// <param name="index">The index at which copying beings.</param>
@@ -527,8 +561,8 @@ namespace Hertzole.ScriptableValues
 		///     backing storage.
 		/// </summary>
 		/// <param name="capacity">The number of entries.</param>
-		/// <returns>The current capacity of the dictionary.</returns>
-		/// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is less than 0.</exception>
+		/// <returns>The current capacity of the <see cref="ScriptableDictionary{TKey,TValue}" />.</returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity" /> is less than 0.</exception>
 		public int EnsureCapacity(int capacity)
 		{
 			int result = dictionary.EnsureCapacity(capacity);
@@ -546,9 +580,12 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Returns an enumerator that iterates through the dictionary.
+		///     Returns an enumerator that iterates through the <see cref="ScriptableDictionary{TKey,TValue}" />.
 		/// </summary>
-		/// <returns>A <see cref="Dictionary{TKey, TValue}.Enumerator" /> for the dictionary.</returns>
+		/// <returns>
+		///     A <see cref="Dictionary{TKey, TValue}.Enumerator" /> structure for the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />.
+		/// </returns>
 		public Dictionary<TKey, TValue>.Enumerator GetEnumerator()
 		{
 			return dictionary.GetEnumerator();
@@ -582,26 +619,33 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes the value with the specified key from the dictionary.
+		///     Removes the value with the specified key from the <see cref="ScriptableDictionary{TKey,TValue}" />.
 		/// </summary>
 		/// <param name="key">The key of the element to remove.</param>
 		/// <returns>
-		///     True if the element was found and removed; otherwise, false. This method returns false if the key is not found
-		///     in the dictionary.
+		///     <c>true</c> if the element is successfully found and removed; otherwise, <c>false</c>.
+		///     This method returns <c>false</c> if the key is not found in the <see cref="ScriptableDictionary{TKey,TValue}" />.
 		/// </returns>
-		/// <inheritdoc cref="RemoveInternal" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public bool Remove(TKey key)
 		{
 			return RemoveInternal(key, out _);
 		}
 
 		/// <summary>
-		///     Removes the value with the specified key from the dictionary, and copies the element to the <c>value</c> parameter.
+		///     Removes the value with the specified key from the <see cref="ScriptableDictionary{TKey,TValue}" />, and copies the
+		///     element to the <paramref name="value" /> parameter.
 		/// </summary>
 		/// <param name="key">The key of the element to remove.</param>
-		/// <param name="value">The removed element.</param>
+		/// <param name="value">
+		///     When this method returns, contains the value associated with the specified key, if the key is found;
+		///     otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is passed
+		///     uninitialized.
+		/// </param>
 		/// <returns><c>true</c> if the element is successfully found and removed; otherwise, <c>false</c>.</returns>
-		/// <inheritdoc cref="RemoveInternal" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public bool Remove(TKey key, out TValue value)
 		{
 			return RemoveInternal(key, out value);
@@ -611,7 +655,7 @@ namespace Hertzole.ScriptableValues
 		///     Removes the value with the specified key from the dictionary.
 		/// </summary>
 		/// <param name="key">The key of the element to remove.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void IDictionary.Remove(object key)
 		{
 			if (EqualityHelper.IsSameType(key, out TKey? newKey))
@@ -624,8 +668,8 @@ namespace Hertzole.ScriptableValues
 		///     Removes a key/value pair from the dictionary.
 		/// </summary>
 		/// <param name="item">The key/value pair to remove.</param>
-		/// <returns>True if the key/value pair was found and removed; otherwise, false.</returns>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <returns><c>true</c> if the key/value pair was found and removed; otherwise, <c>false</c>.</returns>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
 		{
 			if (dictionary.TryGetValue(item.Key, out TValue value) && EqualityHelper.Equals(item.Value, value))
@@ -637,7 +681,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <exception cref="ArgumentNullException"><c>key</c> is <c>null</c>.</exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private bool RemoveInternal(TKey key, out TValue value)
 		{
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
@@ -666,6 +710,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="key">The key of the element to set.</param>
 		/// <param name="value">The new value to set.</param>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private void SetValue(TKey key, TValue value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -703,8 +748,8 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sets the capacity of this dictionary to what it would be if it had been originally initialized with all its
-		///     entries.
+		///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to what it would be if it had been
+		///     originally initialized with all its entries.
 		/// </summary>
 		public void TrimExcess()
 		{
@@ -717,10 +762,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sets the capacity of this dictionary to hold up a specified number of entries without any further expansion of its
+		///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to hold up a specified number of entries
+		///     without any further expansion of its
 		///     backing storage.
 		/// </summary>
 		/// <param name="capacity">The new capacity.</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <paramref name="capacity" /> is less than the number of items in the
+		///     <see cref="ScriptableDictionary{TKey,TValue}" />.
+		/// </exception>
 		public void TrimExcess(int capacity)
 		{
 			dictionary.TrimExcess(capacity);
@@ -732,12 +782,16 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Attempts to add the specified key and value to the dictionary.
+		///     Attempts to add the specified key and value to the <see cref="ScriptableDictionary{TKey,TValue}" />.
 		/// </summary>
-		/// <param name="key">The key of the element to add-</param>
-		/// <param name="value">The value of the element to add.</param>
-		/// <returns>True if the key/value pair was added to the dictionary; otherwise, false.</returns>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="key">The key of the element to add.</param>
+		/// <param name="value">The value of the element to add. The value can be <c>null</c> for reference types.</param>
+		/// <returns>
+		///     <c>true</c> if the key/value pair was added to the <see cref="ScriptableDictionary{TKey,TValue}" />
+		///     successfully; <c>false</c> if the key already exists.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public bool TryAdd(TKey key, TValue value)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -770,11 +824,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Tries to find a key in the dictionary.
+		///     Tries to find a key in the <see cref="ScriptableDictionary{TKey,TValue}" /> that matches the specified predicate.
 		/// </summary>
 		/// <param name="predicate">The <see cref="Predicate{T}" /> to check against.</param>
-		/// <param name="key">The key if it was found. Will be the default value if it wasn't found.</param>
-		/// <returns>True if the key was found; otherwise, false.</returns>
+		/// <param name="key">
+		///     When this method returns, contains the key if it was found. Will be the default value if it wasn't
+		///     found.
+		/// </param>
+		/// <returns><c>true</c> if a key matching the predicate was found; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="predicate" /> is <c>null</c>.</exception>
 		public bool TryFindKey(Predicate<TKey> predicate, [NotNullWhen(true)] out TKey? key)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
@@ -793,11 +851,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Tries to find a value in the dictionary.
+		///     Tries to find a value in the <see cref="ScriptableDictionary{TKey,TValue}" /> that matches the specified predicate.
 		/// </summary>
 		/// <param name="predicate">The <see cref="Predicate{T}" /> to check against.</param>
-		/// <param name="value">The value if it was found. Will be the default value if it wasn't found.</param>
-		/// <returns>True if the key was found; otherwise, false.</returns>
+		/// <param name="value">
+		///     When this method returns, contains the value if it was found. Will be the default value if it
+		///     wasn't found.
+		/// </param>
+		/// <returns><c>true</c> if a value matching the predicate was found; otherwise, <c>false</c>.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="predicate" /> is <c>null</c>.</exception>
 		public bool TryFindValue(Predicate<TValue> predicate, out TValue? value)
 		{
 			ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
@@ -818,15 +880,27 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the value associated with the specified key.
 		/// </summary>
-		/// <param name="key">The key of the element to get.</param>
-		/// <param name="value">The value if it was found. Will be the default value if it wasn't found.</param>
-		/// <returns>True if the dictionary contains an element with the specified key; otherwise, false.</returns>
+		/// <param name="key">The key of the value to get.</param>
+		/// <param name="value">
+		///     When this method returns, contains the value associated with the specified key, if the key is
+		///     found; otherwise, the default value for the type of the <paramref name="value" /> parameter. This parameter is
+		///     passed uninitialized.
+		/// </param>
+		/// <returns>
+		///     <c>true</c> if the <see cref="ScriptableDictionary{TKey,TValue}" /> contains an element with the specified
+		///     key; otherwise, <c>false</c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
 		public bool TryGetValue(TKey key, out TValue value)
 		{
 			return dictionary.TryGetValue(key, out value);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -834,7 +908,18 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptableDictionary{TKey,TValue}" /> changes with additional
+		///     context.
+		/// </summary>
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to call.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -843,7 +928,11 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback, context);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback from the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -851,7 +940,12 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RemoveCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback with context from the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -913,11 +1007,28 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Warns if there are any left-over subscribers to the events.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
 		[Conditional("DEBUG")]
-		private void WarnLeftOverSubscribers()
+		protected void WarnIfLeftOverSubscribers()
 		{
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
+		}
+
+		/// <summary>
+		///     Warns if there are any left-over objects in the dictionary.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
+		[Conditional("DEBUG")]
+		protected void WarnIfLeftOverObjects()
+		{
+			if (!isReadOnly && clearOnStart && dictionary.Count > 0)
+			{
+				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
+			}
 		}
 
 		/// <summary>
@@ -932,7 +1043,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				WarnLeftOverSubscribers();
+				WarnIfLeftOverSubscribers();
 			}
 #endif
 
@@ -944,12 +1055,8 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		protected override void OnExitPlayMode()
 		{
-			if (!isReadOnly && clearOnStart && dictionary.Count > 0)
-			{
-				Debug.LogWarning($"There are left over objects in the scriptable dictionary {name}. You should clear the dictionary before leaving play mode.");
-			}
-
-			WarnLeftOverSubscribers();
+			WarnIfLeftOverObjects();
+			WarnIfLeftOverSubscribers();
 
 			dictionary.TrimExcess();
 		}
