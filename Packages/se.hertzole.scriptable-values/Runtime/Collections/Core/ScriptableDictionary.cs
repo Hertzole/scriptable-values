@@ -161,8 +161,7 @@ namespace Hertzole.ScriptableValues
 				// Make sure it's a new comparer than the old one.
 				if (!EqualityComparer<IEqualityComparer<TKey>>.Default.Equals(dictionary.Comparer, value))
 				{
-					Dictionary<TKey, TValue> newDictionary =
-						value == null ? new Dictionary<TKey, TValue>(dictionary) : new Dictionary<TKey, TValue>(dictionary, value);
+					Dictionary<TKey, TValue> newDictionary = new Dictionary<TKey, TValue>(dictionary, value);
 
 					dictionary = newDictionary;
 				}
