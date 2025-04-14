@@ -1011,9 +1011,9 @@ namespace Hertzole.ScriptableValues
 		///     Warns if there are any left-over subscribers to the events.
 		/// </summary>
 		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
-		[Conditional("DEBUG")]
-		protected void WarnIfLeftOverSubscribers()
+		protected override void WarnIfLeftOverSubscribers()
 		{
+			base.WarnIfLeftOverSubscribers();
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
 		}

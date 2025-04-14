@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -329,9 +328,9 @@ namespace Hertzole.ScriptableValues
 		///     Warns if there are any left-over subscribers to the events.
 		/// </summary>
 		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
-		[Conditional("DEBUG")]
-		protected void WarnIfLeftOverSubscribers()
+		protected override void WarnIfLeftOverSubscribers()
 		{
+			base.WarnIfLeftOverSubscribers();
 			EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
 			EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
 		}

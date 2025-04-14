@@ -2,6 +2,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine.Assertions;
@@ -80,6 +81,20 @@ namespace Hertzole.ScriptableValues
 			field = newValue;
 			NotifyPropertyChanged(changedArgs);
 			return true;
+		}
+
+		/// <summary>
+		///     Warns if there are any left-over subscribers to the events.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
+		[Conditional("DEBUG")]
+		protected virtual void WarnIfLeftOverSubscribers()
+		{
+			EventHelper.WarnIfLeftOverSubscribers(OnNotifyPropertyChanging, "INotifyPropertyChanging.PropertyChanging", this);
+			EventHelper.WarnIfLeftOverSubscribers(OnNotifyPropertyChanged, "INotifyPropertyChanged.PropertyChanged", this);
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			EventHelper.WarnIfLeftOverSubscribers(OnPropertyChanged, "INotifyBindablePropertyChanged.propertyChanged", this);
+#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
 		}
 
 #if SCRIPTABLE_VALUES_RUNTIME_BINDING

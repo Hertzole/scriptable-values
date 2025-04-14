@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
@@ -328,9 +327,9 @@ namespace Hertzole.ScriptableValues
 		///     Warns if there are any left-over subscribers to the events.
 		/// </summary>
 		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
-		[Conditional("DEBUG")]
-		protected void WarnLeftOverSubscribers()
+		protected override void WarnIfLeftOverSubscribers()
 		{
+			base.WarnIfLeftOverSubscribers();
 			EventHelper.WarnIfLeftOverSubscribers(onPoolChanged, nameof(OnPoolChanged), this);
 		}
 
@@ -346,7 +345,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				WarnLeftOverSubscribers();
+				WarnIfLeftOverSubscribers();
 			}
 #endif
 
@@ -356,7 +355,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
 		protected override void OnExitPlayMode()
 		{
-			WarnLeftOverSubscribers();
+			WarnIfLeftOverSubscribers();
 
 			Clear();
 		}
