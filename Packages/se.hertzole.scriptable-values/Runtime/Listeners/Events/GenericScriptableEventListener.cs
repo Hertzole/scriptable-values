@@ -79,9 +79,9 @@ namespace Hertzole.ScriptableValues
 			get { return onInvoked; }
 		}
 
-		private static readonly EventHandlerWithContext<TValue, ScriptableEventListener<TValue>> onInvokedEvent = (sender, value, context) =>
+		private static readonly EventHandlerWithContext<TValue, ScriptableEventListener<TValue>> onInvokedEvent = (_, value, context) =>
 		{
-			context.OnEventInvoked(sender, value);
+			context.OnEventInvoked(value);
 		};
 
 		/// <inheritdoc />
@@ -126,6 +126,8 @@ namespace Hertzole.ScriptableValues
 
 		protected void SetListeningToObject(ScriptableEvent<TValue> target, bool listen)
 		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+
 			if (listen)
 			{
 				target.RegisterInvokedListener(onInvokedEvent, this);
@@ -139,9 +141,8 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the target event is invoked.
 		/// </summary>
-		/// <param name="sender">The object that invoked the event.</param>
 		/// <param name="args">The arguments.</param>
-		private void OnEventInvoked(object sender, TValue args)
+		private void OnEventInvoked(TValue args)
 		{
 			Assert.IsNotNull(targetEvent);
 

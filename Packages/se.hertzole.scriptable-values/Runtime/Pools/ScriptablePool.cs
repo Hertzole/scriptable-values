@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
-using UnityEngine;
 using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
@@ -50,7 +49,7 @@ namespace Hertzole.ScriptableValues
 	}
 
 	/// <summary>
-	///     A <see cref="ScriptableObject"/> that holds a pool of values.
+	///     A <see cref="UnityEngine.ScriptableObject" /> that holds a pool of values.
 	/// </summary>
 	/// <typeparam name="T">The type of to pool. Must be a class.</typeparam>
 	public abstract partial class ScriptablePool<T> : ScriptablePool, IPoolCallbacks<T> where T : class

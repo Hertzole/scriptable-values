@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -81,6 +82,8 @@ namespace Hertzole.ScriptableValues
 
 		protected void SetListeningToObject(ScriptableEvent target, bool listen)
 		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+
 			if (listen)
 			{
 				target.RegisterInvokedListener(onInvokedEvent, this);
