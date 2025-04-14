@@ -22,15 +22,15 @@ namespace Hertzole.ScriptableValues.Tests
 			get
 			{
 				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.isReadOnlyChangingEventArgs,
-					ScriptableList.isReadOnlyChangedArgs,
+					ScriptableDictionary.isReadOnlyChangedEventArgs,
 					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
 
 				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.setEqualityCheckChangingEventArgs,
-					ScriptableList.setEqualityCheckChangedArgs,
+					ScriptableDictionary.setEqualityCheckChangedEventArgs,
 					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
 
 				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.clearOnStartChangingEventArgs,
-					ScriptableList.clearOnStartChangedArgs,
+					ScriptableDictionary.clearOnStartChangedEventArgs,
 					i => i.ClearOnStart = MakeDifferentValue(i.ClearOnStart));
 
 				yield return MakePropertyChangeTestCase<TestScriptableDictionary>(ScriptableDictionary.countChangingEventArgs,
