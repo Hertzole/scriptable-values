@@ -30,9 +30,9 @@ namespace Hertzole.ScriptableValues
 		public UnityEvent OnInvoked { get { return onInvoked; } }
 
 		/// <inheritdoc />
-		protected override void ToggleListening(bool listen)
+		protected override void SetListening(bool listen)
 		{
-			base.ToggleListening(listen);
+			base.SetListening(listen);
 
 			if (targetEvent == null)
 			{
