@@ -6,7 +6,7 @@ using UnityEditor;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     Base class for scriptable objects that have values that should be resettable.
+	///     Base class for <see cref="ScriptableObject"/> that have values that should be resettable.
 	/// </summary>
 	public abstract partial class RuntimeScriptableObject : ScriptableObject
 	{

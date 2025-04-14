@@ -18,9 +18,9 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     A scriptable object that holds a list.
+	///     A <see cref="ScriptableObject"/> that holds a <see cref="System.Collections.Generic.List{T}"/>.
 	/// </summary>
-	/// <typeparam name="T">The type in the list.</typeparam>
+	/// <typeparam name="T">The type of elements in the list.</typeparam>
 	public abstract partial class ScriptableList<T> : ScriptableList,
 		IList<T>,
 		IReadOnlyList<T>,
@@ -59,9 +59,7 @@ namespace Hertzole.ScriptableValues
 		private readonly DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>> onCollectionChanged =
 			new DelegateHandlerList<CollectionChangedEventHandler<T>, CollectionChangedArgs<T>>();
 
-		/// <summary>
-		///     Gets the total number of elements the internal data structure can hold without resizing.
-		/// </summary>
+		/// <inheritdoc />
 		public sealed override int Capacity
 		{
 			get { return internalCapacity; }
@@ -73,9 +71,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		/// <summary>
-		///     Gets the number of elements contained in the list.
-		/// </summary>
+		/// <inheritdoc cref="ScriptableList.Count" />
 		public sealed override int Count
 		{
 			get { return internalCount; }
@@ -86,6 +82,9 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Gets or sets the element at the specified index.
+		/// </summary>
 		public T this[int index]
 		{
 			get { return list[index]; }
@@ -111,28 +110,21 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		/// <summary>
-		///     If read only, the list cannot be changed at runtime and won't be cleared on start.
-		/// </summary>
+		/// <inheritdoc cref="ScriptableList.IsReadOnly" />
 		public override bool IsReadOnly
 		{
 			get { return isReadOnly; }
 			set { SetField(ref isReadOnly, value, isReadOnlyChangingArgs, isReadOnlyChangedArgs); }
 		}
 
-		/// <summary>
-		///     If true, an equality check will be run before setting an item through the indexer to make sure the new object is
-		///     not the same as the old one.
-		/// </summary>
+		/// <inheritdoc />
 		public override bool SetEqualityCheck
 		{
 			get { return setEqualityCheck; }
 			set { SetField(ref setEqualityCheck, value, setEqualityCheckChangingArgs, setEqualityCheckChangedArgs); }
 		}
 
-		/// <summary>
-		///     If true, the list will be cleared on play mode start/game boot.
-		/// </summary>
+		/// <inheritdoc />
 		public override bool ClearOnStart
 		{
 			get { return clearOnStart; }
@@ -161,7 +153,7 @@ namespace Hertzole.ScriptableValues
 #endif
 
 		/// <summary>
-		///     Occurs when an item is added, removed, replaced, or the entire list is refreshed.
+		///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableList{T}"/> is refreshed.
 		/// </summary>
 		public event CollectionChangedEventHandler<T> OnCollectionChanged
 		{
@@ -178,9 +170,9 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		/// Adds an item to the end of the <see cref="ScriptableList{T}"/>.
+		///     Adds an item to the end of the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="item">The object to be added to the end of the <see cref="ScriptableList{T}"/>. The value can be <c>null</c> for reference types.</param>
+		/// <param name="item">The object to be added to the end of the <see cref="ScriptableList{T}" />. The value can be <c>null</c> for reference types.</param>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Add(T item)
 		{
@@ -188,12 +180,12 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		/// Adds an item to the end of the <see cref="ScriptableList{T}"/>.
+		///     Adds an item to the end of the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="value">The object to be added to the end of the <see cref="ScriptableList{T}"/>. The value can be <c>null</c> for reference types.</param>
+		/// <param name="value">The object to be added to the end of the <see cref="ScriptableList{T}" />. The value can be <c>null</c> for reference types.</param>
 		/// <returns>The position into which the new element was inserted.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c> and <c>T</c> does not allow it.</exception>
-		/// <exception cref="ArgumentException"><paramref name="value"/> is of a type that is not assignable to the list.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="value" /> is <c>null</c> and <c>T</c> does not allow it.</exception>
+		/// <exception cref="ArgumentException"><paramref name="value" /> is of a type that is not assignable to the list.</exception>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		int IList.Add(object? value)
 		{
@@ -228,9 +220,9 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Adds the elements of the specified collection to the end of the <see cref="ScriptableList{T}"/>.
+		///     Adds the elements of the specified collection to the end of the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="collection">The collection whose elements should be added to the end of the <see cref="ScriptableList{T}"/>. The collection itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference type.</param>
+		/// <param name="collection">The collection whose elements should be added to the end of the <see cref="ScriptableList{T}" />. The collection itself cannot be <c>null</c>, but it can contain elements that are <c>null</c>, if type <c>T</c> is a reference type.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="collection" /> is <c>null</c>.</exception>
 		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void AddRange(IEnumerable<T> collection)
@@ -262,23 +254,21 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Searches the entire sorted list for an element using the specified comparer and returns the zero-based index of the
-		///     element.
+		///     Searches the entire sorted <see cref="ScriptableList{T}" /> for an element using the default comparer and returns
+		///     the zero-based index of the element.
 		/// </summary>
 		/// <param name="item">The object to locate. The value can be <c>null</c> for reference types.</param>
 		/// <param name="comparer">
-		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements. Or <c>null</c> to
-		///     use the default comparer.
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or <c>null</c> to use the default
+		///     comparer <see cref="Comparer{T}.Default" />.
 		/// </param>
 		/// <returns>
-		///     The zero-based index of <c>item</c> in the sorted list, if <c>item</c> is found; otherwise, a negative number
-		///     that is the bitwise complement of the index of the next element that is larger than <c>item</c> or, if there is no
-		///     larger element, the bitwise complement of <see cref="Count" />
+		///     The zero-based index of <paramref name="item" /> in the sorted <see cref="ScriptableList{T}" />, if <paramref name="item" /> is found;
+		///     otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than <paramref name="item" /> or,
+		///     if there is no larger element, the bitwise complement of <see cref="Count" />.
 		/// </returns>
 		/// <exception cref="InvalidOperationException">
-		///     <c>comparer</c> is <c>null</c>, and the default comparer cannot find an
-		///     implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for
-		///     type <c>T</c>
+		///     <paramref name="comparer" /> is <c>null</c>, and the default comparer cannot find an implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for type <c>T</c>.
 		/// </exception>
 		public int BinarySearch(T item, IComparer<T>? comparer = null)
 		{
@@ -286,23 +276,42 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Searches a range of elements in the sorted list for an element using the specified comparer and returns the
-		///     zero-based index of the element.
+		///     Searches a range of elements in the sorted <see cref="ScriptableList{T}" /> for an element using the specified
+		///     comparer and returns the zero-based index of the element.
 		/// </summary>
 		/// <param name="index">The zero-based starting index of the range to search.</param>
 		/// <param name="count">The length of the range to search.</param>
-		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0. Or <c>count</c> is less than 0.</exception>
-		/// <exception cref="ArgumentException"><c>index</c> and <c>count</c> do not denote a valid range in the list.</exception>
-		/// <inheritdoc cref="BinarySearch(T,System.Collections.Generic.IComparer{T}?)" path='/returns' />
+		/// <param name="item">The object to locate. The value can be <c>null</c> for reference types.</param>
+		/// <param name="comparer">
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or <c>null</c> to use
+		///     the default comparer <see cref="Comparer{T}.Default" />.
+		/// </param>
+		/// <returns>
+		///     The zero-based index of <paramref name="item" /> in the sorted <see cref="ScriptableList{T}" />, if
+		///     <paramref name="item" /> is found;
+		///     otherwise, a negative number that is the bitwise complement of the index of the next element that is larger than
+		///     <paramref name="item" /> or,
+		///     if there is no larger element, the bitwise complement of <paramref name="index" /> plus <paramref name="count" />.
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException"><paramref name="index" /> is less than 0. -or- <paramref name="count" /> is less than 0.</exception>
+		/// <exception cref="ArgumentException">
+		///     <paramref name="index" /> and <paramref name="count" /> do not denote a valid range
+		///     in the <see cref="ScriptableList{T}" />.
+		/// </exception>
+		/// <exception cref="InvalidOperationException">
+		///     <paramref name="comparer" /> is <c>null</c>, and the default comparer cannot find an
+		///     implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for
+		///     type <typeparamref name="T" />.
+		/// </exception>
 		public int BinarySearch(int index, int count, T item, IComparer<T>? comparer = null)
 		{
 			return list.BinarySearch(index, count, item, comparer);
 		}
 
 		/// <summary>
-		///     Removes all elements from the list.
+		///     Removes all elements from the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="/returns" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Clear()
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -323,20 +332,29 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Determines whether an element is in the list.
+		///     Determines whether an element is in the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="item">The object to locate in the list.</param>
-		/// <returns><c>true</c> if <c>item</c> is found in the list; otherwise <c>false</c>.</returns>
+		/// <param name="item">
+		///     The object to locate in the <see cref="ScriptableList{T}" />. The value can be <c>null</c> for
+		///     reference types.
+		/// </param>
+		/// <returns>
+		///     <c>true</c> if <paramref name="item" /> is found in the <see cref="ScriptableList{T}" />; otherwise,
+		///     <c>false</c>.
+		/// </returns>
 		public bool Contains(T item)
 		{
 			return list.Contains(item);
 		}
 
 		/// <summary>
-		///     Determines whether an element is in the list.
+		///     Determines whether an element is in the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="value">The object to locate in the list.</param>
-		/// <returns>True if the item is found in the list; otherwise false.</returns>
+		/// <param name="value">
+		///     The object to locate in the <see cref="ScriptableList{T}" />. The value can be <c>null</c> for
+		///     reference types.
+		/// </param>
+		/// <returns><c>true</c> if the item is found in the <see cref="ScriptableList{T}" />; otherwise, <c>false</c>.</returns>
 		bool IList.Contains(object? value)
 		{
 			// Check if the value is the same type as the generic type and then call the Contains method.
@@ -344,15 +362,18 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Converts the elements in the current list to another type, and returns a list containing the converted elements.
+		///     Converts the elements in the current <see cref="ScriptableList{T}" /> to another type, and returns a list
+		///     containing the converted elements.
 		/// </summary>
 		/// <param name="converter">
-		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to
-		///     another type.
+		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to another type.
 		/// </param>
 		/// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
-		/// <returns>A <see cref="List{TOutput}" /> of the target type containing the converted elements of the current list.</returns>
-		/// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
+		/// <returns>
+		///     A <see cref="List{TOutput}" /> of the target type containing the converted elements from the current
+		///     <see cref="ScriptableList{T}" />.
+		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="converter" /> is <c>null</c>.</exception>
 		public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
 		{
 			return list.ConvertAll(converter);
@@ -363,8 +384,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="destinationList">The destination list where the converted items will be copied to.</param>
 		/// <param name="converter">
-		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to
-		///     another type.
+		///     A <see cref="Converter{TInput,TOutput}" /> delegate that converts each element from one type to another type.
 		/// </param>
 		/// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
 		/// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
@@ -385,9 +405,18 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Copies the entire list to a compatible one-dimensional array.
+		///     Copies the entire <see cref="ScriptableList{T}" /> to a compatible one-dimensional array, starting at the beginning
+		///     of the target array.
 		/// </summary>
-		/// <param name="array">The array destination.</param>
+		/// <param name="array">
+		///     The one-dimensional array that is the destination of the elements copied from
+		///     <see cref="ScriptableList{T}" />. The array must have zero-based indexing.
+		/// </param>
+		/// <exception cref="ArgumentNullException"><paramref name="array" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentException">
+		///     The number of elements in the source <see cref="ScriptableList{T}" /> is greater
+		///     than the number of elements that the destination array can contain.
+		/// </exception>
 		public void CopyTo(T[] array)
 		{
 			list.CopyTo(array);
@@ -426,14 +455,14 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Determines whether the list contains elements that match the conditions defined by the specified predicate.
+		///     Determines whether the <see cref="ScriptableList{T}" /> contains elements that match the conditions defined by the
+		///     specified predicate.
 		/// </summary>
-		/// <param name="match">The predicate delegate that defines the conditions of the elements to search for.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to search for.</param>
 		/// <returns>
-		///     <c>true</c> if the list contains one or more elements that match the conditions defined by the specified predicate;
-		///     otherwise, <c>false</c>.
+		///     <c>true</c> if the <see cref="ScriptableList{T}" /> contains one or more elements that match the conditions defined by the specified predicate; otherwise, <c>false</c>.
 		/// </returns>
-		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="match" /> is <c>null</c>.</exception>
 		public bool Exists(Predicate<T> match)
 		{
 			return list.Exists(match);
@@ -441,14 +470,14 @@ namespace Hertzole.ScriptableValues
 
 		/// <summary>
 		///     Searches for an element that matches the conditions defined by the specified predicate, and returns the first
-		///     occurrence within the entire list.
+		///     occurrence within the entire <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="match">The predicate delegate that defines the conditions of the element to search for.</param>
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
 		/// <returns>
-		///     The first element that matches the conditions defines by the specified predicate, if found; otherwise, the
-		///     default value for type <see cref="T" />
+		///     The first element that matches the conditions defined by the specified predicate, if found; otherwise, the default
+		///     value for type <typeparamref name="T" />.
 		/// </returns>
-		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="match" /> is <c>null</c>.</exception>
 		public T? Find(Predicate<T> match)
 		{
 			return list.Find(match);
@@ -459,8 +488,8 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to search for.</param>
 		/// <returns>
-		///     A <see cref="List{T}" /> containing all the elements that match the conditions defined by the specified
-		///     predicate, if found; otherwise, an empty <see cref="List{T}" />
+		///     A <see cref="List{T}" /> containing all the elements that match the conditions defined by the specified predicate,
+		///     if found; otherwise, an empty <see cref="List{T}" />
 		/// </returns>
 		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
 		public List<T> FindAll(Predicate<T> match)
@@ -499,8 +528,8 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
 		/// <returns>
-		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
-		///     , if found; otherwise, -1.
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>, if
+		///     found; otherwise, -1.
 		/// </returns>
 		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
 		public int FindIndex(Predicate<T> match)
@@ -516,8 +545,8 @@ namespace Hertzole.ScriptableValues
 		/// <param name="startIndex">The zero-based starting index of the search.</param>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
 		/// <returns>
-		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
-		///     , if found; otherwise, -1.
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>, if
+		///     found; otherwise, -1.
 		/// </returns>
 		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException"><c>startIndex</c> is outside the range of valid indexes for the list.</exception>
@@ -535,8 +564,8 @@ namespace Hertzole.ScriptableValues
 		/// <param name="count">The number of elements in the section to search.</param>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
 		/// <returns>
-		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>
-		///     , if found; otherwise, -1.
+		///     The zero-based index of the first occurrence of an element that matches the conditions defined by <c>match</c>, if
+		///     found; otherwise, -1.
 		/// </returns>
 		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">
@@ -554,8 +583,8 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the element to search for.</param>
 		/// <returns>
-		///     The last element that matches the conditions defined by the specified predicate, if found; otherwise, the
-		///     default value for type <c>T</c>.
+		///     The last element that matches the conditions defined by the specified predicate, if found; otherwise, the default
+		///     value for type <c>T</c>.
 		/// </returns>
 		/// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
 		public T? FindLast(Predicate<T> match)
@@ -777,7 +806,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="index">The index where the item should be inserted.</param>
 		/// <param name="item">The object to insert.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Insert(int index, T item)
 		{
 			InsertInternal(index, item);
@@ -788,7 +817,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="index">The zero-based index at which item should be inserted.</param>
 		/// <param name="value">The item to insert.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void IList.Insert(int index, object? value)
 		{
 			ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
@@ -809,7 +838,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="index">The index where the item should be inserted.</param>
 		/// <param name="item">The item to insert.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		/// <exception cref="ArgumentOutOfRangeException">If the index is out of bounds.</exception>
 		private void InsertInternal(int index, T item)
 		{
@@ -834,7 +863,7 @@ namespace Hertzole.ScriptableValues
 		///     If <paramref name="index" /> is less than 0 or is greater than
 		///     <see cref="Count" />.
 		/// </exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void InsertRange(int index, IEnumerable<T> collection)
 		{
 			ThrowHelper.ThrowIfNull(collection, nameof(collection));
@@ -865,8 +894,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="item">The object to locate in the list.</param>
 		/// <returns>
-		///     The zero-based index of the last occurrence of <c>item</c> within the entire the list, if found; otherwise,
-		///     -1.
+		///     The zero-based index of the last occurrence of <c>item</c> within the entire the list, if found; otherwise, -1.
 		/// </returns>
 		public int LastIndexOf(T item)
 		{
@@ -910,14 +938,18 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes the first occurrence of a specific object from the list.
+		///     Removes the first occurrence of a specific object from the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="item">The object to remove.</param>
+		/// <param name="item">
+		///     The object to remove from the <see cref="ScriptableList{T}" />. The value can be <c>null</c> for
+		///     reference types.
+		/// </param>
 		/// <returns>
-		///     True if the item was successfully removed; otherwise false. The method also returns false if the item was not
-		///     found in the list.
+		///     <c>true</c> if item was successfully removed from the <see cref="ScriptableList{T}" />;
+		///     otherwise, <c>false</c>. This method also returns <c>false</c> if item is not found in the original
+		///     <see cref="ScriptableList{T}" />.
 		/// </returns>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public bool Remove(T item)
 		{
 			return RemoveInternal(item);
@@ -927,7 +959,7 @@ namespace Hertzole.ScriptableValues
 		///     Removes the first occurrence of a specific object from the list.
 		/// </summary>
 		/// <param name="value">The object to remove from the list.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		void IList.Remove(object value)
 		{
 			// Check if the value is the same type as the generic type.
@@ -943,7 +975,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="item">The item to remove.</param>
 		/// <returns>True if the item was removed; otherwise false.</returns>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private bool RemoveInternal(T item)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -968,10 +1000,10 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Removes all the elements that match the conditions defined by the specified predicate.
 		/// </summary>
-		/// <param name="match">The predicate delegate that defines the conditions of the elements to remove.</param>
-		/// <returns>The number of elements removed from the list.</returns>
-		/// <exception cref="ArgumentNullException">match is null.</exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to remove.</param>
+		/// <returns>The number of elements removed from the <see cref="ScriptableList{T}" />.</returns>
+		/// <exception cref="ArgumentNullException"><paramref name="match" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public int RemoveAll(Predicate<T> match)
 		{
 			ThrowHelper.ThrowIfNull(match, nameof(match));
@@ -1018,10 +1050,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Removes the element at the specified index of the list.
+		///     Removes the element at the specified index of the <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <param name="index">The index of the element to remove.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <param name="index">The zero-based index of the element to remove.</param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		///     <paramref name="index" /> is less than 0.
+		///     -or-
+		///     <paramref name="index" /> is equal to or greater than <see cref="Count" />.
+		/// </exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void RemoveAt(int index)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -1053,7 +1090,7 @@ namespace Hertzole.ScriptableValues
 		///     If <paramref name="index" /> and <paramref name="count" /> do not denote a valid
 		///     range of elements.
 		/// </exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void RemoveRange(int index, int count)
 		{
 #if DEBUG
@@ -1098,9 +1135,9 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Reverses the order of the elements in the entire list.
+		///     Reverses the order of the elements in the entire <see cref="ScriptableList{T}" />.
 		/// </summary>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Reverse()
 		{
 			ReverseInternal(0, list.Count);
@@ -1111,7 +1148,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="index">The starting index of the range to reverse.</param>
 		/// <param name="count">The number of elements in the range to reverse.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Reverse(int index, int count)
 		{
 			ReverseInternal(index, count);
@@ -1122,7 +1159,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="index"></param>
 		/// <param name="count"></param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private void ReverseInternal(int index, int count)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -1180,13 +1217,18 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sorts the elements in the entire list using the specified comparer.
+		///     Sorts the elements in the entire <see cref="ScriptableList{T}" /> using the specified comparer.
 		/// </summary>
 		/// <param name="comparer">
-		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or null to use
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or <c>null</c> to use
 		///     the default comparer <see cref="Comparer{T}.Default" />.
 		/// </param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="InvalidOperationException">
+		///     <paramref name="comparer" /> is <c>null</c>, and the default comparer cannot find an
+		///     implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for
+		///     type <typeparamref name="T" />.
+		/// </exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Sort(IComparer<T>? comparer = null)
 		{
 			SortInternal(0, list.Count, comparer, null);
@@ -1198,10 +1240,15 @@ namespace Hertzole.ScriptableValues
 		/// <param name="index">The starting index of the range to sort.</param>
 		/// <param name="count">The number of elements in the range to sort.</param>
 		/// <param name="comparer">
-		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or null to use
+		///     The <see cref="IComparer{T}" /> implementation to use when comparing elements, or <c>null</c> to use
 		///     the default comparer <see cref="Comparer{T}.Default" />.
 		/// </param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="InvalidOperationException">
+		///     <paramref name="comparer" /> is <c>null</c>, and the default comparer cannot find an
+		///     implementation of the <see cref="IComparer{T}" /> generic interface or the <see cref="IComparable" /> interface for
+		///     type <typeparamref name="T" />.
+		/// </exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Sort(int index, int count, IComparer<T>? comparer = null)
 		{
 			SortInternal(index, count, comparer, null);
@@ -1211,7 +1258,8 @@ namespace Hertzole.ScriptableValues
 		///     Sorts the elements in the entire list using the specified <see cref="Comparison{T}" />.
 		/// </summary>
 		/// <param name="comparison">The <see cref="Comparison{T}" /> to use when comparing elements.</param>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="ArgumentNullException"><paramref name="comparison" /> is <c>null</c>.</exception>
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		public void Sort(Comparison<T> comparison)
 		{
 			ThrowHelper.ThrowIfNull(comparison, nameof(comparison));
@@ -1230,7 +1278,7 @@ namespace Hertzole.ScriptableValues
 		/// </param>
 		/// <param name="comparison">The <see cref="Comparison{T}" /> to use when comparing elements.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0 or <c>count</c> is less than 0.</exception>
-		/// <inheritdoc cref="ThrowHelper.ThrowIfIsReadOnly" path="exception" />
+		/// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
 		private void SortInternal(int index, int count, IComparer<T>? comparer, Comparison<T>? comparison)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
@@ -1261,16 +1309,17 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Copies the elements of the list to a new array.
+		///     Copies the elements of the <see cref="ScriptableList{T}" /> to a new array.
 		/// </summary>
-		/// <returns>An array containing copies of the elements of the list.</returns>
+		/// <returns>An array containing copies of the elements of the <see cref="ScriptableList{T}" />.</returns>
 		public T[] ToArray()
 		{
 			return list.ToArray();
 		}
 
 		/// <summary>
-		///     Sets the capacity to the actual number of elements in the list, if that number is less than a threshold value.
+		///     Sets the capacity to the actual number of elements in the <see cref="ScriptableList{T}" />, if that number is less
+		///     than a threshold value.
 		/// </summary>
 		public void TrimExcess()
 		{
@@ -1281,13 +1330,15 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Determines whether every element in the list matches the conditions defined by the specified predicate.
+		///     Determines whether every element in the <see cref="ScriptableList{T}" /> matches the conditions defined by the
+		///     specified predicate.
 		/// </summary>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions to check against the elements.</param>
 		/// <returns>
-		///     True if every element matches the condition; otherwise, false. If the list has no elements, the return value
-		///     is true.
+		///     <c>true</c> if every element in the <see cref="ScriptableList{T}" /> matches the conditions defined by the
+		///     specified predicate; otherwise, <c>false</c>. If the list has no elements, the return value is <c>true</c>.
 		/// </returns>
+		/// <exception cref="ArgumentNullException"><paramref name="match" /> is <c>null</c>.</exception>
 		public bool TrueForAll(Predicate<T> match)
 		{
 			return list.TrueForAll(match);
@@ -1297,11 +1348,8 @@ namespace Hertzole.ScriptableValues
 		///     Tries to find an element in the list that matches the specified predicate.
 		/// </summary>
 		/// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the condition to check against.</param>
-		/// <param name="result">
-		///     The first result that matches the delegate. If no element was found, this will be the default
-		///     value.
-		/// </param>
-		/// <returns>True if an element was found; otherwise, false.</returns>
+		/// <param name="result">The first result that matches the delegate. If no element was found, this will be the default value.</param>
+		/// <returns><c>true</c> if an element was found; otherwise, <c>false</c>.</returns>
 		public bool TryFind(Predicate<T> match, out T? result)
 		{
 			int count = list.Count;
@@ -1321,7 +1369,11 @@ namespace Hertzole.ScriptableValues
 			return false;
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptableList{T}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to call.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -1329,7 +1381,17 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Registers a callback to be called when the <see cref="ScriptableList{T}" /> changes with additional context.
+		/// </summary>
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to call.</param>
+		/// <param name="context">The context to pass to the callback.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -1338,7 +1400,11 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RegisterCallback(callback, context);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback from the <see cref="ScriptableList{T}" /> changes.
+		/// </summary>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedListener(CollectionChangedEventHandler<T> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -1346,7 +1412,13 @@ namespace Hertzole.ScriptableValues
 			onCollectionChanged.RemoveCallback(callback);
 		}
 
-		/// <inheritdoc />
+		/// <summary>
+		///     Unregisters a callback from the <see cref="ScriptableList{T}" /> changes with additional context.
+		/// </summary>
+		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
+		/// <param name="callback">The callback method to unregister.</param>
+		/// <typeparam name="TContext">The type of the context.</typeparam>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<T, TContext> callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -1386,11 +1458,28 @@ namespace Hertzole.ScriptableValues
 			internalCapacity = list.Capacity;
 		}
 
+		/// <summary>
+		///     Warns if there are any left-over subscribers to the events.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
 		[Conditional("DEBUG")]
-		private void WarnLeftOverSubscribers()
+		protected void WarnIfLeftOverSubscribers()
 		{
 			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
+		}
+
+		/// <summary>
+		///     Warns if there are any left-over objects in the dictionary.
+		/// </summary>
+		/// <remarks>This will only be called in the Unity editor and builds with the DEBUG flag.</remarks>
+		[Conditional("DEBUG")]
+		protected void WarnIfLeftOverObjects()
+		{
+			if (!isReadOnly && clearOnStart && list.Count > 0)
+			{
+				Debug.LogWarning($"There are left over objects in the scriptable list {name}. You should clear the list before leaving play mode.");
+			}
 		}
 
 		/// <summary>
@@ -1405,7 +1494,7 @@ namespace Hertzole.ScriptableValues
 #if DEBUG
 			if (warnIfLeftOver)
 			{
-				WarnLeftOverSubscribers();
+				WarnIfLeftOverSubscribers();
 			}
 #endif
 			onCollectionChanged.Reset();
@@ -1416,12 +1505,8 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		protected override void OnExitPlayMode()
 		{
-			if (!isReadOnly && clearOnStart && list.Count > 0)
-			{
-				Debug.LogWarning($"There are left over objects in the scriptable list {name}. You should clear the list before leaving play mode.");
-			}
-
-			WarnLeftOverSubscribers();
+			WarnIfLeftOverObjects();
+			WarnIfLeftOverSubscribers();
 
 			list.TrimExcess();
 		}

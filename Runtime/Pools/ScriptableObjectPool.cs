@@ -3,7 +3,7 @@
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     A scriptable object that holds a pool of types inherited from <see cref="ScriptableObject" />.
+	///     A <see cref="ScriptableObject"/> that holds a pool of types inherited from <see cref="ScriptableObject" />.
 	/// </summary>
 	/// <typeparam name="T">The type of <see cref="ScriptableObject" />.</typeparam>
 	public abstract class ScriptableObjectPool<T> : ScriptablePool<T> where T : ScriptableObject
