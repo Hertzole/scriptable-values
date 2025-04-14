@@ -1,5 +1,8 @@
-﻿using Hertzole.ScriptableValues.Helpers;
+﻿#nullable enable
+
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Events;
 
 namespace Hertzole.ScriptableValues
@@ -21,16 +24,16 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		[EditorTooltip("The event to listen to.")]
-		private ScriptableEvent<TValue> targetEvent = default;
+		private ScriptableEvent<TValue>? targetEvent = null;
 		[SerializeField]
 		[EditorTooltip("When the listener should invoke its events.")]
 		private EventInvokeEvents invokeOn = EventInvokeEvents.Any;
 		[SerializeField]
 		[EditorTooltip("What the argument needs to have been for the event to be invoked.")]
-		private TValue fromValue = default;
+		private TValue? fromValue = default;
 		[SerializeField]
 		[EditorTooltip("What the argument needs to be for the event to be invoked.")]
-		private TValue toValue = default;
+		private TValue? toValue = default;
 		[SerializeField]
 		[EditorTooltip("The event to invoke when the target event is raised.")]
 		private UnityEvent<TValue> onInvoked = new UnityEvent<TValue>();
@@ -38,24 +41,48 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     The event to listen to.
 		/// </summary>
-		public ScriptableEvent<TValue> TargetEvent { get { return targetEvent; } set { SetTargetEvent(value); } }
+		public ScriptableEvent<TValue>? TargetEvent
+		{
+			get { return targetEvent; }
+			set { SetTargetEvent(value); }
+		}
 		/// <summary>
 		///     When the listener should invoke its events.
 		/// </summary>
-		public EventInvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
+		public EventInvokeEvents InvokeOn
+		{
+			get { return invokeOn; }
+			set { invokeOn = value; }
+		}
 		/// <summary>
 		///     What the argument needs to have been for the event to be invoked.
 		/// </summary>
-		public TValue FromValue { get { return fromValue; } set { fromValue = value; } }
+		public TValue? FromValue
+		{
+			get { return fromValue; }
+			set { fromValue = value; }
+		}
 		/// <summary>
 		///     What the argument needs to be for the event to be invoked.
 		/// </summary>
-		public TValue ToValue { get { return toValue; } set { toValue = value; } }
+		public TValue? ToValue
+		{
+			get { return toValue; }
+			set { toValue = value; }
+		}
 
 		/// <summary>
 		///     The event to invoke when the target event is raised.
 		/// </summary>
-		public UnityEvent<TValue> OnInvoked { get { return onInvoked; } }
+		public UnityEvent<TValue> OnInvoked
+		{
+			get { return onInvoked; }
+		}
+
+		private static readonly EventHandlerWithContext<TValue, ScriptableEventListener<TValue>> onInvokedEvent = (sender, value, context) =>
+		{
+			context.OnEventInvoked(sender, value);
+		};
 
 		/// <inheritdoc />
 		protected override void SetListening(bool listen)
@@ -67,21 +94,14 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			if (listen)
-			{
-				targetEvent.OnInvoked += OnEventInvoked;
-			}
-			else
-			{
-				targetEvent.OnInvoked -= OnEventInvoked;
-			}
+			SetListeningToObject(targetEvent, listen);
 		}
 
 		/// <summary>
 		///     Sets the target event.
 		/// </summary>
 		/// <param name="newEvent">The new event.</param>
-		protected virtual void SetTargetEvent(ScriptableEvent<TValue> newEvent)
+		protected virtual void SetTargetEvent(ScriptableEvent<TValue>? newEvent)
 		{
 			// If the event is the same, do nothing.
 			if (newEvent == targetEvent)
@@ -92,7 +112,7 @@ namespace Hertzole.ScriptableValues
 			// If we're already listening to an event, stop listening to it.
 			if (targetEvent != null && IsListening)
 			{
-				targetEvent.OnInvoked -= OnEventInvoked;
+				SetListeningToObject(targetEvent, false);
 			}
 
 			targetEvent = newEvent;
@@ -100,7 +120,19 @@ namespace Hertzole.ScriptableValues
 			// If we're supposed to be listening to the new event, start listening to it.
 			if (targetEvent != null && IsListening)
 			{
-				targetEvent.OnInvoked += OnEventInvoked;
+				SetListeningToObject(targetEvent, true);
+			}
+		}
+
+		protected void SetListeningToObject(ScriptableEvent<TValue> target, bool listen)
+		{
+			if (listen)
+			{
+				target.RegisterInvokedListener(onInvokedEvent, this);
+			}
+			else
+			{
+				target.UnregisterInvokedListener(onInvokedEvent);
 			}
 		}
 
@@ -111,7 +143,9 @@ namespace Hertzole.ScriptableValues
 		/// <param name="args">The arguments.</param>
 		private void OnEventInvoked(object sender, TValue args)
 		{
-			if (ShouldInvoke(invokeOn, targetEvent.PreviousArgs, args, fromValue, toValue))
+			Assert.IsNotNull(targetEvent);
+
+			if (ShouldInvoke(invokeOn, targetEvent!.PreviousArgs, args, fromValue, toValue))
 			{
 				onInvoked.Invoke(args);
 			}
@@ -125,8 +159,8 @@ namespace Hertzole.ScriptableValues
 		/// <param name="newValue"></param>
 		/// <param name="fromValue"></param>
 		/// <param name="toValue"></param>
-		/// <returns>True if the event should be invoked; otherwise, false.</returns>
-		private static bool ShouldInvoke(EventInvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		private static bool ShouldInvoke(EventInvokeEvents invokeOn, TValue? previousValue, TValue? newValue, TValue? fromValue, TValue? toValue)
 		{
 			switch (invokeOn)
 			{
@@ -134,6 +168,7 @@ namespace Hertzole.ScriptableValues
 					return EqualityHelper.Equals(previousValue, fromValue);
 				case EventInvokeEvents.ToValue:
 					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
+				case EventInvokeEvents.Any:
 				default: // If anything happened (includes any)
 					return true;
 			}

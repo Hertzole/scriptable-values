@@ -1,4 +1,7 @@
-﻿using Hertzole.ScriptableValues.Helpers;
+﻿#nullable enable
+
+using System;
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -55,7 +58,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>Invoke with both single and multiple parameters..</summary>
 		Both = 3
 	}
-	
+
 	/// <summary>
 	///     Base class for a component that listens to <see cref="ScriptableValue{T}" />.
 	/// </summary>
@@ -64,16 +67,16 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		[EditorTooltip("The value to listen to.")]
-		private ScriptableValue<TValue> targetValue = default;
+		private ScriptableValue<TValue>? targetValue = null;
 		[SerializeField]
 		[EditorTooltip("When listeners should invoke their events.")]
 		private InvokeEvents invokeOn = InvokeEvents.Any;
 		[SerializeField]
 		[EditorTooltip("What the old value needs to be for the event to be invoked.")]
-		private TValue fromValue = default;
+		private TValue? fromValue = default;
 		[SerializeField]
 		[EditorTooltip("What the new value needs to be for the event to be invoked.")]
-		private TValue toValue = default;
+		private TValue? toValue = default;
 
 		[SerializeField]
 		[EditorTooltip("How many parameters listeners should use when invoking their events.")]
@@ -94,46 +97,87 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     The value to listen to.
 		/// </summary>
-		public ScriptableValue<TValue> TargetValue { get { return targetValue; } set { SetTargetValue(value); } }
+		public ScriptableValue<TValue>? TargetValue
+		{
+			get { return targetValue; }
+			set { SetTargetValue(value); }
+		}
 		/// <summary>
 		///     When listeners should invoke their events.
 		/// </summary>
-		public InvokeEvents InvokeOn { get { return invokeOn; } set { invokeOn = value; } }
+		public InvokeEvents InvokeOn
+		{
+			get { return invokeOn; }
+			set { invokeOn = value; }
+		}
 		/// <summary>
 		///     What the old value needs to be for the event to be invoked.
 		/// </summary>
-		public TValue FromValue { get { return fromValue; } set { fromValue = value; } }
+		public TValue? FromValue
+		{
+			get { return fromValue; }
+			set { fromValue = value; }
+		}
 		/// <summary>
 		///     What the new value needs to be for the event to be invoked.
 		/// </summary>
-		public TValue ToValue { get { return toValue; } set { toValue = value; } }
+		public TValue? ToValue
+		{
+			get { return toValue; }
+			set { toValue = value; }
+		}
 		/// <summary>
 		///     How many parameters listeners should use when invoking their events.
 		/// </summary>
-		public InvokeParameters InvokeParameters { get { return invokeParameters; } set { invokeParameters = value; } }
+		public InvokeParameters InvokeParameters
+		{
+			get { return invokeParameters; }
+			set { invokeParameters = value; }
+		}
 
 		/// <summary>
 		///     The event to invoke when the value is changing.
 		/// </summary>
-		public UnityEvent<TValue> OnValueChangingSingle { get { return onValueChangingSingle; } }
+		public UnityEvent<TValue> OnValueChangingSingle
+		{
+			get { return onValueChangingSingle; }
+		}
 		/// <summary>
 		///     The event to invoke when the value has changed.
 		/// </summary>
-		public UnityEvent<TValue> OnValueChangedSingle { get { return onValueChangedSingle; } }
+		public UnityEvent<TValue> OnValueChangedSingle
+		{
+			get { return onValueChangedSingle; }
+		}
 		/// <summary>
 		///     The event to invoke when the value is changing.
 		/// </summary>
-		public UnityEvent<TValue, TValue> OnValueChangingMultiple { get { return onValueChangingMultiple; } }
+		public UnityEvent<TValue, TValue> OnValueChangingMultiple
+		{
+			get { return onValueChangingMultiple; }
+		}
 		/// <summary>
 		///     The event to invoke when the value has changed.
 		/// </summary>
-		public UnityEvent<TValue, TValue> OnValueChangedMultiple { get { return onValueChangedMultiple; } }
+		public UnityEvent<TValue, TValue> OnValueChangedMultiple
+		{
+			get { return onValueChangedMultiple; }
+		}
+
+		private static readonly Action<TValue, TValue, ScriptableValueListener<TValue>> onChanging = (oldValue, newValue, context) =>
+		{
+			context.OnCurrentValueChanging(oldValue, newValue);
+		};
+		private static readonly Action<TValue, TValue, ScriptableValueListener<TValue>> onChanged = (oldValue, newValue, context) =>
+		{
+			context.OnCurrentValueChanged(oldValue, newValue);
+		};
 
 		/// <inheritdoc />
 		protected override void SetListening(bool listen)
 		{
 			base.SetListening(listen);
-			
+
 			// If the target value is null, just stop here.
 			if (targetValue == null)
 			{
@@ -141,16 +185,7 @@ namespace Hertzole.ScriptableValues
 			}
 
 			// Subscribe or unsubscribe to the target value's events.
-			if (listen)
-			{
-				targetValue.OnValueChanging += OnCurrentValueChanging;
-				targetValue.OnValueChanged += OnCurrentValueChanged;
-			}
-			else
-			{
-				targetValue.OnValueChanging -= OnCurrentValueChanging;
-				targetValue.OnValueChanged -= OnCurrentValueChanged;
-			}
+			SetListeningToObject(targetValue, listen);
 		}
 
 		/// <summary>
@@ -207,7 +242,7 @@ namespace Hertzole.ScriptableValues
 		///     Sets the target value.
 		/// </summary>
 		/// <param name="newValue"></param>
-		protected virtual void SetTargetValue(ScriptableValue<TValue> newValue)
+		protected virtual void SetTargetValue(ScriptableValue<TValue>? newValue)
 		{
 			// If it's the same value, just stop here.
 			if (newValue == targetValue)
@@ -218,8 +253,7 @@ namespace Hertzole.ScriptableValues
 			// If we're listening to the old value, unsubscribe from its events.
 			if (targetValue != null && IsListening)
 			{
-				targetValue.OnValueChanging -= OnCurrentValueChanging;
-				targetValue.OnValueChanged -= OnCurrentValueChanged;
+				SetListeningToObject(targetValue, false);
 			}
 
 			targetValue = newValue;
@@ -227,8 +261,21 @@ namespace Hertzole.ScriptableValues
 			// If we're listening to the new value, subscribe to its events.
 			if (targetValue != null && IsListening)
 			{
-				targetValue.OnValueChanging += OnCurrentValueChanging;
-				targetValue.OnValueChanged += OnCurrentValueChanged;
+				SetListeningToObject(targetValue, true);
+			}
+		}
+
+		protected void SetListeningToObject(ScriptableValue<TValue> value, bool listen)
+		{
+			if (listen)
+			{
+				value.RegisterValueChangingListener(onChanging, this);
+				value.RegisterValueChangedListener(onChanged, this);
+			}
+			else
+			{
+				value.UnregisterValueChangingListener(onChanging);
+				value.UnregisterValueChangedListener(onChanged);
 			}
 		}
 
@@ -240,8 +287,8 @@ namespace Hertzole.ScriptableValues
 		/// <param name="newValue"></param>
 		/// <param name="fromValue"></param>
 		/// <param name="toValue"></param>
-		/// <returns>True if the event should be invoked; otherwise, false.</returns>
-		private static bool ShouldInvoke(InvokeEvents invokeOn, TValue previousValue, TValue newValue, TValue fromValue, TValue toValue)
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		private static bool ShouldInvoke(InvokeEvents invokeOn, TValue? previousValue, TValue? newValue, TValue? fromValue, TValue? toValue)
 		{
 			switch (invokeOn)
 			{
@@ -250,7 +297,9 @@ namespace Hertzole.ScriptableValues
 				case InvokeEvents.ToValue:
 					return EqualityHelper.Equals(newValue, toValue); // If the new value is the to value.
 				case InvokeEvents.FromValueToValue:
-					return EqualityHelper.Equals(previousValue, fromValue) && EqualityHelper.Equals(newValue, toValue); // If the old value is the from value and the new value is the to value.
+					return EqualityHelper.Equals(previousValue, fromValue) &&
+					       EqualityHelper.Equals(newValue, toValue); // If the old value is the from value and the new value is the to value.
+				case InvokeEvents.Any:
 				default: // If anything happened (includes any)
 					return true;
 			}

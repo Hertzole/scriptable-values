@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,7 +15,7 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		[EditorTooltip("The event to listen to.")]
-		private ScriptableEvent targetEvent = default;
+		private ScriptableEvent? targetEvent = null;
 		[SerializeField]
 		[EditorTooltip("The event to invoke when the target event is raised.")]
 		private UnityEvent onInvoked = new UnityEvent();
@@ -22,12 +23,21 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     The event to listen to.
 		/// </summary>
-		public ScriptableEvent TargetEvent { get { return targetEvent; } set { SetTargetEvent(value); } }
+		public ScriptableEvent? TargetEvent
+		{
+			get { return targetEvent; }
+			set { SetTargetEvent(value); }
+		}
 
 		/// <summary>
 		///     The event to invoke when the target event is raised.
 		/// </summary>
-		public UnityEvent OnInvoked { get { return onInvoked; } }
+		public UnityEvent OnInvoked
+		{
+			get { return onInvoked; }
+		}
+
+		private static readonly EventHandlerWithContext<ScriptableEventListener> onInvokedEvent = (_, _, context) => { context.OnEventInvoked(); };
 
 		/// <inheritdoc />
 		protected override void SetListening(bool listen)
@@ -39,21 +49,14 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			if (listen)
-			{
-				targetEvent.OnInvoked += OnEventInvoked;
-			}
-			else
-			{
-				targetEvent.OnInvoked -= OnEventInvoked;
-			}
+			SetListeningToObject(targetEvent, listen);
 		}
 
 		/// <summary>
 		///     Sets the target event.
 		/// </summary>
 		/// <param name="newEvent">The new event.</param>
-		protected virtual void SetTargetEvent(ScriptableEvent newEvent)
+		protected virtual void SetTargetEvent(ScriptableEvent? newEvent)
 		{
 			// If the target event is the same, do nothing.
 			if (newEvent == targetEvent)
@@ -64,7 +67,7 @@ namespace Hertzole.ScriptableValues
 			// If we are currently listening to the old event, stop listening.
 			if (targetEvent != null && IsListening)
 			{
-				targetEvent.OnInvoked -= OnEventInvoked;
+				SetListeningToObject(targetEvent, false);
 			}
 
 			targetEvent = newEvent;
@@ -72,16 +75,26 @@ namespace Hertzole.ScriptableValues
 			// If we should start listening to the new event, start listening.
 			if (targetEvent != null && IsListening)
 			{
-				targetEvent.OnInvoked += OnEventInvoked;
+				SetListeningToObject(targetEvent, true);
+			}
+		}
+
+		protected void SetListeningToObject(ScriptableEvent target, bool listen)
+		{
+			if (listen)
+			{
+				target.RegisterInvokedListener(onInvokedEvent, this);
+			}
+			else
+			{
+				target.UnregisterInvokedListener(onInvokedEvent);
 			}
 		}
 
 		/// <summary>
 		///     Called when the target event is invoked.
 		/// </summary>
-		/// <param name="sender">The object that invoked the event.</param>
-		/// <param name="e">The arguments.</param>
-		private void OnEventInvoked(object sender, EventArgs e)
+		private void OnEventInvoked()
 		{
 			onInvoked.Invoke();
 		}
