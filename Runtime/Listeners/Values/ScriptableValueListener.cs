@@ -265,17 +265,19 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		protected void SetListeningToObject(ScriptableValue<TValue> value, bool listen)
+		protected void SetListeningToObject(ScriptableValue<TValue> target, bool listen)
 		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+
 			if (listen)
 			{
-				value.RegisterValueChangingListener(onChanging, this);
-				value.RegisterValueChangedListener(onChanged, this);
+				target.RegisterValueChangingListener(onChanging, this);
+				target.RegisterValueChangedListener(onChanged, this);
 			}
 			else
 			{
-				value.UnregisterValueChangingListener(onChanging);
-				value.UnregisterValueChangedListener(onChanged);
+				target.UnregisterValueChangingListener(onChanging);
+				target.UnregisterValueChangedListener(onChanged);
 			}
 		}
 
