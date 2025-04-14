@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -32,7 +34,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
-		internal T editorInvokeValue = default;
+		internal T? editorInvokeValue = default;
 #pragma warning restore CS0414 // The field is assigned but its value is never used
 #endif
 
@@ -40,8 +42,8 @@ namespace Hertzole.ScriptableValues
 
 		// The arguments that was passed to the event when it was invoked.
 		// This is used to set the previous value.
-		private T currentArgs;
-		private T previousArgs;
+		private T? currentArgs;
+		private T? previousArgs;
 
 		/// <summary>
 		///     The arguments that was passed to the event when it was invoked.
@@ -49,7 +51,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[CreateProperty]
 #endif
-		public T PreviousArgs
+		public T? PreviousArgs
 		{
 			get { return previousArgs; }
 			private set { SetField(ref previousArgs, value, ScriptableEvent.previousArgsChanging, ScriptableEvent.previousArgsChanged); }

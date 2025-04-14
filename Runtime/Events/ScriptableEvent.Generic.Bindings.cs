@@ -1,4 +1,6 @@
 ﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#nullable enable
+
 using System.Collections.Generic;
 
 namespace Hertzole.ScriptableValues
@@ -11,7 +13,7 @@ namespace Hertzole.ScriptableValues
 			{
 				long hash = 17;
 				hash = hash * 23 + base.GetViewHashCode();
-				hash = hash * 23 + EqualityComparer<T>.Default.GetHashCode(PreviousArgs);
+				hash = hash * 23 + EqualityComparer<T?>.Default.GetHashCode(PreviousArgs);
 				return hash;
 			}
 		}
