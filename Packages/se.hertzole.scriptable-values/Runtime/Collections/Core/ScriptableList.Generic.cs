@@ -1011,42 +1011,45 @@ namespace Hertzole.ScriptableValues
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
-			T[]? removed = ArrayPool<T>.Shared.Rent(list.Count);
-			try
+			using SpanOwner<T> removed = SpanOwner<T>.Allocate(list.Count);
+			int removeLength = RemoveAllWithPredicate(removed.Span, out int firstIndex, match);
+
+			if (removeLength > 0)
 			{
-				int removeLength = 0;
-				int firstIndex = -1;
-				for (int i = 0; i < list.Count; i++)
-				{
-					if (match(list[i]))
-					{
-						if (firstIndex == -1)
-						{
-							firstIndex = i;
-						}
+				int removeCount = list.RemoveAll(match);
+				InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removed.Span.Slice(0, removeLength), firstIndex));
 
-						removed[removeLength] = list[i];
-						removeLength++;
-					}
-				}
+				Assert.AreEqual(removeLength, removeCount, "The expected count of removed items is not the same as the actually removed items count.");
 
-				if (removeLength > 0)
-				{
-					int removeCount = list.RemoveAll(match);
-					InvokeCollectionChanged(CollectionChangedArgs<T>.Remove(removed.AsSpan(0, removeLength), firstIndex));
-
-					Assert.AreEqual(removeLength, removeCount, "The expected count of removed items is not the same as the actually removed items count.");
-
-					UpdateCounts();
-					return removeCount;
-				}
-			}
-			finally
-			{
-				ArrayPool<T>.Shared.Return(removed, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+				UpdateCounts();
+				return removeCount;
 			}
 
 			return 0;
+		}
+
+		private int RemoveAllWithPredicate(Span<T> removedBuffer, out int firstIndex, Predicate<T> match)
+		{
+			// Keeps track of the number of items removed.
+			int removeLength = 0;
+			// Keeps track of the first index of the item that was removed.
+			firstIndex = -1;
+			for (int i = 0; i < list.Count; i++)
+			{
+				if (match(list[i]))
+				{
+					// If the item was removed, and we haven't set the first index yet, set it.
+					if (firstIndex == -1)
+					{
+						firstIndex = i;
+					}
+
+					removedBuffer[removeLength] = list[i];
+					removeLength++;
+				}
+			}
+
+			return removeLength;
 		}
 
 		/// <summary>
