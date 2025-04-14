@@ -130,9 +130,9 @@ namespace Hertzole.ScriptableValues
 		public UnityEvent<TValue, TValue> OnValueChangedMultiple { get { return onValueChangedMultiple; } }
 
 		/// <inheritdoc />
-		protected override void ToggleListening(bool listen)
+		protected override void SetListening(bool listen)
 		{
-			base.ToggleListening(listen);
+			base.SetListening(listen);
 			
 			// If the target value is null, just stop here.
 			if (targetValue == null)
