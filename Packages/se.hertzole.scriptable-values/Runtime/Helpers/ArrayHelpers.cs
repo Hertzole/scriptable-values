@@ -7,12 +7,13 @@ namespace Hertzole.ScriptableValues.Helpers
 {
 	internal static class ArrayHelpers
 	{
-		public static void EnsureCapacity<T>(ref T[] array, int index)
+		public static void EnsureCapacity<T>(ref T[] array, int capacity)
 		{
-			if (array.Length == index)
+			if (array.Length <= capacity)
 			{
-				T[] newArray = ArrayPool<T>.Shared.Rent(index * 2);
-				Array.Copy(array, newArray, index);
+				int length = array.Length;
+				T[] newArray = ArrayPool<T>.Shared.Rent(capacity * 2);
+				Array.Copy(array, newArray, length);
 				ArrayPool<T>.Shared.Return(array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 				array = newArray;
 			}
