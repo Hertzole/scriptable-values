@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Hertzole.ScriptableValues.Helpers;
 
 namespace Hertzole.ScriptableValues
 {
@@ -13,6 +14,8 @@ namespace Hertzole.ScriptableValues
 
 		public StructClosure(T action, object? context)
 		{
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+
 			this.action = action;
 			this.context = context;
 		}
