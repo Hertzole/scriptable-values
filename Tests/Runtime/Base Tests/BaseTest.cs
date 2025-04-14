@@ -31,7 +31,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public static readonly float[] floats = { -69.420f, 69.420f, 0 };
 		public static readonly double[] doubles = { -69.420, 69.420, 0 };
 		public static readonly decimal[] decimals = { -69.420m, 69.420m, 0 };
-		public static readonly string[] strings = { string.Empty, "hello", "WoRld", null };
+		public static readonly string[] strings = { string.Empty, "hello", "WoRld", null! };
 		public static readonly char[] chars = { char.MinValue, char.MaxValue, 'a' };
 		public static readonly Color[] colors = { Color.black, Color.white };
 		public static readonly Color32[] colors32 = { Color.black, Color.white };
@@ -133,15 +133,15 @@ namespace Hertzole.ScriptableValues.Tests
 			return go;
 		}
 
-		protected static T CreateComponent<T>(GameObject go = null) where T : Component
+		protected static T CreateComponent<T>(GameObject? targetObject = null) where T : Component
 		{
-			if (go == null)
+			if (targetObject == null)
 			{
-				go = new GameObject();
-				objects.Add(go);
+				targetObject = new GameObject();
+				objects.Add(targetObject);
 			}
 
-			T comp = go.AddComponent<T>();
+			T comp = targetObject.AddComponent<T>();
 
 			return comp;
 		}
@@ -215,7 +215,7 @@ namespace Hertzole.ScriptableValues.Tests
 
 			if (typeof(T) == typeof(GameObject))
 			{
-				return ConvertAndSetValue<T, GameObject>(value, oldValue => CreateGameObject());
+				return ConvertAndSetValue<T, GameObject>(value, _ => CreateGameObject());
 			}
 
 			if (typeof(T) == typeof(int))
@@ -444,7 +444,7 @@ namespace Hertzole.ScriptableValues.Tests
 
 		private sealed class ComparisonComparer<T> : IComparer<T>
 		{
-			public readonly Comparison<T> comparison;
+			private readonly Comparison<T> comparison;
 
 			public ComparisonComparer(Comparison<T> comparison)
 			{

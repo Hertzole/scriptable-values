@@ -73,10 +73,10 @@ namespace Hertzole.ScriptableValues
 		public ValueReference()
 		{
 			valueType = ValueReferenceType.Reference;
-			constantValue = default;
-			referenceValue = null;
+			constantValue = default!;
+			referenceValue = null!;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			addressableReference = null;
+			addressableReference = null!;
 #endif
 		}
 
@@ -317,7 +317,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
 
-		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>> onLoaded = null)
+		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>>? onLoaded = null)
 		{
 			AssetHandle = Addressables.LoadAssetAsync<ScriptableValue<T>>(addressableReference);
 
@@ -352,7 +352,7 @@ namespace Hertzole.ScriptableValues
 			if (AssetHandle.IsValid())
 			{
 				Addressables.Release(AssetHandle);
-				referenceValue = null;
+				referenceValue = null!;
 			}
 		}
 #endif
