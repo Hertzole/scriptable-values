@@ -63,7 +63,7 @@ namespace Hertzole.ScriptableValues
 #endif
 		public T Value
 		{
-			get { return GetValue(); }
+			get { return value; }
 			set
 			{
 				AddStackTrace(1);
@@ -112,20 +112,11 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Returns the current value.
-		/// </summary>
-		/// <returns>The current value.</returns>
-		protected virtual T GetValue()
-		{
-			return value;
-		}
-
-		/// <summary>
 		///     Sets the current value to a new value.
 		/// </summary>
 		/// <param name="newValue">The new value that should be set.</param>
 		/// <param name="notify">If true, the OnValueChanging/Changed events are invoked.</param>
-		protected virtual void SetValue(T newValue, bool notify)
+		private void SetValue(T newValue, bool notify)
 		{
 			// If the game is playing, we don't want to set the value if it's read only.
 			ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
