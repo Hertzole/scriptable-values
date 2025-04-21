@@ -11,7 +11,7 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     A <see cref="ScriptableObject"/> that can be invoked to trigger an event without any arguments.
+	///     A <see cref="ScriptableObject" /> that can be invoked to trigger an event without any arguments.
 	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Hertzole/Scriptable Values/Events/Runtime Event", order = ORDER)]
@@ -52,7 +52,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Invokes the event with this <see cref="ScriptableEvent"/> as the sender.
+		///     Invokes the event with this <see cref="ScriptableEvent" /> as the sender.
 		/// </summary>
 		public void Invoke()
 		{
@@ -75,18 +75,41 @@ namespace Hertzole.ScriptableValues
 		/// <param name="skipFrames">How many frames of stack trace to skip.</param>
 		private void InvokeInternal(object sender, int skipFrames)
 		{
+			if (!OnBeforeInvoked(sender))
+			{
+				return;
+			}
+
 			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(1 + skipFrames);
 
 			onInvokedInternal.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
+
+			OnAfterInvoked(sender);
 		}
 
 		/// <summary>
-		///     Registers a callback to be called when <see cref="ScriptableEvent"/> is invoked.
+		///     Called before the event is invoked. This can be used to prevent the event from being invoked.
+		/// </summary>
+		/// <param name="sender">The object that invoked the event.</param>
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		protected virtual bool OnBeforeInvoked(object sender)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called after the event has been invoked.
+		/// </summary>
+		/// <param name="sender">The object that invoked the event.</param>
+		protected virtual void OnAfterInvoked(object sender) { }
+
+		/// <summary>
+		///     Registers a callback to be called when <see cref="ScriptableEvent" /> is invoked.
 		/// </summary>
 		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback"/> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
 		public void RegisterInvokedListener(EventHandler callback)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -101,7 +124,10 @@ namespace Hertzole.ScriptableValues
 		/// <param name="callback">The callback to register.</param>
 		/// <param name="context">The context to pass to the callback.</param>
 		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback"/> is <c>null</c>. Or <paramref name="context"/> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterInvokedListener<TContext>(EventHandlerWithContext<TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
