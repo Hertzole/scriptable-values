@@ -127,6 +127,11 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
+			if (!OnBeforeSetValue(newValue))
+			{
+				return;
+			}
+
 			PreviousValue = temporaryValue;
 			// Invoke the OnValueChanging event if notify is true.
 			if (notify)
@@ -142,6 +147,8 @@ namespace Hertzole.ScriptableValues
 
 			valueIsDefault = EqualityHelper.Equals(value, default);
 
+			OnAfterSetValue(PreviousValue, newValue);
+
 			// Invoke the OnValueChanged event if notify is true.
 			if (notify)
 			{
@@ -152,7 +159,32 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback to be called before <see cref="Value"/> changes.
+		///     Called before the value is set. This can be used to prevent the value from being set.
+		/// </summary>
+		/// <param name="newValue">The new value that is going to be set.</param>
+		/// <returns><c>true</c> if the value can be set; otherwise, <c>false</c>.</returns>
+		/// <remarks>
+		///     This is called before the <see cref="OnValueChanging" /> event. This is also called no matter what `notify` is
+		///     set as.
+		/// </remarks>
+		protected virtual bool OnBeforeSetValue(T newValue)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called when the value is set. This can be used to do something when the value is set.
+		/// </summary>
+		/// <param name="oldValue">The old value that was set.</param>
+		/// <param name="newValue">The new value that was set.</param>
+		/// <remarks>
+		///     This is called before the <see cref="OnValueChanged" /> event. This is also called no matter what `notify` is
+		///     set as.
+		/// </remarks>
+		protected virtual void OnAfterSetValue(T oldValue, T newValue) { }
+
+		/// <summary>
+		///     Registers a callback to be called before <see cref="Value" /> changes.
 		/// </summary>
 		/// <param name="callback">The callback method to call.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
@@ -170,7 +202,10 @@ namespace Hertzole.ScriptableValues
 		/// <param name="callback">The callback method to call.</param>
 		/// <param name="context">The context to pass to the callback.</param>
 		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterValueChangingListener<TContext>(Action<T, T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -205,7 +240,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Registers a callback to be called after <see cref="Value"/> has been changed.
+		///     Registers a callback to be called after <see cref="Value" /> has been changed.
 		/// </summary>
 		/// <param name="callback">The callback method to call.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
@@ -223,7 +258,10 @@ namespace Hertzole.ScriptableValues
 		/// <param name="callback">The callback method to call.</param>
 		/// <param name="context">The context to pass to the callback.</param>
 		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is <c>null</c>.</exception>
+		/// <exception cref="ArgumentNullException">
+		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
+		///     <c>null</c>.
+		/// </exception>
 		public void RegisterValueChangedListener<TContext>(Action<T, T, TContext> callback, TContext context)
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
@@ -277,7 +315,8 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <summary>
-		///     Sets the current value without invoking the <see cref="OnValueChanging"/> and <see cref="OnValueChanged"/> events.
+		///     Sets the current value without invoking the <see cref="OnValueChanging" /> and <see cref="OnValueChanged" />
+		///     events.
 		/// </summary>
 		/// <param name="newValue">The new value.</param>
 		public void SetValueWithoutNotify(T newValue)

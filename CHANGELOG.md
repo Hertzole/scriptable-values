@@ -6,12 +6,17 @@
 - RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces that can be used to track most property changes, including regular field properties
   - `ScriptablePool<T>` tracks `CountAll`, `CountActive`, and `CountInactive`
 - New event system that is more efficient and allows for avoiding closure allocations
+- `ScriptableValue<T>` now has `OnBeforeSetValue(T newValue)` and `OnAfterSetValue(T oldValue, T newValue)` methods that can be overridden to track value changes
+- `ScriptableEvent` and `ScriptableEvent<T>` now have `OnBeforeInvoke` and `OnAfterInvoke` methods that can be overridden to track event invocations
 - `ICanBeReadOnly` interface for scriptable objects that can be marked as read-only
 - `INotifyScriptableCollectionChanged` interface for scriptable collections that can be used to track collection changes
+- Full parity with `List<T>` to `ScriptableList<T>`
 
 ### Changed
 
 - Tooltips are no longer included in builds
+- **BREAKING**: Removed `ScriptableValue<T>.GetValue()`
+- **BREAKING**: You can no longer override `ScriptableValue<T>.SetValue(T, bool)` in derived classes
 - **BREAKING**: `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
 - Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file
 - **BREAKING**: Read-only errors are now thrown as exceptions instead of logged using `Debug.LogError`
@@ -27,6 +32,7 @@
 - `ScriptableDictionary<TKey, TValue>.TrimExcess()` can now be called even when the object is marked as read-only
 - `ScriptableDictionary<TKey, TValue>` now implements `INotifyCollectionChanged` and `InotifyScriptableCollectionChanged<KeyValurPair<TKey, TValue>>`
 - **BREAKING**: `ScriptablePool<T>.Return(T item)` is now obsolete, use `Release(T item)` instead
+- **BREAKING**: `ScriptableValueListener.ToggleListening(bool listen)` is now obsolete, use `SetListening(bool listen)` instead
 
 ### Fixed
 
