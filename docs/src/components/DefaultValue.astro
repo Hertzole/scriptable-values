@@ -1,0 +1,12 @@
+---
+interface Props {
+    enabled?: boolean;
+}
+
+import { Badge } from '@astrojs/starlight/components';
+const { enabled } = Astro.props as Props;
+---
+
+{enabled !== undefined ? (
+    <Badge text={enabled ? 'Enabled by default' : 'Disabled by default'} variant='note' />
+) : null}

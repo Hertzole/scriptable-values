@@ -1,0 +1,21 @@
+---
+import { AccessLevel } from '../AccessLevel'; // Updated the path to the new enum
+
+interface Props {
+    methodType?: AccessLevel;
+    canBeOverridden?: boolean;
+}
+
+import { Badge } from '@astrojs/starlight/components';
+const { methodType = AccessLevel.PUBLIC, canBeOverridden = false } = Astro.props as Props;
+---
+
+{methodType === AccessLevel.PUBLIC ? (
+    <Badge text="Public" variant='note' />
+) : methodType === AccessLevel.PROTECTED ? (
+    <Badge text="Inheritors only" variant='caution' />
+) : null}
+
+{canBeOverridden ? (
+    <Badge text="Can be overridden" variant='success' />
+) : null}
