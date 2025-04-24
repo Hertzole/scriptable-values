@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Collections.Generic;
+using System.Reflection;
 using Hertzole.ScriptableValues.Debugging;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -9,12 +10,13 @@ using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
-	// This attribute is mainly used for Odin Inspector to understand that it shouldn't override this inspector.
 	[CustomEditor(typeof(RuntimeScriptableObject), true)]
 	public class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
 		private bool hasCreatedDefaultInspector;
-		private StackTraceElement stackTraces = null!;
+		private bool hideStackTraces;
+
+		private StackTraceElement? stackTraces = null;
 
 		protected virtual string StackTracesLabel
 		{
@@ -24,6 +26,11 @@ namespace Hertzole.ScriptableValues.Editor
 		protected virtual void OnEnable()
 		{
 			hasCreatedDefaultInspector = false;
+
+			if (target.GetType().GetCustomAttribute(typeof(HideStackTracesAttribute), false) != null)
+			{
+				hideStackTraces = true;
+			}
 
 			((IStackTraceProvider) target).OnStackTraceAdded += OnStackTraceAdded;
 
@@ -46,15 +53,18 @@ namespace Hertzole.ScriptableValues.Editor
 			CreateGUIBeforeStackTraces(root);
 			CreateDefaultInspectorGUI(root);
 
-			stackTraces = new StackTraceElement((IStackTraceProvider) target, StackTracesLabel)
+			if (!hideStackTraces)
 			{
-				style =
+				stackTraces = new StackTraceElement((IStackTraceProvider) target, StackTracesLabel)
 				{
-					marginTop = 4
-				}
-			};
+					style =
+					{
+						marginTop = 4
+					}
+				};
 
-			root.Add(stackTraces);
+				root.Add(stackTraces);
+			}
 
 			return root;
 		}
