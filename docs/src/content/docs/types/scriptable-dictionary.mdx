@@ -5,4 +5,106 @@ sidebar:
     order: 35
 ---
 
-TODO: Scriptable Dictionary
+`ScriptableDictionary<TKey, TValue>` is a type of scriptable object that holds a dictionary of values. It acts just like a regular [`Dictionary<TKey, TValue>`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2), but it is a scriptable object that can be used in the inspector and be passed around to other objects.
+
+## Usage
+
+Using a Scriptable Dictionary in your code is really straight forward. You use the `Add`, `Remove`, and `Clear` methods to manage the dictionary.
+:::note
+To actually asign the dictionary to a field you need to create an instance of the dictionary in the editor. These instances need to be created in code first. See [Creating a Dictionary](#creating-a-dictionary) for more information.
+:::
+
+`Add` will add an object to the dictionary. The key must be unique, otherwise it will throw an exception.
+
+```csharp title="Add Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableDictionary<string, Item> items;
+
+    public void AddItem(string key, Item item)
+    {
+        items.Add(key, item);
+    }
+}
+```
+
+`Remove` will remove an object from the dictionary.
+
+```csharp title="Remove Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableDictionary<string, Item> items;
+
+    public void RemoveItem(string key)
+    {
+        items.Remove(key);
+    }
+}
+```
+
+`Clear` will remove all objects from the dictionary. This is useful for cleaning up the dictionary when it is no longer needed, like when quitting or changing scenes.
+
+```csharp title="Clear Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableDictionary<string, Item> items;
+
+    public void Clear()
+    {
+        items.Clear();
+    }
+}
+```
+
+You can also access the dictionary directly using the indexer. This is useful for getting or setting values in the dictionary.
+
+```csharp title="Indexer Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableDictionary<string, Item> items;
+
+    public void SetItem(string key, Item item)
+    {
+        items[key] = item;
+    }
+
+    public Item GetItem(string key)
+    {
+        return items[key];
+    }
+}
+```
+
+There are many more methods available in the dictionary, such as `ContainsKey`, `TryGetValue`, and `Count`. You can find the full list of methods in the [documentation](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2).
+
+## Creating a Dictionary
+
+You need to create a dictionary before you can use it in the editor. Fortunately, this is really easy to do! All you need to do is inherit from `ScriptableDictionary<TKey, TValue>`.
+
+```csharp title="Creating a Dictionary"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[CreateAssetMenu(fileName = "New Item Dictionary", menuName = "Scriptable Values/Dictionary")]
+public class ItemDictionary : ScriptableDictionary<string, Item>
+{
+    // You can add any custom methods or properties here.
+    // There are no methods to override, but you can add your own methods.
+}
+```

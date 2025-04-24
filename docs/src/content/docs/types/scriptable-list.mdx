@@ -70,6 +70,27 @@ public class Inventory : MonoBehaviour
 }
 ```
 
+You can also access the list directly using the `Value` property. This will return the list of values, which you can use just like a regular list.
+
+```csharp title="Accessing the List"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    public void PrintItems()
+    {
+        for (int i = 0; i < items.Value.Count; i++)
+        {
+            Debug.Log(items.Value[i]);
+        }
+    }
+}
+```
+
 There are many more methods available on the list, such as `Contains`, `IndexOf`, and `Sort`. It aims to have full parity with the regular `List<T>` class. See the [documentation](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1) for more information.
 
 ## Creating a List
