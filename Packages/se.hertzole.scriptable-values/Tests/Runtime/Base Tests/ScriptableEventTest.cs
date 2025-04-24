@@ -166,5 +166,88 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue);
 		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeInvoked_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableGenericEvent instance = CreateInstance<OverrideScriptableGenericEvent>();
+			instance.shouldBlock = false;
+			int targetValue = MakeDifferentValue(instance.PreviousArgs);
+
+			// Act
+			instance.Invoke(targetValue);
+
+			// Assert
+			Assert.IsTrue(instance.calledOnBeforeSetValue, "OnBeforeInvoke was not called.");
+			Assert.AreEqual(targetValue, instance.beforeInvokeValue, "The value passed to OnBeforeInvoke was not the same as the one passed to Invoke.");
+		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeInvoked_Blocked()
+		{
+			// Arrange
+			OverrideScriptableGenericEvent instance = CreateInstance<OverrideScriptableGenericEvent>();
+			instance.shouldBlock = true;
+			int oldValue = instance.PreviousArgs;
+			bool invoked = false;
+			instance.OnInvoked += OnInvoked;
+
+			// Act
+			instance.Invoke(MakeDifferentValue(instance.PreviousArgs));
+
+			// Assert
+			Assert.IsTrue(instance.calledOnBeforeSetValue, "OnBeforeInvoke was not called.");
+			Assert.IsFalse(instance.calledOnAfterSetValue, "OnAfterInvoke was called even though it was blocked.");
+			Assert.AreEqual(oldValue, instance.PreviousArgs, "The value was changed even though it was blocked.");
+			Assert.IsFalse(invoked);
+
+			void OnInvoked(object sender, int e)
+			{
+				invoked = true;
+			}
+		}
+
+		[Test]
+		public void OverrideMethod_OnAfterInvoked_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableGenericEvent instance = CreateInstance<OverrideScriptableGenericEvent>();
+			int targetValue = MakeDifferentValue(instance.PreviousArgs);
+
+			// Act
+			instance.Invoke(targetValue);
+
+			// Assert
+			Assert.IsTrue(instance.calledOnAfterSetValue, "OnAfterInvoke was not called.");
+			Assert.AreEqual(targetValue, instance.afterInvokeValue, "The value passed to OnAfterInvoke was not the same as the one passed to Invoke.");
+		}
+	}
+
+	public class OverrideScriptableGenericEvent : ScriptableEvent<int>
+	{
+		public bool shouldBlock = false;
+
+		public bool calledOnBeforeSetValue = false;
+		public bool calledOnAfterSetValue = false;
+
+		public int beforeInvokeValue;
+		public int afterInvokeValue;
+
+		/// <inheritdoc />
+		protected override bool OnBeforeInvoked(object sender, int args)
+		{
+			calledOnBeforeSetValue = true;
+			beforeInvokeValue = args;
+
+			return !shouldBlock;
+		}
+
+		/// <inheritdoc />
+		protected override void OnAfterInvoked(object sender, int args)
+		{
+			calledOnAfterSetValue = true;
+			afterInvokeValue = args;
+		}
 	}
 }

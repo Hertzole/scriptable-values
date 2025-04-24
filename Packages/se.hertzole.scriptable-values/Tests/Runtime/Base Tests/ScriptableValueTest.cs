@@ -65,7 +65,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public void OverrideMethod_OnBeforeSetValue_IsCalled()
 		{
 			// Arrange
-			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			OverrideScriptableValue instance = CreateInstance<OverrideScriptableValue>();
 			instance.shouldBlock = false;
 			int targetValue = MakeDifferentValue(instance.Value);
 
@@ -81,7 +81,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public void OverrideMethod_OnBeforeSetValue_Blocked()
 		{
 			// Arrange
-			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			OverrideScriptableValue instance = CreateInstance<OverrideScriptableValue>();
 			instance.shouldBlock = true;
 			int oldValue = instance.Value;
 
@@ -98,7 +98,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public void OverrideMethod_OnAfterSetValue_IsCalled()
 		{
 			// Arrange
-			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			OverrideScriptableValue instance = CreateInstance<OverrideScriptableValue>();
 			int targetValue = MakeDifferentValue(instance.Value);
 
 			// Act
@@ -111,7 +111,7 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 	}
 
-	public class OverrideScriptableObject : ScriptableValue<int>
+	public class OverrideScriptableValue : ScriptableValue<int>
 	{
 		public bool shouldBlock = false;
 

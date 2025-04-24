@@ -67,7 +67,7 @@ namespace Hertzole.ScriptableValues.Tests.Events
 				Assert.AreEqual(sender, context.GetArg<ScriptableEvent>("sender"));
 			}
 		}
-		
+
 		[Test]
 		public void Invoke_WithSender([Values] EventType eventType)
 		{
@@ -89,13 +89,13 @@ namespace Hertzole.ScriptableValues.Tests.Events
 					instance.RegisterInvokedListener(StaticOnInvoked, context);
 					break;
 			}
-			
+
 			// Act
 			instance.Invoke(sender);
-			
+
 			// Assert
 			Assert.AreEqual(1, context.invokeCount, "Invoke count should be 1.");
-			
+
 			// Arrange removal
 			switch (eventType)
 			{
@@ -109,10 +109,10 @@ namespace Hertzole.ScriptableValues.Tests.Events
 					instance.UnregisterInvokedListener<InvokeCountContext>(StaticOnInvoked);
 					break;
 			}
-			
+
 			// Act
 			instance.Invoke(sender);
-			
+
 			// Assert
 			Assert.AreEqual(1, context.invokeCount, "Invoke count should still be 1.");
 			return;
@@ -122,12 +122,76 @@ namespace Hertzole.ScriptableValues.Tests.Events
 				Assert.AreEqual(o, sender);
 				context.invokeCount++;
 			}
-			
+
 			static void StaticOnInvoked(object o, EventArgs e, InvokeCountContext c)
 			{
 				c.invokeCount++;
 				Assert.AreEqual(o, c.GetArg<GameObject>("sender"));
 			}
+		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeInvoked_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableEvent instance = CreateInstance<OverrideScriptableEvent>();
+			instance.shouldBlock = false;
+
+			// Act
+			instance.Invoke();
+
+			// Assert
+			Assert.IsTrue(instance.calledOnBeforeSetValue);
+		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeInvoked_Blocked()
+		{
+			// Arrange
+			OverrideScriptableEvent instance = CreateInstance<OverrideScriptableEvent>();
+			instance.shouldBlock = true;
+
+			// Act
+			instance.Invoke();
+
+			// Assert
+			Assert.IsTrue(instance.calledOnBeforeSetValue);
+			Assert.IsFalse(instance.calledOnAfterSetValue);
+		}
+
+		[Test]
+		public void OverrideMethod_OnAfterInvoked_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableEvent instance = CreateInstance<OverrideScriptableEvent>();
+
+			// Act
+			instance.Invoke();
+
+			// Assert
+			Assert.IsTrue(instance.calledOnAfterSetValue);
+		}
+	}
+
+	public class OverrideScriptableEvent : ScriptableEvent
+	{
+		public bool shouldBlock = false;
+
+		public bool calledOnBeforeSetValue = false;
+		public bool calledOnAfterSetValue = false;
+
+		/// <inheritdoc />
+		protected override bool OnBeforeInvoked(object sender)
+		{
+			calledOnBeforeSetValue = true;
+
+			return !shouldBlock;
+		}
+
+		/// <inheritdoc />
+		protected override void OnAfterInvoked(object sender)
+		{
+			calledOnAfterSetValue = true;
 		}
 	}
 }
