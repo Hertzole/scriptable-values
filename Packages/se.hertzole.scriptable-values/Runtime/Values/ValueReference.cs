@@ -52,6 +52,36 @@ namespace Hertzole.ScriptableValues
 			set { SetValue(value, true); }
 		}
 
+		public ValueReferenceType ValueType
+		{
+			get { return valueType; }
+			set { valueType = value; }
+		}
+
+		public bool IsAddressable
+		{
+			get
+			{
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				return valueType == ValueReferenceType.Addressable;
+#else
+				return false;
+#endif
+			}
+		}
+
+		public bool IsAddressableLoaded
+		{
+			get
+			{
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+				return AssetHandle.IsDone && AssetHandle.Result != null;
+#else
+				return true;
+#endif
+			}
+		}
+
 		// These are only used for constant values, and as a buffer for addressable assets that are not loaded yet.
 		internal readonly DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T> onValueChangingInternal =
 			new DelegateHandlerList<ScriptableValue<T>.OldNewValue<T>, T, T>();
@@ -179,7 +209,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 		private void SetValueAddressable(in T value, in bool notify)
 		{
-			if (AssetHandle.IsValid() && AssetHandle.IsDone && AssetHandle.Result != null)
+			if (IsAddressableLoaded)
 			{
 				if (notify)
 				{
@@ -189,6 +219,10 @@ namespace Hertzole.ScriptableValues
 				{
 					AssetHandle.Result.SetValueWithoutNotify(value);
 				}
+			}
+			else
+			{
+				Debug.LogWarning("Addressable asset is not loaded yet. Make sure you've called LoadAddressableAssetAsync before trying to set the value.");
 			}
 		}
 #endif
@@ -319,6 +353,11 @@ namespace Hertzole.ScriptableValues
 
 		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>>? onLoaded = null)
 		{
+			if (valueType != ValueReferenceType.Addressable)
+			{
+				throw new NotSupportedException("The value type is not addressable.");
+			}
+
 			AssetHandle = Addressables.LoadAssetAsync<ScriptableValue<T>>(addressableReference);
 
 			AssetHandle.Completed += OnAssetHandleOnCompleted;
@@ -342,6 +381,11 @@ namespace Hertzole.ScriptableValues
 
 		public void ReleaseAddressableAsset()
 		{
+			if (valueType != ValueReferenceType.Reference)
+			{
+				return;
+			}
+
 			// Make sure to remove all old listeners.
 			if (referenceValue != null)
 			{
