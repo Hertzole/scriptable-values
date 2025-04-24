@@ -328,10 +328,6 @@ namespace Hertzole.ScriptableValues
 
 		protected override void OnStart()
 		{
-#if UNITY_EDITOR
-			ResetStackTraces();
-#endif
-
 			// If the value should be reset, and it isn't a read only value, we set the value to the default value.
 			if (ResetValueOnStart && !IsReadOnly)
 			{

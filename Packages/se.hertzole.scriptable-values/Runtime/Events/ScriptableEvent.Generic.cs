@@ -199,10 +199,6 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		protected override void OnStart()
 		{
-#if UNITY_EDITOR
-			ResetStackTraces();
-#endif
-
 			// Remove any subscribers that are left over from play mode.
 			// Don't warn if there are any subscribers left over because we already do that in OnExitPlayMode.
 			ClearSubscribers();

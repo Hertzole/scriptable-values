@@ -45,6 +45,7 @@ namespace Hertzole.ScriptableValues
 		{
 			if (state == PlayModeStateChange.ExitingEditMode)
 			{
+				ResetStackTraces();
 				OnStart();
 			}
 			else if (state == PlayModeStateChange.EnteredEditMode)
