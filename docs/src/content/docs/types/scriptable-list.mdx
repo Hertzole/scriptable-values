@@ -5,4 +5,85 @@ sidebar:
     order: 30
 ---
 
-TODO: Scriptable List
+`ScriptableList<T>` is a type of scriptable object that holds a list of values. It acts just like a regular [`List<T>`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1), but it is a scriptable object that can be used in the inspector and be passed around to other objects.
+
+`ScriptableGameObjectList` is already included in the package and can be used to create a list of game objects. But it may be more useful to create your own list for a specific component. See [Creating a List](#creating-a-list) for more information.
+
+## Usage
+
+Using a Scriptable List in your code is really straight forward. You use the `Add`, `Remove`, and `Clear` methods to manage the list.
+:::note
+To actually asign the list to a field you need to create an instance of the list in the editor. These instances need to be created in code first. See [Creating a List](#creating-a-list) for more information.
+:::
+
+`Add` will add an object to the list.
+
+```csharp title="Add Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    public void AddItem(Item item)
+    {
+        items.Add(item);
+    }
+}
+```
+
+`Remove` will remove an object from the list.
+
+```csharp title="Remove Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    public void RemoveItem(Item item)
+    {
+        items.Remove(item);
+    }
+}
+```
+
+`Clear` will remove all objects from the list. This is useful for cleaning up the list when it is no longer needed, like when quitting or changing scenes.
+
+```csharp title="Clear Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    public void Clear()
+    {
+        items.Clear();
+    }
+}
+```
+
+There are many more methods available on the list, such as `Contains`, `IndexOf`, and `Sort`. It aims to have full parity with the regular `List<T>` class. See the [documentation](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1) for more information.
+
+## Creating a List
+
+You need to create a list first before you can use it in the editor. Fortunately, this is really easy to do! All you need to do is inherit from `ScriptableList<T>`.
+
+```csharp title="Creating a List"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[CreateAssetMenu(fileName = "New Item List", menuName = "Scriptable Values/Item List")]
+public class ItemList : ScriptableList<Item>
+{
+    // You can add any custom functionality here if you want.
+    // There are no methods to override, but you can add your own methods.
+}
+```
