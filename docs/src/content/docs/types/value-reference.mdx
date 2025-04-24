@@ -1,0 +1,194 @@
+---
+title: Value Reference
+description: Value Reference is a special type that allows you to pick between a constant value or a scriptable value.
+sidebar:
+    order: 5
+---
+
+import EventReminder from '../../../components/EventReminder.mdx';
+
+Value Reference is a special type that allows you to pick between a constant value or a scriptable value. They are used in the same way as a [Scriptable Value](/types/scriptable-values), but in the editor they can be set to either a constant value or a scriptable value. This is useful for when you want to support both.
+
+## Usage
+
+Using a Value Reference in your code is really straight forward. You can use the `Value` property to get or set the value of the Value Reference. For example:
+
+```csharp title="Value Reference Example"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class PlayerHealth : MonoBehaviour
+{
+    // Can be either constant or a scriptable value
+    public ValueReference<int> health;
+
+    public void TakeDamage(int damage)
+    {
+        health.Value -= damage;
+    }
+}
+```
+
+Then you can use the events to get notified when the value changes. For example:
+
+```csharp title="Value Reference Event Example"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class HealthUI : MonoBehaviour
+{
+    // Can be either constant or a scriptable value
+    public ValueReference<int> health;
+    public Text healthText;
+
+    private void OnEnable()
+    {
+        health.OnValueChanged += OnHealthChanged;
+    }
+
+    private void OnDisable()
+    {
+        health.OnValueChanged -= OnHealthChanged;
+    }
+
+    private void OnHealthChanged(int oldValue, int newValue)
+    {
+        healthText.text = "Health: " + newValue.ToString();
+    }
+}
+```
+
+<EventReminder/>
+
+## Addressable Support
+
+`ValueReference<T>` supports [addressable](https://docs.unity3d.com/Documentation/Manual/com.unity.addressables.html) references, if the addressables package is installed, along with the normal references.
+
+:::danger
+Addressable references need to be manually loaded and unloaded. Loading can only be done if the value reference is set to Addressable.
+:::
+
+```csharp title="Addressable Value Reference Example"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+
+public class PlayerHealth : MonoBehaviour
+{
+    // Can be either constant or a scriptable value
+    public ValueReference<int> health;
+
+    private void Start()
+    {
+        // Need to check if the value reference is addressable
+        if (health.IsAddressable)
+        {
+            health.LoadAddressableAssetAsync(OnLoaded);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // No need to check if the value reference is addressable
+        // Unload the addressable asset when the object is destroyed
+        health.ReleaseAddressableAsset();
+    }
+
+    // Called when the addressable asset is loaded
+    private void OnLoaded(AsyncOperationHandle<ScriptableValue<int>> handle)
+    {
+        // Check the handle status, it may fail
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            handle.Result.Value = 100;
+        }
+    }
+}
+```
+
+You can always subscribe to the `OnValueChanging` and `OnValueChanged` events, even if the addressable asset isn't loaded yet. The events will be automatically applied to the addressable asset when it's loaded.
+
+```csharp title="Addressable Value Reference Event Example"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class PlayerHealth : MonoBehaviour
+{
+    // Can be either constant or a scriptable value
+    public ValueReference<int> health;
+
+    private void Start()
+    {
+        // Need to check if the value reference is addressable
+        if (health.IsAddressable)
+        {
+            health.LoadAddressableAssetAsync();
+        }
+    }
+
+    private void OnEnable()
+    {
+        // Subscribe to the value changed event
+        health.OnValueChanged += OnHealthChanged;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from the value changed event
+        health.OnValueChanged -= OnHealthChanged;
+    }
+
+    private void OnDestroy()
+    {
+        // No need to check if the value reference is addressable
+        // Unload the addressable asset when the object is destroyed
+        health.ReleaseAddressableAsset();
+    }
+
+    private void OnHealthChanged(int oldValue, int newValue)
+    {
+        Debug.Log("Health changed from " + oldValue + " to " + newValue);
+    }
+```
+
+You can **not** set the `Value` before the addressable asset is loaded. This will just result in a warning.
+
+```csharp title="Addressable Value Reference Set Example"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class TimeManager : MonoBehaviour
+{
+    // Can be either constant or a scriptable value
+    public ValueReference<float> time;
+
+    private void Start()
+    {
+        // Need to check if the value reference is addressable
+        if (time.IsAddressable)
+        {
+            time.LoadAddressableAssetAsync();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // No need to check if the value reference is addressable
+        // Unload the addressable asset when the object is destroyed
+        time.ReleaseAddressableAsset();
+    }
+
+    private void Update()
+    {
+        if (time.IsAddressableLoaded)
+        {
+            // Can set the value now
+            time.Value = Time.time;
+        }
+    }
+}
+```
+
+`IsAddressable` is always present, even if the addressables package is not installed. If the package is not installed, it will always return false. If the package is installed, it will return true if the value reference is set to addressable.  
+`IsAddressableLoaded` is always present, even if the addressables package is not installed. If the package is not installed, it will always return true. If the package is installed, it will return true if the addressable asset is loaded. It will also return true if the value reference is not set to addressable.
