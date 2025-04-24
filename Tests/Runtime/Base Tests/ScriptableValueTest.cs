@@ -60,5 +60,84 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			TestRegisterValueChangeWithContext(choice);
 		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeSetValue_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			instance.shouldBlock = false;
+			int targetValue = MakeDifferentValue(instance.Value);
+
+			// Act
+			instance.Value = targetValue;
+
+			// Assert
+			Assert.That(instance.calledOnBeforeSetValue, Is.True);
+			Assert.That(instance.beforeNewValue, Is.EqualTo(targetValue));
+		}
+
+		[Test]
+		public void OverrideMethod_OnBeforeSetValue_Blocked()
+		{
+			// Arrange
+			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			instance.shouldBlock = true;
+			int oldValue = instance.Value;
+
+			// Act
+			instance.Value = MakeDifferentValue(instance.Value);
+
+			// Assert
+			Assert.That(instance.calledOnBeforeSetValue, Is.True);
+			Assert.That(oldValue, Is.EqualTo(instance.Value));
+			Assert.That(instance.calledOnAfterSetValue, Is.False);
+		}
+
+		[Test]
+		public void OverrideMethod_OnAfterSetValue_IsCalled()
+		{
+			// Arrange
+			OverrideScriptableObject instance = CreateInstance<OverrideScriptableObject>();
+			int targetValue = MakeDifferentValue(instance.Value);
+
+			// Act
+			instance.Value = targetValue;
+
+			// Assert
+			Assert.That(instance.calledOnAfterSetValue, Is.True);
+			Assert.That(instance.afterOldValue, Is.EqualTo(instance.PreviousValue));
+			Assert.That(instance.afterNewValue, Is.EqualTo(targetValue));
+		}
+	}
+
+	public class OverrideScriptableObject : ScriptableValue<int>
+	{
+		public bool shouldBlock = false;
+
+		public bool calledOnBeforeSetValue = false;
+		public bool calledOnAfterSetValue = false;
+
+		public int beforeNewValue;
+		public int afterOldValue;
+		public int afterNewValue;
+
+		/// <inheritdoc />
+		protected override bool OnBeforeSetValue(int newValue)
+		{
+			calledOnBeforeSetValue = true;
+
+			beforeNewValue = newValue;
+			return !shouldBlock;
+		}
+
+		/// <inheritdoc />
+		protected override void OnAfterSetValue(int oldValue, int newValue)
+		{
+			calledOnAfterSetValue = true;
+
+			afterOldValue = oldValue;
+			afterNewValue = newValue;
+		}
 	}
 }
