@@ -1,6 +1,6 @@
 ---
 title: Scriptable Value
-description: The installation guide.
+description: Scriptable Values are used to store a single value.
 sidebar:
     order: 0
 ---
@@ -151,18 +151,17 @@ using UnityEngine;
 [CreateAssetMenu]
 public class MyScriptableValue : ScriptableValue<int>
 {
-    // Called when the value is retrieved using the 'Value' property
-    protected override int GetValue()
+    // Called before the value is changed
+    protected override bool OnBeforeSetValue(int newValue)
     {
-        return base.GetValue();
+        // Do something before the value is set
+        return true; // Return false to cancel the change
     }
 
-    // Called when the value is set using the 'Value' property
-    protected override void SetValue(int newValue, bool notify)
+    // Called after the value is changed
+    protected override void OnAfterSetValue(int oldValue, int newValue)
     {
-        base.SetValue(newValue, notify);
-        // You probably don't want to completely override this method, 
-        // but you can call the base method and then add your own functionality
+        // Do something after the value is set
     }
 }
 ```

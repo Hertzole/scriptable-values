@@ -1,6 +1,6 @@
 ---
 title: Scriptable Event
-description: The installation guide.
+description: Scriptable Events are used to invoke events with a single argument (or no argument).
 sidebar:
     order: 10
 ---
@@ -11,7 +11,7 @@ All the types that inherit from `ScriptableEvent<T>` are events. They can be use
 
 They are always named along the lines of `ScriptableTypeEvent`. For example: `ScriptableBoolEvent`, `ScriptableFloatEvent`, and `ScriptableVector3Event`.
 
-![Scriptable Event](https://github.com/Hertzole/scriptable-values/assets/5569364/1c2a93c2-3df7-43e8-9ab1-d3ebf87af267)
+![Scriptable Event](../../../assets/scriptable-event.png)
 
 ## Usage
 
@@ -99,3 +99,42 @@ The following types are included:
 - `Vector4`
 
 A Scriptable Event without any args is also included, simply just called `ScriptableEvent`. This is useful for events that don't need any arguments.
+
+## Creating Your Own Scriptable Event
+
+Creating your own Scriptable Event is really easy! All you need to do is inherit from `ScriptableEvent<T>`.
+
+```csharp
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+[CreateAssetMenu]
+public class ScriptableMyTypeEvent : ScriptableEvent<MyType>
+{
+    // You can add any custom logic here if you want
+}
+```
+
+If you want to extend the functionality of your own Scriptable Event you can override a few methods.
+
+```csharp
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+[CreateAssetMenu]
+public class ScriptableMyTypeEvent : ScriptableEvent<MyType>
+{
+    // Called before the event is invoked
+    protected override bool OnBeforeInvoked(object sender, MyType args)
+    {
+        // Do something before the event is invoked
+        return true; // Return false to prevent the event from being invoked
+    }
+
+     // Called after the event has been invoked
+    protected override void OnAfterInvoked(object sender, MyType args))
+    {
+        // Do something after the event has been invoked
+    }
+}
+```
