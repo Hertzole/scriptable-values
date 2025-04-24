@@ -118,6 +118,11 @@ namespace Hertzole.ScriptableValues.Tests
 		protected static T CreateInstance<T>() where T : ScriptableObject
 		{
 			T instance = ScriptableObject.CreateInstance<T>();
+			if (instance == null)
+			{
+				throw new NotSupportedException($"Can't create scriptable object from {typeof(T)}.");
+			}
+
 			// Set DontSave so it doesn't get destroyed when exiting play mode.
 			instance.hideFlags = HideFlags.DontSave;
 			objects.Add(instance);
