@@ -992,10 +992,6 @@ namespace Hertzole.ScriptableValues
 		/// <inheritdoc />
 		protected override void OnStart()
 		{
-#if UNITY_EDITOR
-			ResetStackTraces();
-#endif
-
 			ClearSubscribers();
 
 			if (!isReadOnly && clearOnStart)
