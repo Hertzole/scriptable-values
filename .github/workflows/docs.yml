@@ -43,10 +43,11 @@ jobs:
             # Upload the documentation to docs branch
             - name: Upload documentation
               run: |
-                  git config --global user.name 'github-bot'
-                  git config --global user.email 'github-bot@users.noreply.github.com'
-                  git branch -d docs &> /dev/null || echo docs branch not found
-                  git subtree split -P "docs/dist" -b docs
-                  git checkout -b docs
-                  git commit -am "Update documentation"
-                  git push -f -u origin docs
+                git config --global user.name 'github-bot'
+                git config --global user.email 'github-bot@users.noreply.github.com'
+                git checkout docs
+                git rm -rf .
+                cp -r docs_output/* .
+                git add .
+                git commit -m "Update documentation"
+                git push -f origin docs
