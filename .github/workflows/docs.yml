@@ -48,7 +48,7 @@ jobs:
                   git branch -d docs &> /dev/null || echo docs branch not found
                   mv "docs/dist" "/tmp/docs"
                   git checkout -b docs
-                  git rm -rf .
+                  rm -rf .
                   mv "/tmp/docs" .
                   git add .
                   git commit -am "Update documentation"
