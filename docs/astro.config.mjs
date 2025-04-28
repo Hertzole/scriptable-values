@@ -20,6 +20,9 @@ export default defineConfig({
 					autogenerate: { directory: 'types' },
 				}
 			],
+			customCss: [
+				'./src/styles/custom.css'
+			]
 		}),
 	],
 });
