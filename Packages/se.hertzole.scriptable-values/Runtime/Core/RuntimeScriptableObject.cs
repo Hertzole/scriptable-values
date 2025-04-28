@@ -67,6 +67,7 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		internal void Test_OnStart()
 		{
+			ResetStackTraces();
 			OnStart();
 		}
 
