@@ -43,7 +43,8 @@ jobs:
             # Upload the documentation to docs branch
             - name: Upload documentation
               run: |
-                git checkout docs
+                git branch -d docs &> /dev/null || echo docs branch not found
+                git checkout -b docs
                 git rm -rf .
                 cp -r docs_output/* .
                 git add .
