@@ -69,7 +69,7 @@ public class HealthUI : MonoBehaviour
 Addressable references need to be manually loaded and unloaded. Loading can only be done if the value reference is set to Addressable.
 :::
 
-```csharp title="Addressable Value Reference Example"
+```csharp title="Load Example"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -84,6 +84,10 @@ public class PlayerHealth : MonoBehaviour
         // Need to check if the value reference is addressable
         if (health.IsAddressable)
         {
+            // LoadAddressableAssetAsync will return an 
+            // AsyncOperationHandle<ScriptableValue<T>>
+            // You can use it however you want, including awaiting it
+            // in newer versions of Unity or using UniTask
             health.LoadAddressableAssetAsync(OnLoaded);
         }
     }
@@ -109,7 +113,7 @@ public class PlayerHealth : MonoBehaviour
 
 You can always subscribe to the `OnValueChanging` and `OnValueChanged` events, even if the addressable asset isn't loaded yet. The events will be automatically applied to the addressable asset when it's loaded.
 
-```csharp title="Addressable Value Reference Event Example"
+```csharp title="Event Example"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
@@ -152,9 +156,9 @@ public class PlayerHealth : MonoBehaviour
     }
 ```
 
-You can **not** set the `Value` before the addressable asset is loaded. This will just result in a warning.
+You can **not** set the `Value` before the addressable asset is loaded. This will result in a warning.
 
-```csharp title="Addressable Value Reference Set Example"
+```csharp title="Value Set Example"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
