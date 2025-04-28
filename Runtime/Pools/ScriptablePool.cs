@@ -268,7 +268,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onPoolChanged.RegisterCallback(callback);
+			onPoolChanged.AddCallback(callback);
 		}
 
 		/// <summary>
@@ -287,7 +287,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onPoolChanged.RegisterCallback(callback, context);
+			onPoolChanged.AddCallback(callback, context);
 		}
 
 		/// <summary>
@@ -348,7 +348,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onPoolChanged.Reset();
+			onPoolChanged.Clear();
 		}
 
 #if UNITY_EDITOR

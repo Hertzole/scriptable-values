@@ -192,7 +192,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangingEvents.RegisterCallback(callback);
+			onValueChangingEvents.AddCallback(callback);
 		}
 
 		/// <summary>
@@ -211,7 +211,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onValueChangingEvents.RegisterCallback(callback, context);
+			onValueChangingEvents.AddCallback(callback, context);
 		}
 
 		/// <summary>
@@ -248,7 +248,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onValueChangedEvents.RegisterCallback(callback);
+			onValueChangedEvents.AddCallback(callback);
 		}
 
 		/// <summary>
@@ -267,7 +267,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onValueChangedEvents.RegisterCallback(callback, context);
+			onValueChangedEvents.AddCallback(callback, context);
 		}
 
 		/// <summary>
@@ -377,8 +377,8 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onValueChangingEvents.Reset();
-			onValueChangedEvents.Reset();
+			onValueChangingEvents.Clear();
+			onValueChangedEvents.Clear();
 		}
 
 #if UNITY_INCLUDE_TESTS

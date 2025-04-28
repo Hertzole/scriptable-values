@@ -114,7 +114,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onInvokedInternal.RegisterCallback(callback);
+			onInvokedInternal.AddCallback(callback);
 		}
 
 		/// <summary>
@@ -133,7 +133,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onInvokedInternal.RegisterCallback(callback, context);
+			onInvokedInternal.AddCallback(callback, context);
 		}
 
 		/// <summary>
@@ -195,7 +195,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onInvokedInternal.Reset();
+			onInvokedInternal.Clear();
 		}
 
 #if UNITY_EDITOR

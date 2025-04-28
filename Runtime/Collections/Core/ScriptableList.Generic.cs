@@ -1373,7 +1373,7 @@ namespace Hertzole.ScriptableValues
 		{
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 
-			onCollectionChanged.RegisterCallback(callback);
+			onCollectionChanged.AddCallback(callback);
 		}
 
 		/// <summary>
@@ -1392,7 +1392,7 @@ namespace Hertzole.ScriptableValues
 			ThrowHelper.ThrowIfNull(callback, nameof(callback));
 			ThrowHelper.ThrowIfNull(context, nameof(context));
 
-			onCollectionChanged.RegisterCallback(callback, context);
+			onCollectionChanged.AddCallback(callback, context);
 		}
 
 		/// <summary>
@@ -1488,7 +1488,7 @@ namespace Hertzole.ScriptableValues
 				WarnIfLeftOverSubscribers();
 			}
 #endif
-			onCollectionChanged.Reset();
+			onCollectionChanged.Clear();
 			OnInternalCollectionChanged = null;
 		}
 
