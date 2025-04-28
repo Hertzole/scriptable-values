@@ -1,24 +1,18 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using UnityEngine;
-#if NETSTANDARD2_1
 using System.Diagnostics.CodeAnalysis;
-#endif
+using UnityEngine;
 
 namespace Hertzole.ScriptableValues.Helpers
 {
 	internal static class ThrowHelper
 	{
 		[Conditional("DEBUG")]
-		public static void ThrowIfNull(
-#if NETSTANDARD2_1
-			[NotNull]
-#endif
-			object? obj,
-			string name)
+		public static void ThrowIfNull([NotNull] object? obj, string name)
 		{
 #if DEBUG
 			if (obj == null)
@@ -84,33 +78,42 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 		}
 
-#if NETSTANDARD2_1
+		/// <summary>
+		///     Check if the specified collection contains the specified value.
+		/// </summary>
+		/// <param name="collection">The collection to check.</param>
+		/// <param name="value">The value to check for.</param>
+		/// <typeparam name="T">The type of the value in the collection.</typeparam>
+		/// <exception cref="ArgumentException"><paramref name="collection" /> contains <paramref name="value" />.</exception>
+		public static void ThrowIfContains<T>(IList<T> collection, in T value)
+		{
+			if (!collection.Contains(value))
+			{
+				return;
+			}
+
+			ThrowDuplicateItemException(value);
+		}
+
 		[DoesNotReturn]
-#endif
 		public static void ThrowWrongExpectedValueType<T>(object? value)
 		{
 			throw new ArgumentException($"Expected {typeof(T)}, but was {value?.GetType()}");
 		}
 
-#if NETSTANDARD2_1
 		[DoesNotReturn]
-#endif
 		private static void ThrowNullArgumentException(string name)
 		{
 			throw new ArgumentNullException(name, $"{name} is null.");
 		}
 
-#if NETSTANDARD2_1
 		[DoesNotReturn]
-#endif
 		private static void ThrowDisposedException()
 		{
 			throw new ObjectDisposedException("The object has been disposed.");
 		}
 
-#if NETSTANDARD2_1
 		[DoesNotReturn]
-#endif
 		private static void ThrowReadOnlyException(object context)
 		{
 			throw new ReadOnlyException($"{context} is marked as read only and cannot be modified at runtime.");
@@ -120,12 +123,17 @@ namespace Hertzole.ScriptableValues.Helpers
 		/// Throws an <see cref="ArgumentOutOfRangeException"/> with the specified message.
 		/// </summary>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-#if NETSTANDARD2_1
 		[DoesNotReturn]
-#endif
 		private static void ThrowArgumentOutOfRangeException(string paramName, string message)
 		{
 			throw new ArgumentOutOfRangeException(paramName, message);
+		}
+
+		/// <exception cref="ArgumentException" />
+		[DoesNotReturn]
+		private static void ThrowDuplicateItemException<T>(T item)
+		{
+			throw new ArgumentException($"Item {item} already exists in the collection.");
 		}
 	}
 }

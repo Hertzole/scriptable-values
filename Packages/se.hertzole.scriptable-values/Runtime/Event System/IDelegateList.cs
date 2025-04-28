@@ -11,12 +11,12 @@ namespace Hertzole.ScriptableValues
 
 	internal interface IDelegateList<in TDelegate> : IDelegateList where TDelegate : Delegate
 	{
-		void RegisterCallback(TDelegate callback);
+		void AddCallback(TDelegate callback);
 
-		void RegisterCallback<TContextDelegate, TContext>(TContextDelegate callback, TContext context) where TContextDelegate : Delegate;
+		void AddCallback<TContextDelegate, TContext>(TContextDelegate callback, TContext context) where TContextDelegate : Delegate;
 
-		void RemoveCallback(TDelegate callback);
+		bool RemoveCallback(TDelegate callback);
 
-		void RemoveCallback<TContextDelegate>(TContextDelegate callback) where TContextDelegate : Delegate;
+		bool RemoveCallback<TContextDelegate>(TContextDelegate callback) where TContextDelegate : Delegate;
 	}
 }

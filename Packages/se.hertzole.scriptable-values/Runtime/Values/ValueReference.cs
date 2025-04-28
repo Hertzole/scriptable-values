@@ -299,7 +299,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			defaultListener.RegisterCallback(callback, args);
+			defaultListener.AddCallback(callback, args);
 		}
 
 		private void UnregisterEvent<TEvent>(Action<ScriptableValue<T>, TEvent> unregisterAction,
