@@ -37,6 +37,7 @@ jobs:
             - name: Build documentation
               run: |
                   cd docs
+                  npm install
                   npm run build
 
             # Upload the documentation to docs branch
