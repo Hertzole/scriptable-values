@@ -46,9 +46,9 @@ jobs:
                   git config --global user.name 'github-bot'
                   git config --global user.email 'github-bot@users.noreply.github.com'
                   git branch -d docs &> /dev/null || echo docs branch not found
+                  git subtree split -P "docs/dist" -b docs
                   mv "docs/dist" "/tmp/docs"
                   git checkout -b docs
-                  rm -rf .
                   mv "/tmp/docs" .
                   git add .
                   git commit -am "Update documentation"
