@@ -44,18 +44,6 @@ namespace Hertzole.ScriptableValues.Tests
 			context.SetArg("item", item);
 		}
 
-		private static void OnPoolChangedWithContext(PoolAction action, T item, InvokeCountContext context)
-		{
-			if (context.TryGetArg<Predicate<PoolAction>>("actionPredicate", out Predicate<PoolAction>? actionPredicate) && !actionPredicate(action))
-			{
-				return;
-			}
-
-			context.invokeCount++;
-			context.SetArg("action", action);
-			context.SetArg("item", item);
-		}
-
 		/// <inheritdoc />
 		public override bool HasBeenInvoked()
 		{
