@@ -50,15 +50,8 @@ internal readonly record struct CallbackData(
 
 				break;
 			case CallbackType.Pool:
-				using (ArrayBuilder<char> nameBuilder = new ArrayBuilder<char>(51 + genericType.Length))
-				{
-					nameBuilder.AddRange("global::Hertzole.ScriptableValues.PoolChangedArgs<");
-					nameBuilder.AddRange(genericType);
-					nameBuilder.Add('>');
-
-					builder.Add(("args", nameBuilder.ToString()));
-				}
-
+				builder.Add(("action", "global::Hertzole.ScriptableValues.PoolAction"));
+				builder.Add(("item", genericType));
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();
@@ -81,7 +74,8 @@ internal readonly record struct CallbackData(
 				builder.Add(("args", DocumentationHelper.COLLECTION_ARGS));
 				break;
 			case CallbackType.Pool:
-				builder.Add(("args", DocumentationHelper.POOL_ARGS));
+				builder.Add(("action", DocumentationHelper.POOL_ACTION));
+				builder.Add(("item", DocumentationHelper.POOL_ITEM));
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

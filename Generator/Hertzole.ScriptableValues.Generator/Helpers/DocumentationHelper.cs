@@ -9,7 +9,8 @@ internal static class DocumentationHelper
 
 	public const string COLLECTION_ARGS = "The collection changed arguments.";
 
-	public const string POOL_ARGS = "The pool changed arguments.";
+	public const string POOL_ACTION = "The change that just happened on the pool.";
+	public const string POOL_ITEM = "The item that was affected by the change.";
 
 	public const string SUBSCRIBED_MASK_SUMMARY = "/// <summary>A bitmask of all the possible subscribed callbacks.</summary>";
 
