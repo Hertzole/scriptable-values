@@ -25,15 +25,13 @@ namespace Hertzole.ScriptableValues
 #endif
 		internal UnityEvent onInvoked = new UnityEvent();
 
-		private readonly DelegateHandlerList<EventHandler, object, EventArgs> onInvokedInternal = new DelegateHandlerList<EventHandler, object, EventArgs>();
-
 #if UNITY_INCLUDE_TESTS
 		/// <summary>
 		///     A test only check to see if the event has any subscribers.
 		/// </summary>
 		internal bool InvokedHasSubscribers
 		{
-			get { return onInvokedInternal.ListenersCount > 0; }
+			get { return OnInvoked != null; }
 		}
 #endif
 
@@ -45,11 +43,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when the event is invoked.
 		/// </summary>
-		public event EventHandler OnInvoked
-		{
-			add { RegisterInvokedListener(value); }
-			remove { UnregisterInvokedListener(value); }
-		}
+		public event EventHandler? OnInvoked;
 
 		/// <summary>
 		///     Invokes the event with this <see cref="ScriptableEvent" /> as the sender.
@@ -83,7 +77,7 @@ namespace Hertzole.ScriptableValues
 			// Skip at least one frame to avoid the Invoke method itself being included in the stack trace.
 			AddStackTrace(1 + skipFrames);
 
-			onInvokedInternal.Invoke(sender, EventArgs.Empty);
+			OnInvoked?.Invoke(sender, EventArgs.Empty);
 			onInvoked.Invoke();
 
 			OnAfterInvoked(sender);
@@ -105,62 +99,6 @@ namespace Hertzole.ScriptableValues
 		/// <param name="sender">The object that invoked the event.</param>
 		protected virtual void OnAfterInvoked(object sender) { }
 
-		/// <summary>
-		///     Registers a callback to be called when <see cref="ScriptableEvent" /> is invoked.
-		/// </summary>
-		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void RegisterInvokedListener(EventHandler callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onInvokedInternal.AddCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called when the <see cref="ScriptableEvent" /> is invoked with additional context.
-		/// </summary>
-		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
-		/// <param name="callback">The callback to register.</param>
-		/// <param name="context">The context to pass to the callback.</param>
-		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">
-		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
-		///     <c>null</c>.
-		/// </exception>
-		public void RegisterInvokedListener<TContext>(EventHandlerWithContext<TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(context, nameof(context));
-
-			onInvokedInternal.AddCallback(callback, context);
-		}
-
-		/// <summary>
-		///     Unregisters a callback from the <see cref="ScriptableEvent" /> event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterInvokedListener(EventHandler callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onInvokedInternal.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Unregisters a callback with context from the <see cref="ScriptableEvent" /> event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterInvokedListener<TContext>(EventHandlerWithContext<TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onInvokedInternal.RemoveCallback(callback);
-		}
-
 		/// <inheritdoc />
 		protected override void OnStart()
 		{
@@ -176,7 +114,7 @@ namespace Hertzole.ScriptableValues
 		protected override void WarnIfLeftOverSubscribers()
 		{
 			base.WarnIfLeftOverSubscribers();
-			EventHelper.WarnIfLeftOverSubscribers(onInvokedInternal, nameof(OnInvoked), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnInvoked, nameof(OnInvoked), this);
 		}
 
 		/// <summary>
@@ -195,7 +133,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onInvokedInternal.Clear();
+			OnInvoked = null;
 		}
 
 #if UNITY_EDITOR

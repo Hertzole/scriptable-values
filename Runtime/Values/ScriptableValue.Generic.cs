@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,13 +25,13 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
-		internal T value = default;
+		internal T value = default!;
 		[SerializeField]
 		[EditorTooltip("The default value. This is used when the value is reset.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
 		[DontCreateProperty]
 #endif
-		internal T defaultValue = default;
+		internal T defaultValue = default!;
 		[SerializeField]
 		[EditorTooltip("Called before the current value is set.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
@@ -46,14 +47,11 @@ namespace Hertzole.ScriptableValues
 
 		private bool valueIsDefault;
 
-		private T previousValue;
+		private T previousValue = default!;
 
 		// This is mainly use for OnValidate weirdness.
 		// We need to have another value that is the value right before it gets modified.
-		private T temporaryValue = default;
-
-		internal readonly DelegateHandlerList<OldNewValue<T>, T, T> onValueChangingEvents = new DelegateHandlerList<OldNewValue<T>, T, T>();
-		internal readonly DelegateHandlerList<OldNewValue<T>, T, T> onValueChangedEvents = new DelegateHandlerList<OldNewValue<T>, T, T>();
+		private T temporaryValue = default!;
 
 		/// <summary>
 		///     The current value. This can be changed at runtime.
@@ -97,19 +95,11 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called before the current value is set.
 		/// </summary>
-		public event OldNewValue<T> OnValueChanging
-		{
-			add { RegisterValueChangingListener(value); }
-			remove { UnregisterValueChangingListener(value); }
-		}
+		public event OldNewValue<T>? OnValueChanging;
 		/// <summary>
 		///     Called after the current value is set.
 		/// </summary>
-		public event OldNewValue<T> OnValueChanged
-		{
-			add { RegisterValueChangedListener(value); }
-			remove { UnregisterValueChangedListener(value); }
-		}
+		public event OldNewValue<T>? OnValueChanged;
 
 		/// <summary>
 		///     Sets the current value to a new value.
@@ -137,7 +127,7 @@ namespace Hertzole.ScriptableValues
 			if (notify)
 			{
 				onValueChanging.Invoke(PreviousValue, newValue);
-				onValueChangingEvents.Invoke(PreviousValue, newValue);
+				OnValueChanging?.Invoke(PreviousValue, newValue);
 				NotifyPropertyChanging(valueChangingArgs);
 			}
 
@@ -153,7 +143,7 @@ namespace Hertzole.ScriptableValues
 			if (notify)
 			{
 				onValueChanged.Invoke(PreviousValue, newValue);
-				onValueChangedEvents.Invoke(PreviousValue, Value);
+				OnValueChanged?.Invoke(PreviousValue, Value);
 				NotifyPropertyChanged(valueChangedArgs);
 			}
 		}
@@ -182,118 +172,6 @@ namespace Hertzole.ScriptableValues
 		///     set as.
 		/// </remarks>
 		protected virtual void OnAfterSetValue(T oldValue, T newValue) { }
-
-		/// <summary>
-		///     Registers a callback to be called before <see cref="Value" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void RegisterValueChangingListener(OldNewValue<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangingEvents.AddCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called before <see cref="Value" /> changes with additional context.
-		/// </summary>
-		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
-		/// <param name="callback">The callback method to call.</param>
-		/// <param name="context">The context to pass to the callback.</param>
-		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">
-		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
-		///     <c>null</c>.
-		/// </exception>
-		public void RegisterValueChangingListener<TContext>(Action<T, T, TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(context, nameof(context));
-
-			onValueChangingEvents.AddCallback(callback, context);
-		}
-
-		/// <summary>
-		///     Unregisters a callback from the <see cref="Value" /> changing event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterValueChangingListener(OldNewValue<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangingEvents.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Unregisters a callback with context from the <see cref="Value" /> changing event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterValueChangingListener<TContext>(Action<T, T, TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangingEvents.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called after <see cref="Value" /> has been changed.
-		/// </summary>
-		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void RegisterValueChangedListener(OldNewValue<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangedEvents.AddCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called after <see cref="Value" /> has been changed with additional context.
-		/// </summary>
-		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
-		/// <param name="callback">The callback method to call.</param>
-		/// <param name="context">The context to pass to the callback.</param>
-		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">
-		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
-		///     <c>null</c>.
-		/// </exception>
-		public void RegisterValueChangedListener<TContext>(Action<T, T, TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(context, nameof(context));
-
-			onValueChangedEvents.AddCallback(callback, context);
-		}
-
-		/// <summary>
-		///     Unregisters a callback from the <see cref="Value" /> changed event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterValueChangedListener(OldNewValue<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangedEvents.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Unregisters a callback with context from the <see cref="Value" /> changed event.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterValueChangedListener<TContext>(Action<T, T, TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onValueChangedEvents.RemoveCallback(callback);
-		}
 
 		/// <summary>
 		///     Helper method to check if the new value is the same as the old value.
@@ -357,8 +235,8 @@ namespace Hertzole.ScriptableValues
 		protected override void WarnIfLeftOverSubscribers()
 		{
 			base.WarnIfLeftOverSubscribers();
-			EventHelper.WarnIfLeftOverSubscribers(onValueChangingEvents, nameof(OnValueChanging), this);
-			EventHelper.WarnIfLeftOverSubscribers(onValueChangedEvents, nameof(OnValueChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnValueChanging, nameof(OnValueChanging), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnValueChanged, nameof(OnValueChanged), this);
 		}
 
 		/// <summary>
@@ -377,8 +255,8 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onValueChangingEvents.Clear();
-			onValueChangedEvents.Clear();
+			OnValueChanging = null;
+			OnValueChanged = null;
 		}
 
 #if UNITY_INCLUDE_TESTS
@@ -387,14 +265,14 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		internal bool ValueChangingHasSubscribers
 		{
-			get { return onValueChangingEvents.ListenersCount > 0; }
+			get { return OnValueChanging != null; }
 		}
 		/// <summary>
 		///     A test only check to see if <see cref="OnValueChanged" /> has subscribers.
 		/// </summary>
 		internal bool ValueChangedHasSubscribers
 		{
-			get { return onValueChangedEvents.ListenersCount > 0; }
+			get { return OnValueChanged != null; }
 		}
 #endif
 

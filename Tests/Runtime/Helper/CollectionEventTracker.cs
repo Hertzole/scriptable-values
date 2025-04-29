@@ -8,7 +8,6 @@ namespace Hertzole.ScriptableValues.Tests
 	public sealed class CollectionEventTracker<T> : BaseEventTracker
 	{
 		private readonly INotifyScriptableCollectionChanged<T>? list = null;
-		private readonly EventType eventType;
 		private readonly InvokeCountContext context = new InvokeCountContext();
 		private readonly INotifyCollectionChanged? notifyCollectionChanged = null;
 
@@ -40,29 +39,17 @@ namespace Hertzole.ScriptableValues.Tests
 			}
 		}
 
+		// EventType is left here mainly because I can't be bothered to update the constructors for all the tests just yet...
 		public CollectionEventTracker(INotifyScriptableCollectionChanged<T> list, EventType eventType)
 		{
 			this.list = list;
-			this.eventType = eventType;
 			context.AddArg("args", default(CollectionChangedArgs<int>));
 
-			switch (eventType)
-			{
-				case EventType.Event:
-					list.OnCollectionChanged += OnCollectionChanged;
-					break;
-				case EventType.Register:
-					list.RegisterChangedListener(OnCollectionChanged);
-					break;
-				case EventType.RegisterWithContext:
-					list.RegisterChangedListener(OnCollectionChangedWithContext, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
+			list.OnCollectionChanged += OnCollectionChanged;
 		}
 
-		public CollectionEventTracker(INotifyScriptableCollectionChanged<T> list, EventType eventType, INotifyCollectionChanged collectionChanged) : this(list, eventType)
+		public CollectionEventTracker(INotifyScriptableCollectionChanged<T> list, EventType eventType, INotifyCollectionChanged collectionChanged) : this(list,
+			eventType)
 		{
 			notifyCollectionChanged = collectionChanged;
 			notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
@@ -82,12 +69,6 @@ namespace Hertzole.ScriptableValues.Tests
 			context.SetArg(ARGS_KEY, e);
 		}
 
-		private static void OnCollectionChangedWithContext(CollectionChangedArgs<T> e, InvokeCountContext context)
-		{
-			context.invokeCount++;
-			context.SetArg(ARGS_KEY, e);
-		}
-
 		public override bool HasBeenInvoked()
 		{
 			if (notifyCollectionChangedEventArgs != null)
@@ -102,20 +83,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			if (list != null)
 			{
-				switch (eventType)
-				{
-					case EventType.Event:
-						list.OnCollectionChanged -= OnCollectionChanged;
-						break;
-					case EventType.Register:
-						list.UnregisterChangedListener(OnCollectionChanged);
-						break;
-					case EventType.RegisterWithContext:
-						list.UnregisterChangedListener<InvokeCountContext>(OnCollectionChangedWithContext);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-				}
+				list.OnCollectionChanged -= OnCollectionChanged;
 			}
 
 			if (notifyCollectionChanged != null)

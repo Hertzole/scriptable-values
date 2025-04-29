@@ -13,13 +13,6 @@ namespace Hertzole.ScriptableValues
 	/// <typeparam name="T">The type of the items in the collection.</typeparam>
 	public delegate void CollectionChangedEventHandler<T>(CollectionChangedArgs<T> e);
 
-	/// <summary>
-	///     Represents the method that will handle an event when a collection changes with additional context.
-	/// </summary>
-	/// <typeparam name="T">The type of the items in the collection.</typeparam>
-	/// <typeparam name="TContext">The type of the context.</typeparam>
-	public delegate void CollectionChangedWithContextEventHandler<T, in TContext>(CollectionChangedArgs<T> e, TContext context);
-
 	public static class CollectionChangedArgsExtensions
 	{
 		/// <summary>
@@ -49,8 +42,7 @@ namespace Hertzole.ScriptableValues
 	}
 
 	/// <summary>
-	///     Provides data for the <see cref="CollectionChangedEventHandler{T}" /> and
-	///     <see cref="CollectionChangedWithContextEventHandler{T, TContext}" /> events.
+	///     Provides data for the <see cref="CollectionChangedEventHandler{T}" /> events.
 	/// </summary>
 	/// <typeparam name="T">The type of the items in the collection.</typeparam>
 	[StructLayout(LayoutKind.Auto)]

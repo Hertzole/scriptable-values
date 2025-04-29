@@ -11,7 +11,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public void Create_InvokesOnPoolChanged([Values] EventType eventType)
 		{
 			// Arrange
-			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool, eventType, action => action == PoolAction.CreatedObject);
+			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool, action => action == PoolAction.CreatedObject);
 
 			// Act
 			TValue value = pool.Get();

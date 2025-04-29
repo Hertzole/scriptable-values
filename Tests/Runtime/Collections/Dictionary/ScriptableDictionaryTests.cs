@@ -846,79 +846,41 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void RegisterChangedCallback_InvokesCallback([Values] EventType eventType)
+		public void RegisterChangedCallback_InvokesCallback()
 		{
 			// Arrange
 			InvokeCountContext context = new InvokeCountContext();
-			switch (eventType)
-			{
-				case EventType.Event:
-					dictionary.OnCollectionChanged += OnCallback;
-					break;
-				case EventType.Register:
-					dictionary.RegisterChangedListener(OnCallback);
-					break;
-				case EventType.RegisterWithContext:
-					dictionary.RegisterChangedListener(OnStaticCallback, context);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
+			dictionary.OnCollectionChanged += OnCallback;
 
 			// Act
 			dictionary.Add(1, 2); // This will cause the event to be invoked.
 
 			// Assert
-			Assert.AreEqual(1, context.invokeCount, $"The callback was not invoked for {eventType}.");
+			Assert.AreEqual(1, context.invokeCount, "The callback was not invoked.");
 			return;
 
 			void OnCallback(CollectionChangedArgs<KeyValuePair<int, int>> collectionChangedArgs)
-			{
-				context.invokeCount++;
-			}
-
-			static void OnStaticCallback(CollectionChangedArgs<KeyValuePair<int, int>> collectionChangedArgs, InvokeCountContext context)
 			{
 				context.invokeCount++;
 			}
 		}
 
 		[Test]
-		public void UnregisterChangedCallback_InvokesCallback([Values] EventType eventType)
+		public void UnregisterChangedCallback_InvokesCallback()
 		{
 			// Arrange
 			InvokeCountContext context = new InvokeCountContext();
-			switch (eventType)
-			{
-				case EventType.Event:
-					dictionary.OnCollectionChanged += OnCallback;
-					dictionary.OnCollectionChanged -= OnCallback;
-					break;
-				case EventType.Register:
-					dictionary.RegisterChangedListener(OnCallback);
-					dictionary.UnregisterChangedListener(OnCallback);
-					break;
-				case EventType.RegisterWithContext:
-					dictionary.RegisterChangedListener(OnStaticCallback, context);
-					dictionary.UnregisterChangedListener<InvokeCountContext>(OnStaticCallback);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-			}
+			dictionary.OnCollectionChanged += OnCallback;
+			dictionary.OnCollectionChanged -= OnCallback;
 
 			// Act
 			dictionary.Add(1, 2); // This will cause the event to be invoked.
 
 			// Assert
-			Assert.AreEqual(0, context.invokeCount, $"The callback was invoked for {eventType}.");
+			Assert.AreEqual(0, context.invokeCount, "The callback was invoked.");
 			return;
 
 			void OnCallback(CollectionChangedArgs<KeyValuePair<int, int>> collectionChangedArgs)
-			{
-				context.invokeCount++;
-			}
-
-			static void OnStaticCallback(CollectionChangedArgs<KeyValuePair<int, int>> collectionChangedArgs, InvokeCountContext context)
 			{
 				context.invokeCount++;
 			}

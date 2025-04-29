@@ -108,43 +108,6 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void OnValueChanging_Constant_WithContext([ValueSource(nameof(StaticsValue))] TValue value)
-		{
-			// Arrange
-			Context context = new Context();
-
-			ValueReference<TValue> instance = new ValueReference<TValue>(MakeDifferentValue(value));
-			instance.RegisterValueChanging(ValueChanging, context);
-
-			// Act
-			instance.Value = value;
-
-			// Assert
-			Assert.AreEqual(value, instance.constantValue);
-			Assert.AreEqual(value, instance.Value);
-			Assert.AreEqual(1, context.invokeCount);
-
-			// Arrange
-			instance.UnregisterValueChanging<Context>(ValueChanging);
-
-			// Act
-			instance.Value = MakeDifferentValue(value);
-
-			// Assert
-			Assert.AreEqual(MakeDifferentValue(value), instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(value), instance.Value);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void ValueChanging(TValue previousValue, TValue newValue, Context c)
-			{
-				Assert.AreEqual(MakeDifferentValue(value), previousValue);
-				Assert.AreEqual(value, newValue);
-				c.invokeCount++;
-			}
-		}
-
-		[Test]
 		public void OnValueChanging_Reference([ValueSource(nameof(StaticsValue))] TValue value)
 		{
 			bool eventInvoked = false;
@@ -182,48 +145,6 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void OnValueChanging_Reference_WithContext([ValueSource(nameof(StaticsValue))] TValue value)
-		{
-			// Arrange
-			Context context = new Context();
-
-			TType scriptableValue = CreateInstance<TType>();
-			scriptableValue.Value = MakeDifferentValue(value);
-
-			ValueReference<TValue> instance = new ValueReference<TValue>(scriptableValue);
-			instance.RegisterValueChanging(ValueChanging, context);
-
-			// Act
-			instance.Value = value;
-
-			// Assert
-			Assert.AreEqual(default, instance.constantValue);
-			Assert.AreEqual(value, instance.Value);
-			Assert.AreEqual(value, scriptableValue.Value);
-			Assert.AreEqual(1, context.invokeCount);
-
-			// Arrange
-			instance.UnregisterValueChanging<Context>(ValueChanging);
-
-			// Act
-			instance.Value = MakeDifferentValue(value);
-
-			// Assert
-			Assert.AreEqual(default, instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(value), instance.Value);
-			Assert.AreEqual(MakeDifferentValue(value), scriptableValue.Value);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void ValueChanging(TValue previousValue, TValue newValue, Context c)
-			{
-				Assert.AreEqual(MakeDifferentValue(value), previousValue);
-				Assert.AreEqual(value, newValue);
-				c.invokeCount++;
-			}
-		}
-
-		[Test]
 		public void OnValueChanged_Constant([ValueSource(nameof(StaticsValue))] TValue value)
 		{
 			bool eventInvoked = false;
@@ -252,43 +173,6 @@ namespace Hertzole.ScriptableValues.Tests
 				Assert.AreEqual(MakeDifferentValue(value), previousValue);
 				Assert.AreEqual(value, newValue);
 				eventInvoked = true;
-			}
-		}
-
-		[Test]
-		public void OnValueChanged_Constant_WithContext([ValueSource(nameof(StaticsValue))] TValue value)
-		{
-			// Arrange
-			Context context = new Context();
-
-			ValueReference<TValue> instance = new ValueReference<TValue>(MakeDifferentValue(value));
-			instance.RegisterValueChanged(ValueChanged, context);
-
-			// Act
-			instance.Value = value;
-
-			// Assert
-			Assert.AreEqual(value, instance.constantValue);
-			Assert.AreEqual(value, instance.Value);
-			Assert.AreEqual(1, context.invokeCount);
-
-			// Arrange
-			instance.UnregisterValueChanged<Context>(ValueChanged);
-
-			// Act
-			instance.Value = MakeDifferentValue(value);
-
-			// Assert
-			Assert.AreEqual(MakeDifferentValue(value), instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(value), instance.Value);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void ValueChanged(TValue previousValue, TValue newValue, Context c)
-			{
-				Assert.AreEqual(MakeDifferentValue(value), previousValue);
-				Assert.AreEqual(value, newValue);
-				c.invokeCount++;
 			}
 		}
 
@@ -326,48 +210,6 @@ namespace Hertzole.ScriptableValues.Tests
 				Assert.AreEqual(MakeDifferentValue(value), previousValue);
 				Assert.AreEqual(value, newValue);
 				eventInvoked = true;
-			}
-		}
-
-		[Test]
-		public void OnValueChanged_Reference_WithContext([ValueSource(nameof(StaticsValue))] TValue value)
-		{
-			// Arrange
-			Context context = new Context();
-
-			TType scriptableValue = CreateInstance<TType>();
-			scriptableValue.Value = MakeDifferentValue(value);
-
-			ValueReference<TValue> instance = new ValueReference<TValue>(scriptableValue);
-			instance.RegisterValueChanged(ValueChanged, context);
-
-			// Act
-			instance.Value = value;
-
-			// Assert
-			Assert.AreEqual(default, instance.constantValue);
-			Assert.AreEqual(value, instance.Value);
-			Assert.AreEqual(value, scriptableValue.Value);
-			Assert.AreEqual(1, context.invokeCount);
-
-			// Arrange
-			instance.UnregisterValueChanged<Context>(ValueChanged);
-
-			// Act
-			instance.Value = MakeDifferentValue(value);
-
-			// Assert
-			Assert.AreEqual(default, instance.constantValue);
-			Assert.AreEqual(MakeDifferentValue(value), instance.Value);
-			Assert.AreEqual(MakeDifferentValue(value), scriptableValue.Value);
-			Assert.AreEqual(1, context.invokeCount);
-			return;
-
-			void ValueChanged(TValue previousValue, TValue newValue, Context c)
-			{
-				Assert.AreEqual(MakeDifferentValue(value), previousValue);
-				Assert.AreEqual(value, newValue);
-				c.invokeCount++;
 			}
 		}
 
@@ -484,11 +326,6 @@ namespace Hertzole.ScriptableValues.Tests
 				Assert.AreEqual(MakeDifferentValue(default(TValue)), newValue);
 				eventInvoked = true;
 			}
-		}
-
-		private class Context
-		{
-			public int invokeCount = 0;
 		}
 	}
 }
