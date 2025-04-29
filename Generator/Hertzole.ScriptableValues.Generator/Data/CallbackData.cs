@@ -22,7 +22,11 @@ internal readonly record struct CallbackData(
 
 	public void AppendParameterTypes(in ArrayBuilder<(string name, string type)> builder)
 	{
-		string genericType = GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+		string genericType = string.Empty;
+		if (ScriptableType != ScriptableType.Event)
+		{
+			genericType = GenericType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+		}
 
 		switch (CallbackType)
 		{
