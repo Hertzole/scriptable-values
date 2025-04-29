@@ -183,8 +183,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 757a728ca897142499b5c5ce0abc0b70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scriptableList: {fileID: 11400000, guid: 5e2e9b8935b591047ac813a11ae00081, type: 2}
-  list: []
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,9 +266,137 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &840137206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 840137208}
+  - component: {fileID: 840137207}
+  m_Layer: 0
+  m_Name: Other GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &840137207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840137206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8847903ee143778f9a93c6b43d9b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startListening: 0
+  stopListening: 0
+  targetValue: {fileID: 11400000, guid: c3caf50d5b6f3b143a9c3ec149892c16, type: 2}
+  invokeOn: 0
+  fromValue: 0
+  toValue: 0
+  invokeParameters: 1
+  onValueChangingSingle:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangedSingle:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangingMultiple:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangedMultiple:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &840137208
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840137206}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.7765082, y: 0.8205184, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1866981620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1866981622}
+  - component: {fileID: 1866981621}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1866981621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1866981620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8847903ee143778f9a93c6b43d9b9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startListening: 0
+  stopListening: 0
+  targetValue: {fileID: 11400000, guid: c3caf50d5b6f3b143a9c3ec149892c16, type: 2}
+  invokeOn: 0
+  fromValue: 0
+  toValue: 0
+  invokeParameters: 1
+  onValueChangingSingle:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangedSingle:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangingMultiple:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChangedMultiple:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &1866981622
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1866981620}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.7765082, y: 0.8205184, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 178381190}
+  - {fileID: 1866981622}
+  - {fileID: 840137208}
