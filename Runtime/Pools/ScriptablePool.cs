@@ -100,7 +100,7 @@ namespace Hertzole.ScriptableValues
 		internal const int ORDER = ScriptableList<object>.ORDER + 50;
 #endif
 
-		public event PoolEventArgs<T>? OnPoolChanged;
+		public event PoolChangedArgs<T>? OnPoolChanged;
 
 		/// <summary>
 		///     Gets an object from the pool.
