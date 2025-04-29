@@ -35,7 +35,7 @@ internal readonly record struct CallbackData(
 				builder.Add(("newValue", genericType));
 				break;
 			case CallbackType.Event:
-				builder.Add(("object", "sender"));
+				builder.Add(("sender", "object"));
 				builder.Add(("args", ScriptableType == ScriptableType.GenericEvent ? genericType : "global::System.EventArgs"));
 				break;
 			case CallbackType.Collection:
