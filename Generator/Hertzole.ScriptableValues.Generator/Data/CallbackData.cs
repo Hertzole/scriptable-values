@@ -17,6 +17,7 @@ internal readonly record struct CallbackData(
 	public string RegisterCallbackMethod { get; } = CreateRegisterMethodName(true, in ScriptableType, in Flags);
 
 	public string UnregisterCallbackMethod { get; } = CreateRegisterMethodName(false, in ScriptableType, in Flags);
+	public string TargetEvent { get; } = CreateTargetEventName(in ScriptableType, in Flags);
 
 	public string CallbackName { get; } = Naming.CreateCallbackName(Name, in ScriptableType, in Flags);
 
@@ -144,6 +145,34 @@ internal readonly record struct CallbackData(
 				break;
 			case ScriptableType.Pool:
 				builder.AddRange("ChangedCallback");
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(scriptableType), scriptableType, null);
+		}
+
+		return builder.ToString();
+	}
+
+	private static string CreateTargetEventName(in ScriptableType scriptableType, in CallbackFlags flags)
+	{
+		using ArrayBuilder<char> builder = new ArrayBuilder<char>(32);
+		builder.AddRange("On");
+		switch (scriptableType)
+		{
+			case ScriptableType.Event:
+			case ScriptableType.GenericEvent:
+				builder.AddRange("Invoked");
+				break;
+			case ScriptableType.Value:
+				builder.AddRange("Value");
+				Naming.AppendFlagSuffix(in builder, in scriptableType, in flags);
+				break;
+			case ScriptableType.Pool:
+				builder.AddRange("PoolChanged");
+				break;
+			case ScriptableType.List:
+			case ScriptableType.Dictionary:
+				builder.AddRange("CollectionChanged");
 				break;
 			default:
 				throw new ArgumentOutOfRangeException(nameof(scriptableType), scriptableType, null);

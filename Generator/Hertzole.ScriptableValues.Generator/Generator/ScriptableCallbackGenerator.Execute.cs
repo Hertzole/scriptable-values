@@ -79,9 +79,6 @@ partial class ScriptableCallbackGenerator
 		WriteSubscribedBitMask(writer, in hierarchy, in elements, in cancellationToken);
 		writer.AppendLine();
 
-		WriteCachedFields(writer, in context, in hierarchy, in elements);
-		writer.AppendLine();
-
 		WriteSubscribeAndUnsubscribeMethods(in writer, in context, in hierarchy, in elements);
 		writer.AppendLine();
 
@@ -265,7 +262,7 @@ partial class ScriptableCallbackGenerator
 		for (int i = 0; i < elements.Length; i++)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
-			WriteIfCheck(in writer, in hierarchy, in elements[i], true);
+			WriteIfCheck(in writer, in elements[i], true);
 		}
 
 		writer.Indent--;
@@ -301,7 +298,7 @@ partial class ScriptableCallbackGenerator
 		for (int i = 0; i < elements.Length; i++)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
-			WriteIfCheck(in writer, in hierarchy, in elements[i], false);
+			WriteIfCheck(in writer, in elements[i], false);
 		}
 
 		writer.Indent--;
@@ -309,7 +306,6 @@ partial class ScriptableCallbackGenerator
 		return;
 
 		static void WriteIfCheck(in CodeWriter writer,
-			in HierarchyInfo hierarchy,
 			in CallbackData data,
 			bool subscribe)
 		{
@@ -323,25 +319,17 @@ partial class ScriptableCallbackGenerator
 
 			writer.Append(data.Name);
 			writer.Append(".");
-			writer.Append(subscribe ? data.RegisterCallbackMethod : data.UnregisterCallbackMethod);
+			writer.Append(data.TargetEvent);
+			writer.Append(subscribe ? " += " : " -= ");
+			writer.Append(data.CallbackName);
+			writer.AppendLine(";");
 
-			if (!subscribe)
-			{
-				writer.Append("<");
-				writer.Append(hierarchy.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-				writer.Append(">");
-			}
-
-			writer.Append("(");
-			writer.Append(data.CachedFieldName);
 			if (subscribe)
 			{
-				writer.AppendLine(", this);");
 				writer.Append("subscribedCallbacks |= SubscribedCallbacksMask.");
 			}
 			else
 			{
-				writer.AppendLine(");");
 				writer.Append("subscribedCallbacks &= ~SubscribedCallbacksMask.");
 			}
 
