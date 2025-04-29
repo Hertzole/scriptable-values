@@ -31,11 +31,8 @@ namespace Hertzole.ScriptableValues.Tests
 				case EventType.Event:
 					instance.OnInvoked += InstanceOnInvoked;
 					break;
-				case EventType.Register:
-					instance.RegisterInvokedListener(InstanceOnInvoked);
-					break;
-				case EventType.RegisterWithContext:
-					instance.RegisterInvokedListener(StaticOnInvoked, context);
+				case EventType.UnityEvent:
+					instance.onInvoked.AddListener(UnityOnInvoked);
 					break;
 			}
 
@@ -51,11 +48,8 @@ namespace Hertzole.ScriptableValues.Tests
 				case EventType.Event:
 					instance.OnInvoked -= InstanceOnInvoked;
 					break;
-				case EventType.Register:
-					instance.UnregisterInvokedListener(InstanceOnInvoked);
-					break;
-				case EventType.RegisterWithContext:
-					instance.UnregisterInvokedListener<InvokeCountContext>(StaticOnInvoked);
+				case EventType.UnityEvent:
+					instance.onInvoked.RemoveListener(UnityOnInvoked);
 					break;
 			}
 
@@ -73,19 +67,16 @@ namespace Hertzole.ScriptableValues.Tests
 				context.invokeCount++;
 			}
 
-			static void StaticOnInvoked(object o, TValue e, InvokeCountContext c)
+			void UnityOnInvoked(TValue arg)
 			{
-				c.invokeCount++;
-				Assert.AreEqual(o, c.GetArg<GameObject>("sender"));
-				Assert.AreEqual(e, c.GetArg<TValue>("value"));
+				Assert.AreEqual(arg, value);
+				context.invokeCount++;
 			}
 		}
 
 		[Test]
 		public void Invoke_WithArgOnly([ValueSource(nameof(StaticsValue))] TValue value, [Values] EventType eventType)
 		{
-			// InvokeWithArgsOnly(value);
-
 			// Arrange
 			var instance = CreateInstance<TType>();
 			InvokeCountContext context = new InvokeCountContext();
@@ -97,11 +88,8 @@ namespace Hertzole.ScriptableValues.Tests
 				case EventType.Event:
 					instance.OnInvoked += InstanceOnInvoked;
 					break;
-				case EventType.Register:
-					instance.RegisterInvokedListener(InstanceOnInvoked);
-					break;
-				case EventType.RegisterWithContext:
-					instance.RegisterInvokedListener(StaticOnInvoked, context);
+				case EventType.UnityEvent:
+					instance.onInvoked.AddListener(UnityOnInvoked);
 					break;
 			}
 
@@ -117,11 +105,8 @@ namespace Hertzole.ScriptableValues.Tests
 				case EventType.Event:
 					instance.OnInvoked -= InstanceOnInvoked;
 					break;
-				case EventType.Register:
-					instance.UnregisterInvokedListener(InstanceOnInvoked);
-					break;
-				case EventType.RegisterWithContext:
-					instance.UnregisterInvokedListener<InvokeCountContext>(StaticOnInvoked);
+				case EventType.UnityEvent:
+					instance.onInvoked.RemoveListener(UnityOnInvoked);
 					break;
 			}
 
@@ -139,11 +124,10 @@ namespace Hertzole.ScriptableValues.Tests
 				context.invokeCount++;
 			}
 
-			static void StaticOnInvoked(object o, TValue e, InvokeCountContext c)
+			void UnityOnInvoked(TValue arg)
 			{
-				c.invokeCount++;
-				Assert.AreEqual(o, c.GetArg<TType>("sender"));
-				Assert.AreEqual(e, c.GetArg<TValue>("value"));
+				Assert.AreEqual(arg, value);
+				context.invokeCount++;
 			}
 		}
 

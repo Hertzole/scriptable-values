@@ -125,10 +125,6 @@ namespace Hertzole.ScriptableValues
 
 		private int count = 0;
 
-		private readonly DelegateHandlerList<CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>, CollectionChangedArgs<KeyValuePair<TKey, TValue>>>
-			onCollectionChanged =
-				new DelegateHandlerList<CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>, CollectionChangedArgs<KeyValuePair<TKey, TValue>>>();
-
 		internal Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
 
 		object? IDictionary.this[object key]
@@ -287,11 +283,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableDictionary{TKey, TValue}"/> is refreshed.
 		/// </summary>
-		public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> OnCollectionChanged
-		{
-			add { RegisterChangedListener(value); }
-			remove { UnregisterChangedListener(value); }
-		}
+		public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>? OnCollectionChanged;
 
 		/// <summary>
 		///     Checks if the dictionary is a valid dictionary by checking the keys and values.
@@ -896,66 +888,9 @@ namespace Hertzole.ScriptableValues
 			return dictionary.TryGetValue(key, out value);
 		}
 
-		/// <summary>
-		///     Registers a callback to be called when the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void RegisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.AddCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called when the <see cref="ScriptableDictionary{TKey,TValue}" /> changes with additional
-		///     context.
-		/// </summary>
-		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
-		/// <param name="callback">The callback method to call.</param>
-		/// <param name="context">The context to pass to the callback.</param>
-		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">
-		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
-		///     <c>null</c>.
-		/// </exception>
-		public void RegisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-			ThrowHelper.ThrowIfNull(context, nameof(context));
-
-			onCollectionChanged.AddCallback(callback, context);
-		}
-
-		/// <summary>
-		///     Unregisters a callback from the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterChangedListener(CollectionChangedEventHandler<KeyValuePair<TKey, TValue>> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Unregisters a callback with context from the <see cref="ScriptableDictionary{TKey,TValue}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterChangedListener<TContext>(CollectionChangedWithContextEventHandler<KeyValuePair<TKey, TValue>, TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onCollectionChanged.RemoveCallback(callback);
-		}
-
 		private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
 		{
-			onCollectionChanged.Invoke(args);
+			OnCollectionChanged?.Invoke(args);
 			OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
 		}
 
@@ -1010,7 +945,7 @@ namespace Hertzole.ScriptableValues
 		protected override void WarnIfLeftOverSubscribers()
 		{
 			base.WarnIfLeftOverSubscribers();
-			EventHelper.WarnIfLeftOverSubscribers(onCollectionChanged, nameof(OnCollectionChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnCollectionChanged, nameof(OnCollectionChanged), this);
 			EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
 		}
 
@@ -1043,7 +978,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onCollectionChanged.Clear();
+			OnCollectionChanged = null;
 			OnInternalCollectionChanged = null;
 		}
 

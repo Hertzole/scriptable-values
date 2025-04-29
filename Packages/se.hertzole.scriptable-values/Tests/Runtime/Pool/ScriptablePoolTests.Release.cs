@@ -72,7 +72,7 @@ namespace Hertzole.ScriptableValues.Tests
 		{
 			// Arrange
 			TValue value = pool.Get();
-			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool, eventType);
+			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool);
 
 			// Act
 			pool.Release(value);

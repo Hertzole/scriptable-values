@@ -50,18 +50,6 @@ namespace Hertzole.ScriptableValues.Tests
 		}
 
 		[Test]
-		public void RegisterValueChange([Values] ChangeChoice choice)
-		{
-			TestRegisterValueChange(choice);
-		}
-
-		[Test]
-		public void RegisterValueChangeWithContext([Values] ChangeChoice choice)
-		{
-			TestRegisterValueChangeWithContext(choice);
-		}
-
-		[Test]
 		public void OverrideMethod_OnBeforeSetValue_IsCalled()
 		{
 			// Arrange

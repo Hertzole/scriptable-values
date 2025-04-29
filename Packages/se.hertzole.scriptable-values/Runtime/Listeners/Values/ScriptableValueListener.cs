@@ -1,6 +1,5 @@
 ﻿#nullable enable
 
-using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -164,15 +163,6 @@ namespace Hertzole.ScriptableValues
 			get { return onValueChangedMultiple; }
 		}
 
-		private static readonly Action<TValue, TValue, ScriptableValueListener<TValue>> onChanging = (oldValue, newValue, context) =>
-		{
-			context.OnCurrentValueChanging(oldValue, newValue);
-		};
-		private static readonly Action<TValue, TValue, ScriptableValueListener<TValue>> onChanged = (oldValue, newValue, context) =>
-		{
-			context.OnCurrentValueChanged(oldValue, newValue);
-		};
-
 		/// <inheritdoc />
 		protected override void SetListening(bool listen)
 		{
@@ -271,13 +261,13 @@ namespace Hertzole.ScriptableValues
 
 			if (listen)
 			{
-				target.RegisterValueChangingListener(onChanging, this);
-				target.RegisterValueChangedListener(onChanged, this);
+				target.OnValueChanging += OnCurrentValueChanging;
+				target.OnValueChanged += OnCurrentValueChanged;
 			}
 			else
 			{
-				target.UnregisterValueChangingListener(onChanging);
-				target.UnregisterValueChangedListener(onChanged);
+				target.OnValueChanging -= OnCurrentValueChanging;
+				target.OnValueChanged -= OnCurrentValueChanged;
 			}
 		}
 

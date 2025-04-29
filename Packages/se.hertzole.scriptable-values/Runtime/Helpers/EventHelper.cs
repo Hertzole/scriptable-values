@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Object = UnityEngine.Object;
 #if DEBUG
@@ -34,11 +33,6 @@ namespace Hertzole.ScriptableValues.Helpers
 				Delegate del = (Delegate) (object) action;
 
 				CreateWarning(del.GetInvocationList().AsSpan(), parameterName, targetObject);
-			}
-			else if (action is IDelegateList eventList && eventList.ListenersCount > 0)
-			{
-				using SpanOwner<Delegate> owner = eventList.GetDelegates();
-				CreateWarning(owner.Span, parameterName, targetObject);
 			}
 #endif
 		}
@@ -96,20 +90,5 @@ namespace Hertzole.ScriptableValues.Helpers
 			}
 		}
 #endif
-
-		/// <summary>
-		///     Helper method to get the listeners from a pooled list of closures as a span.
-		/// </summary>
-		internal static SpanOwner<Delegate> GetListeners<T>(IReadOnlyList<T> list) where T : struct, IStructClosure
-		{
-			SpanOwner<Delegate> span = SpanOwner<Delegate>.Allocate(list.Count);
-
-			for (int i = 0; i < list.Count; i++)
-			{
-				span.Span[i] = list[i].GetAction();
-			}
-
-			return span;
-		}
 	}
 }

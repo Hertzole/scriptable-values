@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -37,8 +38,6 @@ namespace Hertzole.ScriptableValues
 		{
 			get { return onInvoked; }
 		}
-
-		private static readonly EventHandlerWithContext<ScriptableEventListener> onInvokedEvent = (_, _, context) => { context.OnEventInvoked(); };
 
 		/// <inheritdoc />
 		protected override void SetListening(bool listen)
@@ -86,18 +85,18 @@ namespace Hertzole.ScriptableValues
 
 			if (listen)
 			{
-				target.RegisterInvokedListener(onInvokedEvent, this);
+				target.OnInvoked += OnEventInvoked;
 			}
 			else
 			{
-				target.UnregisterInvokedListener(onInvokedEvent);
+				target.OnInvoked -= OnEventInvoked;
 			}
 		}
 
 		/// <summary>
 		///     Called when the target event is invoked.
 		/// </summary>
-		private void OnEventInvoked()
+		private void OnEventInvoked(object sender, EventArgs eventArgs)
 		{
 			onInvoked.Invoke();
 		}

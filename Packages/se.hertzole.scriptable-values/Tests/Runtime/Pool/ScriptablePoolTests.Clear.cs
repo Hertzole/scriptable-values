@@ -52,7 +52,7 @@ namespace Hertzole.ScriptableValues.Tests
 			pool.Get();
 			pool.Release(value1); // Make sure we have an inactive object.
 
-			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool, eventType, action => action == PoolAction.DestroyedObject);
+			using PoolEventTracker<TValue> tracker = new PoolEventTracker<TValue>(pool, action => action == PoolAction.DestroyedObject);
 
 			// Act
 			pool.Clear();

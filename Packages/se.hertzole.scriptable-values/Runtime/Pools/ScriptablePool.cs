@@ -57,8 +57,6 @@ namespace Hertzole.ScriptableValues
 		internal readonly List<T> activeObjects = new List<T>();
 		internal readonly Stack<T> pool = new Stack<T>();
 
-		private readonly DelegateHandlerList<PoolEventArgs<T>, PoolAction, T> onPoolChanged = new DelegateHandlerList<PoolEventArgs<T>, PoolAction, T>();
-
 		private int countAll;
 		private int countActive;
 		private int countInactive;
@@ -102,11 +100,7 @@ namespace Hertzole.ScriptableValues
 		internal const int ORDER = ScriptableList<object>.ORDER + 50;
 #endif
 
-		public event PoolEventArgs<T> OnPoolChanged
-		{
-			add { RegisterChangedCallback(value); }
-			remove { UnregisterChangedCallback(value); }
-		}
+		public event PoolEventArgs<T>? OnPoolChanged;
 
 		/// <summary>
 		///     Gets an object from the pool.
@@ -127,7 +121,7 @@ namespace Hertzole.ScriptableValues
 				else
 				{
 					item = CreateObject();
-					onPoolChanged.Invoke(PoolAction.CreatedObject, item);
+					OnPoolChanged?.Invoke(PoolAction.CreatedObject, item);
 				}
 			}
 
@@ -135,7 +129,7 @@ namespace Hertzole.ScriptableValues
 
 			activeObjects.Add(item!);
 
-			onPoolChanged.Invoke(PoolAction.RentedObject, item!);
+			OnPoolChanged?.Invoke(PoolAction.RentedObject, item!);
 			OnGetInternal(item!);
 
 			UpdateCounts();
@@ -156,7 +150,7 @@ namespace Hertzole.ScriptableValues
 			activeObjects.Remove(item);
 
 			OnReturnInternal(item);
-			onPoolChanged.Invoke(PoolAction.ReleasedObject, item);
+			OnPoolChanged?.Invoke(PoolAction.ReleasedObject, item);
 
 			pool.Push(item);
 
@@ -231,7 +225,7 @@ namespace Hertzole.ScriptableValues
 
 		internal virtual void DestroyObjectInternal(T item)
 		{
-			onPoolChanged.Invoke(PoolAction.DestroyedObject, item);
+			OnPoolChanged?.Invoke(PoolAction.DestroyedObject, item);
 			DestroyObject(item);
 		}
 
@@ -259,62 +253,6 @@ namespace Hertzole.ScriptableValues
 		/// <param name="item">The object that was returned to the pool.</param>
 		protected virtual void OnReturn(T item) { }
 
-		/// <summary>
-		///     Registers a callback to be called when the <see cref="ScriptablePool{T}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to call.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void RegisterChangedCallback(PoolEventArgs<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onPoolChanged.AddCallback(callback);
-		}
-
-		/// <summary>
-		///     Registers a callback to be called when the <see cref="ScriptablePool{T}" /> changes with additional
-		///     context.
-		/// </summary>
-		/// <remarks>This method can be used to avoid closure allocations on your events.</remarks>
-		/// <param name="callback">The callback method to call.</param>
-		/// <param name="context">The context to pass to the callback.</param>
-		/// <typeparam name="TContext">The type of the context.</typeparam>
-		/// <exception cref="ArgumentNullException">
-		///     <paramref name="callback" /> is <c>null</c>. Or <paramref name="context" /> is
-		///     <c>null</c>.
-		/// </exception>
-		public void RegisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback, TContext context)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onPoolChanged.AddCallback(callback, context);
-		}
-
-		/// <summary>
-		///     Unregisters a callback from the <see cref="ScriptablePool{T}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterChangedCallback(PoolEventArgs<T> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onPoolChanged.RemoveCallback(callback);
-		}
-
-		/// <summary>
-		///     Unregisters a callback with context from the <see cref="ScriptablePool{T}" /> changes.
-		/// </summary>
-		/// <param name="callback">The callback method to unregister.</param>
-		/// <typeparam name="TContext">The type of the context that was used in the callback.</typeparam>
-		/// <exception cref="ArgumentNullException"><paramref name="callback" /> is <c>null</c>.</exception>
-		public void UnregisterChangedCallback<TContext>(PoolEventArgsWithContext<T, TContext> callback)
-		{
-			ThrowHelper.ThrowIfNull(callback, nameof(callback));
-
-			onPoolChanged.RemoveCallback(callback);
-		}
-
 		protected override void OnStart()
 		{
 			// Remove any subscribers that are left over from play mode.
@@ -329,7 +267,7 @@ namespace Hertzole.ScriptableValues
 		protected override void WarnIfLeftOverSubscribers()
 		{
 			base.WarnIfLeftOverSubscribers();
-			EventHelper.WarnIfLeftOverSubscribers(onPoolChanged, nameof(OnPoolChanged), this);
+			EventHelper.WarnIfLeftOverSubscribers(OnPoolChanged, nameof(OnPoolChanged), this);
 		}
 
 		/// <summary>
@@ -348,7 +286,7 @@ namespace Hertzole.ScriptableValues
 			}
 #endif
 
-			onPoolChanged.Clear();
+			OnPoolChanged = null;
 		}
 
 #if UNITY_EDITOR
