@@ -381,7 +381,7 @@ namespace Hertzole.ScriptableValues
 
 		public void ReleaseAddressableAsset()
 		{
-			if (valueType != ValueReferenceType.Reference)
+			if (valueType != ValueReferenceType.Addressable)
 			{
 				return;
 			}
