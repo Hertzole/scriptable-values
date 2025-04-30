@@ -47,7 +47,7 @@ partial class ScriptableCallbackGenerator
 			writer.AppendLine("{");
 			writer.Indent++;
 
-			WriteElements(writer, in context, in item.Key, in item.Elements, in cancellationToken);
+			WriteElements(writer, in item.Key, in item.Elements, in cancellationToken);
 
 			writer.Indent--;
 			writer.Append("}");
@@ -71,7 +71,6 @@ partial class ScriptableCallbackGenerator
 	}
 
 	private static void WriteElements(CodeWriter writer,
-		in SourceProductionContext context,
 		in HierarchyInfo hierarchy,
 		in EquatableArray<CallbackData> elements,
 		in CancellationToken cancellationToken)
@@ -79,10 +78,10 @@ partial class ScriptableCallbackGenerator
 		WriteSubscribedBitMask(writer, in hierarchy, in elements, in cancellationToken);
 		writer.AppendLine();
 
-		WriteSubscribeAndUnsubscribeMethods(in writer, in context, in hierarchy, in elements);
+		WriteSubscribeAndUnsubscribeMethods(in writer, in hierarchy, in elements, in cancellationToken);
 		writer.AppendLine();
 
-		WriteCallbacksMethods(in writer, in context, in elements);
+		WriteCallbacksMethods(in writer, in elements, in cancellationToken);
 	}
 
 	private static void WriteSubscribedBitMask(CodeWriter writer,
@@ -227,11 +226,11 @@ partial class ScriptableCallbackGenerator
 	}
 
 	private static void WriteSubscribeAndUnsubscribeMethods(in CodeWriter writer,
-		in SourceProductionContext context,
 		in HierarchyInfo hierarchy,
-		in EquatableArray<CallbackData> elements)
+		in EquatableArray<CallbackData> elements,
+		in CancellationToken cancellationToken)
 	{
-		context.CancellationToken.ThrowIfCancellationRequested();
+		cancellationToken.ThrowIfCancellationRequested();
 
 		writer.AppendLine("/// <summary>Subscribes to all scriptable callbacks.</summary>");
 
@@ -261,7 +260,7 @@ partial class ScriptableCallbackGenerator
 
 		for (int i = 0; i < elements.Length; i++)
 		{
-			context.CancellationToken.ThrowIfCancellationRequested();
+			cancellationToken.ThrowIfCancellationRequested();
 			WriteIfCheck(in writer, in elements[i], true);
 		}
 
@@ -297,7 +296,7 @@ partial class ScriptableCallbackGenerator
 
 		for (int i = 0; i < elements.Length; i++)
 		{
-			context.CancellationToken.ThrowIfCancellationRequested();
+			cancellationToken.ThrowIfCancellationRequested();
 			WriteIfCheck(in writer, in elements[i], false);
 		}
 
@@ -341,7 +340,7 @@ partial class ScriptableCallbackGenerator
 		}
 	}
 
-	private static void WriteCallbacksMethods(in CodeWriter writer, in SourceProductionContext context, in EquatableArray<CallbackData> elements)
+	private static void WriteCallbacksMethods(in CodeWriter writer, in EquatableArray<CallbackData> elements, in CancellationToken cancellationToken)
 	{
 		ArrayBuilder<(string name, string type)> parametersBuilder = new ArrayBuilder<(string name, string type)>(2);
 		ArrayBuilder<(string name, string description)> descriptionsBuilder = new ArrayBuilder<(string name, string description)>(2);
@@ -350,7 +349,7 @@ partial class ScriptableCallbackGenerator
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				context.CancellationToken.ThrowIfCancellationRequested();
+				cancellationToken.ThrowIfCancellationRequested();
 
 				parametersBuilder.Clear();
 				descriptionsBuilder.Clear();
