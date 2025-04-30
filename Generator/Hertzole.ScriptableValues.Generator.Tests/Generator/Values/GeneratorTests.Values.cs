@@ -52,13 +52,6 @@ namespace My.Namespace
 #endif // UNITY_EDITOR
 		private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-        {GetCacheFieldDescription("value", CallbackType.Value)}
-#if UNITY_EDITOR
-		[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-		private static global::System.Action<bool, bool, global::My.Namespace.MyClass> valueScriptableValueCallbackChanged = (oldValue, newValue, context) => {{ context.OnValueChanged(oldValue, newValue); }};
-
         <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -70,7 +63,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) == 0)
 			{{
-				value.RegisterValueChangedListener(valueScriptableValueCallbackChanged, this);
+                value.OnValueChanged += OnValueChanged;
 				subscribedCallbacks |= SubscribedCallbacksMask.valueChanged;
 			}}
 		}}
@@ -86,7 +79,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) != 0)
 			{{
-				value.UnregisterValueChangedListener<global::My.Namespace.MyClass>(valueScriptableValueCallbackChanged);
+                value.OnValueChanged -= OnValueChanged;
 				subscribedCallbacks &= ~SubscribedCallbacksMask.valueChanged;
 			}}
 		}}
@@ -142,13 +135,6 @@ namespace My.Namespace
 #endif // UNITY_EDITOR
 		private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-        {GetCacheFieldDescription("value", CallbackType.Value, flags)}
-#if UNITY_EDITOR
-		[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-		private static global::System.Action<bool, bool, global::My.Namespace.MyClass> valueScriptableValueCallback{changeSuffix} = (oldValue, newValue, context) => {{ context.OnValue{changeSuffix}(oldValue, newValue); }};
-
         <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -160,7 +146,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) == 0)
 			{{
-				value.RegisterValue{changeSuffix}Listener(valueScriptableValueCallback{changeSuffix}, this);
+                value.OnValue{changeSuffix} += OnValue{changeSuffix};
 				subscribedCallbacks |= SubscribedCallbacksMask.value{changeSuffix};
 			}}
 		}}
@@ -176,7 +162,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) != 0)
 			{{
-				value.UnregisterValue{changeSuffix}Listener<global::My.Namespace.MyClass>(valueScriptableValueCallback{changeSuffix});
+                value.OnValue{changeSuffix} -= OnValue{changeSuffix};
 				subscribedCallbacks &= ~SubscribedCallbacksMask.value{changeSuffix};
 			}}
 		}}
@@ -229,13 +215,6 @@ namespace My.Namespace
 #endif // UNITY_EDITOR
 		private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-        {GetCacheFieldDescription("Value", CallbackType.Value)}
-#if UNITY_EDITOR
-		[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-		private static global::System.Action<bool, bool, global::My.Namespace.MyClass> ValueScriptableValueCallbackChanged = (oldValue, newValue, context) => {{ context.OnValueChanged(oldValue, newValue); }};
-
         <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -247,7 +226,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) == 0)
 			{{
-				Value.RegisterValueChangedListener(ValueScriptableValueCallbackChanged, this);
+				Value.OnValueChanged += OnValueChanged;
 				subscribedCallbacks |= SubscribedCallbacksMask.ValueChanged;
 			}}
 		}}
@@ -263,7 +242,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) != 0)
 			{{
-				Value.UnregisterValueChangedListener<global::My.Namespace.MyClass>(ValueScriptableValueCallbackChanged);
+				Value.OnValueChanged -= OnValueChanged;
 				subscribedCallbacks &= ~SubscribedCallbacksMask.ValueChanged;
 			}}
 		}}
@@ -319,13 +298,6 @@ namespace My.Namespace
 #endif // UNITY_EDITOR
 		private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-        {GetCacheFieldDescription("Value", CallbackType.Value, flags)}
-#if UNITY_EDITOR
-		[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-		private static global::System.Action<bool, bool, global::My.Namespace.MyClass> ValueScriptableValueCallback{changeSuffix} = (oldValue, newValue, context) => {{ context.OnValue{changeSuffix}(oldValue, newValue); }};
-
         <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 		[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -337,7 +309,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) == 0)
 			{{
-				Value.RegisterValue{changeSuffix}Listener(ValueScriptableValueCallback{changeSuffix}, this);
+				Value.OnValue{changeSuffix} += OnValue{changeSuffix};
 				subscribedCallbacks |= SubscribedCallbacksMask.Value{changeSuffix};
 			}}
 		}}
@@ -353,7 +325,7 @@ namespace My.Namespace
 		{{
 			if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) != 0)
 			{{
-				Value.UnregisterValue{changeSuffix}Listener<global::My.Namespace.MyClass>(ValueScriptableValueCallback{changeSuffix});
+				Value.OnValue{changeSuffix} -= OnValue{changeSuffix};
 				subscribedCallbacks &= ~SubscribedCallbacksMask.Value{changeSuffix};
 			}}
 		}}
@@ -401,13 +373,6 @@ partial {GetContainingTypeString(containingType)} MyClass
 #endif // UNITY_EDITOR
 	private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-    {GetCacheFieldDescription("value", CallbackType.Value)}
-#if UNITY_EDITOR
-	[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-	private static global::System.Action<bool, bool, global::MyClass> valueScriptableValueCallbackChanged = (oldValue, newValue, context) => {{ context.OnValueChanged(oldValue, newValue); }};
-
     <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -419,7 +384,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) == 0)
 		{{
-			value.RegisterValueChangedListener(valueScriptableValueCallbackChanged, this);
+			value.OnValueChanged += OnValueChanged;
 			subscribedCallbacks |= SubscribedCallbacksMask.valueChanged;
 		}}
 	}}
@@ -435,7 +400,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.valueChanged) != 0)
 		{{
-			value.UnregisterValueChangedListener<global::MyClass>(valueScriptableValueCallbackChanged);
+			value.OnValueChanged -= OnValueChanged;
 			subscribedCallbacks &= ~SubscribedCallbacksMask.valueChanged;
 		}}
 	}}
@@ -485,13 +450,6 @@ partial {GetContainingTypeString(containingType)} MyClass
 #endif // UNITY_EDITOR
 	private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-    {GetCacheFieldDescription("value", CallbackType.Value, flags)}
-#if UNITY_EDITOR
-	[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-	private static global::System.Action<bool, bool, global::MyClass> valueScriptableValueCallback{changeSuffix} = (oldValue, newValue, context) => {{ context.OnValue{changeSuffix}(oldValue, newValue); }};
-
     <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -503,7 +461,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) == 0)
 		{{
-			value.RegisterValue{changeSuffix}Listener(valueScriptableValueCallback{changeSuffix}, this);
+			value.OnValue{changeSuffix} += OnValue{changeSuffix};
 			subscribedCallbacks |= SubscribedCallbacksMask.value{changeSuffix};
 		}}
 	}}
@@ -519,7 +477,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.value{changeSuffix}) != 0)
 		{{
-			value.UnregisterValue{changeSuffix}Listener<global::MyClass>(valueScriptableValueCallback{changeSuffix});
+			value.OnValue{changeSuffix} -= OnValue{changeSuffix};
 			subscribedCallbacks &= ~SubscribedCallbacksMask.value{changeSuffix};
 		}}
 	}}
@@ -566,13 +524,6 @@ partial {GetContainingTypeString(containingType)} MyClass
 #endif // UNITY_EDITOR
 	private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-    {GetCacheFieldDescription("Value", CallbackType.Value)}
-#if UNITY_EDITOR
-	[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-	private static global::System.Action<bool, bool, global::MyClass> ValueScriptableValueCallbackChanged = (oldValue, newValue, context) => {{ context.OnValueChanged(oldValue, newValue); }};
-
     <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -584,7 +535,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) == 0)
 		{{
-			Value.RegisterValueChangedListener(ValueScriptableValueCallbackChanged, this);
+			Value.OnValueChanged += OnValueChanged;
 			subscribedCallbacks |= SubscribedCallbacksMask.ValueChanged;
 		}}
 	}}
@@ -600,7 +551,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.ValueChanged) != 0)
 		{{
-			Value.UnregisterValueChangedListener<global::MyClass>(ValueScriptableValueCallbackChanged);
+            Value.OnValueChanged -= OnValueChanged;
 			subscribedCallbacks &= ~SubscribedCallbacksMask.ValueChanged;
 		}}
 	}}
@@ -651,13 +602,6 @@ partial {GetContainingTypeString(containingType)} MyClass
 #endif // UNITY_EDITOR
 	private SubscribedCallbacksMask subscribedCallbacks{GetSubscribedMaskDefaultValue(containingType)};
 
-    {GetCacheFieldDescription("Value", CallbackType.Value, flags)}
-#if UNITY_EDITOR
-	[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
-#endif // UNITY_EDITOR
-	private static global::System.Action<bool, bool, global::MyClass> ValueScriptableValueCallback{changeSuffix} = (oldValue, newValue, context) => {{ context.OnValue{changeSuffix}(oldValue, newValue); }};
-
     <SUBSCRIBE_TO_ALL_SUMMARY>
 #if UNITY_EDITOR
 	[global::System.CodeDom.Compiler.GeneratedCode(""<GENERATOR_NAME>"", ""<ASSEMBLY_VERSION>"")]
@@ -669,7 +613,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) == 0)
 		{{
-			Value.RegisterValue{changeSuffix}Listener(ValueScriptableValueCallback{changeSuffix}, this);
+			Value.OnValue{changeSuffix} += OnValue{changeSuffix};
 			subscribedCallbacks |= SubscribedCallbacksMask.Value{changeSuffix};
 		}}
 	}}
@@ -685,7 +629,7 @@ partial {GetContainingTypeString(containingType)} MyClass
 	{{
 		if ((subscribedCallbacks & SubscribedCallbacksMask.Value{changeSuffix}) != 0)
 		{{
-			Value.UnregisterValue{changeSuffix}Listener<global::MyClass>(ValueScriptableValueCallback{changeSuffix});
+            Value.OnValue{changeSuffix} -= OnValue{changeSuffix};
 			subscribedCallbacks &= ~SubscribedCallbacksMask.Value{changeSuffix};
 		}}
 	}}
