@@ -21,10 +21,10 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected virtual void OnEnable()
 		{
-			targetEvent = serializedObject.FindProperty(nameof(targetEvent));
-			startListening = serializedObject.FindProperty(nameof(startListening));
-			stopListening = serializedObject.FindProperty(nameof(stopListening));
-			onInvoked = serializedObject.FindProperty(nameof(onInvoked));
+			targetEvent = serializedObject.MustFindProperty(nameof(targetEvent));
+			startListening = serializedObject.MustFindProperty(nameof(startListening));
+			stopListening = serializedObject.MustFindProperty(nameof(stopListening));
+			onInvoked = serializedObject.MustFindProperty(nameof(onInvoked));
 		}
 
 		public override VisualElement CreateInspectorGUI()

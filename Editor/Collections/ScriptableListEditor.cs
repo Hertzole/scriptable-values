@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
@@ -10,17 +13,17 @@ namespace Hertzole.ScriptableValues.Editor
 	[CustomEditor(typeof(ScriptableList<>), true)]
 	public class ScriptableListEditor : RuntimeScriptableObjectEditor
 	{
-		private FieldInfo listFieldInfo;
-		private IList listValue;
-		private ListView dynamicListView;
-		private PropertyField setEqualityCheckField;
-		private PropertyField isReadOnlyField;
-		private PropertyField clearOnStartField;
-		private PropertyField listField;
-		private SerializedProperty setEqualityCheck;
-		private SerializedProperty isReadOnly;
-		private SerializedProperty clearOnStart;
-		private SerializedProperty list;
+		private FieldInfo listFieldInfo = null!;
+		private IList listValue = null!;
+		private ListView? dynamicListView;
+		private PropertyField setEqualityCheckField = null!;
+		private PropertyField isReadOnlyField = null!;
+		private PropertyField clearOnStartField = null!;
+		private PropertyField? listField;
+		private SerializedProperty setEqualityCheck = null!;
+		private SerializedProperty isReadOnly = null!;
+		private SerializedProperty clearOnStart = null!;
+		private SerializedProperty? list;
 
 		protected override string StackTracesLabel
 		{
@@ -44,17 +47,19 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected override void GatherProperties()
 		{
-			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
-			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
-			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
-			list = serializedObject.FindProperty(nameof(list));
+			setEqualityCheck = serializedObject.MustFindProperty(nameof(setEqualityCheck));
+			isReadOnly = serializedObject.MustFindProperty(nameof(isReadOnly));
+			clearOnStart = serializedObject.MustFindProperty(nameof(clearOnStart));
+			list = serializedObject.MustFindProperty(nameof(list));
 
 			if (list == null)
 			{
 				listFieldInfo = target.GetType().GetField(nameof(ScriptableList<object>.list),
-					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance)!;
 
-				listValue = listFieldInfo!.GetValue(target) as IList;
+				listValue = (listFieldInfo.GetValue(target) as IList)!;
+
+				Assert.IsNotNull(listValue);
 			}
 		}
 
@@ -94,7 +99,7 @@ namespace Hertzole.ScriptableValues.Editor
 			isReadOnlyField.Bind(serializedObject);
 			clearOnStartField.Bind(serializedObject);
 
-			isReadOnlyField.RegisterValueChangeCallback(evt => { UpdateVisibility(evt.changedProperty.boolValue); });
+			isReadOnlyField.RegisterValueChangeCallback(static (evt, args) => { args.UpdateVisibility(evt.changedProperty.boolValue); }, this);
 
 			UpdateVisibility(isReadOnly.boolValue);
 			UpdateEnabledState();
@@ -155,7 +160,7 @@ namespace Hertzole.ScriptableValues.Editor
 			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
 
 			bool enabled = !isReadOnly.boolValue || !EditorApplication.isPlayingOrWillChangePlaymode;
-			isReadOnlyField?.SetEnabled(enabled);
+			isReadOnlyField.SetEnabled(enabled);
 			listField?.SetEnabled(enabled);
 		}
 

@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#nullable enable
+
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -25,13 +27,13 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected virtual void OnEnable()
 		{
-			targetEvent = serializedObject.FindProperty(nameof(targetEvent));
-			startListening = serializedObject.FindProperty(nameof(startListening));
-			stopListening = serializedObject.FindProperty(nameof(stopListening));
-			invokeOn = serializedObject.FindProperty(nameof(invokeOn));
-			fromValue = serializedObject.FindProperty(nameof(fromValue));
-			toValue = serializedObject.FindProperty(nameof(toValue));
-			onInvoked = serializedObject.FindProperty(nameof(onInvoked));
+			targetEvent = serializedObject.MustFindProperty(nameof(targetEvent));
+			startListening = serializedObject.MustFindProperty(nameof(startListening));
+			stopListening = serializedObject.MustFindProperty(nameof(stopListening));
+			invokeOn = serializedObject.MustFindProperty(nameof(invokeOn));
+			fromValue = serializedObject.MustFindProperty(nameof(fromValue));
+			toValue = serializedObject.MustFindProperty(nameof(toValue));
+			onInvoked = serializedObject.MustFindProperty(nameof(onInvoked));
 		}
 
 		public override VisualElement CreateInspectorGUI()

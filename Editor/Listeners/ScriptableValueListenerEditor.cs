@@ -39,17 +39,17 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected virtual void OnEnable()
 		{
-			targetValue = serializedObject.FindProperty(nameof(targetValue));
-			startListening = serializedObject.FindProperty(nameof(startListening));
-			stopListening = serializedObject.FindProperty(nameof(stopListening));
-			invokeOn = serializedObject.FindProperty(nameof(invokeOn));
-			fromValue = serializedObject.FindProperty(nameof(fromValue));
-			toValue = serializedObject.FindProperty(nameof(toValue));
-			invokeParameters = serializedObject.FindProperty(nameof(invokeParameters));
-			onValueChangingSingle = serializedObject.FindProperty(nameof(onValueChangingSingle));
-			onValueChangedSingle = serializedObject.FindProperty(nameof(onValueChangedSingle));
-			onValueChangingMultiple = serializedObject.FindProperty(nameof(onValueChangingMultiple));
-			onValueChangedMultiple = serializedObject.FindProperty(nameof(onValueChangedMultiple));
+			targetValue = serializedObject.MustFindProperty(nameof(targetValue));
+			startListening = serializedObject.MustFindProperty(nameof(startListening));
+			stopListening = serializedObject.MustFindProperty(nameof(stopListening));
+			invokeOn = serializedObject.MustFindProperty(nameof(invokeOn));
+			fromValue = serializedObject.MustFindProperty(nameof(fromValue));
+			toValue = serializedObject.MustFindProperty(nameof(toValue));
+			invokeParameters = serializedObject.MustFindProperty(nameof(invokeParameters));
+			onValueChangingSingle = serializedObject.MustFindProperty(nameof(onValueChangingSingle));
+			onValueChangedSingle = serializedObject.MustFindProperty(nameof(onValueChangedSingle));
+			onValueChangingMultiple = serializedObject.MustFindProperty(nameof(onValueChangingMultiple));
+			onValueChangedMultiple = serializedObject.MustFindProperty(nameof(onValueChangedMultiple));
 		}
 
 		public override VisualElement CreateInspectorGUI()

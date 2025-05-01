@@ -54,14 +54,14 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected override void GatherProperties()
 		{
-			value = serializedObject.FindProperty(nameof(value));
-			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
-			defaultValue = serializedObject.FindProperty(nameof(defaultValue));
-			resetValueOnStart = serializedObject.FindProperty(nameof(resetValueOnStart));
-			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
-			onValueChanging = serializedObject.FindProperty(nameof(onValueChanging));
-			onValueChanged = serializedObject.FindProperty(nameof(onValueChanged));
-			collectStackTraces = serializedObject.FindProperty(nameof(collectStackTraces));
+			value = serializedObject.MustFindProperty(nameof(value));
+			isReadOnly = serializedObject.MustFindProperty(nameof(isReadOnly));
+			defaultValue = serializedObject.MustFindProperty(nameof(defaultValue));
+			resetValueOnStart = serializedObject.MustFindProperty(nameof(resetValueOnStart));
+			setEqualityCheck = serializedObject.MustFindProperty(nameof(setEqualityCheck));
+			onValueChanging = serializedObject.MustFindProperty(nameof(onValueChanging));
+			onValueChanged = serializedObject.MustFindProperty(nameof(onValueChanged));
+			collectStackTraces = serializedObject.MustFindProperty(nameof(collectStackTraces));
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)

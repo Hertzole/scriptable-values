@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +29,7 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private readonly Label emptyDetailsLabel;
 
-		private readonly IStackTraceProvider target;
+		private readonly IStackTraceProvider? target;
 
 		private readonly List<StackFrame> stackFrames = new List<StackFrame>();
 		private readonly ToolbarToggle stackTraceToggle;
@@ -89,11 +91,15 @@ namespace Hertzole.ScriptableValues.Editor
 				value = target.CollectStackTraces
 			};
 
-			stackTraceToggle.RegisterValueChangedCallback(evt =>
+			stackTraceToggle.RegisterValueChangedCallback(static (evt, args) =>
 			{
-				target.CollectStackTraces = evt.newValue;
-				OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces);
-			});
+				if (args.target != null)
+				{
+					args.target.CollectStackTraces = evt.newValue;
+				}
+
+				args.OnGlobalCollectStackTracesChanged(ScriptableValuesPreferences.CollectStackTraces);
+			}, this);
 
 			toolbar.Add(CreateToolbarLabel(title));
 			toolbar.Add(spacer);
@@ -221,6 +227,11 @@ namespace Hertzole.ScriptableValues.Editor
 		/// <param name="index">The index of the item to bind to.</param>
 		private void BindStackTraceItem(VisualElement element, int index)
 		{
+			if (target == null)
+			{
+				return;
+			}
+
 			// Check for the label.
 			if (element is Label label)
 			{
@@ -250,12 +261,12 @@ namespace Hertzole.ScriptableValues.Editor
 
 			// Get the file name and check if it exists.
 			// It may not exist if the method is native.
-			string fileName = entry.GetFileName();
+			string? fileName = entry.GetFileName();
 			bool hasFileName = !string.IsNullOrEmpty(fileName);
 
 			// If it has a file name, set the path to the file name.
 			// Else just show no file.
-			pathLabel.text = hasFileName ? $"{ToLocalPath(fileName)}:{entry.GetFileLineNumber()}" : "No file";
+			pathLabel.text = hasFileName ? $"{ToLocalPath(fileName!)}:{entry.GetFileLineNumber()}" : "No file";
 			// If it has a file name, make the text normal.
 			// Else make it italic.
 			pathLabel.style.unityFontStyleAndWeight = hasFileName ? FontStyle.Normal : FontStyle.Italic;
@@ -304,7 +315,7 @@ namespace Hertzole.ScriptableValues.Editor
 				}
 
 				// Add all the frames.
-				StackFrame[] frames = stackTrace.trace.GetFrames();
+				StackFrame[]? frames = stackTrace.trace.GetFrames();
 				if (frames != null)
 				{
 					stackFrames.AddRange(frames);
@@ -512,7 +523,7 @@ namespace Hertzole.ScriptableValues.Editor
 		/// <param name="frame">The frame to get the details from.</param>
 		private static void OpenStackFrame(StackFrame frame)
 		{
-			string fileName = frame.GetFileName();
+			string? fileName = frame.GetFileName();
 			// If there's no file name, stop because we can't open it.
 			if (string.IsNullOrEmpty(fileName))
 			{

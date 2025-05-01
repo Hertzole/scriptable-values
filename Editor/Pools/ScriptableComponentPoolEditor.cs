@@ -13,7 +13,7 @@ namespace Hertzole.ScriptableValues.Editor
 		protected override void GatherProperties()
 		{
 			base.GatherProperties();
-			prefab = serializedObject.FindProperty(nameof(prefab));
+			prefab = serializedObject.MustFindProperty(nameof(prefab));
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)

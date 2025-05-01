@@ -15,7 +15,7 @@ namespace Hertzole.ScriptableValues.Editor
 			style.flexGrow = 1;
 			style.minHeight = 440;
 
-			RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, element) =>
+			RegisterCallback<GeometryChangedEvent, EntireInspectorElement>(static (_, element) =>
 			{
 				// Only do this if the view port is null to save resources.
 				if (element.contentViewport == null)
@@ -32,7 +32,7 @@ namespace Hertzole.ScriptableValues.Editor
 							element.contentViewport!.RegisterCallback<GeometryChangedEvent, EntireInspectorElement>((_, args) => { args.UpdateHeight(); },
 								element);
 
-							UpdateHeight();
+							element.UpdateHeight();
 						}
 					}
 				}
