@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEditor;
 
-namespace Hertzole.ScriptableValues
+namespace Hertzole.ScriptableValues.Editor
 {
 	[CustomPropertyDrawer(typeof(ScriptableEvent<>), true)]
 	public sealed class ScriptableEventDrawer : BaseScriptableDrawer

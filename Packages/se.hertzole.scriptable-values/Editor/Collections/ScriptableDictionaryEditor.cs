@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
@@ -12,23 +15,23 @@ namespace Hertzole.ScriptableValues.Editor
 	{
 		private bool previousIsValid = true;
 
-		private IList keysValue;
-		private IList valuesValue;
+		private IList keysValue = null!;
+		private IList valuesValue = null!;
 
-		private ListView dictionaryListView;
-		private HelpBox errorBox;
+		private ListView dictionaryListView = null!;
+		private HelpBox errorBox = null!;
 
-		private PropertyField isReadOnlyField;
-		private PropertyField setEqualityCheckElement;
-		private PropertyField clearOnStartElement;
+		private PropertyField isReadOnlyField = null!;
+		private PropertyField setEqualityCheckElement = null!;
+		private PropertyField clearOnStartElement = null!;
 
-		private ScriptableDictionary dictionary;
+		private ScriptableDictionary dictionary = null!;
 
-		private SerializedProperty isReadOnly;
-		private SerializedProperty setEqualityCheck;
-		private SerializedProperty clearOnStart;
-		private SerializedProperty keys;
-		private SerializedProperty values;
+		private SerializedProperty isReadOnly = null!;
+		private SerializedProperty setEqualityCheck = null!;
+		private SerializedProperty clearOnStart = null!;
+		private SerializedProperty? keys;
+		private SerializedProperty? values;
 
 		protected override string StackTracesLabel
 		{
@@ -65,23 +68,31 @@ namespace Hertzole.ScriptableValues.Editor
 
 		protected override void GatherProperties()
 		{
-			isReadOnly = serializedObject.FindProperty(nameof(isReadOnly));
-			setEqualityCheck = serializedObject.FindProperty(nameof(setEqualityCheck));
-			clearOnStart = serializedObject.FindProperty(nameof(clearOnStart));
-			keys = serializedObject.FindProperty(nameof(keys));
-			values = serializedObject.FindProperty(nameof(values));
+			isReadOnly = serializedObject.MustFindProperty(nameof(isReadOnly));
+			setEqualityCheck = serializedObject.MustFindProperty(nameof(setEqualityCheck));
+			clearOnStart = serializedObject.MustFindProperty(nameof(clearOnStart));
+			keys = serializedObject.MustFindProperty(nameof(keys));
+			values = serializedObject.MustFindProperty(nameof(values));
 
 			if (keys == null || values == null)
 			{
 				FieldInfo keysFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.keys),
-					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance)!;
 
-				keysValue = keysFieldInfo!.GetValue(target) as IList;
+				Assert.IsNotNull(keysFieldInfo);
+
+				keysValue = (keysFieldInfo.GetValue(target) as IList)!;
+
+				Assert.IsNotNull(keysValue);
 
 				FieldInfo valuesFieldInfo = target.GetType().GetField(nameof(ScriptableDictionary<object, object>.values),
-					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance);
+					BindingFlags.NonPublic | BindingFlags.Default | BindingFlags.Public | BindingFlags.Instance)!;
 
-				valuesValue = valuesFieldInfo!.GetValue(target) as IList;
+				Assert.IsNotNull(valuesFieldInfo);
+
+				valuesValue = (valuesFieldInfo.GetValue(target) as IList)!;
+
+				Assert.IsNotNull(valuesValue);
 
 				FixLists(keysValue, valuesValue);
 			}
@@ -135,7 +146,7 @@ namespace Hertzole.ScriptableValues.Editor
 				};
 			}
 
-			isReadOnlyField.RegisterValueChangeCallback(evt => UpdateVisibility());
+			isReadOnlyField.RegisterValueChangeCallback(static (_, args) => { args.UpdateVisibility(); }, this);
 
 			UpdateErrorBox();
 			UpdateVisibility();
@@ -189,6 +200,11 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private void OnItemsAdded(IEnumerable<int> newItems)
 		{
+			if (values == null)
+			{
+				return;
+			}
+
 			foreach (int newItem in newItems)
 			{
 				values.InsertArrayElementAtIndex(newItem);
@@ -200,6 +216,11 @@ namespace Hertzole.ScriptableValues.Editor
 
 		private void OnItemsRemoved(IEnumerable<int> removedItems)
 		{
+			if (values == null)
+			{
+				return;
+			}
+
 			foreach (int removedItem in removedItems)
 			{
 				int oldCount = values.arraySize;
@@ -289,7 +310,7 @@ namespace Hertzole.ScriptableValues.Editor
 			{
 				style =
 				{
-					flexDirection = FlexDirection.Row,
+					flexDirection = FlexDirection.Row
 				}
 			};
 

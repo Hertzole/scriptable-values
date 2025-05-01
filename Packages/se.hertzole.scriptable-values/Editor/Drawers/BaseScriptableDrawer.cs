@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -6,15 +8,15 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-namespace Hertzole.ScriptableValues
+namespace Hertzole.ScriptableValues.Editor
 {
 	public abstract class BaseScriptableDrawer : PropertyDrawer
 	{
-		private Label valueLabel;
-		private ObjectField field;
+		private Label? valueLabel;
+		private ObjectField field = null!;
 
-		private Type[] types;
-		private string noneString;
+		private Type[]? types;
+		private string? noneString;
 
 		private static readonly string[] valueFieldLabelClasses =
 		{
@@ -41,7 +43,13 @@ namespace Hertzole.ScriptableValues
 			{
 				types = GetTypes();
 
-				noneString = $"None ({ObjectNames.NicifyVariableName(GetNameWithoutGenericArity(fieldInfo.FieldType))}<{string.Join(", ", types.Select(x => x.Name))}>)";
+				if (types == null)
+				{
+					throw new InvalidOperationException("GetTypes() must return a non-null array of types.");
+				}
+
+				noneString =
+					$"None ({ObjectNames.NicifyVariableName(GetNameWithoutGenericArity(fieldInfo.FieldType))}<{string.Join(", ", types.Select(x => x.Name))}>)";
 			}
 
 			string label =
@@ -61,8 +69,8 @@ namespace Hertzole.ScriptableValues
 
 			if (isGenericType)
 			{
-				field.RegisterCallback<GeometryChangedEvent>(OnValueFieldGeometryChanged);
-				field.RegisterCallback<ChangeEvent<string>>(OnValueStringChanged);
+				field.RegisterCallback<GeometryChangedEvent, BaseScriptableDrawer>(static (_, args) => args.OnValueFieldGeometryChanged(), this);
+				field.RegisterCallback<ChangeEvent<string>, BaseScriptableDrawer>(static (evt, args) => args.OnValueStringChanged(evt), this);
 			}
 
 			field.BindProperty(property);
@@ -70,7 +78,7 @@ namespace Hertzole.ScriptableValues
 			return field;
 		}
 
-		private void OnValueFieldGeometryChanged(GeometryChangedEvent evt)
+		private void OnValueFieldGeometryChanged()
 		{
 			valueLabel ??= field.Q<Label>(classes: valueFieldLabelClasses);
 

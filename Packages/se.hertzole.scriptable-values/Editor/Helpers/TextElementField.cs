@@ -24,8 +24,6 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 		}
 
-		public TextElementField() : this(string.Empty, string.Empty) { }
-
 		public TextElementField(string label) : this(label, string.Empty) { }
 
 		public TextElementField(string label, string value) : base(label, null)

@@ -1,25 +1,29 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Hertzole.ScriptableValues
+namespace Hertzole.ScriptableValues.Editor
 {
 	[CustomPropertyDrawer(typeof(ValueReference<>), true)]
 	public sealed class ValueReferenceDrawer : PropertyDrawer
 	{
-		private static GUIContent icon;
+		private static GUIContent? icon;
 
-		private SerializedProperty typeProperty;
-		private PropertyField referenceField;
-		private PropertyField constantField;
-		private PropertyField addressableField;
+		private SerializedProperty typeProperty = null!;
+		private PropertyField referenceField = null!;
+		private PropertyField constantField = null!;
+#if SCRIPTABLE_VALUES_ADDRESSABLES
+		private PropertyField addressableField = null!;
+#endif
 
-		private SerializedProperty targetProperty;
+		private SerializedProperty targetProperty = null!;
 
-		private object targetObject;
+		private object? targetObject;
 
 		private object TargetObject
 		{
@@ -28,12 +32,12 @@ namespace Hertzole.ScriptableValues
 
 		private MethodInfo SetPreviousValueMethod
 		{
-			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetPreviousValue), BindingFlags.Instance | BindingFlags.NonPublic); }
+			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetPreviousValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
 		}
 
 		private MethodInfo SetEditorValueMethod
 		{
-			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetEditorValue), BindingFlags.Instance | BindingFlags.NonPublic); }
+			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetEditorValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
 		}
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
@@ -58,7 +62,7 @@ namespace Hertzole.ScriptableValues
 				}
 			};
 
-			typeProperty = property.FindPropertyRelative("valueType");
+			typeProperty = property.MustFindPropertyRelative("valueType");
 
 			VisualElement menuButton = new VisualElement
 			{
@@ -83,13 +87,13 @@ namespace Hertzole.ScriptableValues
 				property.displayName;
 #endif
 
-			constantField = new PropertyField(property.FindPropertyRelative("constantValue"), label);
-			referenceField = new PropertyField(property.FindPropertyRelative("referenceValue"), label);
+			constantField = new PropertyField(property.MustFindPropertyRelative("constantValue"), label);
+			referenceField = new PropertyField(property.MustFindPropertyRelative("referenceValue"), label);
 
 			valueContainer.Add(constantField);
 			valueContainer.Add(referenceField);
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			addressableField = new PropertyField(property.FindPropertyRelative("addressableReference"), label);
+			addressableField = new PropertyField(property.MustFindPropertyRelative("addressableReference"), label);
 			valueContainer.Add(addressableField);
 #endif
 
@@ -100,7 +104,8 @@ namespace Hertzole.ScriptableValues
 
 			SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
 
-			constantField.RegisterValueChangeCallback(evt => { SetEditorValueMethod.Invoke(TargetObject, Array.Empty<object>()); });
+			constantField.RegisterValueChangeCallback(static (_, args) => { args.SetEditorValueMethod.Invoke(args.TargetObject, Array.Empty<object>()); },
+				this);
 
 			return root;
 		}

@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
@@ -14,6 +15,26 @@ namespace Hertzole.ScriptableValues.Editor
 		{
 			element.style.marginTop = element.resolvedStyle.marginTop + height;
 			return element;
+		}
+
+		public static void RegisterValueChangeCallback<TUserArgs>(this PropertyField element,
+			EventCallback<SerializedPropertyChangeEvent, TUserArgs> callback,
+			TUserArgs args)
+		{
+			element.RegisterCallback(callback, args);
+		}
+
+		public static bool RegisterValueChangedCallback<T, TUserArgs>(this INotifyValueChanged<T> control,
+			EventCallback<ChangeEvent<T>, TUserArgs> callback,
+			TUserArgs args)
+		{
+			if (control is not CallbackEventHandler handler)
+			{
+				return false;
+			}
+
+			handler.RegisterCallback(callback, args);
+			return true;
 		}
 	}
 }

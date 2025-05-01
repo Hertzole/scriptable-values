@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using Hertzole.ScriptableValues.Debugging;
 using UnityEditor;
@@ -22,9 +24,9 @@ namespace Hertzole.ScriptableValues.Editor
 			}
 		}
 
-		private ScriptableValuesPreferences(string path, SettingsScope scopes, IEnumerable<string> keywords = null) : base(path, scopes, keywords) { }
+		private ScriptableValuesPreferences(string path, SettingsScope scopes, IEnumerable<string>? keywords = null) : base(path, scopes, keywords) { }
 
-		public static event Action<bool> OnCollectStackTracesChanged;
+		public static event Action<bool>? OnCollectStackTracesChanged;
 
 		public override void OnActivate(string searchContext, VisualElement rootElement)
 		{
