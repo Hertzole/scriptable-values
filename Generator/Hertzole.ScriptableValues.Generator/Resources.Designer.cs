@@ -110,5 +110,17 @@ namespace Hertzole.ScriptableValues.Generator {
                 return ResourceManager.GetString("HSV0101MessageFormat", resourceCulture);
             }
         }
+        
+        internal static string HSV0102Title {
+            get {
+                return ResourceManager.GetString("HSV0102Title", resourceCulture);
+            }
+        }
+        
+        internal static string HSV0102MessageFormat {
+            get {
+                return ResourceManager.GetString("HSV0102MessageFormat", resourceCulture);
+            }
+        }
     }
 }

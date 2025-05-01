@@ -24,6 +24,11 @@ internal static class DiagnosticRules
 	private static readonly LocalizableResourceString typeNotSupportedMessage = new LocalizableResourceString(
 		nameof(Resources.HSV0101MessageFormat), Resources.ResourceManager, typeof(Resources));
 
+	private static readonly LocalizableResourceString incorrectAttributeUsageTitle = new LocalizableResourceString(
+		nameof(Resources.HSV0102Title), Resources.ResourceManager, typeof(Resources));
+	private static readonly LocalizableResourceString incorrectAttributeUsageMessage = new LocalizableResourceString(
+		nameof(Resources.HSV0102MessageFormat), Resources.ResourceManager, typeof(Resources));
+
 	public static readonly DiagnosticDescriptor NoCallbackImplementation = new DiagnosticDescriptor(
 		DiagnosticIdentifiers.NoCallbackImplementation,
 		noCallbackImplementationTitle,
@@ -52,6 +57,14 @@ internal static class DiagnosticRules
 		DiagnosticIdentifiers.TypeNotSupported,
 		typeNotSupportedTitle,
 		typeNotSupportedMessage,
+		DiagnosticCategories.Usage,
+		DiagnosticSeverity.Error,
+		true);
+
+	public static readonly DiagnosticDescriptor IncorrectAttributeUsage = new DiagnosticDescriptor(
+		DiagnosticIdentifiers.IncorrectAttributeUsage,
+		incorrectAttributeUsageTitle,
+		incorrectAttributeUsageMessage,
 		DiagnosticCategories.Usage,
 		DiagnosticSeverity.Error,
 		true);

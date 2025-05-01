@@ -56,4 +56,10 @@
     <data name="HSV0101MessageFormat" xml:space="preserve">
         <value>{0} does not support generating callbacks</value>
     </data>
+    <data name="HSV0102Title" xml:space="preserve">
+        <value>Incorrect attribute usage</value>
+    </data>
+    <data name="HSV0102MessageFormat" xml:space="preserve">
+        <value>'{0}' is not a valid scriptable type</value>
+    </data>
 </root>
