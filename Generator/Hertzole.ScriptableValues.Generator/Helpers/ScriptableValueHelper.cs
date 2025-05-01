@@ -45,7 +45,8 @@ internal static class ScriptableValueHelper
 		out ScriptableType scriptableType,
 		out ITypeSymbol? genericType)
 	{
-		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE))
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE) ||
+		    type.ConstructedFrom.StringEquals(Types.VALUE_REFERENCE))
 		{
 			genericType = type.TypeArguments[0];
 			scriptableType = ScriptableType.Value;
