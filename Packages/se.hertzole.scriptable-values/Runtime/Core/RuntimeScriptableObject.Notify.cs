@@ -37,7 +37,11 @@ namespace Hertzole.ScriptableValues
 
 		protected void NotifyPropertyChanging([CallerMemberName] string propertyName = "")
 		{
-			NotifyPropertyChanging(new PropertyChangingEventArgs(propertyName));
+			// Check first if the event is null to avoid creating a new PropertyChangingEventArgs
+			if (OnNotifyPropertyChanging != null)
+			{
+				NotifyPropertyChanging(new PropertyChangingEventArgs(propertyName));
+			}
 		}
 
 		protected void NotifyPropertyChanging(PropertyChangingEventArgs args)
@@ -49,25 +53,63 @@ namespace Hertzole.ScriptableValues
 
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
-			NotifyPropertyChanged(new PropertyChangedEventArgs(propertyName));
+			// Check first if the event is null to avoid creating a new PropertyChangedEventArgs
+			if (OnNotifyPropertyChanged != null)
+			{
+				NotifyPropertyChanged(new PropertyChangedEventArgs(propertyName));
+			}
+			else
+			{
+				// If the event is null, we can still notify Unity about the property change
+				NotifyUnityPropertyChanged(propertyName);
+			}
 		}
 
 		protected void NotifyPropertyChanged(PropertyChangedEventArgs args)
 		{
 			Assert.IsNotNull(args);
 
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
-			OnPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(new BindingId(new PropertyPath(args.PropertyName))));
-#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
+			NotifyUnityPropertyChanged(args.PropertyName);
 			OnNotifyPropertyChanged?.Invoke(this, args);
+		}
+
+		[Conditional("SCRIPTABLE_VALUES_RUNTIME_BINDING")]
+		private void NotifyUnityPropertyChanged(string propertyName)
+		{
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+			OnPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(new BindingId(new PropertyPath(propertyName))));
+#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
 		}
 
 		protected bool SetField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
 		{
-			return SetField(ref field, newValue, new PropertyChangingEventArgs(propertyName), new PropertyChangedEventArgs(propertyName));
+			PropertyChangingEventArgs? changingEventArgs = null;
+			PropertyChangedEventArgs? changedEventArgs = null;
+
+			// Only create the event args if the event is not null
+			if (OnNotifyPropertyChanging != null)
+			{
+				changingEventArgs = new PropertyChangingEventArgs(propertyName);
+			}
+
+			if (OnNotifyPropertyChanged != null)
+			{
+				changedEventArgs = new PropertyChangedEventArgs(propertyName);
+			}
+
+			return SetFieldInternal(ref field, newValue, changingEventArgs, changedEventArgs, propertyName);
 		}
 
 		protected bool SetField<T>(ref T field, T newValue, PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs)
+		{
+			return SetFieldInternal(ref field, newValue, changingArgs, changedArgs, changedArgs.PropertyName);
+		}
+
+		private bool SetFieldInternal<T>(ref T field,
+			T newValue,
+			PropertyChangingEventArgs? changingArgs,
+			PropertyChangedEventArgs? changedArgs,
+			string propertyName)
 		{
 			Assert.IsNotNull(changingArgs);
 			Assert.IsNotNull(changedArgs);
@@ -77,9 +119,22 @@ namespace Hertzole.ScriptableValues
 				return false;
 			}
 
-			NotifyPropertyChanging(changingArgs);
+			if (changingArgs != null)
+			{
+				NotifyPropertyChanging(changingArgs);
+			}
+
 			field = newValue;
-			NotifyPropertyChanged(changedArgs);
+
+			if (changedArgs != null)
+			{
+				NotifyPropertyChanged(changedArgs);
+			}
+			else
+			{
+				NotifyUnityPropertyChanged(propertyName);
+			}
+
 			return true;
 		}
 
