@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Hertzole.ScriptableValues
 {
@@ -14,8 +15,6 @@ namespace Hertzole.ScriptableValues
 	{
 		[SerializeField]
 		private GameObject prefab = default;
-
-		private readonly List<IPoolable> poolableBuffer = new List<IPoolable>(10);
 
 		public GameObject Prefab
 		{
@@ -55,7 +54,7 @@ namespace Hertzole.ScriptableValues
 
 			item.gameObject.SetActive(true);
 
-			poolableBuffer.Clear();
+			using PooledObject<List<IPoolable>> scope = ListPool<IPoolable>.Get(out List<IPoolable> poolableBuffer);
 			item.GetComponentsInChildren(true, poolableBuffer);
 			for (int i = 0; i < poolableBuffer.Count; i++)
 			{
@@ -65,7 +64,7 @@ namespace Hertzole.ScriptableValues
 
 		protected override void OnReturn(GameObject item)
 		{
-			poolableBuffer.Clear();
+			using PooledObject<List<IPoolable>> scope = ListPool<IPoolable>.Get(out List<IPoolable> poolableBuffer);
 			item.GetComponentsInChildren(true, poolableBuffer);
 
 			for (int i = 0; i < poolableBuffer.Count; i++)
