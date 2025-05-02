@@ -40,6 +40,11 @@ jobs:
     needs: [unity-tests, generator-tests]
     name: SonarQube Scan
     uses: ./.github/workflows/sonar-scan.yml
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      unity-license: ${{ secrets.UNITY_LICENSE }}
+      unity-email: ${{ secrets.UNITY_EMAIL }}
+      unity-password: ${{ secrets.UNITY_PASSWORD }}
 
   build-docs:
     name: Build documentation

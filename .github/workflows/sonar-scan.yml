@@ -1,5 +1,14 @@
 on:
   workflow_call:
+    secrets:
+      unity-license:
+        required: true
+      unity-email:
+        required: true
+      unity-password:
+        required: true
+      sonar-token:
+        required: true
 
 jobs:
   sonarscan:
@@ -73,7 +82,9 @@ jobs:
       - name: Activate Unity
         continue-on-error: true
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_LICENSE: ${{ secrets.unity-license }}
+          UNITY_EMAIL: ${{ secrets.unity-email }}
+          UNITY_PASSWORD: ${{ secrets.unity-password }}
         run: |
           echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
@@ -86,7 +97,7 @@ jobs:
       - name: SonarQube analysis
         env:
           FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
         run: |
           ./dotnet-sonarscanner begin \
             /o:"hertzole" \
