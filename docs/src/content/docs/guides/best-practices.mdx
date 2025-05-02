@@ -5,8 +5,66 @@ sidebar:
     order: 50
 ---
 
-TODO: Best practices for using Scriptable Values
+Scriptable Values is simple to use, but there are some best practices that you should follow to make your code cleaner and easier to maintain. This page will cover some of the best practices for using Scriptable Values.
 
 ## Events
 
+### Unsubscribing
+
+When you subscribe to an event, you should always unsubscribe from it when you are done using it. This is especially important when using events in Unity, as they can cause memory leaks if not unsubscribed properly. Fortunately, Scriptable Values has a built-in warning system that will warn you if you forget to unsubscribe from an event. This warning will only show up in the editor, so it won't affect your game in any way. It will also clear subscribers when the game starts. **But you should still always unsubscribe from the event when you are done with the event.**
+
+```csharp title="Unsubscribing Example" ins="playerHealth.OnValueChanged -= OnPlayerHealthChanged;"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class HealthUI : MonoBehaviour
+{
+    public ScriptableInt playerHealth;
+
+    private void OnEnable()
+    {
+        playerHealth.OnValueChanged += OnPlayerHealthChanged;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from the event when the object is disabled.
+        playerHealth.OnValueChanged -= OnPlayerHealthChanged;
+    }
+
+    private void OnPlayerHealthChanged(int oldValue, int newValue) { }
+}
+```
+
 ## Property Tracking
+
+### Cache Property Change Event Args
+
+Property Tracking can be used to update UI, track changes, and more. Invoking a property change event requires you to create a new `PropertyChangedEventArgs` and `PropertyChangingEventArgs` object. This can cause more allocations than necessary. Fortunately, all these objects are cached and reused in Scriptable Values to minimize allocations. However, when [creating your own types](/scriptable-values/guides/creating-custom-types) you should also cache your event args. `RuntimeScriptableObject.SetField` allows you to pass in your own event args to be used.
+
+Scriptable Values will try to avoid creating these event args when possible, but it is still a good idea to cache them yourself. This will help reduce allocations and improve performance.
+
+```csharp title="Cache Args" ins="currentValueChangingArgs, currentValueChangedArgs"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+using System.ComponentModel;
+
+[CreateAssetMenu]
+public class CustomType : RuntimeScriptableObject
+{
+    private int currentValue;
+
+    public int CurrentValue
+    {
+        get { return currentValue; }
+        set { SetField(ref currentValue, value, currentValueChangingArgs, currentValueChangedArgs); }
+    }
+
+    // Cache the event args as static readonly fields
+    // to avoid creating new instances every time.
+    static readonly PropertyChangingEventArgs currentValueChangingArgs = 
+        new PropertyChangingEventArgs(nameof(CurrentValue));
+    static readonly PropertyChangedEventArgs currentValueChangedArgs =
+        new PropertyChangedEventArgs(nameof(CurrentValue));
+}
+```
