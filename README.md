@@ -1,7 +1,7 @@
 <div align="center">
      <img src="https://github.com/Hertzole/scriptable-values/assets/5569364/1d5ed9ee-4025-4136-b111-73d94affd22b">
      <br>
-     <img src="https://img.shields.io/github/actions/workflow/status/Hertzole/scriptable-values/tests.yml?style=flat&logo=Unity&label=Unity%20tests" alt="Unity tests workflow status">
+     <img src="https://img.shields.io/github/actions/workflow/status/Hertzole/scriptable-values/main.yml?style=flat&logo=Unity&label=Unity%20tests" alt="Unity tests workflow status">
      <a href="https://openupm.com/packages/se.hertzole.scriptable-values/"><img src="https://img.shields.io/npm/v/se.hertzole.scriptable-values?label=openupm&registry_uri=https://package.openupm.com" alt="OpenUPM"></a>
      <br>
      <a href="https://github.com/sponsors/Hertzole"><img src="https://img.shields.io/badge/Sponsor_me-GitHub-%23EA4AAA?style=flat&logo=githubsponsors" alt="Sponsor me on github badge"></a>
