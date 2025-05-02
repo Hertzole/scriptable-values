@@ -6,6 +6,7 @@ sidebar:
 ---
 
 import { Steps } from '@astrojs/starlight/components';
+import EventReminder from '../../../components/EventReminder.mdx';
 
 `ScriptablePool<T>` is a type of scriptable object that holds a [object pool](https://docs.unity3d.com/ScriptReference/Pool.ObjectPool_1.html). This can be used to create a pool of objects that can be reused. This is useful for performance reasons, as it reduces the number of objects that need to be created and destroyed. The scriptable pool can easily be passed around to objects that need to use it.
 
@@ -73,6 +74,45 @@ public class EnemyManager : MonoBehaviour
     }
 }
 ```
+
+You can also listen to changes in the pool.
+
+```csharp title="Listening to Pool Changes"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class EnemyManager : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptablePool<Enemy> pool;
+
+    private void OnEnable()
+    {
+        pool.OnPoolChanged += OnPoolChanged;
+    }
+
+    private void OnDisable()
+    {
+        pool.OnPoolChanged -= OnPoolChanged;
+    }
+
+    private void OnPoolChanged(PoolAction action, Enemy item)
+    {
+        // Use action to determine what happened.
+        // Item is the object that was affected by the action.
+        // PoolAction.CreatedObject
+        //   The object that was created because the pool was empty.
+        // PoolAction.DestroyObject
+        //   The object that will be destroyed because the pool was cleared.
+        // PoolAction.RentedObject
+        //   The object that was rented from the pool.
+        // PoolAction.ReleasedObject
+        //   The object that was released back to the pool.
+    }
+}
+```
+
+<EventReminder/>
 
 ## `IPoolable` Interface
 
