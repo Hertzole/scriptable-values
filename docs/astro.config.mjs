@@ -25,6 +25,22 @@ export default defineConfig({
         ],
         customCss: [
             './src/styles/custom.css'
+        ],
+        head: [
+            {
+                tag: 'meta',
+                attrs: {
+                    property: 'og:type',
+                    content: 'website'
+                }
+            },
+            {
+                tag: 'meta',
+                attrs: {
+                    property: 'og:image',
+                    content: 'https://repository-images.githubusercontent.com/615674071/68d86ae3-50ef-4b55-bc57-613b797a7e1e'
+                }
+            }
         ]
 		}), sitemap()],
 });
