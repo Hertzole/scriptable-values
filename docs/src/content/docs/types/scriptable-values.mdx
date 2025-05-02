@@ -18,7 +18,7 @@ They are always named along the lines of `ScriptableType`. For example: `Scripta
 
 Using a Scriptable Value in your code is really straight forward. You can use the `Value` property to get or set the value of the Scriptable Value. For example:
 
-```csharp
+```csharp title="PlayerHealth.cs"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
@@ -35,7 +35,7 @@ public class PlayerHealth : MonoBehaviour
 
 Then you can use the events to get notified when the value changes. For example:
 
-```csharp
+```csharp title="HealthUI.cs"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 using UnityEngine.UI;
@@ -131,7 +131,7 @@ The default value of the Scriptable Value. This is the value that will be used w
 
 Creating your own Scriptable Value is really easy! All you need to do is inherit from `ScriptableValue<T>`.
 
-```csharp
+```csharp title="Creating a Scriptable Value"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
@@ -144,7 +144,7 @@ public class MyScriptableValue : ScriptableValue<int>
 
 If you want to extend the functionality of your own Scriptable Value you can override a few methods.
 
-```csharp
+```csharp title="Extending a Scriptable Value"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 

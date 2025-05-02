@@ -17,7 +17,7 @@ They are always named along the lines of `ScriptableTypeEvent`. For example: `Sc
 
 Using a Scriptable Event in your code is really straight forward. You can use the `Invoke` method to invoke the event. For example:
 
-```csharp
+```csharp title="PlayerHealth.cs"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
@@ -38,7 +38,7 @@ public class PlayerHealth : MonoBehaviour
 
 Then you can use the events to get notified when the event is invoked. For example:
 
-```csharp
+```csharp title="HealthUI.cs"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 using UnityEngine.UI;
@@ -104,7 +104,7 @@ A Scriptable Event without any args is also included, simply just called `Script
 
 Creating your own Scriptable Event is really easy! All you need to do is inherit from `ScriptableEvent<T>`.
 
-```csharp
+```csharp title="Creating a Scriptable Event"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
@@ -117,7 +117,7 @@ public class ScriptableMyTypeEvent : ScriptableEvent<MyType>
 
 If you want to extend the functionality of your own Scriptable Event you can override a few methods.
 
-```csharp
+```csharp title="Extending a Scriptable Event"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
