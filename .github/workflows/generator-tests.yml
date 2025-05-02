@@ -1,0 +1,39 @@
+on:
+  workflow_call:
+    outputs:
+      test_results:
+        value: ${{ jobs.generator-tests.outputs.test_results }}
+
+jobs:
+  generator-tests:
+    name: Generator tests
+    runs-on: ubuntu-latest
+    outputs:
+      test_results: generator-test-results
+    steps:
+      # Checkout the repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Install .NET
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8'
+
+      # Run the generator tests
+      - name: Run generator tests
+        run: |
+          cd Generator
+          dotnet build -c Release
+          dotnet test -c Release --no-build --verbosity normal --collect:"XPlat Code Coverage;Format=opencover" --results-directory TestResults --logger:"trx;LogFileName=TestResults.trx" --logger:"console;verbosity=normal"
+
+      # Upload the generator test results
+      - name: Upload test results
+        id: upload-generator-results
+        uses: actions/upload-artifact@v4
+        with:
+          name: generator-test-results
+          path: Generator/TestResults

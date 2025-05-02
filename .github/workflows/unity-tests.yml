@@ -1,0 +1,64 @@
+on:
+  workflow_call:
+    secrets:
+      unity-license:
+        required: true
+      unity-email:
+        required: true
+      unity-password:
+        required: true
+      access-token:
+        required: true
+    inputs:
+      unity-version:
+        type: string
+        required: true
+    outputs:
+      test-results:
+        value: ${{ jobs.test.outputs.test-results }}
+      coverage-results:
+        value: ${{ jobs.test.outputs.coverage-results }}
+
+jobs:
+  test:
+    name: Test Unity ${{ inputs.unity-version }}
+    runs-on: ubuntu-latest
+    outputs:
+      test-results: "unity-${{ inputs.unity-version }}-test-results"
+      coverage-results: "unity-${{ inputs.unity-version }}-coverage"
+    steps:
+      # Checkout the repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      # Cache library folder for faster tests
+      - name: Cache library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ inputs.unity-version }}
+
+      # Run tests
+      - name: Run tests
+        uses: game-ci/unity-test-runner@v4
+        id: tests
+        with:
+          unityVersion: ${{ inputs.unity-version }}
+          coverageOptions: 'generateAdditionalMetrics;assemblyFilters:+Hertzole.ScriptableValues'
+
+      # Upload test results
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-${{ inputs.unity-version }}-test-results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+
+      # Upload coverage results
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-${{ inputs.unity-version }}-coverage
+          path: ${{ steps.tests.outputs.coveragePath }}

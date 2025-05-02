@@ -1,0 +1,119 @@
+name: Unity Tests
+on:
+  push:
+    branches: ["master"]
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+  UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+concurrency:
+  group: main
+  cancel-in-progress: true
+
+jobs:
+  generator-tests:
+    name: Generator tests
+    uses: ./.github/workflows/generator-tests.yml
+
+  unity-tests:
+    name: Run ${{ matrix.unity-version }} tests
+    uses: ./.github/workflows/unity-tests.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        unity-version:
+          - 2021.3.45f1
+          - 2022.3.55f1
+          - 2023.2.20f1
+          - 6000.0.32f1
+    secrets:
+      unity-license: ${{ secrets.UNITY_LICENSE }}
+      unity-email: ${{ secrets.UNITY_EMAIL }}
+      unity-password: ${{ secrets.UNITY_PASSWORD }}
+      access-token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      unity-version: ${{ matrix.unity-version }}
+
+  sonarscan:
+    needs: [unity-tests, generator-tests]
+    name: SonarQube Scan
+    uses: ./.github/workflows/sonar-scan.yml
+
+  build-docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      # Build the documentation
+      - name: Build documentation
+        run: |
+          cd docs
+          npm install
+          npm run build
+
+      # Upload docs artifact
+      - name: Upload documentation
+        id: upload-docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs_output
+          path: docs/dist
+
+  combine-pages:
+    name: Combine Pages
+    needs: [build-docs, sonarscan]
+    runs-on: ubuntu-latest
+    steps:
+      # Donwload docs artifact
+      - name: Download documentation
+        id: download-docs
+        uses: actions/download-artifact@v4
+        with:
+          name: docs_output
+          path: result
+
+      # Download coverage report
+      - name: Download coverage report
+        id: download-coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: result
+
+      # Upload pages artifact
+      - name: Upload pages artifact
+        id: upload-pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: result/
+
+  deploy_pages:
+    needs: [combine-pages]
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+    # Only run on master branch
+    if: github.ref == 'refs/heads/master'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      

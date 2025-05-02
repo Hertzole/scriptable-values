@@ -1,0 +1,101 @@
+on:
+  workflow_call:
+
+jobs:
+  sonarscan:
+    name: SonarScan
+    runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-6000.0.32f1-base-3.1.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Cache library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Scanner
+          restore-keys: |
+            Library-Scanner
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8'
+
+      - name: Install scanner
+        run: dotnet tool install dotnet-sonarscanner --tool-path .
+
+      # Download the coverage results
+      - name: Download coverage results
+        id: download-coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'unity-*-coverage'
+          path: Coverage/unity
+
+      - name: Download generator coverage results
+        id: download-generator-coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'generator-test-results'
+          path: Coverage/generator
+
+      # The test results have a different path than what SonarQube can read.
+      # We need to remove the github/workspace/ path.
+      - name: Fix paths
+        run: |
+          chmod +x ./ci/fix_paths.sh
+          ./ci/fix_paths.sh
+
+      - name: What do we have here
+        run: ls -R Coverage
+
+      - name: Generate report
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.4.5
+        with:
+          # .NET coverage reports are located in "Coverage/generator/generator-test-results/GUID/coverage.opencover.xml"
+          # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/workspace-opencov/Edit/PlayMode/"
+          reports: "Coverage/generator/*/*/*.xml;Coverage/unity/*/workspace-opencov/*/*.xml"
+          targetdir: "CoverageReport/coverage"
+          reporttypes: "Html;Badges"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        id: upload_report
+        with:
+          path: CoverageReport
+          name: coverage-report
+
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+
+      - name: Generate Solution
+        run: |
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
+          ls
+
+      - name: SonarQube analysis
+        env:
+          FrameworkPathOverride: /opt/unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./dotnet-sonarscanner begin \
+            /o:"hertzole" \
+            /k:"scriptable-values" \
+            /d:sonar.host.url=https://sonarcloud.io \
+            /d:sonar.verbose=false \
+            /d:sonar.token=$SONAR_TOKEN \
+            /d:sonar.scanner.scanAll=false \
+            /d:sonar.cs.opencover.reportsPaths="${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml","${{ steps.download-generator-coverage.outputs.download-path }}/*/*/*.xml" \
+            /d:sonar.exclusions="Coverage/**, CoverageReport/**"
+          dotnet build scriptable-values.sln
+          ./dotnet-sonarscanner end /d:sonar.token=$SONAR_TOKEN
