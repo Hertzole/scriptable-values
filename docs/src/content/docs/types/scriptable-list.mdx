@@ -7,10 +7,13 @@ sidebar:
 
 import EventReminder from '../../../components/EventReminder.mdx';
 import CollectionEvent from '../../../components/CollectionEvent.mdx';
+import DefaultValue from '../../../components/DefaultValue.astro';
 
 `ScriptableList<T>` is a type of scriptable object that holds a list of values. It acts just like a regular [`List<T>`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1), but it is a scriptable object that can be used in the inspector and be passed around to other objects.
 
 `ScriptableGameObjectList` is already included in the package and can be used to create a list of game objects. But it may be more useful to create your own list for a specific component. See [Creating a List](#creating-a-list) for more information.
+
+`ScriptableList<T>` implements `IList<T>`, `IReadOnlyList<T>`, and `IList`. However, it does not always expose those implemented methods. To access them you need to explicitly cast the list to the interface you want to use.
 
 ## Usage
 
@@ -139,6 +142,36 @@ There are many more methods available on the list, such as `Contains`, `IndexOf`
 ### Listening to Collections
 
 <CollectionEvent/>
+
+## Properties
+
+The following properties are available on all Scriptable List:
+
+### Is Read Only
+
+<DefaultValue enabled={false}/>
+Marks the scriptable list as read-only. This means that the list cannot be changed at runtime and will always have the same value. This is useful for lists that are set in the editor and should not be changed at runtime.
+
+### Set Equality Check
+
+<DefaultValue enabled={true}/>
+When this is enabled `OnCollectionChanged` will not be triggered when a list item is set to the same value as it already has. This is useful for lists that are set frequently and should not trigger the events when the value is the same.
+
+### Clear On Start
+
+<DefaultValue enabled={true}/>
+Clears the list when the game starts. This is useful for lists that should be cleared when the game starts, such as a list of enemies. Disabling this will keep the list from the last play session.
+:::caution
+This does not mean that the list will be saved! Restarting the Unity editor will clear the list. It will just persist between editor play sessions.
+:::
+
+### Capacity
+
+The capacity of the list. This is the number of items that can be stored in the list before it needs to be resized. This can be set before adding a bunch of items to the list to avoid resizing the list multiple times. This is useful for performance reasons.
+
+### Count
+
+The actual number of items in the list.
 
 ## Creating a List
 
