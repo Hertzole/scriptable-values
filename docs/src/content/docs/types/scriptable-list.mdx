@@ -5,6 +5,9 @@ sidebar:
     order: 30
 ---
 
+import EventReminder from '../../../components/EventReminder.mdx';
+import CollectionEvent from '../../../components/CollectionEvent.mdx';
+
 `ScriptableList<T>` is a type of scriptable object that holds a list of values. It acts just like a regular [`List<T>`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1), but it is a scriptable object that can be used in the inspector and be passed around to other objects.
 
 `ScriptableGameObjectList` is already included in the package and can be used to create a list of game objects. But it may be more useful to create your own list for a specific component. See [Creating a List](#creating-a-list) for more information.
@@ -72,7 +75,7 @@ public class Inventory : MonoBehaviour
 
 You can also access the list directly using the `Value` property. This will return the list of values, which you can use just like a regular list.
 
-```csharp title="Accessing the List"
+```csharp title="Indexer Example"
 using UnityEngine;
 using Hertzole.ScriptableValues;
 
@@ -91,7 +94,51 @@ public class Inventory : MonoBehaviour
 }
 ```
 
+You can listen to changes in the list using the `OnCollectionChanged` event.
+
+```csharp title="Listening to List Changes"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+using System.Collections.Specialized;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    private void OnEnable()
+    {
+        items.OnCollectionChanged += OnListChanged;
+    }
+
+    private void OnDisable()
+    {
+        items.OnCollectionChanged -= OnListChanged;
+    }
+
+    private void OnListChanged(CollectionChangedArgs<Item> args)
+    {
+        // Action is a NotifyCollectionChangedAction
+        Debug.Log("Action: " + args.Action);
+        // New Index is the index of the item(s) that was added
+        Debug.Log("New Index: " + args.NewIndex);
+        // Old Index is the index of the item(s) that was removed
+        Debug.Log("Old Index: " + args.OldIndex);
+        // New Items is the item(s) that was added as a Memory<T>
+        Debug.Log("New Items: " + args.NewItems);
+        // Old Items is the item(s) that was removed as a Memory<T>
+        Debug.Log("Old Items: " + args.OldItems);
+    }
+}
+```
+
+<EventReminder/>
+
 There are many more methods available on the list, such as `Contains`, `IndexOf`, and `Sort`. It aims to have full parity with the regular `List<T>` class. See the [documentation](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1) for more information.
+
+### Listening to Collections
+
+<CollectionEvent/>
 
 ## Creating a List
 

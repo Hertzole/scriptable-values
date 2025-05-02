@@ -1,0 +1,45 @@
+Listening to collection changes includes a lot of parameters to keep track of. This table will help you understand when to use which parameter and when each action is invoked. If a specific parameter is not mentioned in its respective action, it is not used and can be ignored.
+
+| Action | When Invoked | Parameters |
+| --- | --- | --- |
+| Add  | When one or multiple items are added to the collection. | `NewIndex` is the index of the first item added. `NewItems` are the item(s) that were added. If it's a single item, `NewItems` will have a length of 1.|
+| Remove | When one or multiple items were removed from the collection. | `OldIndex` is the index of the first item removed. `OldItems` are the item(s) that were removed. If it's a single item, `OldItems` will have a length of 1.|
+| Replace | When one or multiple items were replaced in the collection. They could be replaced using the indexer, using `Reverse` or `Sort`. | `NewIndex` and `OldIndex` are the index of the first item replaced. `NewItems` are the item(s) that were set. `OldItems` are the item(s) that were replaced. If it's a single item, `NewItems` and `OldItems` will have a length of 1.|
+| Reset | When the collection is cleared. | `NewIndex` and `OldIndex` are both 0. `OldItems` are the item(s) that were removed from the collection. |
+
+#### Troubleshooting
+
+##### Empty or Incorrect Items
+When accessing `NewItems` or `OldItems`, the items may be empty or not the ones in the collection.  
+You have probably accessed these items outside the scope of the collection event. `NewItems` and `OldItems` are *pooled* `Memory<T>` objects and are returned to the pool when the event is done. This means that you should copy the items to a new array or list if you want to use them outside the event.
+
+```csharp title="Copying Items"
+using System;
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableList<Item> items;
+
+    private void OnEnable()
+    {
+        items.OnCollectionChanged += OnListChanged;
+    }
+
+    private void OnDisable()
+    {
+        items.OnCollectionChanged -= OnListChanged;
+    }
+
+    private void OnListChanged(CollectionChangedArgs<Item> args)
+    {
+        Item[] newItems = args.NewItems.ToArray();
+        Item[] oldItems = args.OldItems.ToArray();
+
+        // You may now use newItems and oldItems whenever you want.
+        // There are other ways to copy data, but this is the simplest (but not the most performant).
+    }
+}
+```
