@@ -5,6 +5,9 @@ sidebar:
     order: 35
 ---
 
+import EventReminder from '../../../components/EventReminder.mdx';
+import CollectionEvent from '../../../components/CollectionEvent.mdx';
+
 `ScriptableDictionary<TKey, TValue>` is a type of scriptable object that holds a dictionary of values. It acts just like a regular [`Dictionary<TKey, TValue>`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2), but it is a scriptable object that can be used in the inspector and be passed around to other objects.
 
 ## Usage
@@ -91,7 +94,52 @@ public class Inventory : MonoBehaviour
 }
 ```
 
+You can listen to changes in the dictionary using the `OnCollectionChanged` event.
+
+```csharp title="Listening Example"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+using System.Collections.Specialized;
+
+public class Inventory : MonoBehaviour
+{
+    [SerializeField] 
+    private ScriptableDictionary<string, Item> items;
+
+    private void OnEnable()
+    {
+        items.OnCollectionChanged += OnDictionaryChanged;
+    }
+
+    private void OnDisable()
+    {
+        items.OnCollectionChanged -= OnDictionaryChanged;
+    }
+
+    // Note that the item type is KeyValuePair<TKey, TValue>
+    private void OnDictionaryChanged(CollectionChangedArgs<KeyValuePair<string, Item>> args)
+    {
+        // Action is a NotifyCollectionChangedAction
+        Debug.Log("Action: " + args.Action);
+        // New Index is the index of the item(s) that was added
+        Debug.Log("New Index: " + args.NewIndex);
+        // Old Index is the index of the item(s) that was removed
+        Debug.Log("Old Index: " + args.OldIndex);
+        // New Items is the item(s) that was added as a Memory<T>
+        Debug.Log("New Items: " + args.NewItems);
+        // Old Items is the item(s) that was removed as a Memory<T>
+        Debug.Log("Old Items: " + args.OldItems);
+    }
+}
+```
+
+<EventReminder/>
+
 There are many more methods available in the dictionary, such as `ContainsKey`, `TryGetValue`, and `Count`. You can find the full list of methods in the [documentation](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2).
+
+### Listening to Collections
+
+<CollectionEvent/>
 
 ## Creating a Dictionary
 
