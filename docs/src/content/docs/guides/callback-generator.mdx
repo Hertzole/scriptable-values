@@ -5,4 +5,287 @@ sidebar:
     order: 25
 ---
 
-TODO: Source generator documentation.
+import GeneratorMethodNameTip from '../../../components/GeneratorMethodNameTip.mdx';
+
+:::note
+This feature is only available for Unity 2022.2 or later.
+:::
+
+Scriptable Values comes with a source generator and analyzer to help you automatically generate event boilerplate code. This is especially useful for large projects where you have a lot of events and want to avoid writing the same code over and over again. You can generate callbacks for values, events, lists, dictionaries, and pools.
+
+## Inheritance
+
+The source generator supports inheritance in the sense that it will call base methods if it detects that any of the base classes has the [marker attribute](#marker-attribute).
+
+## Marker Attribute
+
+In order for the source generator to generate anything, your type that contains your callbacks must have the `GenerateScriptableCallbacks` attirbute.
+
+```csharp title="Marker Attribute Example" ins="[GenerateScriptableCallbacks]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class Player : MonoBehaviour
+{
+    // This will now allow the source generator to generate the callbacks for this class.
+}
+```
+
+## Supported Types
+
+The source generator supports non-static `class` and `struct`. It does not support `record` of these types. It does not support `readonly struct`.
+
+```csharp title="Supported Types Example" del="static" del="record" del="readonly"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class InstanceClass
+{
+    // This will work
+}
+
+[GenerateScriptableCallbacks]
+public struct StructType
+{
+    // This will work
+}
+
+[GenerateScriptableCallbacks]
+public static class StaticClass
+{
+    // This will not work.
+}
+
+[GenerateScriptableCallbacks]
+public record RecordClass
+{
+    // This will not work.
+}
+
+[GenerateScriptableCallbacks]
+public readonly struct ReadonlyStruct
+{
+    // This will not work.
+}
+
+[GenerateScriptableCallbacks]
+public record struct RecordStruct
+{
+    // This will not work.
+}
+```
+
+## Subscribe and Unsubscribe
+
+You need to call the subscribe and unsubscribe methods yourself. It's recommended to call these in `Awake`/`OnEnable` and `OnDestroy`/`OnDisable` respectively. The source generator will generate the methods for you, so you don't have to worry about the method names.
+
+The subscribe and unsubscribe methods will subscribe/unsubscribe to/from all types with callback attributes. 
+
+The methods also keep track of what types you have subscribed to so it won't subscribe multiple times.
+
+```csharp title="Subscribe and Unsubscribe Example" ins="SubscribeToAllScriptableCallbacks();" ins="UnsubscribeFromAllScriptableCallbacks();"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateValueCallback]
+    public ScriptableInt playerHealth;
+
+    private void OnEnable()
+    {
+        SubscribeToAllScriptableCallbacks();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromAllScriptableCallbacks();
+    }
+
+    // ...
+}
+```
+
+## Scriptable Value/Value Reference
+
+For [scriptable values](/scriptable-values/types/scriptable-value) you use the `GenerateValueCallback` attribute. This attribute works on both `ScriptableValue` and `ValueReference`. The callback method requires two parameters of the type `T` and returns `void`. The generated method will be named `On<FieldName>Changed` where `<FieldName>` is the name of the field you have the attribute on. The method will be generated in the same class as the field.
+
+```csharp title="GenerateValueCallback Example" ins="[GenerateValueCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateValueCallback]
+    public ScriptableInt playerHealth;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnPlayerHealthChanged(int oldValue, int newValue)
+    {
+        // Do something with the new value.
+    }
+}
+```
+<GeneratorMethodNameTip />
+
+### Specify Changing and Changed
+
+With [scriptable values](/scriptable-values/types/scriptable-value), you can subscribe to the value changing and value changed event. You can also specify this in the attribute. The default is to subscribe to the value changed event. You can specify this by using the `ValueCallbackType` enum.
+
+```csharp title="ValueCallbackType Example" ins="(ValueCallbackType.Changing)" ins="(ValueCallbackType.Changed)"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateValueCallback(ValueCallbackType.Changing)]
+    // You can specify multiple attributes on the same field.
+    [GenerateValueCallback(ValueCallbackType.Changed)]
+    public ScriptableInt playerHealth;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnPlayerHealthChanging(int oldValue, int newValue) { }
+
+    private partial void OnPlayerHealthChanged(int oldValue, int newValue) { }
+}
+```
+
+### Value Reference
+
+You can also use the `GenerateValueCallback` attribute on a [`ValueReference`](/scriptable-values/types/value-reference). This will generate the same methods as for a `ScriptableValue`.
+
+```csharp title="Value Reference Example" ins="[GenerateValueCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateValueCallback]
+    public ValueReference playerHealth;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnPlayerHealthChanged(int oldValue, int newValue) { }
+}
+```
+
+## Scriptable Event
+
+For [scriptable events](/scriptable-values/types/scriptable-event) you use the `GenerateEventCallback` attribute. The callback method requires two parameters, one `object` sender and one of the type `T` and returns `void`. The generated method will be named `On<FieldName>Invoked` where `<FieldName>` is the name of the field you have the attribute on. The method will be generated in the same class as the field.
+
+```csharp title="GenerateEventCallback Example" ins="[GenerateEventCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateEventCallback]
+    public ScriptableIntEvent playerHealthChanged;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnPlayerHealthChangedInvoked(object sender, int newValue) { }
+}
+```
+<GeneratorMethodNameTip />
+
+### Non-Generic Event
+
+You can also use the `GenerateEventCallback` attribute on a non-generic event. This will generate the same methods as for a generic event, but instead of a generic type as args, you will just get the standard `System.EventArgs`.
+
+```csharp title="Non-Generic Event Example"
+using System;
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class HealthUI : MonoBehaviour
+{
+    [GenerateEventCallback]
+    public ScriptableEvent playerHealthChanged;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnPlayerHealthChangedInvoked(object sender, EventArgs args) { }
+}
+```
+
+## Scriptable Pool
+
+For [scriptable pools](/scriptable-values/types/scriptable-pool) you use the `GeneratePoolCallback` attribute. The callback method requires two parameters, one `PoolAction` and one of the type `T` and returns `void`. The generated method will be named `On<FieldName>Changed` where `<FieldName>` is the name of the field you have the attribute on. The method will be generated in the same class as the field. The attribute works on all types that derive from the `ScriptablePool<T>` class.
+
+```csharp title="GeneratePoolCallback Example" ins="[GeneratePoolCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class EnemyManager : MonoBehaviour
+{
+    [GeneratePoolCallback]
+    public ScriptablePool<Enemy> enemyPool;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnEnemyPoolChanged(PoolAction action, Enemy item) { }
+}
+```
+<GeneratorMethodNameTip />
+
+## Scriptable List
+
+For [scriptable lists](/scriptable-values/types/scriptable-list) you use the `GenerateCollectionCallback` attribute. The callback method requires one parameter of type `CollectionChangedArgs<T>` and returns `void`. The generated method will be named `On<FieldName>Changed` where `<FieldName>` is the name of the field you have the attribute on. The method will be generated in the same class as the field. The attribute works on all types that derive from the `ScriptableList<T>` class.
+
+```csharp title="GenerateCollectionCallback Example" ins="[GenerateCollectionCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class Inventory : MonoBehaviour
+{
+    [GenerateCollectionCallback]
+    public ScriptableList<Item> items;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnItemsChanged(CollectionChangedArgs<Item> args) { }
+}
+```
+<GeneratorMethodNameTip />
+
+## Scriptable Dictionary
+
+For [scriptable dictionaries](/scriptable-values/types/scriptable-dictionary) you use the `GenerateCollectionCallback` attribute. The callback method requires one parameter of type `CollectionChangedArgs<KeyValuePair<TKey, TValue>>` and returns `void`. The generated method will be named `On<FieldName>Changed` where `<FieldName>` is the name of the field you have the attribute on. The method will be generated in the same class as the field. The attribute works on all types that derive from the `ScriptableDictionary<TKey, TValue>` class.
+
+```csharp title="GenerateCollectionCallback Example" ins="[GenerateCollectionCallback]"
+using UnityEngine;
+using Hertzole.ScriptableValues;
+
+[GenerateScriptableCallbacks]
+public class Inventory : MonoBehaviour
+{
+    [GenerateCollectionCallback]
+    public ScriptableDictionary<string, Item> items;
+
+    // Call subscribe/unsubscribe methods
+
+    // This will be generated for you.
+    private partial void OnItemsChanged(CollectionChangedArgs<KeyValuePair<string, Item>> args) { }
+}
+```
+<GeneratorMethodNameTip />
