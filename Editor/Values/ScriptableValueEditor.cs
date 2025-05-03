@@ -26,7 +26,6 @@ namespace Hertzole.ScriptableValues.Editor
 		private SerializedProperty setEqualityCheck = null!;
 		private SerializedProperty onValueChanging = null!;
 		private SerializedProperty onValueChanged = null!;
-		private SerializedProperty collectStackTraces = null!;
 
 		protected override string StackTracesLabel
 		{
@@ -61,7 +60,6 @@ namespace Hertzole.ScriptableValues.Editor
 			setEqualityCheck = serializedObject.MustFindProperty(nameof(setEqualityCheck));
 			onValueChanging = serializedObject.MustFindProperty(nameof(onValueChanging));
 			onValueChanged = serializedObject.MustFindProperty(nameof(onValueChanged));
-			collectStackTraces = serializedObject.MustFindProperty(nameof(collectStackTraces));
 		}
 
 		protected override void CreateGUIBeforeStackTraces(VisualElement root)
