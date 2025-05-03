@@ -1,10 +1,14 @@
 using System.ComponentModel;
+using UnityEngine;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
 
 namespace Hertzole.ScriptableValues
 {
+#if UNITY_EDITOR
+	[HelpURL(Documentation.SCRIPTABLE_LIST_URL)]
+#endif
 	public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly
 	{
 		public static readonly PropertyChangingEventArgs clearOnStartChangingArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));

@@ -15,6 +15,7 @@ namespace Hertzole.ScriptableValues
 	/// </summary>
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Runtime Event", menuName = "Hertzole/Scriptable Values/Events/Runtime Event", order = ORDER)]
+	[HelpURL(Documentation.SCRIPTABLE_EVENT_URL)]
 #endif
 	public partial class ScriptableEvent : RuntimeScriptableObject
 	{
