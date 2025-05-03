@@ -8,6 +8,9 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Base class for <see cref="ScriptableObject"/> that have values that should be resettable.
 	/// </summary>
+#if UNITY_EDITOR
+	[HelpURL(Documentation.CREATING_CUSTOM_TYPES_URL)]
+#endif
 	public abstract partial class RuntimeScriptableObject : ScriptableObject
 	{
 		/// <summary>

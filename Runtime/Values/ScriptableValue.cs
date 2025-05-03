@@ -8,6 +8,9 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Base class for a ScriptableValue without a value.
 	/// </summary>
+#if UNITY_EDITOR
+	[HelpURL(Documentation.SCRIPTABLE_VALUE_URL)]
+#endif
 	public abstract partial class ScriptableValue : RuntimeScriptableObject, ICanBeReadOnly
 	{
 		[SerializeField]

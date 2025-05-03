@@ -15,6 +15,9 @@ namespace Hertzole.ScriptableValues
 	///     A <see cref="ScriptableObject" /> that can be invoked to trigger an event with an argument.
 	/// </summary>
 	/// <typeparam name="T">The type of the argument.</typeparam>
+#if UNITY_EDITOR
+	[HelpURL(Documentation.SCRIPTABLE_EVENT_GENERIC_URL)]
+#endif
 	public abstract partial class ScriptableEvent<T> : RuntimeScriptableObject
 	{
 		[FormerlySerializedAs("onInvokedWithArgs")]

@@ -20,6 +20,9 @@ namespace Hertzole.ScriptableValues
 	/// <summary>
 	///     Base class for a scriptable object holds a dictionary.
 	/// </summary>
+#if UNITY_EDITOR
+	[HelpURL(Documentation.SCRIPTABLE_DICTIONARY_URL)]
+#endif
 	public abstract class ScriptableDictionary : RuntimeScriptableObject, ICanBeReadOnly
 	{
 		public static readonly PropertyChangedEventArgs isReadOnlyChangedEventArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Hertzole.ScriptableValues.Helpers;
+using UnityEngine;
 using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
@@ -12,6 +13,9 @@ using Unity.Properties;
 
 namespace Hertzole.ScriptableValues
 {
+#if UNITY_EDITOR
+	[HelpURL(Documentation.SCRIPTABLE_POOL_URL)]
+#endif
 	public abstract class ScriptablePool : RuntimeScriptableObject
 	{
 		public static readonly PropertyChangingEventArgs countAllChangingEventArgs = new PropertyChangingEventArgs(nameof(CountAll));
