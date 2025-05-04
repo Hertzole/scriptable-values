@@ -3,8 +3,9 @@
 ### Added
 
 - Support for Unity.Properties and the new runtime UI binding system. All types now implement `IDataSourceViewHashProvider` and `INotifyBindablePropertyChanged`
+- Source generator for generating event boilerplate code
+  - Includes new attributes for marking fields and properties; `[GenerateScriptableCallbacks]`, `[GenerateValueCallback]`, `[GenerateEventCallback]`, `[GeneratePoolCallback]`, and `[GenerateCollectionCallback]`
 - RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces that can be used to track most property changes, including regular field properties
-  - `ScriptablePool<T>` tracks `CountAll`, `CountActive`, and `CountInactive`
 - `ScriptableValue<T>` now has `OnBeforeSetValue(T newValue)` and `OnAfterSetValue(T oldValue, T newValue)` methods that can be overridden to track value changes
 - `ScriptableEvent` and `ScriptableEvent<T>` now have `OnBeforeInvoke` and `OnAfterInvoke` methods that can be overridden to track event invocations
 - `ICanBeReadOnly` interface for scriptable objects that can be marked as read-only
