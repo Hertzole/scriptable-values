@@ -16,6 +16,7 @@
 - Tooltips are no longer included in builds
 - **BREAKING**: Removed `ScriptableValue<T>.GetValue()`
 - **BREAKING**: You can no longer override `ScriptableValue<T>.SetValue(T, bool)` in derived classes
+- **BREAKING**: `ScriptableValue<T>.OldNewValue<T>` is now obsolete, use `ValueEventHandler<T>` instead
 - **BREAKING**: `ScriptableEvent<T>` no longer inherits from `ScriptableEvent` and thus does not share the same `Invoke` methods anymore
 - Global and per-object collect stack traces setting is now saved in a separate user settings file instead of editor prefs and scriptable object file
 - **BREAKING**: Read-only errors are now thrown as exceptions instead of logged using `Debug.LogError`
