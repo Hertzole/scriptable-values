@@ -81,10 +81,10 @@ namespace Hertzole.ScriptableValues
 		}
 
 		// These are only used for constant values, and as a buffer for addressable assets that are not loaded yet.
-		internal event ScriptableValue<T>.OldNewValue<T>? OnValueChangingInternal;
-		internal event ScriptableValue<T>.OldNewValue<T>? OnValueChangedInternal;
+		internal event ValueEventHandler<T>? OnValueChangingInternal;
+		internal event ValueEventHandler<T>? OnValueChangedInternal;
 
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
+		public event ValueEventHandler<T> OnValueChanging
 		{
 			add
 			{
@@ -122,7 +122,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanged
+		public event ValueEventHandler<T> OnValueChanged
 		{
 			add
 			{

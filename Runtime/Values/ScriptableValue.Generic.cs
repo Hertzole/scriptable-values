@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,8 +19,6 @@ namespace Hertzole.ScriptableValues
 #endif
 	public abstract partial class ScriptableValue<T> : ScriptableValue
 	{
-		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
-
 		[SerializeField]
 		[EditorTooltip("The current value. This can be changed at runtime.")]
 #if SCRIPTABLE_VALUES_PROPERTIES
@@ -95,11 +94,11 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called before the current value is set.
 		/// </summary>
-		public event OldNewValue<T>? OnValueChanging;
+		public event ValueEventHandler<T>? OnValueChanging;
 		/// <summary>
 		///     Called after the current value is set.
 		/// </summary>
-		public event OldNewValue<T>? OnValueChanged;
+		public event ValueEventHandler<T>? OnValueChanged;
 
 		/// <summary>
 		///     Sets the current value to a new value.
@@ -314,5 +313,12 @@ namespace Hertzole.ScriptableValues
 			SetEqualityCheck = originalSetEqualityCheck;
 		}
 #endif
+
+		#region Obsolete
+#if UNITY_EDITOR
+		[Obsolete("Use 'Hertzole.ScriptableValues.ValueEventHandler<T>' instead. This will be removed in build.", true)]
+		public delegate void OldNewValue<in TValue>(TValue previousValue, TValue newValue);
+#endif
+		#endregion
 	}
 }
