@@ -36,6 +36,8 @@ public class Player : MonoBehaviour
 
 The source generator supports non-static `class` and `struct`. It does not support `record` of these types. It does not support `readonly struct`.
 
+The generator supports marking both fields and properties with the attributes. 
+
 ```csharp title="Supported Types Example" del="static" del="record" del="readonly"
 using UnityEngine;
 using Hertzole.ScriptableValues;
