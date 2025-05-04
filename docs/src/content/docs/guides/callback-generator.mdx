@@ -15,7 +15,7 @@ Scriptable Values comes with a source generator and analyzer to help you automat
 
 ## Inheritance
 
-The source generator supports inheritance in the sense that it will call base methods if it detects that any of the base classes has the [marker attribute](#marker-attribute).
+The source generator supports inheritance in the sense that it will call base methods if it detects that any of the base classes has the [marker attribute](#marker-attribute). It does not support creating `protected` or `virtual` callback methods. You will need to create your own overridable methods and call those from the generated methods.
 
 ## Marker Attribute
 
