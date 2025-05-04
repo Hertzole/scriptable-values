@@ -90,7 +90,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateValueCallback]
     public ScriptableInt playerHealth;
@@ -118,7 +118,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateValueCallback]
     public ScriptableInt playerHealth;
@@ -143,7 +143,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateValueCallback(ValueCallbackType.Changing)]
     // You can specify multiple attributes on the same field.
@@ -168,7 +168,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateValueCallback]
     public ValueReference playerHealth;
@@ -189,7 +189,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateEventCallback]
     public ScriptableIntEvent playerHealthChanged;
@@ -212,7 +212,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class HealthUI : MonoBehaviour
+public partial class HealthUI : MonoBehaviour
 {
     [GenerateEventCallback]
     public ScriptableEvent playerHealthChanged;
@@ -233,7 +233,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class EnemyManager : MonoBehaviour
+public partial class EnemyManager : MonoBehaviour
 {
     [GeneratePoolCallback]
     public ScriptablePool<Enemy> enemyPool;
@@ -255,7 +255,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class Inventory : MonoBehaviour
+public partial class Inventory : MonoBehaviour
 {
     [GenerateCollectionCallback]
     public ScriptableList<Item> items;
@@ -277,7 +277,7 @@ using UnityEngine;
 using Hertzole.ScriptableValues;
 
 [GenerateScriptableCallbacks]
-public class Inventory : MonoBehaviour
+public partial class Inventory : MonoBehaviour
 {
     [GenerateCollectionCallback]
     public ScriptableDictionary<string, Item> items;
