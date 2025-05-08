@@ -4,3 +4,65 @@ description: Event listener component for hooking up events in the inspector.
 sidebar:
     order: 10
 ---
+
+Event Listener is a component that allows you to hook up events from a [scriptable event](../../types/scriptable-event/) in the inspector.
+
+## Usage
+
+Assign a scriptable event to the `Target Event` field of the component. 
+
+Then pick when you want to start listening. You can pick between `Awake`, `Start`, and `OnEnable`.
+
+- `Awake`: The event will be triggered when the value changes in the `Awake` method.
+- `Start`: The event will be triggered when the value changes in the `Start` method.
+- `OnEnable`: The event will be triggered when the value changes in the `OnEnable` method.
+
+Then pick when you want to stop listening. You can pick between `OnDestroy` and `OnDisable`.
+
+- `OnDestroy`: The event will be triggered when the value changes in the `OnDestroy` method.
+- `OnDisable`: The event will be triggered when the value changes in the `OnDisable` method.
+
+After that you can pick when you want the events to be triggered. You can pick between `Any`, `From Value`, and `To Value`.
+
+- `Any`: The event will be triggered any time the event is invoked.
+- `From Value`: The event will be triggered when the event is invoked from the value you set in the inspector.
+- `To Value`: The event will be triggered when the event is invoked to the value you set in the inspector.
+
+:::note
+`Invoke On` does not exist on event listeners without arguments.
+:::
+
+## Extending
+
+Event Listeners are extended by inheriting from the [`ScriptableEventListener<T>`](../../reference/hertzole.scriptablevalues.scriptableeventlistener-1/) class. This will allow you to create your own event listeners for your own types. 
+
+```csharp title="MyEventListener.cs"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class MyEventListener : ScriptableEventListener<MyValueType>
+{
+    // Simple as that!
+}
+```
+
+You can also override methods based around the invoking of events.
+
+```csharp title="MyEventListener.cs"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class MyEventListener : ScriptableEventListener<MyValueType>
+{
+    protected override bool OnBeforeEventInvoked(object sender, MyValueType args)
+    {
+        // Do something before the event is invoked.
+        return true; // Return false to cancel the invocation.
+    }
+
+    protected override void OnEventInvoked(object sender, MyValueType args)
+    {
+        // Do something after the event is invoked.
+    }
+}
+```
