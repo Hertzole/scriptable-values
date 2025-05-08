@@ -3,7 +3,7 @@ namespace Hertzole.ScriptableValues
 {
 	internal static class Documentation
 	{
-		private const string BASE_URL = "http://hertzole.github.io/scriptable-values/";
+		private const string BASE_URL = "https://hertzole.github.io/scriptable-values/";
 		private const string TYPE_URL = BASE_URL + "types/";
 		private const string GUIDES_URL = BASE_URL + "guides/";
 
