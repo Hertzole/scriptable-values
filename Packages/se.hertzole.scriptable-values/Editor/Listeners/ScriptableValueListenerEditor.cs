@@ -84,6 +84,8 @@ namespace Hertzole.ScriptableValues.Editor
 			invokeOnField.RegisterValueChangeCallback(_ => UpdateVisibility());
 			invokeParametersField.RegisterValueChangeCallback(_ => UpdateVisibility());
 
+			invokeParametersField.style.marginBottom = 8;
+
 			UpdateVisibility();
 
 			root.Add(valueField);
@@ -93,7 +95,7 @@ namespace Hertzole.ScriptableValues.Editor
 			root.Add(fromValueField);
 			root.Add(toValueField);
 			root.Add(invokeParametersField.AddSpace());
-			root.Add(onValueChangingSingleField.AddSpace());
+			root.Add(onValueChangingSingleField);
 			root.Add(onValueChangedSingleField);
 			root.Add(onValueChangingMultipleField);
 			root.Add(onValueChangedMultipleField);
