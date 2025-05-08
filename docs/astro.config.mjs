@@ -11,6 +11,7 @@ export default defineConfig({
     site: 'https://www.hertzole.se',
     base: '/scriptable-values/',
     integrations: [starlight({
+        favicon: './public/sv_icon.svg',
         plugins: [
             starlightLinksValidator({
                 errorOnRelativeLinks: false,
@@ -53,7 +54,7 @@ export default defineConfig({
               ]),],
         title: 'Scriptable Values Documentation',
         logo: {
-            src: './src/assets/sv_icon.webp',
+            src: './public/sv_icon.svg',
             alt: 'Scriptable Values Logo',
         },
         social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/hertzole/scriptable-values' }],
