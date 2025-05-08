@@ -164,7 +164,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <inheritdoc />
-		protected override void SetListening(bool listen)
+		protected sealed override void SetListening(bool listen)
 		{
 			base.SetListening(listen);
 
