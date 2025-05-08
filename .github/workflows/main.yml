@@ -84,13 +84,13 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
   
       # Generate the solution
       - name: Generate Solution
         run: |
-          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
-          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
 
       # Fix the solution
       - name: Fix Csproj
