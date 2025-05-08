@@ -25,6 +25,9 @@ namespace Hertzole.ScriptableValues.Editor
 		private SerializedProperty toValue = null!;
 		private SerializedProperty onInvoked = null!;
 
+		private static readonly EventCallback<SerializedPropertyChangeEvent, GenericScriptableEventListenerEditor> updateVisibilityCallback =
+			static (_, args) => { args.UpdateVisibility(); };
+
 		protected virtual void OnEnable()
 		{
 			targetEvent = serializedObject.MustFindProperty(nameof(targetEvent));
@@ -56,8 +59,8 @@ namespace Hertzole.ScriptableValues.Editor
 			toValueField.Bind(serializedObject);
 			onInvokedField.Bind(serializedObject);
 
-			targetEventField.RegisterValueChangeCallback(_ => { UpdateVisibility(); });
-			invokeOnField.RegisterValueChangeCallback(_ => UpdateVisibility());
+			targetEventField.RegisterValueChangeCallback(updateVisibilityCallback, this);
+			invokeOnField.RegisterValueChangeCallback(updateVisibilityCallback, this);
 
 			UpdateVisibility();
 
