@@ -6,7 +6,7 @@
 - Source generator for generating event boilerplate code
   - Includes new attributes for marking fields and properties; `[GenerateScriptableCallbacks]`, `[GenerateValueCallback]`, `[GenerateEventCallback]`, `[GeneratePoolCallback]`, and `[GenerateCollectionCallback]`
 - RuntimeScriptableObject implements `INotifyPropertyChanging` and `INotifyPropertyChanged` interfaces that can be used to track most property changes, including regular field properties
-- `ScriptableValue<T>` now has `OnBeforeSetValue(T newValue)` and `OnAfterSetValue(T oldValue, T newValue)` methods that can be overridden to track value changes
+- `ScriptableValue<T>` now has `OnBeforeSetValue(T oldValue, T newValue)` and `OnAfterSetValue(T oldValue, T newValue)` methods that can be overridden to track value changes
 - `ScriptableEvent` and `ScriptableEvent<T>` now have `OnBeforeInvoke` and `OnAfterInvoke` methods that can be overridden to track event invocations
 - `ICanBeReadOnly` interface for scriptable objects that can be marked as read-only
 - `INotifyScriptableCollectionChanged` interface for scriptable collections that can be used to track collection changes
