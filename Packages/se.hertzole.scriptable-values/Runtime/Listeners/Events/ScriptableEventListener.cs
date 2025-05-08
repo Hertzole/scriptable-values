@@ -40,7 +40,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <inheritdoc />
-		protected override void SetListening(bool listen)
+		protected sealed override void SetListening(bool listen)
 		{
 			base.SetListening(listen);
 
@@ -56,7 +56,7 @@ namespace Hertzole.ScriptableValues
 		///     Sets the target event.
 		/// </summary>
 		/// <param name="newEvent">The new event.</param>
-		protected virtual void SetTargetEvent(ScriptableEvent? newEvent)
+		private void SetTargetEvent(ScriptableEvent? newEvent)
 		{
 			// If the target event is the same, do nothing.
 			if (newEvent == targetEvent)
@@ -79,7 +79,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		protected void SetListeningToObject(ScriptableEvent target, bool listen)
+		private void SetListeningToObject(ScriptableEvent target, bool listen)
 		{
 			ThrowHelper.ThrowIfNull(target, nameof(target));
 
@@ -98,7 +98,30 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		private void OnEventInvoked(object sender, EventArgs eventArgs)
 		{
+			if (!OnBeforeEventInvoked(sender))
+			{
+				return;
+			}
+
 			onInvoked.Invoke();
+
+			OnAfterEventInvoked(sender);
 		}
+
+		/// <summary>
+		///     Called before the event is invoked.
+		/// </summary>
+		/// <param name="sender">The object that sent the event.</param>
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		protected virtual bool OnBeforeEventInvoked(object sender)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called after the event is invoked.
+		/// </summary>
+		/// <param name="sender">The object that sent the event.</param>
+		protected virtual void OnAfterEventInvoked(object sender) { }
 	}
 }

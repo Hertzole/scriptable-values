@@ -84,7 +84,7 @@ namespace Hertzole.ScriptableValues
 		}
 
 		/// <inheritdoc />
-		protected override void SetListening(bool listen)
+		protected sealed override void SetListening(bool listen)
 		{
 			base.SetListening(listen);
 
@@ -100,7 +100,7 @@ namespace Hertzole.ScriptableValues
 		///     Sets the target event.
 		/// </summary>
 		/// <param name="newEvent">The new event.</param>
-		protected virtual void SetTargetEvent(ScriptableEvent<TValue>? newEvent)
+		private void SetTargetEvent(ScriptableEvent<TValue>? newEvent)
 		{
 			// If the event is the same, do nothing.
 			if (newEvent == targetEvent)
@@ -123,7 +123,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		protected void SetListeningToObject(ScriptableEvent<TValue> target, bool listen)
+		private void SetListeningToObject(ScriptableEvent<TValue> target, bool listen)
 		{
 			ThrowHelper.ThrowIfNull(target, nameof(target));
 
@@ -146,11 +146,31 @@ namespace Hertzole.ScriptableValues
 		{
 			Assert.IsNotNull(targetEvent);
 
-			if (ShouldInvoke(invokeOn, targetEvent!.PreviousArgs, args, fromValue, toValue))
+			if (ShouldInvoke(invokeOn, targetEvent!.PreviousArgs, args, fromValue, toValue) && OnBeforeEventInvoked(sender, args))
 			{
 				onInvoked.Invoke(args);
+
+				OnAfterEventInvoked(sender, args);
 			}
 		}
+
+		/// <summary>
+		///     Called before the event is invoked.
+		/// </summary>
+		/// <param name="sender">The object that sent the event.</param>
+		/// <param name="args">The event arguments.</param>
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		protected virtual bool OnBeforeEventInvoked(object sender, TValue args)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called after the event is invoked.
+		/// </summary>
+		/// <param name="sender">The object that sent the event.</param>
+		/// <param name="args">The event arguments.</param>
+		protected virtual void OnAfterEventInvoked(object sender, TValue args) { }
 
 		/// <summary>
 		///     Determines if the event should be invoked.

@@ -12,6 +12,8 @@
 - `INotifyScriptableCollectionChanged` interface for scriptable collections that can be used to track collection changes
 - Full parity with `List<T>` to `ScriptableList<T>`
 - `ScriptableValueListener<T>` now has `OnBeforeValueChangingInvoked(T oldValue, T newValue)`, `OnAfterValueChangingInvoked(T oldValue, T newValue)`, `OnBeforeValueChangedInvoked(T oldValue, T newValue)`, and `OnAfterValueChangedInvoked(T oldValue, T newValue)` overridable methods
+- `ScriptableEventListener<T>` now has `OnBeforeEventInvoked(object sender, T args)` and `OnAfterEventInvoked(object sender, T args)` overridable methods
+- `ScriptableEventListener` now has `OnBeforeEventInvoked(object sender)` and `OnAfterEventInvoked(object sender)` overridable methods
 
 ### Changed
 
@@ -35,7 +37,9 @@
 - `ScriptableDictionary<TKey, TValue>` now implements `INotifyCollectionChanged` and `InotifyScriptableCollectionChanged<KeyValurPair<TKey, TValue>>`
 - **BREAKING**: `ScriptablePool<T>.Return(T item)` is now obsolete, use `Release(T item)` instead
 - **BREAKING**: `ScriptableListenerBase.ToggleListening(bool listen)` is now obsolete, use `SetListening(bool listen)` instead
-- **BREAKING**: `ScriptableValueListener<T>`'s `OnCurrentValueChanging`, `OnCurrentValueChanged`, `SetTargetValue`, and `SetListening` methods can no longer be overriden
+- **BREAKING**: `ScriptableValueListener<T>` `OnCurrentValueChanging`, `OnCurrentValueChanged`, `SetTargetValue`, and `SetListening` methods can no longer be overriden
+- **BREAKING**: `ScriptableValueListener<T>` `SetListening` and `SetTargetEvent` can no longer be overriden
+- **BREAKING**: `ScriptableEventListener` `SetListening` and `SetTargetEvent` can no longer be overriden
 
 ### Fixed
 
