@@ -49,6 +49,7 @@ jobs:
   build-docs:
     name: Build documentation
     runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-6000.0.32f1-base-3.1.0
     steps:
       # Checkout the repo
       - name: Checkout
@@ -61,6 +62,44 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: latest
+
+      # Setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8'
+
+      # Install tools
+      - name: Install .NET tools
+        run: |
+          dotnet tool install -g docfx
+          dotnet tool install -g hertzole.docfx2astro
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      # Activate Unity
+      - name: Activate Unity
+        continue-on-error: true
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+  
+      # Generate the solution
+      - name: Generate Solution
+        run: |
+          unity-editor -nographics -logFile /dev/stdout -customBuildName scriptable-values -projectPath . -executeMethod Packages.Rider.Editor.RiderScriptEditor.SyncSolution -quit
+
+      # Fix the solution
+      - name: Fix Csproj
+        run: sed -i 's/<ReferenceOutputAssembly>false<\/ReferenceOutputAssembly>/<ReferenceOutputAssembly>true<\/ReferenceOutputAssembly>/g' *.csproj
+
+      # Generate API
+      - name: Generate API
+        run: |
+          docfx metadata
+          docfx2astro -i api -o docs/src/content/docs/reference
 
       # Build the documentation
       - name: Build documentation

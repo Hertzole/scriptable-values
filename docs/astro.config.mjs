@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator'
+import starlightSidebarTopics from 'starlight-sidebar-topics'
 
 import sitemap from '@astrojs/sitemap';
 
@@ -10,19 +11,52 @@ export default defineConfig({
     site: 'https://www.hertzole.se',
     base: '/scriptable-values/',
     integrations: [starlight({
-        plugins: [starlightLinksValidator()],
+        plugins: [
+            starlightLinksValidator({
+                errorOnRelativeLinks: false,
+              }),
+            starlightSidebarTopics([
+                {
+                  label: 'Documentation',
+                  link: '/guides/getting-started',
+                  icon: 'open-book',
+                  items: [
+                    {
+                        label: 'Guides',
+                        autogenerate: { directory: 'guides' },
+                    },
+                    {
+                        label: 'Types',
+                        autogenerate: { directory: 'types' },
+                    },
+                    {
+                        label: 'Components',
+                        autogenerate: { directory: 'components' },
+                    }
+                  ],
+                },
+                {
+                  label: 'Reference',
+                  link: '/reference/',
+                  icon: 'seti:html',
+                  items: [
+                    {
+                        label: "Hertzole.ScriptableValues",
+                        autogenerate: { directory: 'reference/Hertzole.ScriptableValues' },
+                    },
+                    {
+                        label: "Hertzole.ScriptableValues.Editor",
+                        autogenerate: { directory: 'reference/Hertzole.ScriptableValues.Editor' },
+                    }
+                  ],
+                },
+              ]),],
         title: 'Scriptable Values Documentation',
+        logo: {
+            src: './src/assets/sv_icon.webp',
+            alt: 'Scriptable Values Logo',
+        },
         social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/hertzole/scriptable-values' }],
-        sidebar: [
-            {
-                label: 'Guides',
-                autogenerate: { directory: 'guides' },
-            },
-            {
-                label: 'Types',
-                autogenerate: { directory: 'types' },
-            }
-        ],
         customCss: [
             './src/styles/custom.css'
         ],
