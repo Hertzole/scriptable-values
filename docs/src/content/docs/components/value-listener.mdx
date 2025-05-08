@@ -4,3 +4,81 @@ description: Value listener component for hooking up events in the inspector.
 sidebar:
     order: 0
 ---
+
+Value Listener is a component that allows you to hook up events from a [scriptable value](../../types/scriptable-value/) in the inspector.
+
+## Usage
+
+Assign a scriptable value to the `Target Value` field of the component. 
+
+Then pick when you want to start listening. You can pick between `Awake`, `Start`, and `OnEnable`.
+
+- `Awake`: The listener will start listening in the `Awake` method.
+- `Start`: The listener will start listening in the `Start` method.
+- `OnEnable`: The listener will start listening in the `OnEnable` method.
+
+Then pick when you want to stop listening. You can pick between `OnDestroy` and `OnDisable`. 
+
+- `OnDestroy`: The listener will stop listening in the `OnDestroy` method.
+- `OnDisable`: The listener will stop listening in the `OnDisable` method.
+
+After that you can pick when you want the events to be triggered. You can pick between `Any`, `From Value`, `To Value`, and `From Value To Value`.
+
+- `Any`: The event will be triggered any time the value changes.
+- `From Value`: The event will be triggered when the value changes from the value you set in the inspector.
+- `To Value`: The event will be triggered when the value changes to the value you set in the inspector.
+- `From Value To Value`: The event will be triggered when the value changes from the value you set in the inspector to the value you set in the inspector.
+
+Lastly, you can pick how many parameters you want to use. You can pick between `Single`, `Multiple`, and `Both`.
+
+- `Single`: The event will be triggered with a single parameter.
+- `Multiple`: The event will be triggered with multiple parameters.
+- `Both`: The event will be triggered with both single and multiple parameters.
+
+## Extending
+
+Value Listeners are extended by inheriting from the [`ScriptableValueListener<T>`](../../reference/hertzole.scriptablevalues.scriptablevaluelistener-1/) class. This will allow you to create your own value listeners for your own types. 
+
+```csharp title="MyValueListener.cs"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class MyValueListener : ScriptableValueListener<MyValueType>
+{
+    // Simple as that!
+}
+```
+
+You can also override methods based around the invoking of values.
+
+```csharp title="MyValueListener.cs"
+using Hertzole.ScriptableValues;
+using UnityEngine;
+
+public class MyValueListener : ScriptableValueListener<MyValueType>
+{
+    protected override bool OnBeforeValueChangingInvoked(MyValueType oldValue, MyValueType newValue)
+    {
+        // Called before the OnValueChanging event is invoked.
+        // Return true to allow the change, false to cancel it.
+        return true;
+    }
+
+    protected override void OnAfterValueChangingInvoked(MyValueType oldValue, MyValueType newValue)
+    {
+        // Called after the OnValueChanging event is invoked.
+    }
+
+    protected override bool OnBeforeValueChangedInvoked(MyValueType oldValue, MyValueType newValue)
+    {
+        // Called before the OnValueChanged event is invoked.
+        // Return true to allow the change, false to cancel it.
+        return true;
+    }
+
+    protected override void OnAfterValueChangedInvoked(MyValueType oldValue, MyValueType newValue)
+    {
+        // Called after the OnValueChanged event is invoked.
+    }
+}
+```
