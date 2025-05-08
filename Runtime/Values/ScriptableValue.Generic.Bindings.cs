@@ -9,11 +9,13 @@ namespace Hertzole.ScriptableValues
 		{
 			unchecked
 			{
+				EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
 				long hash = 17;
 				hash = hash * 23 + base.GetViewHashCode();
-				hash = hash * 23 + EqualityComparer<T>.Default.GetHashCode(Value);
-				hash = hash * 23 + EqualityComparer<T>.Default.GetHashCode(PreviousValue);
-				hash = hash * 23 + EqualityComparer<T>.Default.GetHashCode(DefaultValue);
+				hash = hash * 23 + comparer.GetHashCode(Value);
+				hash = hash * 23 + comparer.GetHashCode(PreviousValue);
+				hash = hash * 23 + comparer.GetHashCode(DefaultValue);
 				return hash;
 			}
 		}
