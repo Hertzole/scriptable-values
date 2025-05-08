@@ -150,13 +150,14 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called before the value is set. This can be used to prevent the value from being set.
 		/// </summary>
+		/// <param name="oldValue">The current value.</param>
 		/// <param name="newValue">The new value that is going to be set.</param>
 		/// <returns><c>true</c> if the value can be set; otherwise, <c>false</c>.</returns>
 		/// <remarks>
 		///     This is called before the <see cref="OnValueChanging" /> event. This is also called no matter what `notify` is
 		///     set as.
 		/// </remarks>
-		protected virtual bool OnBeforeSetValue(T newValue)
+		protected virtual bool OnBeforeSetValue(T oldValue, T newValue)
 		{
 			return true;
 		}
