@@ -46,7 +46,7 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Removes all stack traces.
 		/// </summary>
-		/// <remarks>>This only does something in the Unity editor. This method is completely blank in builds.</remarks>
+		/// <remarks>This only does something in the Unity editor. This method is completely blank in builds.</remarks>
 		[Conditional("UNITY_EDITOR")]
 		protected void ResetStackTraces()
 		{
