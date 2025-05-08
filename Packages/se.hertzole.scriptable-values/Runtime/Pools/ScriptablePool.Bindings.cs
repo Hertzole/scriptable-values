@@ -3,6 +3,7 @@ namespace Hertzole.ScriptableValues
 {
 	partial class ScriptablePool<T>
 	{
+		/// <inheritdoc />
 		protected override long GetViewHashCode()
 		{
 			unchecked

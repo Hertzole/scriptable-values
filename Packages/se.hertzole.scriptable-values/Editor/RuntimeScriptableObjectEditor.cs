@@ -10,6 +10,9 @@ using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
+	/// <summary>
+	///     Base editor for <see cref="RuntimeScriptableObject" />.
+	/// </summary>
 	[CustomEditor(typeof(RuntimeScriptableObject), true)]
 	public class RuntimeScriptableObjectEditor : UnityEditor.Editor
 	{
@@ -43,11 +46,17 @@ namespace Hertzole.ScriptableValues.Editor
 			stackTraces?.Dispose();
 		}
 
+		/// <summary>
+		///     Override to gather serialized properties.
+		/// </summary>
 		protected virtual void GatherProperties() { }
 
+		/// <summary>
+		///     Called whenever a stack trace is added.
+		/// </summary>
 		protected virtual void OnStackTraceAdded() { }
 
-		public override VisualElement CreateInspectorGUI()
+		public sealed override VisualElement CreateInspectorGUI()
 		{
 			VisualElement root = new EntireInspectorElement();
 			CreateGUIBeforeStackTraces(root);
@@ -110,8 +119,16 @@ namespace Hertzole.ScriptableValues.Editor
 			hasCreatedDefaultInspector = true;
 		}
 
+		/// <summary>
+		///     Override to create your own editor.
+		/// </summary>
+		/// <param name="root">The root of your editor.</param>
 		protected virtual void CreateGUIBeforeStackTraces(VisualElement root) { }
 
+		/// <summary>
+		///     Get any serialized properties that should be excluded from the default inspector.
+		/// </summary>
+		/// <param name="properties">The list where you add your excluded properties.</param>
 		protected virtual void GetExcludingProperties(List<SerializedProperty> properties) { }
 	}
 }

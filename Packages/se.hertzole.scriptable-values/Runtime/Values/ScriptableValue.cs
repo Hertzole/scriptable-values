@@ -6,8 +6,9 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     Base class for a ScriptableValue without a value.
+	///     Base class for all <see cref="ScriptableValue{TValue}" />. 
 	/// </summary>
+	/// <remarks>You should probably inherit from <see cref="ScriptableList{T}"/> instead.</remarks>
 #if UNITY_EDITOR
 	[HelpURL(Documentation.SCRIPTABLE_VALUE_URL)]
 #endif

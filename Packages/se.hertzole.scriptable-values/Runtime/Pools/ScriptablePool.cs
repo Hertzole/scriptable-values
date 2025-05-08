@@ -13,6 +13,10 @@ using Unity.Properties;
 
 namespace Hertzole.ScriptableValues
 {
+	/// <summary>
+	///     Base class for all <see cref="ScriptablePool{T}" />.
+	/// </summary>
+	/// <remarks>You should probably inherit from <see cref="ScriptablePool{T}" /> instead.</remarks>
 #if UNITY_EDITOR
 	[HelpURL(Documentation.SCRIPTABLE_POOL_URL)]
 #endif

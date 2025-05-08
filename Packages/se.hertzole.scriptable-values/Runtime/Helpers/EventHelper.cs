@@ -20,6 +20,7 @@ namespace Hertzole.ScriptableValues.Helpers
 		///     Helper method that warns if the given delegate has any subscribers left.
 		///     <para>This method is removed in non-debug builds, but you don't need to explicitly remove it yourself.</para>
 		/// </summary>
+		/// <remarks>This method only does something in DEBUG builds.</remarks>
 		/// <param name="action">The delegate to check.</param>
 		/// <param name="parameterName">The name of the delegate that will be used in the message.</param>
 		/// <param name="targetObject">Optional target object to ping when the log is selected.</param>

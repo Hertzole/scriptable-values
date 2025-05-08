@@ -35,6 +35,10 @@ namespace Hertzole.ScriptableValues
 			remove { OnNotifyPropertyChanged -= value; }
 		}
 
+		/// <summary>
+		///     Invoke the <see cref="INotifyPropertyChanging.PropertyChanging" /> event with the given property name.
+		/// </summary>
+		/// <param name="propertyName">The name of the property that is changing.</param>
 		protected void NotifyPropertyChanging([CallerMemberName] string propertyName = "")
 		{
 			// Check first if the event is null to avoid creating a new PropertyChangingEventArgs
@@ -44,6 +48,11 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Invokes the <see cref="INotifyPropertyChanging.PropertyChanging" /> event with the given
+		///     <see cref="PropertyChangingEventArgs" />.
+		/// </summary>
+		/// <param name="args">The <see cref="PropertyChangingEventArgs" /> to use.</param>
 		protected void NotifyPropertyChanging(PropertyChangingEventArgs args)
 		{
 			Assert.IsNotNull(args);
@@ -51,6 +60,11 @@ namespace Hertzole.ScriptableValues
 			OnNotifyPropertyChanging?.Invoke(this, args);
 		}
 
+		/// <summary>
+		///     Invoke the <see cref="INotifyPropertyChanged.PropertyChanged" /> event and the
+		///     <see cref="INotifyBindablePropertyChanged.propertyChanged" /> event with the given property name.
+		/// </summary>
+		/// <param name="propertyName">The name of the property that has changed.</param>
 		protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			// Check first if the event is null to avoid creating a new PropertyChangedEventArgs
@@ -65,6 +79,12 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Invoke the <see cref="INotifyPropertyChanged.PropertyChanged" /> event and the
+		///     <see cref="INotifyBindablePropertyChanged.propertyChanged" /> event with the given
+		///     <see cref="PropertyChangedEventArgs" />.
+		/// </summary>
+		/// <param name="args">The <see cref="PropertyChangedEventArgs" /> to use.</param>
 		protected void NotifyPropertyChanged(PropertyChangedEventArgs args)
 		{
 			Assert.IsNotNull(args);
@@ -81,8 +101,22 @@ namespace Hertzole.ScriptableValues
 #endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
 		}
 
+		/// <summary>
+		///     Sets a field to a new value and notifies the property changed event.
+		/// </summary>
+		/// <remarks>Calling this will not notify any property changes if the new value is the same as the current field value.</remarks>
+		/// <param name="field">The field to set.</param>
+		/// <param name="newValue">The new value to set.</param>
+		/// <param name="propertyName">The name of the property that is changing.</param>
+		/// <typeparam name="T">The type of the field.</typeparam>
+		/// <returns><c>true</c> if the field was changed; otherwise, <c>false</c>.</returns>
 		protected bool SetField<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
 		{
+			if (EqualityHelper.Equals(field, newValue))
+			{
+				return false;
+			}
+
 			PropertyChangingEventArgs? changingEventArgs = null;
 			PropertyChangedEventArgs? changedEventArgs = null;
 
@@ -100,8 +134,22 @@ namespace Hertzole.ScriptableValues
 			return SetFieldInternal(ref field, newValue, changingEventArgs, changedEventArgs, propertyName);
 		}
 
+		/// <summary>
+		///     Sets a field to a new value and notifies the property changed event.
+		/// </summary>
+		/// <param name="field">The field to set.</param>
+		/// <param name="newValue">The new value to set.</param>
+		/// <param name="changingArgs">The <see cref="PropertyChangingEventArgs" /> to use.</param>
+		/// <param name="changedArgs">The <see cref="PropertyChangedEventArgs" /> to use.</param>
+		/// <typeparam name="T">The type of the field.</typeparam>
+		/// <returns><c>true</c> if the field was changed; otherwise, <c>false</c>.</returns>
 		protected bool SetField<T>(ref T field, T newValue, PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs)
 		{
+			if (EqualityHelper.Equals(field, newValue))
+			{
+				return false;
+			}
+
 			return SetFieldInternal(ref field, newValue, changingArgs, changedArgs, changedArgs.PropertyName);
 		}
 
@@ -113,11 +161,6 @@ namespace Hertzole.ScriptableValues
 		{
 			Assert.IsNotNull(changingArgs);
 			Assert.IsNotNull(changedArgs);
-
-			if (EqualityHelper.Equals(field, newValue))
-			{
-				return false;
-			}
 
 			if (changingArgs != null)
 			{
@@ -161,6 +204,10 @@ namespace Hertzole.ScriptableValues
 			remove { OnPropertyChanged -= value; }
 		}
 
+		/// <summary>
+		///     Computes a hash code for the view of the data source.
+		/// </summary>
+		/// <returns>A hash code for the current object.</returns>
 		protected virtual long GetViewHashCode()
 		{
 			return GetHashCode();

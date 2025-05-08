@@ -4,6 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Hertzole.ScriptableValues
 {
+	/// <summary>
+	///     Mark a field or property to generate an event callback. The target must derive from <see cref="ScriptableEvent" />
+	///     or <see cref="ScriptableEvent{T}" />.
+	/// </summary>
+	/// <remarks>
+	///     The containing type must be marked with <see cref="GenerateScriptableCallbacksAttribute" /> in order to
+	///     generate any callbacks.
+	/// </remarks>
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	[ExcludeFromCodeCoverage]
 	public sealed class GenerateEventCallbackAttribute : Attribute { }

@@ -1,12 +1,14 @@
 ﻿#if UNITY_EDITOR
 using System;
+using System.Collections.Specialized;
 
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
 	///     Type of change events that can be raised by a <see cref="ScriptableDictionary{TKey, TValue}" />.
 	/// </summary>
-	[Obsolete("No longer used. This will be removed in builds.", true)] 
+	/// <remarks>This type is obsolete. Use <see cref="NotifyCollectionChangedAction"/> instead.</remarks>
+	[Obsolete("No longer used. This will be removed in builds.", true)]
 	public enum DictionaryChangeType
 	{
 		/// <summary>

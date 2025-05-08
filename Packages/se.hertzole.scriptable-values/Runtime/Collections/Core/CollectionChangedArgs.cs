@@ -51,23 +51,23 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Gets the action that specifies how the collection changed.
 		/// </summary>
-		public readonly NotifyCollectionChangedAction Action;
+		public NotifyCollectionChangedAction Action { get; }
 		/// <summary>
 		///     Gets the index at which the new item was added.
 		/// </summary>
-		public readonly int NewIndex;
+		public int NewIndex { get; }
 		/// <summary>
 		///     Gets the index at which the old item was removed.
 		/// </summary>
-		public readonly int OldIndex;
+		public int OldIndex { get; }
 		/// <summary>
 		///     Gets the items that were added.
 		/// </summary>
-		public readonly ReadOnlyMemory<T> OldItems;
+		public ReadOnlyMemory<T> OldItems { get; }
 		/// <summary>
 		///     Gets the items that were removed.
 		/// </summary>
-		public readonly ReadOnlyMemory<T> NewItems;
+		public ReadOnlyMemory<T> NewItems { get; }
 
 		private CollectionChangedArgs(NotifyCollectionChangedAction action,
 			int newIndex = -1,
@@ -208,17 +208,34 @@ namespace Hertzole.ScriptableValues
 			return new CollectionChangedArgs<T>(NotifyCollectionChangedAction.Reset, newIndex, oldIndex: oldIndex, oldItems: memory);
 		}
 
+		/// <summary>
+		///     Checks if the current instance is equal to another <see cref="CollectionChangedArgs{T}" /> instance.
+		/// </summary>
+		/// <param name="other">The other instance to compare with.</param>
+		/// <returns><c>true</c> if the instances are equal; otherwise, <c>false</c>.</returns>
 		public bool Equals(CollectionChangedArgs<T> other)
 		{
 			return Action == other.Action && NewIndex == other.NewIndex && OldIndex == other.OldIndex && OldItems.Equals(other.OldItems) &&
 			       NewItems.Equals(other.NewItems);
 		}
 
+		/// <summary>
+		///     Checks if the current instance is the same type as the given object and if they are equal.
+		/// </summary>
+		/// <param name="obj">The object to compare with.</param>
+		/// <returns>
+		///     <c>true</c> if the object is a <see cref="CollectionChangedArgs{T}" /> and is equal to the current instance;
+		///     otherwise, <c>false</c>.
+		/// </returns>
 		public override bool Equals(object? obj)
 		{
 			return obj is CollectionChangedArgs<T> other && Equals(other);
 		}
 
+		/// <summary>
+		///     Generates a hash code for the current instance.
+		/// </summary>
+		/// <returns>A hash code for the current instance.</returns>
 		public override int GetHashCode()
 		{
 			unchecked

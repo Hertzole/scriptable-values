@@ -11,7 +11,7 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
 	/// <summary>
-	///     Base class for a ScriptableValue with a value.
+	///     A <see cref="ScriptableValue{T}" /> that holds a value of type <typeparamref name="T" />.
 	/// </summary>
 	/// <typeparam name="T">The type of the value.</typeparam>
 #if ODIN_INSPECTOR
@@ -116,7 +116,7 @@ namespace Hertzole.ScriptableValues
 				return;
 			}
 
-			if (!OnBeforeSetValue(newValue))
+			if (!OnBeforeSetValue(value, newValue))
 			{
 				return;
 			}
@@ -204,6 +204,7 @@ namespace Hertzole.ScriptableValues
 			SetValue(newValue, false);
 		}
 
+		/// <inheritdoc />
 		protected override void OnStart()
 		{
 			// If the value should be reset, and it isn't a read only value, we set the value to the default value.
