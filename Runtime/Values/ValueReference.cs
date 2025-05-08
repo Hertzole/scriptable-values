@@ -10,17 +10,29 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Hertzole.ScriptableValues
 {
+	/// <summary>
+	///     The type of value reference.
+	/// </summary>
 	public enum ValueReferenceType
 	{
+		/// <summary>
+		///     A value you can set in the editor.
+		/// </summary>
 		Constant = 0,
+		/// <summary>
+		///     References a <see cref="ScriptableValue{T}" />.
+		/// </summary>
 		Reference = 1,
 #if SCRIPTABLE_VALUES_ADDRESSABLES
+		/// <summary>
+		///     References a <see cref="ScriptableValue{T}" /> that is addressable.
+		/// </summary>
 		Addressable = 2
 #endif
 	}
 
 	/// <summary>
-	///     Allows you to reference a ScriptableValue or a constant value.
+	///     Allows you to reference a <see cref="ScriptableValue{T}"/> or a constant value.
 	/// </summary>
 	/// <typeparam name="T">The type that the value should be.</typeparam>
 	[Serializable]
@@ -45,17 +57,34 @@ namespace Hertzole.ScriptableValues
 		internal T oldValue = default!;
 #endif
 
+		/// <summary>
+		///     Get or set the current value. This can be changed at runtime.
+		/// </summary>
+		/// <remarks>
+		///     If <see cref="ValueType" /> is set to <see cref="ValueReferenceType.Constant" />, this will set the constant value.
+		///     If <see cref="ValueType" /> is set to <see cref="ValueReferenceType.Reference" />, this will set the value of the
+		///     referenced <see cref="ScriptableValue{T}" />.
+		///     If <see cref="ValueType" /> is set to <see cref="ValueReferenceType.Addressable" />, this will set the value of the
+		///     referenced <see cref="ScriptableValue{T}" /> if it is loaded.
+		/// </remarks>
 		public T Value
 		{
 			get { return GetValue(); }
 			set { SetValue(value, true); }
 		}
 
+		/// <summary>
+		///     Get the type of value reference.
+		/// </summary>
 		public ValueReferenceType ValueType
 		{
 			get { return valueType; }
 		}
 
+		/// <summary>
+		///     Checks if the value is an addressable value.
+		/// </summary>
+		/// <remarks>This will always return <c>false</c> if the addressables package isn't installed.</remarks>
 		public bool IsAddressable
 		{
 			get
@@ -68,6 +97,10 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Checks if the addressable asset is loaded.
+		/// </summary>
+		/// <remarks>This will always return <c>true</c> if the addressables package isn't installed.</remarks>
 		public bool IsAddressableLoaded
 		{
 			get
@@ -84,6 +117,9 @@ namespace Hertzole.ScriptableValues
 		internal event ValueEventHandler<T>? OnValueChangingInternal;
 		internal event ValueEventHandler<T>? OnValueChangedInternal;
 
+		/// <summary>
+		///     Called before the current value is set.
+		/// </summary>
 		public event ValueEventHandler<T> OnValueChanging
 		{
 			add
@@ -122,6 +158,9 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Called after the current value is set.
+		/// </summary>
 		public event ValueEventHandler<T> OnValueChanged
 		{
 			add
@@ -160,6 +199,9 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Creates a new <see cref="ValueReference{T}" /> of type <see cref="ValueReferenceType.Reference" />.
+		/// </summary>
 		public ValueReference()
 		{
 			valueType = ValueReferenceType.Reference;
@@ -170,12 +212,22 @@ namespace Hertzole.ScriptableValues
 #endif
 		}
 
+		/// <summary>
+		///     Creates a new <see cref="ValueReference{T}" /> of type <see cref="ValueReferenceType.Constant" /> with the given
+		///     constant value.
+		/// </summary>
+		/// <param name="constantValue">The constant value.</param>
 		public ValueReference(T constantValue)
 		{
 			valueType = ValueReferenceType.Constant;
 			this.constantValue = constantValue;
 		}
 
+		/// <summary>
+		///     Creates a new <see cref="ValueReference{T}" /> of type <see cref="ValueReferenceType.Reference" /> with the given
+		///     reference value.
+		/// </summary>
+		/// <param name="referenceValue">The reference value.</param>
 		public ValueReference(ScriptableValue<T> referenceValue)
 		{
 			valueType = ValueReferenceType.Reference;
@@ -183,6 +235,11 @@ namespace Hertzole.ScriptableValues
 		}
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
+		/// <summary>
+		///     Creates a new <see cref="ValueReference{T}" /> of type <see cref="ValueReferenceType.Addressable" /> with the given
+		///     addressable reference.
+		/// </summary>
+		/// <param name="addressableReference">The addressable reference.</param>
 		public ValueReference(AssetReferenceT<ScriptableValue<T>> addressableReference)
 		{
 			valueType = ValueReferenceType.Addressable;
@@ -321,8 +378,21 @@ namespace Hertzole.ScriptableValues
 #endif
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
+		/// <summary>
+		///     The handle to the loaded addressable asset.
+		/// </summary>
+		/// <remarks>
+		///     This will be a default <see cref="AsyncOperationHandle{TObject}" /> if
+		///     <see cref="LoadAddressableAssetAsync" /> hasn't been called yet.
+		/// </remarks>
 		public AsyncOperationHandle<ScriptableValue<T>> AssetHandle { get; private set; }
 
+		/// <summary>
+		///     Loads the addressable asset asynchronously.
+		/// </summary>
+		/// <param name="onLoaded">Optional callback that is called when the asset is loaded.</param>
+		/// <returns>The handle to the loaded addressable asset.</returns>
+		/// <exception cref="NotSupportedException"><see cref="ValueType" /> is not <see cref="ValueReferenceType.Addressable" />.</exception>
 		public AsyncOperationHandle<ScriptableValue<T>> LoadAddressableAssetAsync(Action<AsyncOperationHandle<ScriptableValue<T>>>? onLoaded = null)
 		{
 			if (valueType != ValueReferenceType.Addressable)
@@ -351,6 +421,9 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
+		/// <summary>
+		///     Releases the addressable asset.
+		/// </summary>
 		public void ReleaseAddressableAsset()
 		{
 			if (valueType != ValueReferenceType.Addressable)

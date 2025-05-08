@@ -111,7 +111,7 @@ namespace Hertzole.ScriptableValues.Tests
 		public int afterNewValue;
 
 		/// <inheritdoc />
-		protected override bool OnBeforeSetValue(int newValue)
+		protected override bool OnBeforeSetValue(int oldValue, int newValue)
 		{
 			calledOnBeforeSetValue = true;
 

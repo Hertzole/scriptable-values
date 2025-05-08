@@ -7,6 +7,7 @@ namespace Hertzole.ScriptableValues
 {
 	partial class ScriptableEvent<T>
 	{
+		/// <inheritdoc />
 		protected override long GetViewHashCode()
 		{
 			unchecked

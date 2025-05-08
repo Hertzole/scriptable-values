@@ -5,6 +5,7 @@ namespace Hertzole.ScriptableValues
 {
 	partial class ScriptableDictionary<TKey, TValue>
 	{
+		/// <inheritdoc />
 		protected override long GetViewHashCode()
 		{
 			unchecked

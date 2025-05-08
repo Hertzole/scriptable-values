@@ -20,6 +20,10 @@ namespace Hertzole.ScriptableValues
 		ToValue = 2
 	}
 
+	/// <summary>
+	///     Base class for a component that listens to <see cref="ScriptableEvent{T}" />.
+	/// </summary>
+	/// <typeparam name="TValue">The type to listen for.</typeparam>
 	public abstract class ScriptableEventListener<TValue> : ScriptableListenerBase
 	{
 		[SerializeField]

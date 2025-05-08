@@ -5,6 +5,9 @@ using System.Diagnostics;
 
 namespace Hertzole.ScriptableValues.Debugging
 {
+	/// <summary>
+	///     Represents a stack trace entry with a time stamp.
+	/// </summary>
 	public readonly struct StackTraceEntry : IEquatable<StackTraceEntry>
 	{
 		// Use bytes to use as little memory as possible.
