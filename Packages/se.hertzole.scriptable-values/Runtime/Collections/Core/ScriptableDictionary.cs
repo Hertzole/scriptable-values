@@ -1001,28 +1001,28 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when an item was added. Gives you the key and value of the newly added item.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnCollectionChanged' instead. This will be removed in build.", true)]
 #pragma warning disable CS0067 // Event is never used
 		public event Action<TKey, TValue>? OnAdded;
 		/// <summary>
 		///     Called when an item was set. Gives you the key, the old value, and the new value of the item.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnCollectionChanged' instead. This will be removed in build.", true)]
 		public event Action<TKey, TValue, TValue>? OnSet;
 		/// <summary>
 		///     Called when an item was removed. Gives you the key and value of the removed item.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnCollectionChanged' instead. This will be removed in build.", true)]
 		public event Action<TKey, TValue>? OnRemoved;
 		/// <summary>
 		///     Called when the dictionary is cleared.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnCollectionChanged' instead. This will be removed in build.", true)]
 		public event Action? OnCleared;
 		/// <summary>
 		///     Called when the dictionary is changed in any way.
 		/// </summary>
-		[Obsolete("Use 'OnCollectionChanged' or RegisterChangedListener instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnCollectionChanged' instead. This will be removed in build.", true)]
 		public event Action<DictionaryChangeType>? OnChanged;
 #pragma warning restore CS0067 // Event is never used
 #endif // UNITY_EDITOR

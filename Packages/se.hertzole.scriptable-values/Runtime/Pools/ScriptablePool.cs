@@ -308,23 +308,23 @@ namespace Hertzole.ScriptableValues
 		/// <summary>
 		///     Called when an object is created.
 		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnPoolChanged' instead. This will be removed in build.", true)]
 #pragma warning disable CS0067 // Event is never used
 		public event Action<T>? OnCreateObject;
 		/// <summary>
 		///     Called when an object is destroyed.
 		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnPoolChanged' instead. This will be removed in build.", true)]
 		public event Action<T>? OnDestroyObject;
 		/// <summary>
 		///     Called when an object is retrieved.
 		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnPoolChanged' instead. This will be removed in build.", true)]
 		public event Action<T>? OnGetObject;
 		/// <summary>
 		///     Called when an object is put back into the pool.
 		/// </summary>
-		[Obsolete("Use 'OnPoolChanged' or 'RegisterChangedCallback' instead. This will be removed in build.", true)]
+		[Obsolete("Use 'OnPoolChanged' instead. This will be removed in build.", true)]
 		public event Action<T>? OnReturnObject;
 #pragma warning restore CS0067 // Event is never used
 
