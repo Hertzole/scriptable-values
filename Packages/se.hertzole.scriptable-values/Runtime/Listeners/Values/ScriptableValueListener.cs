@@ -183,10 +183,15 @@ namespace Hertzole.ScriptableValues
 		/// </summary>
 		/// <param name="oldValue">The old value.</param>
 		/// <param name="newValue">The new value.</param>
-		protected virtual void OnCurrentValueChanging(TValue oldValue, TValue newValue)
+		private void OnCurrentValueChanging(TValue oldValue, TValue newValue)
 		{
 			if (ShouldInvoke(invokeOn, oldValue, newValue, fromValue, toValue))
 			{
+				if (!OnBeforeValueChangingInvoked(oldValue, newValue))
+				{
+					return;
+				}
+
 				switch (invokeParameters)
 				{
 					case InvokeParameters.Single:
@@ -200,18 +205,43 @@ namespace Hertzole.ScriptableValues
 						onValueChangingMultiple.Invoke(oldValue, newValue);
 						break;
 				}
+
+				OnAfterValueChangingInvoked(oldValue, newValue);
 			}
 		}
+
+		/// <summary>
+		///     Called before the value changing event.
+		/// </summary>
+		/// <param name="oldValue">The current value.</param>
+		/// <param name="newValue">The new value being set.</param>
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		protected virtual bool OnBeforeValueChangingInvoked(TValue oldValue, TValue newValue)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called after the value changing event.
+		/// </summary>
+		/// <param name="oldValue">The previous value.</param>
+		/// <param name="newValue">The new value that was set.</param>
+		protected virtual void OnAfterValueChangingInvoked(TValue oldValue, TValue newValue) { }
 
 		/// <summary>
 		///     Called when the target value has changed.
 		/// </summary>
 		/// <param name="oldValue">The old value.</param>
 		/// <param name="newValue">The new value.</param>
-		protected virtual void OnCurrentValueChanged(TValue oldValue, TValue newValue)
+		private void OnCurrentValueChanged(TValue oldValue, TValue newValue)
 		{
 			if (ShouldInvoke(invokeOn, oldValue, newValue, fromValue, toValue))
 			{
+				if (!OnBeforeValueChangedInvoked(oldValue, newValue))
+				{
+					return;
+				}
+
 				switch (invokeParameters)
 				{
 					case InvokeParameters.Single:
@@ -225,14 +255,34 @@ namespace Hertzole.ScriptableValues
 						onValueChangedMultiple.Invoke(oldValue, newValue);
 						break;
 				}
+
+				OnAfterValueChangedInvoked(oldValue, newValue);
 			}
 		}
+
+		/// <summary>
+		///     Called before the value changed event.
+		/// </summary>
+		/// <param name="oldValue">The current value.</param>
+		/// <param name="newValue">The new value being set.</param>
+		/// <returns><c>true</c> if the event should be invoked; otherwise, <c>false</c>.</returns>
+		protected virtual bool OnBeforeValueChangedInvoked(TValue oldValue, TValue newValue)
+		{
+			return true;
+		}
+
+		/// <summary>
+		///     Called after the value changed event.
+		/// </summary>
+		/// <param name="oldValue">The previous value.</param>
+		/// <param name="newValue">The new value that was set.</param>
+		protected virtual void OnAfterValueChangedInvoked(TValue oldValue, TValue newValue) { }
 
 		/// <summary>
 		///     Sets the target value.
 		/// </summary>
 		/// <param name="newValue"></param>
-		protected virtual void SetTargetValue(ScriptableValue<TValue>? newValue)
+		private void SetTargetValue(ScriptableValue<TValue>? newValue)
 		{
 			// If it's the same value, just stop here.
 			if (newValue == targetValue)
@@ -255,7 +305,7 @@ namespace Hertzole.ScriptableValues
 			}
 		}
 
-		protected void SetListeningToObject(ScriptableValue<TValue> target, bool listen)
+		private void SetListeningToObject(ScriptableValue<TValue> target, bool listen)
 		{
 			ThrowHelper.ThrowIfNull(target, nameof(target));
 
