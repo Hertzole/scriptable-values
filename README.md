@@ -3,6 +3,7 @@
      <br>
      <img src="https://img.shields.io/github/actions/workflow/status/Hertzole/scriptable-values/main.yml?style=flat&logo=Unity&label=Unity%20tests" alt="Unity tests workflow status">
      <a href="https://openupm.com/packages/se.hertzole.scriptable-values/"><img src="https://img.shields.io/npm/v/se.hertzole.scriptable-values?label=openupm&registry_uri=https://package.openupm.com" alt="OpenUPM"></a>
+     <a href="https://hertzole.github.io/scriptable-values"><img src="https://img.shields.io/badge/Documentation-darkgreen" alt="Documentation"></a>
      <br>
      <a href="https://github.com/sponsors/Hertzole"><img src="https://img.shields.io/badge/Sponsor_me-GitHub-%23EA4AAA?style=flat&logo=githubsponsors" alt="Sponsor me on github badge"></a>
      <a href="https://ko-fi.com/Hertzole"><img src="https://img.shields.io/badge/Support_me-Ko--fi-%23FF5E5B?style=flat&logo=ko-fi" alt="Support me on ko-fi badge"></a>
@@ -30,6 +31,8 @@ You also don't need to care about values being saved between sessions as they ar
 - Automatically collect stack traces to see where your values are set from
 - Value and event listeners for easily hooking up events in the editor for when value changes/events are invoked
 - Supports addressables for scriptable values and events
+- [Source generator for generating event callback boilerplate](https://hertzole.github.io/scriptable-values/guides/callback-generator)
+- Supports Unity's new runtime binding system and Unity.Properties
 
 ## 📦 Installation
 
@@ -63,14 +66,11 @@ Otherwise, follow these instructions:
 3. Paste in `https://github.com/Hertzole/scriptable-values.git#package`  
    You can also use `https://github.com/Hertzole/scriptable-values.git#dev-package` if you want the latest (but unstable!) changes.
 
-
-Also check out my other package [Unity Toolbox](https://github.com/Hertzole/unity-toolbox#subscribe-methods-generator) that can generate subscribe methods for scriptable values and events!
-
 ## 🛠 Usage
 
-### Scriptable Values
+Check out the [Getting Started guide](https://hertzole.github.io/scriptable-values/guides/getting-started) for more detailed instructions!
 
-![Scriptable value](https://github.com/Hertzole/scriptable-values/assets/5569364/241cdba9-222f-46dd-b09a-70dd63891014)
+### [Scriptable Values](https://hertzole.github.io/scriptable-values/types/scriptable-value)
 
 Scriptable Values allow you to have a single value across multiple objects and listen to its changing events.  
 There are scriptable values for all primitive C# values and most standard Unity types that you can use out of the box, but it's not difficult to create your own.
@@ -119,9 +119,7 @@ public class ScriptableVector3 : ScriptableValue<Vector3>
 }
 ```
 
-### Scriptable Events
-
-![Scriptable event](https://github.com/Hertzole/scriptable-values/assets/5569364/1c2a93c2-3df7-43e8-9ab1-d3ebf87af267)
+### [Scriptable Events](https://hertzole.github.io/scriptable-values/types/scriptable-event)
 
 Scriptable Events aim to replace normal C# events and the requirement to know the object they come from. With scriptable events, an event can come from anywhere but you are still able to know where if needed.  
 There are scriptable events for all primitive C# values and most standard Unity types that you can use out of the box, but it's not difficult to create your own.
@@ -173,9 +171,7 @@ public class ScriptableVector3Event : ScriptableEvent<Vector3>
 }
 ```
 
-### Scriptable Collections
-
-![Scriptable game object list](https://github.com/Hertzole/scriptable-values/assets/5569364/6da80bd8-7a9d-4b86-ae31-65653ff703a6)
+### [Scriptable Collections](https://hertzole.github.io/scriptable-values/types/scriptable-list)
 
 There are two scriptable collections that you can inherit from, list and dictionary, to create collections that you can use across your objects.  
 There's also a premade `ScriptableGameObjectList` that you can use to store game objects.
@@ -204,18 +200,20 @@ public class MessageUI : MonoBehaviour
 
     private void OnEnable()
     {
-        messageList.OnAdded += OnMessageAdded;
+        messageList.OnCollectionChanged += OnMessagesChanged;
     }
 
     private void OnDisable()
     {
-        messageList.OnAdded -= OnMessageAdded;
+        messageList.OnCollectionChanged -= OnMessagesChanged;
     }
 
-    private void OnMessageAdded(string newMessage)
+    private void OnMessagesChanged(CollectionChangedArgs<string> args)
     {
+        if (args.Action != NotifyCollectionChangedAction.Add) return;
+
         Text text = Instantiate(textPrefab);
-        text.text = newMessage;
+        text.text = args.NewItems[0];
     }
 }
 ```
@@ -243,25 +241,26 @@ public class PlayersUI : MonoBehaviour
 
     private void OnEnable()
     {
-        playersDictionary.OnAdded += OnPlayerAdded;
+        playersDictionary.OnCollectionChanged += OnPlayersChanged;
     }
 
     private void OnDisable()
     {
-        playersDictionary.OnAdded -= OnPlayerAdded;
+        playersDictionary.OnCollectionChanged -= OnPlayersChanged;
     }
 
-    private void OnPlayerAdded(int key, GameObject value)
+    private void OnPlayersChanged(CollectionChangedArgs<KeyValuePair<int, GameObject> args)
     {
+        if (args.Action != NotifyCollectionChangedAction.Add) return;
+
         Text text = Instantiate(textPrefab);
-        text.text = $"Player {key}: {value}";
+        KeyValuePair<int, GameObject> value = args.NewItems[0];
+        text.text = $"Player {value.Key}: {key.Value}";
     }
 }
 ```
 
-### Scriptable Pool
-
-![Scriptable game object pool](https://github.com/Hertzole/scriptable-values/assets/5569364/7d733396-4f74-4afa-8301-1d297641d932)
+### [Scriptable Pool](https://hertzole.github.io/scriptable-values/types/scriptable-pool)
 
 Scriptable Pool is a type of scriptable object that you can use for pooling objects. It can be a normal C# class, a component, game object, or even scriptable objects.  
 There's a premade `ScriptableGameObjectPool` that you can use to pool game objects.
@@ -328,9 +327,7 @@ public class ScriptableIntValuePool : ScriptableObjectPool<ScriptableInt>
 }
 ```
 
-### Value Reference
-
-![Value reference](https://github.com/Hertzole/scriptable-values/assets/5569364/7fcc6a1e-3108-4df3-87c7-5ed5383abdc9)
+### [Value Reference](https://hertzole.github.io/scriptable-values/types/value-reference)
 
 Value reference is a special type that allows you to pick in the inspector if you want a constant value in the inspector or a scriptable value reference (and even a addressable reference if you have addressables installed!). Meanwhile, in your code, you only interact with a single `Value` property and you don't need to care what type it is. 
 
