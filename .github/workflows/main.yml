@@ -48,7 +48,7 @@ jobs:
   build-docs:
     name: Build documentation
     runs-on: ubuntu-latest
-    container: unityci/editor-ubuntu-6000.0.60f1-base-3.1.0
+    container: unityci/editor-ubuntu-6000.0.59f1-base-3.1.0
     steps:
       # Checkout the repo
       - name: Checkout
