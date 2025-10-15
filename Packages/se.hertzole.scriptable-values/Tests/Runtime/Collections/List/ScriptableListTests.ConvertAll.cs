@@ -5,62 +5,78 @@ using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	partial class ScriptableListTests
-	{
-		[Test]
-		public void ConvertAll()
-		{
-			// Arrange
-			list.AddRange(new[] { 1, 2, 3, 4, 5 });
-			List<int> before = list.ToList();
+    partial class ScriptableListTests
+    {
+        [Test]
+        public void ConvertAll()
+        {
+            // Arrange
+            list.AddRange(new[] { 1, 2, 3, 4, 5 });
+            List<int> before = list.ToList();
 
-			// Act
-			List<int> after = list.ConvertAll(i => 10 * i);
+            // Act
+            List<int> after = list.ConvertAll(i => 10 * i);
 
-			// Assert
-			Assert.AreEqual(before.Count, list.Count);
-			Assert.AreEqual(before.Count, after.Count);
+            // Assert
+            Assert.AreEqual(before.Count, list.Count);
+            Assert.AreEqual(before.Count, after.Count);
 
-			for (int i = 0; i < before.Count; i++)
-			{
-				Assert.AreEqual(before[i], list[i]);
-				Assert.AreEqual(10 * before[i], after[i]);
-			}
-		}
+            for (int i = 0; i < before.Count; i++)
+            {
+                Assert.AreEqual(before[i], list[i]);
+                Assert.AreEqual(10 * before[i], after[i]);
+            }
+        }
 
-		[Test]
-		[TestCaseSource(nameof(DestinationLists))]
-		public void ConvertAll_DestinationList(IList<int> destinationList)
-		{
-			// Arrange
-			list.AddRange(new[] { 1, 2, 3, 4, 5 });
-			List<int> before = list.ToList();
+        [Test]
+        public void ConvertAll_DestinationList_NormalList()
+        {
+            ConvertAllTest(new List<int>());
+        }
 
-			// Act
-			list.ConvertAll(destinationList, i => 10 * i);
+        [Test]
+        public void ConvertAll_DestinationList_ScriptableList()
+        {
+            // Arrange
+            var newList = CreateInstance<TestScriptableList>();
 
-			// Assert
-			Assert.AreEqual(before.Count, list.Count);
-			Assert.AreEqual(before.Count, destinationList.Count);
+            ConvertAllTest(newList);
 
-			for (int i = 0; i < before.Count; i++)
-			{
-				Assert.AreEqual(before[i], list[i]);
-				Assert.AreEqual(10 * before[i], destinationList[i]);
-			}
-		}
+            // Cleanup
+            newList.Clear();
+        }
 
-		[Test]
-		public void ConvertAll_Validations()
-		{
-			AssertThrows<ArgumentNullException>(() => list.ConvertAll<int>(null!));
-		}
+        private void ConvertAllTest(IList<int> destinationList)
+        {
+            // Arrange
+            list.AddRange(new[] { 1, 2, 3, 4, 5 });
+            List<int> before = list.ToList();
 
-		[Test]
-		public void ConvertAll_List_Validations()
-		{
-			AssertThrows<ArgumentNullException>(() => list.ConvertAll(new List<int>(), null!));
-			AssertThrows<ArgumentNullException>(() => list.ConvertAll(null!, i => 10 * i));
-		}
-	}
+            // Act
+            list.ConvertAll(destinationList, i => 10 * i);
+
+            // Assert
+            Assert.AreEqual(before.Count, list.Count);
+            Assert.AreEqual(before.Count, destinationList.Count);
+
+            for (int i = 0; i < before.Count; i++)
+            {
+                Assert.AreEqual(before[i], list[i]);
+                Assert.AreEqual(10 * before[i], destinationList[i]);
+            }
+        }
+
+        [Test]
+        public void ConvertAll_Validations()
+        {
+            AssertThrows<ArgumentNullException>(() => list.ConvertAll<int>(null!));
+        }
+
+        [Test]
+        public void ConvertAll_List_Validations()
+        {
+            AssertThrows<ArgumentNullException>(() => list.ConvertAll(new List<int>(), null!));
+            AssertThrows<ArgumentNullException>(() => list.ConvertAll(null!, i => 10 * i));
+        }
+    }
 }

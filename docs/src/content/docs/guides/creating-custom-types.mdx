@@ -22,9 +22,19 @@ public class NewScriptableObject : RuntimeScriptableObject
 }
 ```
 
-## Game Start
+## Lifetime Events
 
-You can override the `OnStart` method to run code when the game starts. In the editor, this will be called when you enter play mode. In builds, this will be called when the scriptable object is first loaded.
+### OnStart
+
+There are two methods you can override to hook into the initialization of the scriptable object: `OnPreStart` and `OnStart`. `OnPreStart` is called before `OnStart`.
+
+When a scriptable object is loaded or instantiated at runtime, `OnPreStart` and `OnStart` will be called immediately after the object is loaded. This means it's safe to subscribe to any events directly after loading the object.
+
+`OnPreStart` will be called on all loaded scriptable objects before `OnStart`. Likewise, `OnStart` will be called on all loaded scriptable objects after `OnPreStart`. 
+
+`OnPreStart` is used for preparing the object itself, like cleaning up old data or resetting values. **You should not subscribe to any other scriptable objects in this method!** This is because the other scriptable objects may not have been initialized yet.
+
+`OnStart` can be used for subscribing to other scriptable objects or initializing data that depends on other objects. Other scriptable objects should have been initialized by now.
 
 ```csharp title="OnStart Example"
 using Hertzole.ScriptableValues;
@@ -36,39 +46,50 @@ public class NewScriptableObject : RuntimeScriptableObject
     public int currentValue;
     public int defaultValue;
 
+    protected override void OnPreStart()
+    {
+        // This will be called before OnStart.
+        currentValue = defaultValue;
+    }
+
     protected override void OnStart()
     {
-        // This will be called when the game starts.
-        currentValue = defaultValue;
+        // This will be called when the game starts, after OnPreStart.
     }
 }
 ```
 
-## Exiting Play Mode
+### OnDisabled
 
-You can override the `OnExitPlayMode` method to run code when exiting play mode. This is useful for resetting values or cleaning up resources.
+There are two methods you can override to hook into when the scriptable object is disabled: `OnPreDisabled` and `OnDisabled`. `OnPreDisabled` is called before `OnDisabled`.
 
-:::caution
-You must wrap your code in `#if UNITY_EDITOR` to prevent it from being included in builds. This is because the method is only called in the editor.
-:::
+When exiting play mode, `OnPreDisable` and `OnDisabled` will be called immediately before the editor switches back to edit mode. This means it's safe to unsubscribe from any events directly after exiting play mode.
 
-```csharp title="OnExitPlayMode Example" {10,16}
+`OnPreDisabled` will be called on all loaded scriptable objects before `OnDisabled` when they are destroyed at the same time. Likewise, `OnDisabled` will be called on all loaded scriptable objects after `OnPreDisabled`.
+
+`OnPreDisabled` is used for unsubscribing from other scriptable objects or cleaning up data that depends on other objects. Other scriptable objects should still be initialized at this point.
+
+`OnDisabled` can be used for cleaning up the object itself, like resetting values or releasing resources. **You should not unsubscribe from any other scriptable objects in this method!** This is because the other scriptable objects may have already been disabled.
+
+```csharp title="OnDisabled Example"
 using Hertzole.ScriptableValues;
 using UnityEngine;
 
 [CreateAssetMenu]
 public class NewScriptableObject : RuntimeScriptableObject
 {
-    public int currentValue;
-    public int defaultValue;
+    public event Action OnValueChanged;
 
-#if UNITY_EDITOR // Remember to wrap your code in this!
-    protected override void OnExitPlayMode()
+    protected override void OnPreDisabled()
     {
-        // This will be called when exiting play mode.
-        currentValue = defaultValue;
+        // This will be called before OnDisabled.
     }
-#endif // UNITY_EDITOR
+
+    protected override void OnDisabled()
+    {
+        // This will be called when the object is disabled.
+        OnValueChanged = null; // Clear all subscribers.
+    }
 }
 ```
 

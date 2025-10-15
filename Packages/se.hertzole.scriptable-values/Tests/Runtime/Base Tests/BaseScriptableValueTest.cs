@@ -6,355 +6,433 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public abstract partial class BaseScriptableValueTest<TType, TValue> : BaseRuntimeTest where TType : ScriptableValue<TValue>
-	{
-		protected void TestSetValue(TValue value, TValue startValue = default)
-		{
-			// Arrange
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
-			instance.ResetValue();
+    public abstract partial class BaseScriptableValueTest<TType, TValue> : BaseRuntimeTest where TType : ScriptableValue<TValue>
+    {
+        public static IEnumerable PropertyChangeCases
+        {
+            get
+            {
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.isReadOnlyChangingArgs, ScriptableValue.isReadOnlyChangedArgs,
+                    i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
 
-			TValue originalValue = instance.Value;
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.resetValueOnStartChangingArgs, ScriptableValue.resetValueOnStartChangedArgs,
+                    i => i.ResetValueOnStart = MakeDifferentValue(i.ResetValueOnStart));
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
-			bool notifyChangingInvoked = false;
-			bool notifyChangedInvoked = false;
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.setEqualityCheckChangingArgs, ScriptableValue.setEqualityCheckChangedArgs,
+                    i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
 
-			instance.OnValueChanging += OnValueChanging;
-			instance.OnValueChanged += OnValueChanged;
-			((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
-			((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.valueChangingArgs, ScriptableValue.valueChangedArgs,
+                    i => i.Value = MakeDifferentValue(i.Value));
 
-			// Act
-			instance.Value = value;
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+                    i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
 
-			// Assert
-			Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
-			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
-			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
-			Assert.IsTrue(notifyChangingInvoked, "PropertyChanging should be invoked.");
-			Assert.IsTrue(notifyChangedInvoked, "PropertyChanged should be invoked.");
+                yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
+                    i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
+            }
+        }
 
-			// Cleanup
-			instance.OnValueChanging -= OnValueChanging;
-			instance.OnValueChanged -= OnValueChanged;
-			return;
+        protected void TestSetValue(TValue value, TValue startValue = default)
+        {
+            // Arrange
+            TType instance = CreateInstance<TType>();
+            instance.DefaultValue = startValue;
+            instance.ResetValueOnStart = true;
+            instance.ResetValue();
 
-			void OnValueChanging(TValue oldValue, TValue newValue)
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangingInvoked = true;
-			}
+            TValue originalValue = instance.Value;
 
-			void OnValueChanged(TValue oldValue, TValue newValue)
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangedInvoked = true;
-			}
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
+            bool notifyChangingInvoked = false;
+            bool notifyChangedInvoked = false;
 
-			void OnPropertyChanging(object sender, PropertyChangingEventArgs e)
-			{
-				if (e.PropertyName == "Value")
-				{
-					notifyChangingInvoked = true;
-				}
-			}
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
 
-			void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-			{
-				if (e.PropertyName == "Value")
-				{
-					notifyChangedInvoked = true;
-				}
-			}
-		}
+            // Act
+            instance.Value = value;
 
-		protected void TestSetValue_WithoutNotify(TValue value, TValue startValue = default)
-		{
-			// Arrange
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
-			instance.ResetValue();
+            // Assert
+            Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
+            Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
+            Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
+            Assert.IsTrue(notifyChangingInvoked, "PropertyChanging should be invoked.");
+            Assert.IsTrue(notifyChangedInvoked, "PropertyChanged should be invoked.");
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
+            return;
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
-			bool notifyChangingInvoked = false;
-			bool notifyChangedInvoked = false;
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangingInvoked = true;
+            }
 
-			instance.OnValueChanging += (oldValue, newValue) => { valueChangingInvoked = true; };
-			instance.OnValueChanged += (oldValue, newValue) => { valueChangedInvoked = true; };
-			((INotifyPropertyChanging) instance).PropertyChanging += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangingArgs)
-				{
-					notifyChangingInvoked = true;
-				}
-			};
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangedInvoked = true;
+            }
 
-			((INotifyPropertyChanged) instance).PropertyChanged += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangedArgs)
-				{
-					notifyChangedInvoked = true;
-				}
-			};
+            void OnPropertyChanging(object sender, PropertyChangingEventArgs e)
+            {
+                if (e.PropertyName == "Value")
+                {
+                    notifyChangingInvoked = true;
+                }
+            }
 
-			// Act
-			instance.SetValueWithoutNotify(value);
+            void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+            {
+                if (e.PropertyName == "Value")
+                {
+                    notifyChangedInvoked = true;
+                }
+            }
+        }
 
-			// Assert
-			Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
-			Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
-			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
-			Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
-			Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
-		}
+        protected void TestSetValue_WithoutNotify(TValue value, TValue startValue = default)
+        {
+            // Arrange
+            TType instance = CreateInstance<TType>();
+            instance.DefaultValue = startValue;
+            instance.ResetValueOnStart = true;
+            instance.ResetValue();
 
-		protected void TestSetValue_ReadOnly_ThrowsException()
-		{
-			// Arrange
-			TType instance = CreateInstance<TType>();
-			instance.ResetValueOnStart = true;
-			instance.ResetValue();
+            Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
-			instance.IsReadOnly = true;
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
+            bool notifyChangingInvoked = false;
+            bool notifyChangedInvoked = false;
 
-			TValue originalValue = instance.Value;
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
-			bool notifyChangingInvoked = false;
-			bool notifyChangedInvoked = false;
+            // Act
+            instance.SetValueWithoutNotify(value);
 
-			instance.OnValueChanging += (oldValue, newValue) => { valueChangingInvoked = true; };
-			instance.OnValueChanged += (oldValue, newValue) => { valueChangedInvoked = true; };
-			((INotifyPropertyChanging) instance).PropertyChanging += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangingArgs)
-				{
-					notifyChangingInvoked = true;
-				}
-			};
+            // Assert
+            Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
+            Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
+            Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
+            Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
+            Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
 
-			((INotifyPropertyChanged) instance).PropertyChanged += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangedArgs)
-				{
-					notifyChangedInvoked = true;
-				}
-			};
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
+            return;
 
-			// Act & Assert
-			AssertThrowsReadOnlyException(instance, type => type.Value = MakeDifferentValue(type.Value));
-			Assert.AreEqual(originalValue, instance.Value, "Value should not be changed.");
-			Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
-			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
-			Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
-			Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
-		}
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                valueChangingInvoked = true;
+            }
 
-		protected void TestSetValue_SameValue(TValue value, TValue startValue = default)
-		{
-			// Arrange
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
-			instance.ResetValue();
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                valueChangedInvoked = true;
+            }
 
-			instance.SetEqualityCheck = true;
+            void OnPropertyChanging(object sender, PropertyChangingEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangingArgs)
+                {
+                    notifyChangingInvoked = true;
+                }
+            }
 
-			Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
+            void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangedArgs)
+                {
+                    notifyChangedInvoked = true;
+                }
+            }
+        }
 
-			TValue originalValue = instance.Value;
+        protected void TestSetValue_ReadOnly_ThrowsException()
+        {
+            // Arrange
+            TType instance = CreateInstance<TType>();
+            instance.ResetValueOnStart = true;
+            instance.ResetValue();
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
-			bool notifyChangingInvoked = false;
-			bool notifyChangedInvoked = false;
+            instance.IsReadOnly = true;
 
-			instance.OnValueChanging += (oldValue, newValue) => { valueChangingInvoked = true; };
-			instance.OnValueChanged += (oldValue, newValue) => { valueChangedInvoked = true; };
-			((INotifyPropertyChanging) instance).PropertyChanging += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangingArgs)
-				{
-					notifyChangingInvoked = true;
-				}
-			};
+            TValue originalValue = instance.Value;
 
-			((INotifyPropertyChanged) instance).PropertyChanged += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangedArgs)
-				{
-					notifyChangedInvoked = true;
-				}
-			};
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
+            bool notifyChangingInvoked = false;
+            bool notifyChangedInvoked = false;
 
-			// Act
-			instance.Value = value;
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
 
-			// Assert
-			Assert.AreEqual(originalValue, instance.Value, "Value should not be changed.");
-			Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
-			Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
-			Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
-			Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
-		}
+            // Act & Assert
+            AssertThrowsReadOnlyException(instance, type => type.Value = MakeDifferentValue(type.Value));
+            Assert.AreEqual(originalValue, instance.Value, "Value should not be changed.");
+            Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
+            Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
+            Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
+            Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
 
-		protected void TestSetValue_SameValue_NoEqualsCheck(TValue value, TValue startValue = default)
-		{
-			// Arrange
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
-			instance.ResetValue();
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
 
-			instance.SetEqualityCheck = false;
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                valueChangingInvoked = true;
+            }
 
-			Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                valueChangedInvoked = true;
+            }
 
-			TValue originalValue = instance.Value;
+            void OnPropertyChanging(object sender, PropertyChangingEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangingArgs)
+                {
+                    notifyChangingInvoked = true;
+                }
+            }
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
-			bool notifyChangingInvoked = false;
-			bool notifyChangedInvoked = false;
+            void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangedArgs)
+                {
+                    notifyChangedInvoked = true;
+                }
+            }
+        }
 
-			instance.OnValueChanging += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangingInvoked = true;
-			};
+        protected void TestSetValue_SameValue(TValue value, TValue startValue = default)
+        {
+            // Arrange
+            TType instance = CreateInstance<TType>();
+            instance.DefaultValue = startValue;
+            instance.ResetValueOnStart = true;
+            instance.ResetValue();
 
-			instance.OnValueChanged += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangedInvoked = true;
-			};
+            instance.SetEqualityCheck = true;
 
-			((INotifyPropertyChanging) instance).PropertyChanging += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangingArgs)
-				{
-					notifyChangingInvoked = true;
-				}
-			};
+            Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
 
-			((INotifyPropertyChanged) instance).PropertyChanged += (sender, args) =>
-			{
-				if (args == ScriptableValue.valueChangedArgs)
-				{
-					notifyChangedInvoked = true;
-				}
-			};
+            TValue originalValue = instance.Value;
 
-			// Act
-			instance.Value = value;
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
+            bool notifyChangingInvoked = false;
+            bool notifyChangedInvoked = false;
 
-			// Assert
-			Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
-			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
-			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
-			Assert.IsTrue(notifyChangingInvoked, "PropertyChanging should be invoked.");
-			Assert.IsTrue(notifyChangedInvoked, "PropertyChanged should be invoked.");
-		}
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
+
+            // Act
+            instance.Value = value;
+
+            // Assert
+            Assert.AreEqual(originalValue, instance.Value, "Value should not be changed.");
+            Assert.IsFalse(valueChangingInvoked, "OnValueChanging should not be invoked.");
+            Assert.IsFalse(valueChangedInvoked, "OnValueChanged should not be invoked.");
+            Assert.IsFalse(notifyChangingInvoked, "PropertyChanging should not be invoked.");
+            Assert.IsFalse(notifyChangedInvoked, "PropertyChanged should not be invoked.");
+
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
+
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                valueChangingInvoked = true;
+            }
+
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                valueChangedInvoked = true;
+            }
+
+            void OnPropertyChanging(object sender, PropertyChangingEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangingArgs)
+                {
+                    notifyChangingInvoked = true;
+                }
+            }
+
+            void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangedArgs)
+                {
+                    notifyChangedInvoked = true;
+                }
+            }
+        }
+
+        protected void TestSetValue_SameValue_NoEqualsCheck(TValue value, TValue startValue = default)
+        {
+            // Arrange
+            TType instance = CreateInstance<TType>();
+            instance.DefaultValue = startValue;
+            instance.ResetValueOnStart = true;
+            instance.ResetValue();
+
+            instance.SetEqualityCheck = false;
+
+            Assert.AreEqual(instance.Value, value, "Value should be equal to the start value.");
+
+            TValue originalValue = instance.Value;
+
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
+            bool notifyChangingInvoked = false;
+            bool notifyChangedInvoked = false;
+
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
+
+            // Act
+            instance.Value = value;
+
+            // Assert
+            Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
+            Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
+            Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
+            Assert.IsTrue(notifyChangingInvoked, "PropertyChanging should be invoked.");
+            Assert.IsTrue(notifyChangedInvoked, "PropertyChanged should be invoked.");
+
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+            ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
+            ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
+
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangingInvoked = true;
+            }
+
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangedInvoked = true;
+            }
+
+            void OnPropertyChanging(object sender, PropertyChangingEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangingArgs)
+                {
+                    notifyChangingInvoked = true;
+                }
+            }
+
+            void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+            {
+                if (args == ScriptableValue.valueChangedArgs)
+                {
+                    notifyChangedInvoked = true;
+                }
+            }
+        }
 
 #if UNITY_EDITOR
-		protected void TestSetValue_OnValidate(bool equalsCheck, TValue value, TValue startValue = default)
-		{
-			TType instance = CreateInstance<TType>();
-			instance.DefaultValue = startValue;
-			instance.ResetValueOnStart = true;
-			instance.SetEqualityCheck = equalsCheck;
-			instance.ResetValue();
+        protected void TestSetValue_OnValidate(bool equalsCheck, TValue value, TValue startValue = default)
+        {
+            TType instance = CreateInstance<TType>();
+            instance.DefaultValue = startValue;
+            instance.ResetValueOnStart = true;
+            instance.SetEqualityCheck = equalsCheck;
+            instance.ResetValue();
 
-			Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
+            Assert.AreNotEqual(instance.Value, value, "Value should not be equal to the start value.");
 
-			TValue originalValue = instance.Value;
+            TValue originalValue = instance.Value;
 
-			bool valueChangingInvoked = false;
-			bool valueChangedInvoked = false;
+            bool valueChangingInvoked = false;
+            bool valueChangedInvoked = false;
 
-			instance.OnValueChanging += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangingInvoked = true;
-			};
+            instance.OnValueChanging += OnValueChanging;
+            instance.OnValueChanged += OnValueChanged;
 
-			instance.OnValueChanged += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
-				Assert.AreEqual(value, newValue, "New value should be the value being set.");
-				valueChangedInvoked = true;
-			};
+            instance.value = value;
+            instance.CallOnValidate_TestOnly();
 
-			instance.value = value;
-			instance.CallOnValidate_TestOnly();
+            Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
+            Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
+            Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
 
-			Assert.AreEqual(value, instance.Value, "Value should be the value being set.");
-			Assert.IsTrue(valueChangingInvoked, "OnValueChanging should be invoked.");
-			Assert.IsTrue(valueChangedInvoked, "OnValueChanged should be invoked.");
-		}
+            // Cleanup
+            instance.OnValueChanging -= OnValueChanging;
+            instance.OnValueChanged -= OnValueChanged;
+
+            void OnValueChanging(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangingInvoked = true;
+            }
+
+            void OnValueChanged(TValue oldValue, TValue newValue)
+            {
+                Assert.AreEqual(originalValue, oldValue, $"Old value should be the original value ({originalValue}) but was {oldValue}.");
+                Assert.AreEqual(value, newValue, "New value should be the value being set.");
+                valueChangedInvoked = true;
+            }
+        }
 #endif // UNITY_EDITOR
 
-		public static IEnumerable PropertyChangeCases
-		{
-			get
-			{
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.isReadOnlyChangingArgs, ScriptableValue.isReadOnlyChangedArgs,
-					i => i.IsReadOnly = MakeDifferentValue(i.IsReadOnly));
+        [Test]
+        [TestCaseSource(nameof(PropertyChangeCases))]
+        public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
+        {
+            AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue);
+        }
 
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.resetValueOnStartChangingArgs, ScriptableValue.resetValueOnStartChangedArgs,
-					i => i.ResetValueOnStart = MakeDifferentValue(i.ResetValueOnStart));
+        private class Context
+        {
+            public int invokeCount;
+            public readonly TValue targetValue;
 
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.setEqualityCheckChangingArgs, ScriptableValue.setEqualityCheckChangedArgs,
-					i => i.SetEqualityCheck = MakeDifferentValue(i.SetEqualityCheck));
+            public Context(TValue targetValue)
+            {
+                invokeCount = 0;
+                this.targetValue = targetValue;
+            }
+        }
+    }
 
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.valueChangingArgs, ScriptableValue.valueChangedArgs,
-					i => i.Value = MakeDifferentValue(i.Value));
-
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
-					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
-
-				yield return MakePropertyChangeTestCase<TType>(ScriptableValue.previousValueChangingArgs, ScriptableValue.previousValueChangedArgs,
-					i => i.PreviousValue = MakeDifferentValue(i.PreviousValue));
-			}
-		}
-
-		[Test]
-		[TestCaseSource(nameof(PropertyChangeCases))]
-		public void InvokesPropertyChangeEvents(PropertyChangingEventArgs changingArgs, PropertyChangedEventArgs changedArgs, Action<TType> setValue)
-		{
-			AssertPropertyChangesAreInvoked(changingArgs, changedArgs, setValue);
-		}
-
-		private class Context
-		{
-			public int invokeCount;
-			public readonly TValue targetValue;
-
-			public Context(TValue targetValue)
-			{
-				invokeCount = 0;
-				this.targetValue = targetValue;
-			}
-		}
-	}
-
-	public enum ChangeChoice
-	{
-		Changing = 0,
-		Changed = 1
-	}
+    public enum ChangeChoice
+    {
+        Changing = 0,
+        Changed = 1
+    }
 }

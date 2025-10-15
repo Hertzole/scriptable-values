@@ -6,70 +6,71 @@ using Unity.Properties;
 
 namespace Hertzole.ScriptableValues
 {
-	/// <summary>
-	///     Base class for all <see cref="ScriptableList{T}" />.
-	/// </summary>
-	/// <remarks>You should probably inherit from <see cref="ScriptableList{T}" /> instead.</remarks>
+    /// <summary>
+    ///     Base class for all <see cref="ScriptableList{T}" />.
+    /// </summary>
+    /// <remarks>You should probably inherit from <see cref="ScriptableList{T}" /> instead.</remarks>
 #if UNITY_EDITOR
-	[HelpURL(Documentation.SCRIPTABLE_LIST_URL)]
+    [HelpURL(Documentation.SCRIPTABLE_LIST_URL)]
 #endif
-	public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly
-	{
-		public static readonly PropertyChangingEventArgs clearOnStartChangingArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
-		public static readonly PropertyChangedEventArgs clearOnStartChangedArgs = new PropertyChangedEventArgs(nameof(ClearOnStart));
+    public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly
+    {
+        public static readonly PropertyChangingEventArgs clearOnStartChangingArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
+        public static readonly PropertyChangedEventArgs clearOnStartChangedArgs = new PropertyChangedEventArgs(nameof(ClearOnStart));
 
-		public static readonly PropertyChangingEventArgs isReadOnlyChangingArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
-		public static readonly PropertyChangedEventArgs isReadOnlyChangedArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));
+        public static readonly PropertyChangingEventArgs isReadOnlyChangingArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
+        public static readonly PropertyChangedEventArgs isReadOnlyChangedArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));
 
-		public static readonly PropertyChangingEventArgs setEqualityCheckChangingArgs = new PropertyChangingEventArgs(nameof(SetEqualityCheck));
-		public static readonly PropertyChangedEventArgs setEqualityCheckChangedArgs = new PropertyChangedEventArgs(nameof(SetEqualityCheck));
+        public static readonly PropertyChangingEventArgs setEqualityCheckChangingArgs = new PropertyChangingEventArgs(nameof(SetEqualityCheck));
+        public static readonly PropertyChangedEventArgs setEqualityCheckChangedArgs = new PropertyChangedEventArgs(nameof(SetEqualityCheck));
 
-		public static readonly PropertyChangingEventArgs countChangingArgs = new PropertyChangingEventArgs(nameof(Count));
-		public static readonly PropertyChangedEventArgs countChangedArgs = new PropertyChangedEventArgs(nameof(Count));
+        public static readonly PropertyChangingEventArgs countChangingArgs = new PropertyChangingEventArgs(nameof(Count));
+        public static readonly PropertyChangedEventArgs countChangedArgs = new PropertyChangedEventArgs(nameof(Count));
 
-		public static readonly PropertyChangingEventArgs capacityChangingArgs = new PropertyChangingEventArgs(nameof(Capacity));
-		public static readonly PropertyChangedEventArgs capacityChangedArgs = new PropertyChangedEventArgs(nameof(Capacity));
+        public static readonly PropertyChangingEventArgs capacityChangingArgs = new PropertyChangingEventArgs(nameof(Capacity));
+        public static readonly PropertyChangedEventArgs capacityChangedArgs = new PropertyChangedEventArgs(nameof(Capacity));
 
-		/// <summary>
-		///     If <c>true</c>, an equality check will be run before setting an item through the indexer to make sure the new
-		///     object is
-		///     not the same as the old one.
-		/// </summary>
+        /// <summary>
+        ///     If <c>true</c>, an equality check will be run before setting an item through the indexer to make sure the new
+        ///     object is
+        ///     not the same as the old one.
+        /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
+        [CreateProperty]
 #endif
-		public abstract bool SetEqualityCheck { get; set; }
+        public abstract bool SetEqualityCheck { get; set; }
 
-		/// <summary>
-		///     If <c>true</c>, the <see cref="ScriptableList{T}" /> will be cleared on play mode start/game boot.
-		/// </summary>
+        /// <summary>
+        ///     If <c>true</c>, the <see cref="ScriptableList{T}" /> will be cleared on play mode start/game boot.
+        /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
+        [CreateProperty]
 #endif
-		public abstract bool ClearOnStart { get; set; }
+        public abstract bool ClearOnStart { get; set; }
 
-		/// <summary>
-		///     Gets the number of elements contained in the <see cref="ScriptableList{T}" />.
-		/// </summary>
+        /// <summary>
+        ///     Gets the number of elements contained in the <see cref="ScriptableList{T}" />.
+        /// </summary>
+        /// <returns>The number of elements contained in the <see cref="ScriptableList{T}" />.</returns>
 #if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
+        [CreateProperty]
 #endif
-		public abstract int Count { get; protected set; }
+        public abstract int Count { get; protected set; }
 
-		/// <summary>
-		///     Gets the total number of elements the internal data structure can hold without resizing.
-		/// </summary>
+        /// <summary>
+        ///     Gets the total number of elements the internal data structure can hold without resizing.
+        /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
+        [CreateProperty]
 #endif
-		public abstract int Capacity { get; set; }
+        public abstract int Capacity { get; set; }
 
-		/// <summary>
-		///     If read only, the <see cref="ScriptableList{T}" /> cannot be changed at runtime and won't be cleared on start.
-		/// </summary>
+        /// <summary>
+        ///     If read only, the <see cref="ScriptableList{T}" /> cannot be changed at runtime and won't be cleared on start.
+        /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
-		[CreateProperty]
+        [CreateProperty]
 #endif
-		public abstract bool IsReadOnly { get; set; }
-	}
+        public abstract bool IsReadOnly { get; set; }
+    }
 }
