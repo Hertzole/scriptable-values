@@ -67,6 +67,12 @@ namespace Hertzole.ScriptableValues.Tests
         }
 
         [Test]
+        public void ConvertAll_DestinationListIsReadOnly_ThrowsException()
+        {
+            AssertThrows<ArgumentException>(() => list.ConvertAll(Array.AsReadOnly(new[] { 1f, 2f, 3f }), i => 10 * i));
+        }
+
+        [Test]
         public void ConvertAll_Validations()
         {
             AssertThrows<ArgumentNullException>(() => list.ConvertAll<int>(null!));

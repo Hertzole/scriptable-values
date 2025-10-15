@@ -117,6 +117,12 @@ namespace Hertzole.ScriptableValues.Tests
         }
 
         [Test]
+        public void FindAll_DestinationListIsReadOnly_ThrowsException()
+        {
+            AssertThrows<ArgumentException>(() => list.FindAll(Array.AsReadOnly(new[] { 1, 2, 3 }), i => i >= 0));
+        }
+
+        [Test]
         public void FindAll_Validations()
         {
             AssertThrows<ArgumentNullException>(() => list.FindAll(null!));

@@ -95,6 +95,7 @@ namespace Hertzole.ScriptableValues.Helpers
             ThrowDuplicateItemException(value);
         }
 
+        /// <exception cref="ArgumentException" />
         public static void ThrowIfDestinationListIsReadOnly<T>(IList<T> list, string name)
         {
             if (!list.IsReadOnly)

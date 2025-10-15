@@ -281,5 +281,13 @@ namespace Hertzole.ScriptableValues.Tests
                 list.Clear();
             }
         }
+
+        [Test]
+        public void GetRange_DestinationListIsReadOnly_ThrowsException()
+        {
+            list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            AssertThrows<ArgumentException>(() => list.GetRange(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
+            AssertThrows<ArgumentException>(() => list.Slice(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
+        }
     }
 }
