@@ -7,74 +7,71 @@ using UnityEngine.TestTools;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class ClearSubscriberTests : BaseTest
-	{
-		private static readonly Regex leftOverWarningRegex = new Regex(
-			@"(On)?([A-Za-z\.]*) in object [A-Za-z ]*\(.*\) has some leftover subscribers:.*\n.*",
-			RegexOptions.Multiline);
+    public class ClearSubscriberTests : BaseTest
+    {
+        private static readonly Regex leftOverWarningRegex = new Regex(
+            @"(On)?([A-Za-z\.]*) in object (?:.*?) has some leftover subscribers:.*\n.*",
+            RegexOptions.Multiline);
 
-		[Test]
-		public void ScriptableValue()
-		{
-			TestClearing<ScriptableBool>(2, i =>
-			{
-				i.OnValueChanging += (_, _) => { };
-				i.OnValueChanged += (_, _) => { };
-			}, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptableValue()
+        {
+            TestClearing<ScriptableBool>(2, i =>
+            {
+                i.OnValueChanging += (_, _) => { };
+                i.OnValueChanged += (_, _) => { };
+            }, i => i.ClearSubscribers(true));
+        }
 
-		[Test]
-		public void ScriptableEvent()
-		{
-			TestClearing<ScriptableEvent>(1, i => i.OnInvoked += (sender, args) => { }, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptableEvent()
+        {
+            TestClearing<ScriptableEvent>(1, i => i.OnInvoked += (sender, args) => { }, i => i.ClearSubscribers(true));
+        }
 
-		[Test]
-		public void ScriptableEvent_WithArgs()
-		{
-			TestClearing<ScriptableBoolEvent>(1, i => i.OnInvoked += (sender, args) => { }, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptableEvent_WithArgs()
+        {
+            TestClearing<ScriptableBoolEvent>(1, i => i.OnInvoked += (sender, args) => { }, i => i.ClearSubscribers(true));
+        }
 
-		[Test]
-		public void ScriptableList()
-		{
-			TestClearing<TestScriptableList>(2, i =>
-			{
-				i.OnCollectionChanged += _ => { };
-				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
-			}, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptableList()
+        {
+            TestClearing<TestScriptableList>(2, i =>
+            {
+                i.OnCollectionChanged += _ => { };
+                ((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
+            }, i => i.ClearSubscribers(true));
+        }
 
-		[Test]
-		public void ScriptableDictionary()
-		{
-			TestClearing<TestScriptableDictionary>(2, i =>
-			{
-				i.OnCollectionChanged += _ => { };
-				((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
-			}, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptableDictionary()
+        {
+            TestClearing<TestScriptableDictionary>(2, i =>
+            {
+                i.OnCollectionChanged += _ => { };
+                ((INotifyCollectionChanged) i).CollectionChanged += (_, _) => { };
+            }, i => i.ClearSubscribers(true));
+        }
 
-		[Test]
-		public void ScriptablePool()
-		{
-			TestClearing<TestClassScriptablePool>(1, i =>
-			{
-				i.OnPoolChanged += (_, _) => { };
-			}, i => i.ClearSubscribers(true));
-		}
+        [Test]
+        public void ScriptablePool()
+        {
+            TestClearing<TestClassScriptablePool>(1, i => { i.OnPoolChanged += (_, _) => { }; }, i => i.ClearSubscribers(true));
+        }
 
-		private void TestClearing<T>(int warnings, Action<T> subscribe, Action<T> clear) where T : RuntimeScriptableObject
-		{
-			T instance = CreateInstance<T>();
-			subscribe(instance);
+        private void TestClearing<T>(int warnings, Action<T> subscribe, Action<T> clear) where T : RuntimeScriptableObject
+        {
+            T instance = CreateInstance<T>();
+            subscribe(instance);
 
-			for (int i = 0; i < warnings; i++)
-			{
-				LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
-			}
+            for (int i = 0; i < warnings; i++)
+            {
+                LogAssert.Expect(LogType.Warning, leftOverWarningRegex);
+            }
 
-			clear(instance);
-		}
-	}
+            clear(instance);
+        }
+    }
 }

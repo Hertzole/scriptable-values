@@ -4,100 +4,104 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests.Editor
 {
-	public partial class ResetValuesTests
-	{
-		[Test]
-		public void Dictionary_ResetEvents([Values] EventType eventType)
-		{
-			// Arrange
-			TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
-			using var tracker = new CollectionEventTracker<KeyValuePair<int, int>>(instance, eventType, instance);
-			
-			// Act
-			instance.Test_OnStart();
+    public partial class ResetValuesTests
+    {
+        [Test]
+        public void Dictionary_ResetEvents([Values] EventType eventType)
+        {
+            // Arrange
+            TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
+            using var tracker = new CollectionEventTracker<KeyValuePair<int, int>>(instance, eventType, instance);
 
-			instance.Add(0, 1);
-			instance.Remove(0);
-			instance.Clear();
-			instance[0] = 1;
+            // Act
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectEnable();
 
-			// Assert
-			Assert.IsFalse(tracker.HasBeenInvoked());
-		}
+            instance.Add(0, 1);
+            instance.Remove(0);
+            instance.Clear();
+            instance[0] = 1;
 
-		[Test]
-		public void Dictionary_ResetValues([ValueSource(nameof(bools))] bool isReadOnly, [ValueSource(nameof(bools))] bool clearOnStart)
-		{
-			TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
+            // Assert
+            Assert.IsFalse(tracker.HasBeenInvoked());
+        }
 
-			instance.Add(0, 1);
-			instance.Add(2, 3);
-			instance.Add(4, 5);
+        [Test]
+        public void Dictionary_ResetValues([ValueSource(nameof(bools))] bool isReadOnly, [ValueSource(nameof(bools))] bool clearOnStart)
+        {
+            TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
 
-			instance.IsReadOnly = isReadOnly;
-			instance.ClearOnStart = clearOnStart;
+            instance.Add(0, 1);
+            instance.Add(2, 3);
+            instance.Add(4, 5);
 
-			instance.Test_OnStart();
+            instance.IsReadOnly = isReadOnly;
+            instance.ClearOnStart = clearOnStart;
 
-			if (!isReadOnly && clearOnStart)
-			{
-				Assert.AreEqual(0, instance.Count);
-				Assert.AreEqual(0, instance.dictionary.Count);
-				Assert.AreEqual(0, instance.values.Count);
-				Assert.AreEqual(0, instance.keys.Count);
-			}
-			else
-			{
-				Assert.AreEqual(3, instance.Count);
-				Assert.AreEqual(3, instance.dictionary.Count);
-				Assert.AreEqual(3, instance.values.Count);
-				Assert.AreEqual(3, instance.keys.Count);
-			}
-		}
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectEnable();
 
-		[Test]
-		public void List_ResetEvents([Values] EventType eventType)
-		{
-			// Arrange
-			TestScriptableList instance = CreateInstance<TestScriptableList>();
-			using var tracker = new CollectionEventTracker<int>(instance, eventType, instance);
+            if (!isReadOnly && clearOnStart)
+            {
+                Assert.AreEqual(0, instance.Count);
+                Assert.AreEqual(0, instance.dictionary.Count);
+                Assert.AreEqual(0, instance.values.Count);
+                Assert.AreEqual(0, instance.keys.Count);
+            }
+            else
+            {
+                Assert.AreEqual(3, instance.Count);
+                Assert.AreEqual(3, instance.dictionary.Count);
+                Assert.AreEqual(3, instance.values.Count);
+                Assert.AreEqual(3, instance.keys.Count);
+            }
+        }
 
-			// Act
-			instance.Test_OnStart();
+        [Test]
+        public void List_ResetEvents([Values] EventType eventType)
+        {
+            // Arrange
+            TestScriptableList instance = CreateInstance<TestScriptableList>();
+            using var tracker = new CollectionEventTracker<int>(instance, eventType, instance);
 
-			instance.Add(0);
-			instance[0] = 1;
-			instance.Clear();
-			instance.Insert(0, 42);
-			instance.RemoveAt(0);
+            // Act
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectEnable();
 
-			Assert.IsFalse(tracker.HasBeenInvoked());
-		}
-		
-		[Test]
-		public void List_ResetValues([ValueSource(nameof(bools))] bool isReadOnly, [ValueSource(nameof(bools))] bool clearOnStart)
-		{
-			TestScriptableList instance = CreateInstance<TestScriptableList>();
+            instance.Add(0);
+            instance[0] = 1;
+            instance.Clear();
+            instance.Insert(0, 42);
+            instance.RemoveAt(0);
 
-			instance.Add(0);
-			instance.Add(1);
-			instance.Add(2);
+            Assert.IsFalse(tracker.HasBeenInvoked());
+        }
 
-			instance.IsReadOnly = isReadOnly;
-			instance.ClearOnStart = clearOnStart;
+        [Test]
+        public void List_ResetValues([ValueSource(nameof(bools))] bool isReadOnly, [ValueSource(nameof(bools))] bool clearOnStart)
+        {
+            TestScriptableList instance = CreateInstance<TestScriptableList>();
 
-			instance.Test_OnStart();
+            instance.Add(0);
+            instance.Add(1);
+            instance.Add(2);
 
-			if (!isReadOnly && clearOnStart)
-			{
-				Assert.AreEqual(0, instance.Count);
-				Assert.AreEqual(0, instance.list.Count);
-			}
-			else
-			{
-				Assert.AreEqual(3, instance.Count);
-				Assert.AreEqual(3, instance.list.Count);
-			}
-		}
-	}
+            instance.IsReadOnly = isReadOnly;
+            instance.ClearOnStart = clearOnStart;
+
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();
+            ((IScriptableValueCallbacks) instance).OnScriptableObjectEnable();
+
+            if (!isReadOnly && clearOnStart)
+            {
+                Assert.AreEqual(0, instance.Count);
+                Assert.AreEqual(0, instance.list.Count);
+            }
+            else
+            {
+                Assert.AreEqual(3, instance.Count);
+                Assert.AreEqual(3, instance.list.Count);
+            }
+        }
+    }
 }
