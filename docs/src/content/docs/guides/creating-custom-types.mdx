@@ -26,15 +26,15 @@ public class NewScriptableObject : RuntimeScriptableObject
 
 ### OnStart
 
-There are two methods you can override to hook into the initialization of the scriptable object: `OnPreStart` and `OnStart`. `OnPreStart` is called before `OnStart`.
+There are two methods you can override to hook into the initialization of the scriptable object: [`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/) and [`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/). [`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/) is called before [`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/).
 
-When a scriptable object is loaded or instantiated at runtime, `OnPreStart` and `OnStart` will be called immediately after the object is loaded. This means it's safe to subscribe to any events directly after loading the object.
+When a scriptable object is loaded or instantiated at runtime, [`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/) and [`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/) will be called immediately after the object is loaded. This means it's safe to subscribe to any events directly after loading the object.
 
-`OnPreStart` will be called on all loaded scriptable objects before `OnStart`. Likewise, `OnStart` will be called on all loaded scriptable objects after `OnPreStart`. 
+[`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/) will be called on all loaded scriptable objects before [`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/). Likewise, [`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/) will be called on all loaded scriptable objects after [`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/). 
 
-`OnPreStart` is used for preparing the object itself, like cleaning up old data or resetting values. **You should not subscribe to any other scriptable objects in this method!** This is because the other scriptable objects may not have been initialized yet.
+[`OnPreStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onprestart/) is used for preparing the object itself, like cleaning up old data or resetting values. **You should not subscribe to any other scriptable objects in this method!** This is because the other scriptable objects may not have been initialized yet.
 
-`OnStart` can be used for subscribing to other scriptable objects or initializing data that depends on other objects. Other scriptable objects should have been initialized by now.
+[`OnStart`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onstart/) can be used for subscribing to other scriptable objects or initializing data that depends on other objects. Other scriptable objects should have been initialized by now.
 
 ```csharp title="OnStart Example"
 using Hertzole.ScriptableValues;
@@ -61,15 +61,15 @@ public class NewScriptableObject : RuntimeScriptableObject
 
 ### OnDisabled
 
-There are two methods you can override to hook into when the scriptable object is disabled: `OnPreDisabled` and `OnDisabled`. `OnPreDisabled` is called before `OnDisabled`.
+There are two methods you can override to hook into when the scriptable object is disabled: [`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/) and [`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/). [`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/) is called before [`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/).
 
-When exiting play mode, `OnPreDisable` and `OnDisabled` will be called immediately before the editor switches back to edit mode. This means it's safe to unsubscribe from any events directly after exiting play mode.
+When exiting play mode, [`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/) and [`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/) will be called immediately before the editor switches back to edit mode. This means it's safe to unsubscribe from any events directly after exiting play mode.
 
-`OnPreDisabled` will be called on all loaded scriptable objects before `OnDisabled` when they are destroyed at the same time. Likewise, `OnDisabled` will be called on all loaded scriptable objects after `OnPreDisabled`.
+[`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/) will be called on all loaded scriptable objects before [`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/) when they are destroyed at the same time. Likewise, [`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/) will be called on all loaded scriptable objects after [`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/).
 
-`OnPreDisabled` is used for unsubscribing from other scriptable objects or cleaning up data that depends on other objects. Other scriptable objects should still be initialized at this point.
+[`OnPreDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#onpredisabled/) is used for unsubscribing from other scriptable objects or cleaning up data that depends on other objects. Other scriptable objects should still be initialized at this point.
 
-`OnDisabled` can be used for cleaning up the object itself, like resetting values or releasing resources. **You should not unsubscribe from any other scriptable objects in this method!** This is because the other scriptable objects may have already been disabled.
+[`OnDisabled`](../../reference/hertzole.scriptablevalues.runtimescriptableobject/#ondisabled/) can be used for cleaning up the object itself, like resetting values or releasing resources. **You should not unsubscribe from any other scriptable objects in this method!** This is because the other scriptable objects may have already been disabled.
 
 ```csharp title="OnDisabled Example"
 using Hertzole.ScriptableValues;
