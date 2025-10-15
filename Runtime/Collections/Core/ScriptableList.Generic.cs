@@ -379,6 +379,7 @@ namespace Hertzole.ScriptableValues
         /// </param>
         /// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
         /// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="destinationList"/> is marked as read-only.</exception>
         public void ConvertAll<TOutput>(IList<TOutput> destinationList, Converter<T, TOutput> converter)
         {
             ThrowHelper.ThrowIfNull(converter, nameof(converter));
@@ -498,6 +499,7 @@ namespace Hertzole.ScriptableValues
         /// <param name="destinationList"> The list where the found elements will be copied to.</param>
         /// <param name="match">The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to search for.</param>
         /// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="destinationList"/> is marked as read-only.</exception>
         public void FindAll(IList<T> destinationList, Predicate<T> match)
         {
             ThrowHelper.ThrowIfNull(match, nameof(match));
@@ -700,6 +702,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentNullException"><c>destinationList</c> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><c>index</c> is less than 0. Or <c>count</c> is less than 0.</exception>
         /// <exception cref="ArgumentException"><c>index</c> and <c>count</c> do not denote a valid range of elements in the list.</exception>
+        /// <exception cref="ArgumentException"><paramref name="destinationList"/> is marked as read-only.</exception>
         public void GetRange(int index, int count, IList<T> destinationList)
         {
             ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
