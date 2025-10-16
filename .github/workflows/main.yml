@@ -56,6 +56,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Install libatomic1
+      - name: Install libatomic1
+        run: apt-get update && apt-get install -y libatomic1
+
       # Setup node
       - name: Setup Node.js
         uses: actions/setup-node@v6
