@@ -105,7 +105,7 @@ jobs:
             /d:sonar.verbose=false \
             /d:sonar.token=$SONAR_TOKEN \
             /d:sonar.scanner.scanAll=false \
-            /d:sonar.dotnet.excludeTestProjects=true
+            /d:sonar.dotnet.excludeTestProjects=true \
             /d:sonar.cs.opencover.reportsPaths="${{ steps.download-coverage.outputs.download-path }}/*/workspace-opencov/*/*.xml","${{ steps.download-generator-coverage.outputs.download-path }}/*/*/*.xml" \
             /d:sonar.exclusions="Coverage/**, CoverageReport/**"
           dotnet build scriptable-values.sln
