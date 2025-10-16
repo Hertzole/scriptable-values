@@ -124,11 +124,11 @@ namespace Hertzole.ScriptableValues
             if (state == PlayModeStateChange.ExitingEditMode)
             {
                 ResetStackTraces();
-                ScriptableValuesPlayerLoop.RegisterForEnable(this);
+                ScriptableValuesInitialization.RegisterForEnable(this);
             }
             else if (state == PlayModeStateChange.ExitingPlayMode)
             {
-                ScriptableValuesPlayerLoop.RegisterForDisable(this);
+                ScriptableValuesInitialization.RegisterForDisable(this);
 #pragma warning disable CS0618 // Type or member is obsolete
                 OnExitPlayMode();
 #pragma warning restore CS0618 // Type or member is obsolete
