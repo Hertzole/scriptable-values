@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Hertzole.ScriptableValues
 {
-    internal static class ScriptableValuesPlayerLoop
+    internal static class ScriptableValuesInitialization
     {
         private static readonly List<IScriptableValueCallbacks> objectsToEnable = new List<IScriptableValueCallbacks>();
         private static readonly List<IScriptableValueCallbacks> objectsToDisable = new List<IScriptableValueCallbacks>();
