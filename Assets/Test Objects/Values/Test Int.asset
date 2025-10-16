@@ -9,10 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa437ef3afcf40e29f04f77bf57254a7, type: 3}
-  m_Name: Example GameObject List
+  m_Script: {fileID: 11500000, guid: 32c19368875641e8a442aac66e531d74, type: 3}
+  m_Name: Test Int
   m_EditorClassIdentifier: 
+  collectStackTraces: 1
   isReadOnly: 0
+  resetValueOnStart: 1
   setEqualityCheck: 1
-  clearOnStart: 1
-  list: []
+  value: 0
+  defaultValue: 0
+  onValueChanging:
+    m_PersistentCalls:
+      m_Calls: []
+  onValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
