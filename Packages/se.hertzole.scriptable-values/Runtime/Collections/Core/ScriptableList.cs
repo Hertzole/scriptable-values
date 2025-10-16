@@ -53,8 +53,12 @@ namespace Hertzole.ScriptableValues
         /// </summary>
         /// <returns>The number of elements contained in the <see cref="ScriptableList{T}" />.</returns>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
         public abstract int Count { get; protected set; }
 
         /// <summary>

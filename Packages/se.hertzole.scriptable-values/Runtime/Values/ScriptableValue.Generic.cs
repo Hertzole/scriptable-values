@@ -58,6 +58,7 @@ namespace Hertzole.ScriptableValues
 #if SCRIPTABLE_VALUES_PROPERTIES
         [CreateProperty]
 #endif
+        //TODO: Mark this as nullable once Unity fixes properties properly supporting nullable generics.
         public T Value
         {
             get { return value; }
@@ -72,8 +73,13 @@ namespace Hertzole.ScriptableValues
         ///     The previous value before the current value was set.
         /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
+        //TODO: Mark this as nullable once Unity fixes properties properly supporting nullable generics.
         public T PreviousValue
         {
             get { return previousValue; }
