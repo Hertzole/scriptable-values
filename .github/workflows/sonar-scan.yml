@@ -102,7 +102,6 @@ jobs:
           ./dotnet-sonarscanner begin \
             /o:"hertzole" \
             /k:"scriptable-values" \
-            /d:sonar.host.url=https://sonarcloud.io \
             /d:sonar.verbose=false \
             /d:sonar.login=$SONAR_TOKEN \
             /d:sonar.scanner.scanAll=false \
