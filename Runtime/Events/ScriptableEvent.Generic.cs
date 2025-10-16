@@ -50,8 +50,12 @@ namespace Hertzole.ScriptableValues
         ///     The arguments that was passed to the event when it was invoked.
         /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
         public T? PreviousArgs
         {
             get { return previousArgs; }

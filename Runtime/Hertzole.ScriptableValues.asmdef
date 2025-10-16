@@ -32,6 +32,11 @@
             "name": "Unity",
             "expression": "2023.2",
             "define": "SCRIPTABLE_VALUES_RUNTIME_BINDING"
+        },
+      {
+        "name": "Unity",
+        "expression": "2023.1",
+        "define": "SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY"
         }
     ],
     "noEngineReferences": false

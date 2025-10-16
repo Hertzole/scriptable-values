@@ -35,24 +35,36 @@ namespace Hertzole.ScriptableValues
         ///     How many total objects that the pool is keeping track of.
         /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
         public abstract int CountAll { get; protected set; }
 
         /// <summary>
         ///     How many objects that are currently active.
         /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
         public abstract int CountActive { get; protected set; }
 
         /// <summary>
         ///     How many objects that are currently inactive.
         /// </summary>
 #if SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+        [CreateProperty(ReadOnly = true)]
+#else
         [CreateProperty]
-#endif
+#endif // SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY
+#endif // SCRIPTABLE_VALUES_PROPERTIES
         public abstract int CountInactive { get; protected set; }
     }
 
