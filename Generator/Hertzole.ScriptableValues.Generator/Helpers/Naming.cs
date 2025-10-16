@@ -61,8 +61,17 @@ internal static class Naming
 
 		ReadOnlySpan<char> prettyName = FormatVariableName(name.AsSpan());
 
-		builder.AddRange("On");
-		builder.AddRange(prettyName);
+		if (StartsWithOn(prettyName))
+		{
+			// If it starts with "on", just uppercase the O and keep the rest.
+			builder.Add('O');
+			builder.AddRange(prettyName.Slice(1));
+		}
+		else
+		{
+			builder.AddRange("On");
+			builder.AddRange(prettyName);
+		}
 
 		switch (scriptableType)
 		{
@@ -98,5 +107,12 @@ internal static class Naming
 				builder.AddRange("Changing");
 			}
 		}
+	}
+	
+	private static bool StartsWithOn(ReadOnlySpan<char> value)
+	{
+		// Check if it starts with "on" or "On" and the third character is uppercase.
+		// Checking the third character ensures we don't match words like "only" or "once".
+		return value.Length >= 3 && ((value[0] == 'o' || value[0] == 'O') && (value[1] == 'n' || value[1] == 'N')) && char.IsUpper(value[2]);
 	}
 }

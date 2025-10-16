@@ -10,52 +10,31 @@ namespace My.Namespace
 	public partial class ChangingClass
 	{
 		[GenerateEventCallback]
-		public ScriptableBoolEvent eventTest;
-
-		[GenerateCollectionCallback]
-		public ScriptableList<string> listTest;
-
-		[GenerateCollectionCallback]
-		public ScriptableDictionary<int, string> dicTest;
-
-		[GeneratePoolCallback]
-		public ScriptableObjectPool<ScriptableFloat> camerapool;
-
+		public ScriptableBoolEvent onBoolChanged;
+		[GenerateEventCallback]
+		public ScriptableFloatEvent m_OnFloatEvent;
 		[GenerateValueCallback]
-		public ValueReference<bool> FloatReference;
-		
-		[GenerateValueCallback(ValueCallbackType.Changing)]
-		public ScriptableString ValueProperty { get; set; }
+		public ScriptableInt onionHealth;
 
-		private partial void OnFloatReferenceChanged(bool oldValue, bool newValue)
-		{
-			throw new NotImplementedException();
-		}
+        private partial void OnOnionHealthChanged(int oldValue, int newValue)
+        {
+            throw new System.NotImplementedException();
+        }
 
-		private partial void OnValuePropertyChanging(string oldValue, string newValue)
-		{
-			throw new NotImplementedException();
-		}
+        private partial void OnionHealthChanged(int oldValue, int newValue)
+        {
+            throw new System.NotImplementedException();
+        }
 
-		private partial void OnEventTestInvoked(object sender, bool args)
-		{
-			throw new NotImplementedException();
-		}
+        private partial void OnFloatEventInvoked(object sender, float args)
+        {
+            throw new System.NotImplementedException();
+        }
 
-		private partial void OnListTestChanged(CollectionChangedArgs<string> args)
-		{
-			throw new NotImplementedException();
-		}
-
-		private partial void OnDicTestChanged(CollectionChangedArgs<KeyValuePair<int, string>> args)
-		{
-			throw new NotImplementedException();
-		}
-
-		private partial void OnCamerapoolChanged(PoolAction action, ScriptableFloat item)
-		{
-			throw new NotImplementedException();
-		}
-	}
+        private partial void OnBoolChangedInvoked(object sender, bool args)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }
 #endif
