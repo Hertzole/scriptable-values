@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -138,6 +139,7 @@ namespace Hertzole.ScriptableValues
         ///     Called when the game exits play mode.
         /// </summary>
         [Obsolete("Use either 'OnPreDisabled' or 'OnDisabled' instead.")]
+        [ExcludeFromCodeCoverage]
         protected virtual void OnExitPlayMode() { }
 #endif
     }
