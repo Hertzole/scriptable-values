@@ -4,43 +4,57 @@ namespace Hertzole.ScriptableValues.Generator;
 
 internal readonly record struct HierarchyInfo(string FilenameHint, string TypeName, string? Namespace, ISymbol Symbol, bool ShouldInherit)
 {
-	public bool IsSealed
-	{
-		get { return Symbol.IsSealed; }
-	}
+    public bool IsSealed
+    {
+        get { return Symbol.IsSealed; }
+    }
 
-	public bool IsStruct
-	{
-		get { return ((ITypeSymbol) Symbol).IsValueType; }
-	}
+    public bool IsStruct
+    {
+        get { return ((ITypeSymbol) Symbol).IsValueType; }
+    }
 
-	public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
-	{
-		string? nspace = null;
+    public int ParentCount { get; private init; }
 
-		if (!symbol.ContainingNamespace.IsGlobalNamespace)
-		{
-			nspace = symbol.ContainingNamespace.ToDisplayString();
-		}
+    public static HierarchyInfo FromSymbol(INamedTypeSymbol symbol)
+    {
+        string? nspace = null;
 
-		bool shouldInherit = HasParentWithCallbacks(symbol);
+        if (!symbol.ContainingNamespace.IsGlobalNamespace)
+        {
+            nspace = symbol.ContainingNamespace.ToDisplayString();
+        }
 
-		return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-			nspace, symbol, shouldInherit);
-	}
+        bool shouldInherit = HasParentWithCallbacks(symbol, out int parentCount);
 
-	private static bool HasParentWithCallbacks(INamedTypeSymbol symbol)
-	{
-		if (symbol.BaseType == null)
-		{
-			return false;
-		}
+        return new HierarchyInfo(symbol.GetFullyQualifiedMetadataName(), symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+            nspace, symbol, shouldInherit)
+        {
+            ParentCount = parentCount
+        };
+    }
 
-		if (symbol.BaseType.HasAttribute(Types.GLOBAL_MARKER_ATTRIBUTE))
-		{
-			return true;
-		}
+    private static bool HasParentWithCallbacks(INamedTypeSymbol symbol, out int parentCount)
+    {
+        parentCount = 0;
 
-		return HasParentWithCallbacks(symbol.BaseType);
-	}
+        if (symbol.BaseType == null)
+        {
+            return false;
+        }
+
+        INamedTypeSymbol? current = symbol.BaseType;
+
+        while (current != null)
+        {
+            if (current.HasAttribute(Types.GLOBAL_MARKER_ATTRIBUTE))
+            {
+                parentCount++;
+            }
+
+            current = current.BaseType;
+        }
+
+        return parentCount > 0;
+    }
 }
