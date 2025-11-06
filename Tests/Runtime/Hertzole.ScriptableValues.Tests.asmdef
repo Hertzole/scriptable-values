@@ -1,41 +1,41 @@
 {
-    "name": "Hertzole.ScriptableValues.Tests",
-    "rootNamespace": "Hertzole.ScriptableValues.Tests",
-    "references": [
-        "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6",
-        "GUID:f2f9d2fc68e34493a779a29584e279dc",
-        "GUID:9e24947de15b9834991c9d8411ea37cf",
-        "GUID:84651a3751eca9349aac36a66bba901b"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "nunit.framework.dll"
-    ],
-    "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
-    ],
-    "versionDefines": [
-        {
-            "name": "com.unity.addressables",
-            "expression": "",
-            "define": "SCRIPTABLE_VALUES_ADDRESSABLES"
-        },
-        {
-            "name": "Unity",
-            "expression": "2022.2",
-            "define": "SCRIPTABLE_VALUES_PROPERTIES"
-        },
-        {
-            "name": "Unity",
-            "expression": "2023.2",
-            "define": "SCRIPTABLE_VALUES_RUNTIME_BINDING"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "Hertzole.ScriptableValues.Tests",
+  "rootNamespace": "Hertzole.ScriptableValues.Tests",
+  "references": [
+    "GUID:27619889b8ba8c24980f49ee34dbb44a",
+    "GUID:0acc523941302664db1f4e527237feb3",
+    "GUID:1a91e603eade47d42a03c9e9f4f5e8b6",
+    "GUID:f2f9d2fc68e34493a779a29584e279dc",
+    "GUID:9e24947de15b9834991c9d8411ea37cf",
+    "GUID:84651a3751eca9349aac36a66bba901b"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.addressables",
+      "expression": "",
+      "define": "SCRIPTABLE_VALUES_ADDRESSABLES"
+    },
+    {
+      "name": "Unity",
+      "expression": "2022.2",
+      "define": "SCRIPTABLE_VALUES_PROPERTIES"
+    },
+    {
+      "name": "Unity",
+      "expression": "2023.2",
+      "define": "SCRIPTABLE_VALUES_RUNTIME_BINDING"
+    }
+  ],
+  "noEngineReferences": false
 }

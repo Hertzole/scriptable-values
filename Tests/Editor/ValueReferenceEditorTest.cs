@@ -1,188 +1,175 @@
 ﻿using System.Collections;
 using NUnit.Framework;
-using UnityEngine;
 using UnityEngine.TestTools;
 using Application = UnityEngine.Device.Application;
 using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests.Editor
 {
-	public sealed class ValueReferenceEditorTest : BaseEditorTest
-	{
-		[Test]
-		public void OnValueChanging_NewValue_EditMode()
-		{
-			Assert.IsFalse(Application.isPlaying);
-			
-			bool eventInvoked = false;
-			
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanging += (oldValue, newValue) =>
-			{
-				eventInvoked = true;
-			};
-			
-			reference.SetPreviousValue();
+    public sealed class ValueReferenceEditorTest : BaseEditorTest
+    {
+        [Test]
+        public void OnValueChanging_NewValue_EditMode()
+        {
+            Assert.IsFalse(Application.isPlaying);
 
-			reference.constantValue = 1;
-			
-			reference.SetEditorValue();
+            bool eventInvoked = false;
 
-			Assert.IsFalse(eventInvoked);
-		}
-		
-		[Test]
-		public void OnValueChanging_SameValue_EditMode()
-		{
-			Assert.IsFalse(Application.isPlaying);
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanging += (oldValue, newValue) => { eventInvoked = true; };
 
-			bool eventInvoked = false;
-			
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanging += (oldValue, newValue) =>
-			{
-				eventInvoked = true;
-			};
-			
-			reference.SetPreviousValue();
-			
-			reference.constantValue = 0;
-			
-			reference.SetEditorValue();
-			
-			Assert.IsFalse(eventInvoked);
-		}
-		
-		[Test]
-		public void OnValueChanged_NewValue_EditMode()
-		{
-			Assert.IsFalse(Application.isPlaying);
-			
-			bool eventInvoked = false;
-			
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanged += (oldValue, newValue) =>
-			{
-				eventInvoked = true;
-			};
-			
-			reference.SetPreviousValue();
+            reference.SetPreviousValue();
 
-			reference.constantValue = 1;
-			
-			reference.SetEditorValue();
-			
-			Assert.IsFalse(eventInvoked);
-		}
-		
-		[Test]
-		public void OnValueChanged_SameValue_EditMode()
-		{
-			Assert.IsFalse(Application.isPlaying);
+            reference.constantValue = 1;
 
-			bool eventInvoked = false;
-			
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanged += (oldValue, newValue) =>
-			{
-				eventInvoked = true;
-			};
-			
-			reference.SetPreviousValue();
-			
-			reference.constantValue = 0;
-			
-			reference.SetEditorValue();
-			
-			Assert.IsFalse(eventInvoked);
-		}
-		
-		[UnityTest]
-		public IEnumerator OnValueChanging_NewValue_PlayMode()
-		{
-			yield return new EnterPlayMode(false);
+            reference.SetEditorValue();
 
-			bool eventInvoked = false;
+            Assert.IsFalse(eventInvoked);
+        }
 
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanging += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(0, oldValue);
-				Assert.AreEqual(1, newValue);
+        [Test]
+        public void OnValueChanging_SameValue_EditMode()
+        {
+            Assert.IsFalse(Application.isPlaying);
 
-				eventInvoked = true;
-			};
+            bool eventInvoked = false;
 
-			reference.SetPreviousValue();
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanging += (oldValue, newValue) => { eventInvoked = true; };
 
-			reference.constantValue = 1;
+            reference.SetPreviousValue();
 
-			reference.SetEditorValue();
+            reference.constantValue = 0;
 
-			Assert.IsTrue(eventInvoked);
-		}
+            reference.SetEditorValue();
 
-		[UnityTest]
-		public IEnumerator OnValueChanging_SameValue_PlayMode()
-		{
-			yield return new EnterPlayMode(false);
+            Assert.IsFalse(eventInvoked);
+        }
 
-			bool eventInvoked = false;
+        [Test]
+        public void OnValueChanged_NewValue_EditMode()
+        {
+            Assert.IsFalse(Application.isPlaying);
 
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanging += (oldValue, newValue) => { eventInvoked = true; };
+            bool eventInvoked = false;
 
-			reference.SetPreviousValue();
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanged += (oldValue, newValue) => { eventInvoked = true; };
 
-			reference.constantValue = 0;
+            reference.SetPreviousValue();
 
-			reference.SetEditorValue();
+            reference.constantValue = 1;
 
-			Assert.IsFalse(eventInvoked);
-		}
+            reference.SetEditorValue();
 
-		[UnityTest]
-		public IEnumerator OnValueChanged_NewValue_PlayMode()
-		{
-			yield return new EnterPlayMode(false);
+            Assert.IsFalse(eventInvoked);
+        }
 
-			bool eventInvoked = false;
+        [Test]
+        public void OnValueChanged_SameValue_EditMode()
+        {
+            Assert.IsFalse(Application.isPlaying);
 
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanged += (oldValue, newValue) =>
-			{
-				Assert.AreEqual(0, oldValue);
-				Assert.AreEqual(1, newValue);
+            bool eventInvoked = false;
 
-				eventInvoked = true;
-			};
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanged += (oldValue, newValue) => { eventInvoked = true; };
 
-			reference.SetPreviousValue();
+            reference.SetPreviousValue();
 
-			reference.constantValue = 1;
+            reference.constantValue = 0;
 
-			reference.SetEditorValue();
+            reference.SetEditorValue();
 
-			Assert.IsTrue(eventInvoked);
-		}
+            Assert.IsFalse(eventInvoked);
+        }
 
-		[UnityTest]
-		public IEnumerator OnValueChanged_SameValue_PlayMode()
-		{
-			yield return new EnterPlayMode(false);
+        [UnityTest]
+        public IEnumerator OnValueChanging_NewValue_PlayMode()
+        {
+            yield return new EnterPlayMode(false);
 
-			bool eventInvoked = false;
+            bool eventInvoked = false;
 
-			ValueReference<int> reference = new ValueReference<int>(0);
-			reference.OnValueChanged += (oldValue, newValue) => { eventInvoked = true; };
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanging += (oldValue, newValue) =>
+            {
+                Assert.AreEqual(0, oldValue);
+                Assert.AreEqual(1, newValue);
 
-			reference.SetPreviousValue();
+                eventInvoked = true;
+            };
 
-			reference.constantValue = 0;
+            reference.SetPreviousValue();
 
-			reference.SetEditorValue();
+            reference.constantValue = 1;
 
-			Assert.IsFalse(eventInvoked);
-		}
-	}
+            reference.SetEditorValue();
+
+            Assert.IsTrue(eventInvoked);
+        }
+
+        [UnityTest]
+        public IEnumerator OnValueChanging_SameValue_PlayMode()
+        {
+            yield return new EnterPlayMode(false);
+
+            bool eventInvoked = false;
+
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanging += (oldValue, newValue) => { eventInvoked = true; };
+
+            reference.SetPreviousValue();
+
+            reference.constantValue = 0;
+
+            reference.SetEditorValue();
+
+            Assert.IsFalse(eventInvoked);
+        }
+
+        [UnityTest]
+        public IEnumerator OnValueChanged_NewValue_PlayMode()
+        {
+            yield return new EnterPlayMode(false);
+
+            bool eventInvoked = false;
+
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanged += (oldValue, newValue) =>
+            {
+                Assert.AreEqual(0, oldValue);
+                Assert.AreEqual(1, newValue);
+
+                eventInvoked = true;
+            };
+
+            reference.SetPreviousValue();
+
+            reference.constantValue = 1;
+
+            reference.SetEditorValue();
+
+            Assert.IsTrue(eventInvoked);
+        }
+
+        [UnityTest]
+        public IEnumerator OnValueChanged_SameValue_PlayMode()
+        {
+            yield return new EnterPlayMode(false);
+
+            bool eventInvoked = false;
+
+            ValueReference<int> reference = new ValueReference<int>(0);
+            reference.OnValueChanged += (oldValue, newValue) => { eventInvoked = true; };
+
+            reference.SetPreviousValue();
+
+            reference.constantValue = 0;
+
+            reference.SetEditorValue();
+
+            Assert.IsFalse(eventInvoked);
+        }
+    }
 }

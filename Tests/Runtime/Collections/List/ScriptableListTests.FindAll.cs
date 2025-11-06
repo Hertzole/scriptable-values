@@ -53,7 +53,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void FindAll_VerifyVanilla_Destination_Test_ScriptableList()
         {
             // Arrange
-            var newList = CreateInstance<TestScriptableList>();
+            TestScriptableList newList = CreateInstance<TestScriptableList>();
 
             // Act
             FindAll_VerifyVanilla_Destination_Test(newList);
@@ -88,7 +88,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void FindAll_VerifyDuplicates_Destination_ScriptableList()
         {
             // Arrange
-            var newList = CreateInstance<TestScriptableList>();
+            TestScriptableList newList = CreateInstance<TestScriptableList>();
 
             // Act
             FindAll_VerifyDuplicates_Test(newList);

@@ -1,4 +1,4 @@
 ﻿namespace Hertzole.ScriptableValues.Tests
 {
-	public class TestScriptableObjectPool : ScriptableObjectPool<PoolableScriptableObject> { }
+    public class TestScriptableObjectPool : ScriptableObjectPool<PoolableScriptableObject> { }
 }

@@ -1,4 +1,4 @@
 namespace Hertzole.ScriptableValues.Tests.Values
 {
-	public class ScriptableIntValueTests : ScriptableValueTest<ScriptableInt, int> { }
+    public class ScriptableIntValueTests : ScriptableValueTest<ScriptableInt, int> { }
 }

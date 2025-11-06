@@ -1,29 +1,29 @@
 ﻿namespace Hertzole.ScriptableValues.Tests
 {
-	public class TestClass : IPoolable
-	{
-		public bool IsPooled { get; set; }
-		
-		public object Data { get; set; }
+    public class TestClass : IPoolable
+    {
+        public bool IsPooled { get; set; }
 
-		public void OnUnpooled()
-		{
-			IsPooled = false;
-		}
+        public object Data { get; set; }
 
-		public void OnPooled()
-		{
-			IsPooled = true;
-		}
-	}
+        public void OnUnpooled()
+        {
+            IsPooled = false;
+        }
 
-	public class TestClassScriptablePool : ScriptablePool<TestClass>
-	{
-		protected override TestClass CreateObject()
-		{
-			return new TestClass();
-		}
+        public void OnPooled()
+        {
+            IsPooled = true;
+        }
+    }
 
-		protected override void DestroyObject(TestClass item) { }
-	}
+    public class TestClassScriptablePool : ScriptablePool<TestClass>
+    {
+        protected override TestClass CreateObject()
+        {
+            return new TestClass();
+        }
+
+        protected override void DestroyObject(TestClass item) { }
+    }
 }

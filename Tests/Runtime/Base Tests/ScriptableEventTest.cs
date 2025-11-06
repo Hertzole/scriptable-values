@@ -7,7 +7,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-    public partial class ScriptableEventTest<TType, TValue> : BaseScriptableEventTest<TType> where TType : ScriptableEvent<TValue>
+    public class ScriptableEventTest<TType, TValue> : BaseScriptableEventTest<TType> where TType : ScriptableEvent<TValue>
     {
         private static TValue[] values;
 
@@ -16,11 +16,24 @@ namespace Hertzole.ScriptableValues.Tests
             get { return TestHelper.FindValues(typeof(BaseTest), ref values); }
         }
 
+        public static IEnumerable PropertyChangeCases
+        {
+            get
+            {
+                yield return MakePropertyChangeTestCase<TType>(ScriptableEvent.previousArgsChanging, ScriptableEvent.previousArgsChanged,
+                    i =>
+                    {
+                        i.Invoke(MakeDifferentValue(i.PreviousArgs)); // Invoke twice because the first previous args is probably the default value already.
+                        i.Invoke(MakeDifferentValue(i.PreviousArgs));
+                    });
+            }
+        }
+
         [Test]
         public void Invoke_WithSenderAndArg([ValueSource(nameof(StaticsValue))] TValue value, [Values] EventType eventType)
         {
             // Arrange
-            var instance = CreateInstance<TType>();
+            TType instance = CreateInstance<TType>();
             GameObject sender = CreateGameObject("sender");
             InvokeCountContext context = new InvokeCountContext();
             context.AddArg("sender", sender);
@@ -78,7 +91,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void Invoke_WithArgOnly([ValueSource(nameof(StaticsValue))] TValue value, [Values] EventType eventType)
         {
             // Arrange
-            var instance = CreateInstance<TType>();
+            TType instance = CreateInstance<TType>();
             InvokeCountContext context = new InvokeCountContext();
             context.AddArg("value", value);
             context.AddArg("sender", instance);
@@ -128,19 +141,6 @@ namespace Hertzole.ScriptableValues.Tests
             {
                 Assert.AreEqual(arg, value);
                 context.invokeCount++;
-            }
-        }
-
-        public static IEnumerable PropertyChangeCases
-        {
-            get
-            {
-                yield return MakePropertyChangeTestCase<TType>(ScriptableEvent.previousArgsChanging, ScriptableEvent.previousArgsChanged,
-                    i =>
-                    {
-                        i.Invoke(MakeDifferentValue(i.PreviousArgs)); // Invoke twice because the first previous args is probably the default value already.
-                        i.Invoke(MakeDifferentValue(i.PreviousArgs));
-                    });
             }
         }
 

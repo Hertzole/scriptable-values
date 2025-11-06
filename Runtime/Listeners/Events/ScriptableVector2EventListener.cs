@@ -2,12 +2,13 @@ using UnityEngine;
 
 namespace Hertzole.ScriptableValues
 {
-	/// <summary>
-	///     A <see cref="ScriptableEventListener{TValue}" /> that listens to a <see cref="ScriptableEvent{TValue}" /> with a
-	///     type of <see cref="Vector2" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is invoked.
-	/// </summary>
+    /// <summary>
+    ///     A <see cref="ScriptableEventListener{TValue}" /> that listens to a <see cref="ScriptableEvent{TValue}" /> with a
+    ///     type of <see cref="Vector2" /> and invokes an <see cref="UnityEngine.Events.UnityEvent" /> when the event is
+    ///     invoked.
+    /// </summary>
 #if UNITY_EDITOR
-	[AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Vector2 Event Listener", 1116)]
+    [AddComponentMenu("Scriptable Values/Listeners/Events/Scriptable Vector2 Event Listener", 1116)]
 #endif
-	public sealed class ScriptableVector2EventListener : ScriptableEventListener<Vector2> { }
+    public sealed class ScriptableVector2EventListener : ScriptableEventListener<Vector2> { }
 }

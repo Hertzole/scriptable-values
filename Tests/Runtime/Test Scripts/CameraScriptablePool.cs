@@ -2,5 +2,5 @@
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class CameraScriptablePool : ScriptableComponentPool<Camera> { }
+    public class CameraScriptablePool : ScriptableComponentPool<Camera> { }
 }

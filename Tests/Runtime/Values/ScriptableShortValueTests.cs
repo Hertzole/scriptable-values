@@ -1,4 +1,4 @@
 namespace Hertzole.ScriptableValues.Tests.Values
 {
-	public class ScriptableShortValueTests : ScriptableValueTest<ScriptableShort, short> { }
+    public class ScriptableShortValueTests : ScriptableValueTest<ScriptableShort, short> { }
 }

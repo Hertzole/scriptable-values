@@ -1,8 +1,6 @@
-using System;
-using Hertzole.ScriptableValues;
 using UnityEngine;
 
 namespace Hertzole.ScriptableValues.Tests.Events
 {
-	public class ScriptableBoundsIntEventTests : ScriptableEventTest<ScriptableBoundsIntEvent, BoundsInt> { }
+    public class ScriptableBoundsIntEventTests : ScriptableEventTest<ScriptableBoundsIntEvent, BoundsInt> { }
 }

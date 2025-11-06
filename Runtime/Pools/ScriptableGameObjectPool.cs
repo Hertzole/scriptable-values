@@ -6,7 +6,7 @@ using UnityEngine.Pool;
 namespace Hertzole.ScriptableValues
 {
     /// <summary>
-    ///     A <see cref="ScriptableObject"/> that holds a pool of <see cref="GameObject" />.
+    ///     A <see cref="ScriptableObject" /> that holds a pool of <see cref="GameObject" />.
     /// </summary>
 #if UNITY_EDITOR
     [CreateAssetMenu(fileName = "New Game Object Pool", menuName = "Hertzole/Scriptable Values/Pools/Game Object Pool", order = ORDER)]

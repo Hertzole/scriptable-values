@@ -1,4 +1,4 @@
 namespace Hertzole.ScriptableValues.Tests.Values
 {
-	public class ScriptableByteValueTests : ScriptableValueTest<ScriptableByte, byte> { }
+    public class ScriptableByteValueTests : ScriptableValueTest<ScriptableByte, byte> { }
 }
