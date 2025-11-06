@@ -2,5 +2,5 @@ using UnityEngine;
 
 namespace Hertzole.ScriptableValues.Tests.ValueReferences
 {
-	public sealed class ValueReferenceRectTests : BaseValueReferenceTest<ScriptableRect, Rect> { }
+    public sealed class ValueReferenceRectTests : BaseValueReferenceTest<ScriptableRect, Rect> { }
 }

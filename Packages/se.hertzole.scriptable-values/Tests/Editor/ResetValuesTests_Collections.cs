@@ -11,7 +11,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
         {
             // Arrange
             TestScriptableDictionary instance = CreateInstance<TestScriptableDictionary>();
-            using var tracker = new CollectionEventTracker<KeyValuePair<int, int>>(instance, eventType, instance);
+            using CollectionEventTracker<KeyValuePair<int, int>> tracker = new CollectionEventTracker<KeyValuePair<int, int>>(instance, eventType, instance);
 
             // Act
             ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();
@@ -62,7 +62,7 @@ namespace Hertzole.ScriptableValues.Tests.Editor
         {
             // Arrange
             TestScriptableList instance = CreateInstance<TestScriptableList>();
-            using var tracker = new CollectionEventTracker<int>(instance, eventType, instance);
+            using CollectionEventTracker<int> tracker = new CollectionEventTracker<int>(instance, eventType, instance);
 
             // Act
             ((IScriptableValueCallbacks) instance).OnScriptableObjectPreEnable();

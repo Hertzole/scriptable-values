@@ -18,9 +18,9 @@ using Unity.Properties;
 namespace Hertzole.ScriptableValues
 {
     /// <summary>
-    ///     Base class for all <see cref="ScriptableDictionary{TKey,TValue}"/>.
+    ///     Base class for all <see cref="ScriptableDictionary{TKey,TValue}" />.
     /// </summary>
-    /// <remarks>You should probably inherit from <see cref="ScriptableDictionary{TKey,TValue}"/> instead.</remarks>
+    /// <remarks>You should probably inherit from <see cref="ScriptableDictionary{TKey,TValue}" /> instead.</remarks>
 #if UNITY_EDITOR
     [HelpURL(Documentation.SCRIPTABLE_DICTIONARY_URL)]
 #endif
@@ -88,7 +88,7 @@ namespace Hertzole.ScriptableValues
     }
 
     /// <summary>
-    ///     A <see cref="ScriptableObject"/> that holds a <see cref="System.Collections.Generic.Dictionary{TKey, TValue}"/>.
+    ///     A <see cref="ScriptableObject" /> that holds a <see cref="System.Collections.Generic.Dictionary{TKey, TValue}" />.
     /// </summary>
     /// <typeparam name="TKey">The key of the dictionary.</typeparam>
     /// <typeparam name="TValue">The value of the dictionary.</typeparam>
@@ -169,7 +169,8 @@ namespace Hertzole.ScriptableValues
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="IEqualityComparer{T}" /> that is used to determine equality of keys for the <see cref="ScriptableDictionary{TKey,TValue}"/>.
+        ///     Gets or sets the <see cref="IEqualityComparer{T}" /> that is used to determine equality of keys for the
+        ///     <see cref="ScriptableDictionary{TKey,TValue}" />.
         /// </summary>
         public IEqualityComparer<TKey> Comparer
         {
@@ -232,7 +233,7 @@ namespace Hertzole.ScriptableValues
         }
 
         /// <summary>
-        ///     Gets a collection containing the values in the <see cref="ScriptableDictionary{TKey,TValue}"/>.
+        ///     Gets a collection containing the values in the <see cref="ScriptableDictionary{TKey,TValue}" />.
         /// </summary>
         public Dictionary<TKey, TValue>.ValueCollection Values
         {
@@ -289,7 +290,8 @@ namespace Hertzole.ScriptableValues
         }
 
         /// <summary>
-        ///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableDictionary{TKey, TValue}"/> is refreshed.
+        ///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableDictionary{TKey, TValue}" /> is
+        ///     refreshed.
         /// </summary>
         public event CollectionChangedEventHandler<KeyValuePair<TKey, TValue>>? OnCollectionChanged;
 

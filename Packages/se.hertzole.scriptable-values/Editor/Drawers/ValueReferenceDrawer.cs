@@ -9,198 +9,198 @@ using UnityEngine.UIElements;
 
 namespace Hertzole.ScriptableValues.Editor
 {
-	[CustomPropertyDrawer(typeof(ValueReference<>), true)]
-	public sealed class ValueReferenceDrawer : PropertyDrawer
-	{
-		private static GUIContent? icon;
+    [CustomPropertyDrawer(typeof(ValueReference<>), true)]
+    public sealed class ValueReferenceDrawer : PropertyDrawer
+    {
+        private static GUIContent? icon;
 
-		private SerializedProperty typeProperty = null!;
-		private PropertyField referenceField = null!;
-		private PropertyField constantField = null!;
+        private SerializedProperty typeProperty = null!;
+        private PropertyField referenceField = null!;
+        private PropertyField constantField = null!;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-		private PropertyField addressableField = null!;
+        private PropertyField addressableField = null!;
 #endif
 
-		private SerializedProperty targetProperty = null!;
+        private SerializedProperty targetProperty = null!;
 
-		private object? targetObject;
+        private object? targetObject;
 
-		private object TargetObject
-		{
-			get { return targetObject ??= fieldInfo.GetValue(targetProperty.serializedObject.targetObject); }
-		}
+        private object TargetObject
+        {
+            get { return targetObject ??= fieldInfo.GetValue(targetProperty.serializedObject.targetObject); }
+        }
 
-		private MethodInfo SetPreviousValueMethod
-		{
-			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetPreviousValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
-		}
+        private MethodInfo SetPreviousValueMethod
+        {
+            get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetPreviousValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
+        }
 
-		private MethodInfo SetEditorValueMethod
-		{
-			get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetEditorValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
-		}
+        private MethodInfo SetEditorValueMethod
+        {
+            get { return TargetObject.GetType().GetMethod(nameof(ValueReference<object>.SetEditorValue), BindingFlags.Instance | BindingFlags.NonPublic)!; }
+        }
 
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			targetProperty = property;
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            targetProperty = property;
 
-			icon ??= EditorGUIUtility.IconContent("AnimationWrapModeMenu");
+            icon ??= EditorGUIUtility.IconContent("AnimationWrapModeMenu");
 
-			VisualElement root = new VisualElement
-			{
-				style =
-				{
-					flexDirection = FlexDirection.Row
-				}
-			};
+            VisualElement root = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row
+                }
+            };
 
-			VisualElement valueContainer = new VisualElement
-			{
-				style =
-				{
-					flexGrow = 1
-				}
-			};
+            VisualElement valueContainer = new VisualElement
+            {
+                style =
+                {
+                    flexGrow = 1
+                }
+            };
 
-			typeProperty = property.MustFindPropertyRelative("valueType");
+            typeProperty = property.MustFindPropertyRelative("valueType");
 
-			VisualElement menuButton = new VisualElement
-			{
-				style =
-				{
-					backgroundImage = new StyleBackground(icon.image as Texture2D),
-					width = 16,
-					height = 16,
-					marginLeft = 6,
-					alignSelf = Align.Center
-				}
-			};
+            VisualElement menuButton = new VisualElement
+            {
+                style =
+                {
+                    backgroundImage = new StyleBackground(icon.image as Texture2D),
+                    width = 16,
+                    height = 16,
+                    marginLeft = 6,
+                    alignSelf = Align.Center
+                }
+            };
 
-			menuButton.RegisterCallback<PointerDownEvent, SerializedProperty>((_, prop) => { CreateMenu(prop, true); }, typeProperty);
+            menuButton.RegisterCallback<PointerDownEvent, SerializedProperty>((_, prop) => { CreateMenu(prop, true); }, typeProperty);
 
-			menuButton.Bind(property.serializedObject);
+            menuButton.Bind(property.serializedObject);
 
-			string label =
+            string label =
 #if UNITY_2022_2_OR_NEWER
-				preferredLabel;
+                preferredLabel;
 #else
 				property.displayName;
 #endif
 
-			constantField = new PropertyField(property.MustFindPropertyRelative("constantValue"), label);
-			referenceField = new PropertyField(property.MustFindPropertyRelative("referenceValue"), label);
+            constantField = new PropertyField(property.MustFindPropertyRelative("constantValue"), label);
+            referenceField = new PropertyField(property.MustFindPropertyRelative("referenceValue"), label);
 
-			valueContainer.Add(constantField);
-			valueContainer.Add(referenceField);
+            valueContainer.Add(constantField);
+            valueContainer.Add(referenceField);
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			addressableField = new PropertyField(property.MustFindPropertyRelative("addressableReference"), label);
-			valueContainer.Add(addressableField);
+            addressableField = new PropertyField(property.MustFindPropertyRelative("addressableReference"), label);
+            valueContainer.Add(addressableField);
 #endif
 
-			root.Add(valueContainer);
-			root.Add(menuButton);
+            root.Add(valueContainer);
+            root.Add(menuButton);
 
-			RefreshFields();
+            RefreshFields();
 
-			SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
+            SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
 
-			constantField.RegisterValueChangeCallback(static (_, args) => { args.SetEditorValueMethod.Invoke(args.TargetObject, Array.Empty<object>()); },
-				this);
+            constantField.RegisterValueChangeCallback(static (_, args) => { args.SetEditorValueMethod.Invoke(args.TargetObject, Array.Empty<object>()); },
+                this);
 
-			return root;
-		}
+            return root;
+        }
 
-		private void RefreshFields()
-		{
-			constantField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Constant ? DisplayStyle.Flex : DisplayStyle.None;
-			referenceField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Reference ? DisplayStyle.Flex : DisplayStyle.None;
+        private void RefreshFields()
+        {
+            constantField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Constant ? DisplayStyle.Flex : DisplayStyle.None;
+            referenceField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Reference ? DisplayStyle.Flex : DisplayStyle.None;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			addressableField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Addressable ? DisplayStyle.Flex : DisplayStyle.None;
+            addressableField.style.display = typeProperty.enumValueIndex == (int) ValueReferenceType.Addressable ? DisplayStyle.Flex : DisplayStyle.None;
 #endif
-		}
+        }
 
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			icon ??= EditorGUIUtility.IconContent("AnimationWrapModeMenu");
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            icon ??= EditorGUIUtility.IconContent("AnimationWrapModeMenu");
 
-			typeProperty = property.FindPropertyRelative("valueType");
+            typeProperty = property.FindPropertyRelative("valueType");
 
-			ValueReferenceType type = (ValueReferenceType) typeProperty.enumValueIndex;
+            ValueReferenceType type = (ValueReferenceType) typeProperty.enumValueIndex;
 
-			Rect rect = new Rect(position.x, position.y, position.width - 22, position.height);
+            Rect rect = new Rect(position.x, position.y, position.width - 22, position.height);
 
-			switch (type)
-			{
-				case ValueReferenceType.Constant:
-					targetProperty = property;
+            switch (type)
+            {
+                case ValueReferenceType.Constant:
+                    targetProperty = property;
 
-					SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
+                    SetPreviousValueMethod.Invoke(TargetObject, Array.Empty<object>());
 
-					EditorGUI.BeginChangeCheck();
+                    EditorGUI.BeginChangeCheck();
 
-					EditorGUI.PropertyField(rect, property.FindPropertyRelative("constantValue"), label, true);
+                    EditorGUI.PropertyField(rect, property.FindPropertyRelative("constantValue"), label, true);
 
-					if (EditorGUI.EndChangeCheck())
-					{
-						property.serializedObject.ApplyModifiedProperties();
-						SetEditorValueMethod.Invoke(TargetObject, Array.Empty<object>());
-					}
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        property.serializedObject.ApplyModifiedProperties();
+                        SetEditorValueMethod.Invoke(TargetObject, Array.Empty<object>());
+                    }
 
-					break;
-				case ValueReferenceType.Reference:
-					EditorGUI.PropertyField(rect, property.FindPropertyRelative("referenceValue"), label, true);
-					break;
+                    break;
+                case ValueReferenceType.Reference:
+                    EditorGUI.PropertyField(rect, property.FindPropertyRelative("referenceValue"), label, true);
+                    break;
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-				case ValueReferenceType.Addressable:
-					EditorGUI.PropertyField(rect, property.FindPropertyRelative("addressableReference"), label, true);
-					break;
+                case ValueReferenceType.Addressable:
+                    EditorGUI.PropertyField(rect, property.FindPropertyRelative("addressableReference"), label, true);
+                    break;
 #endif
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-			if (GUI.Button(new Rect(position.x + position.width - 18, position.y + 2, 16, 16), icon.image, EditorStyles.iconButton))
-			{
-				CreateMenu(typeProperty, false);
-			}
-		}
+            if (GUI.Button(new Rect(position.x + position.width - 18, position.y + 2, 16, 16), icon.image, EditorStyles.iconButton))
+            {
+                CreateMenu(typeProperty, false);
+            }
+        }
 
-		private void CreateMenu(SerializedProperty prop, bool refreshFields)
-		{
-			GenericMenu menu = new GenericMenu();
-			menu.AddItem(new GUIContent("Use Constant"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Constant, () =>
-			{
-				prop.enumValueIndex = (int) ValueReferenceType.Constant;
-				prop.serializedObject.ApplyModifiedProperties();
-				if (refreshFields)
-				{
-					RefreshFields();
-				}
-			});
+        private void CreateMenu(SerializedProperty prop, bool refreshFields)
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Use Constant"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Constant, () =>
+            {
+                prop.enumValueIndex = (int) ValueReferenceType.Constant;
+                prop.serializedObject.ApplyModifiedProperties();
+                if (refreshFields)
+                {
+                    RefreshFields();
+                }
+            });
 
-			menu.AddItem(new GUIContent("Use Reference"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Reference, () =>
-			{
-				prop.enumValueIndex = (int) ValueReferenceType.Reference;
-				prop.serializedObject.ApplyModifiedProperties();
-				if (refreshFields)
-				{
-					RefreshFields();
-				}
-			});
+            menu.AddItem(new GUIContent("Use Reference"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Reference, () =>
+            {
+                prop.enumValueIndex = (int) ValueReferenceType.Reference;
+                prop.serializedObject.ApplyModifiedProperties();
+                if (refreshFields)
+                {
+                    RefreshFields();
+                }
+            });
 
 #if SCRIPTABLE_VALUES_ADDRESSABLES
-			menu.AddItem(new GUIContent("Use Addressable"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Addressable, () =>
-			{
-				prop.enumValueIndex = (int) ValueReferenceType.Addressable;
-				prop.serializedObject.ApplyModifiedProperties();
-				if (refreshFields)
-				{
-					RefreshFields();
-				}
-			});
+            menu.AddItem(new GUIContent("Use Addressable"), (ValueReferenceType) prop.enumValueIndex == ValueReferenceType.Addressable, () =>
+            {
+                prop.enumValueIndex = (int) ValueReferenceType.Addressable;
+                prop.serializedObject.ApplyModifiedProperties();
+                if (refreshFields)
+                {
+                    RefreshFields();
+                }
+            });
 #endif
 
-			menu.ShowAsContext();
-		}
-	}
+            menu.ShowAsContext();
+        }
+    }
 }

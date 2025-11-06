@@ -1,24 +1,24 @@
 {
-    "name": "Hertzole.ScriptableValues.Editor",
-    "rootNamespace": "Hertzole.ScriptableValues.Editor",
-    "references": [
-        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": true,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.addressables",
-            "expression": "",
-            "define": "SCRIPTABLE_VALUES_ADDRESSABLES"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "Hertzole.ScriptableValues.Editor",
+  "rootNamespace": "Hertzole.ScriptableValues.Editor",
+  "references": [
+    "GUID:1a91e603eade47d42a03c9e9f4f5e8b6"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "com.unity.addressables",
+      "expression": "",
+      "define": "SCRIPTABLE_VALUES_ADDRESSABLES"
+    }
+  ],
+  "noEngineReferences": false
 }

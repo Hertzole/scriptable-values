@@ -118,7 +118,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void GetRange_DestinationList_ScriptableList()
         {
             // Arrange
-            var newList = CreateInstance<TestScriptableList>();
+            TestScriptableList newList = CreateInstance<TestScriptableList>();
 
             // Act
             GetRange_DestinationList_Test(newList);
@@ -174,7 +174,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void GetRange_DestinationList_Validations_ScriptableList()
         {
             // Arrange
-            var newList = CreateInstance<TestScriptableList>();
+            TestScriptableList newList = CreateInstance<TestScriptableList>();
 
             // Act
             GetRange_DestinationList_Validations_Test(newList);

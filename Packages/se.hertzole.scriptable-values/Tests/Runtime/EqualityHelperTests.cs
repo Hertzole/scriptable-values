@@ -5,81 +5,81 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public class EqualityHelperTests : BaseTest
-	{
-		[Test]
-		public void NonUnityObject_Equals()
-		{
-			Assert.IsTrue(EqualityHelper.Equals(0, 0));
-		}
+    public class EqualityHelperTests : BaseTest
+    {
+        [Test]
+        public void NonUnityObject_Equals()
+        {
+            Assert.IsTrue(EqualityHelper.Equals(0, 0));
+        }
 
-		[Test]
-		public void NonUnityObject_NotEquals()
-		{
-			Assert.IsFalse(EqualityHelper.Equals(0, 1));
-		}
+        [Test]
+        public void NonUnityObject_NotEquals()
+        {
+            Assert.IsFalse(EqualityHelper.Equals(0, 1));
+        }
 
-		[Test]
-		public void UnityObject_Equals()
-		{
-			GameObject go = CreateGameObject();
+        [Test]
+        public void UnityObject_Equals()
+        {
+            GameObject go = CreateGameObject();
 
-			Assert.IsTrue(EqualityHelper.Equals(go, go));
-		}
+            Assert.IsTrue(EqualityHelper.Equals(go, go));
+        }
 
-		[Test]
-		public void UnityObject_Equals_Null()
-		{
-			Assert.IsTrue(EqualityHelper.Equals((Object) null, null));
-		}
+        [Test]
+        public void UnityObject_Equals_Null()
+        {
+            Assert.IsTrue(EqualityHelper.Equals((Object) null, null));
+        }
 
-		[Test]
-		public void UnityObject_NotEquals()
-		{
-			GameObject go1 = CreateGameObject();
-			GameObject go2 = CreateGameObject();
+        [Test]
+        public void UnityObject_NotEquals()
+        {
+            GameObject go1 = CreateGameObject();
+            GameObject go2 = CreateGameObject();
 
-			Assert.IsFalse(EqualityHelper.Equals(go1, go2));
-		}
+            Assert.IsFalse(EqualityHelper.Equals(go1, go2));
+        }
 
-		[Test]
-		public void UnityObject_NotEquals_Null()
-		{
-			GameObject go1 = CreateGameObject();
+        [Test]
+        public void UnityObject_NotEquals_Null()
+        {
+            GameObject go1 = CreateGameObject();
 
-			Assert.IsFalse(EqualityHelper.Equals(go1, null));
-		}
+            Assert.IsFalse(EqualityHelper.Equals(go1, null));
+        }
 
-		[Test]
-		public void NonUnityObject_IsNull()
-		{
-			string value = null;
+        [Test]
+        public void NonUnityObject_IsNull()
+        {
+            string value = null;
 
-			Assert.IsTrue(EqualityHelper.IsNull(value));
-		}
+            Assert.IsTrue(EqualityHelper.IsNull(value));
+        }
 
-		[Test]
-		public void NonUnityObject_IsNotNull()
-		{
-			string value = "test";
+        [Test]
+        public void NonUnityObject_IsNotNull()
+        {
+            string value = "test";
 
-			Assert.IsFalse(EqualityHelper.IsNull(value));
-		}
+            Assert.IsFalse(EqualityHelper.IsNull(value));
+        }
 
-		[Test]
-		public void UnityObject_IsNull()
-		{
-			GameObject go = null;
+        [Test]
+        public void UnityObject_IsNull()
+        {
+            GameObject go = null;
 
-			Assert.IsTrue(EqualityHelper.IsNull(go));
-		}
+            Assert.IsTrue(EqualityHelper.IsNull(go));
+        }
 
-		[Test]
-		public void UnityObject_IsNotNull()
-		{
-			GameObject go = CreateGameObject();
+        [Test]
+        public void UnityObject_IsNotNull()
+        {
+            GameObject go = CreateGameObject();
 
-			Assert.IsFalse(EqualityHelper.IsNull(go));
-		}
-	}
+            Assert.IsFalse(EqualityHelper.IsNull(go));
+        }
+    }
 }

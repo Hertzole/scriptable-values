@@ -6,7 +6,7 @@ using UnityEngine.Pool;
 namespace Hertzole.ScriptableValues
 {
     /// <summary>
-    ///     A <see cref="ScriptableObject"/> that holds a pool of <see cref="Component" />.
+    ///     A <see cref="ScriptableObject" /> that holds a pool of <see cref="Component" />.
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Component" />.</typeparam>
     public abstract class ScriptableComponentPool<T> : ScriptablePool<T> where T : Component

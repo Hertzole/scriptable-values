@@ -38,7 +38,7 @@ namespace Hertzole.ScriptableValues.Tests
         public void ConvertAll_DestinationList_ScriptableList()
         {
             // Arrange
-            var newList = CreateInstance<TestScriptableList>();
+            TestScriptableList newList = CreateInstance<TestScriptableList>();
 
             ConvertAllTest(newList);
 

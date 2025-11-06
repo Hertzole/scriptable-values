@@ -2,6 +2,6 @@
 
 namespace Hertzole.ScriptableValues.Editor
 {
-	[CustomEditor(typeof(ScriptableGameObjectPool), true)]
-	public class ScriptableGameObjectPoolEditor : ScriptableComponentPoolEditor { }
+    [CustomEditor(typeof(ScriptableGameObjectPool), true)]
+    public class ScriptableGameObjectPoolEditor : ScriptableComponentPoolEditor { }
 }

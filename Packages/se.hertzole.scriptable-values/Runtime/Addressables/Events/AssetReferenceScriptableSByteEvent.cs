@@ -1,23 +1,24 @@
 #if SCRIPTABLE_VALUES_ADDRESSABLES
 using System;
 using UnityEngine.AddressableAssets;
+using UnityEngine.TestTools;
 
 namespace Hertzole.ScriptableValues
 {
-	/// <summary>
-	///     <see cref="ScriptableSByteEvent" /> only asset reference.
-	/// </summary>
-	[Serializable]
-	public sealed class AssetReferenceScriptableSByteEvent : AssetReferenceT<ScriptableSByteEvent>
-	{
-		/// <summary>
-		///     Constructs a new reference to a <see cref="AssetReferenceScriptableSByteEvent" />.
-		/// </summary>
-		/// <param name="guid">The object guid.</param>
+    /// <summary>
+    ///     <see cref="ScriptableSByteEvent" /> only asset reference.
+    /// </summary>
+    [Serializable]
+    public sealed class AssetReferenceScriptableSByteEvent : AssetReferenceT<ScriptableSByteEvent>
+    {
+        /// <summary>
+        ///     Constructs a new reference to a <see cref="AssetReferenceScriptableSByteEvent" />.
+        /// </summary>
+        /// <param name="guid">The object guid.</param>
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS
-		[UnityEngine.TestTools.ExcludeFromCoverage]
+        [ExcludeFromCoverage]
 #endif
-		public AssetReferenceScriptableSByteEvent(string guid) : base(guid) { }
-	}
+        public AssetReferenceScriptableSByteEvent(string guid) : base(guid) { }
+    }
 }
 #endif

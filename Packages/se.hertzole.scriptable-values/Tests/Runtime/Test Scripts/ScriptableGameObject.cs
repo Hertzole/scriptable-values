@@ -2,5 +2,5 @@
 
 namespace Hertzole.ScriptableValues.Tests
 {
-	public sealed class ScriptableGameObject : ScriptableValue<GameObject> { }
+    public sealed class ScriptableGameObject : ScriptableValue<GameObject> { }
 }

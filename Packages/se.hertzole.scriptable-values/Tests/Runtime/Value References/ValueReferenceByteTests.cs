@@ -1,4 +1,4 @@
 namespace Hertzole.ScriptableValues.Tests.ValueReferences
 {
-	public sealed class ValueReferenceByteTests : BaseValueReferenceTest<ScriptableByte, byte> { }
+    public sealed class ValueReferenceByteTests : BaseValueReferenceTest<ScriptableByte, byte> { }
 }
