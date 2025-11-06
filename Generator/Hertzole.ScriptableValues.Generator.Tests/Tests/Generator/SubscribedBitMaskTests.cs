@@ -43,7 +43,7 @@ public class SubscribedBitMaskTests
         {
             for (int i = 0; i < amount; i++)
             {
-                builder.Add(new CallbackData($"Test{i}", CallbackType.Event, CallbackFlags.None, null!, ScriptableType.Event, null!));
+                builder.Add(new CallbackData($"Test{i}", CallbackType.Event, CallbackFlags.None, null!, ScriptableType.Event, null!, null));
             }
 
             data = new EquatableArray<CallbackData>(builder.ToImmutable());

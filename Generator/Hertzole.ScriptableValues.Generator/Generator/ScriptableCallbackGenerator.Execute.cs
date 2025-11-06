@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -356,12 +357,18 @@ partial class ScriptableCallbackGenerator
     {
         ArrayBuilder<(string name, string type)> parametersBuilder = new ArrayBuilder<(string name, string type)>(2);
         ArrayBuilder<(string name, string description)> descriptionsBuilder = new ArrayBuilder<(string name, string description)>(2);
+        HashSet<string> usedCallbacks = new HashSet<string>(StringComparer.Ordinal);
 
         try
         {
             for (int i = 0; i < elements.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (usedCallbacks.Contains(elements[i].CallbackName))
+                {
+                    continue;
+                }
 
                 parametersBuilder.Clear();
                 descriptionsBuilder.Clear();
@@ -375,6 +382,7 @@ partial class ScriptableCallbackGenerator
                 elements[i].AppendParameterDescriptions(in descriptionsBuilder);
 
                 WriteCallbackMethod(in writer, in elements[i], elements[i].CallbackName.AsSpan(), parametersBuilder.AsSpan(), descriptionsBuilder.AsSpan());
+                usedCallbacks.Add(elements[i].CallbackName);
             }
         }
         finally
