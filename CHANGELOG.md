@@ -1,3 +1,23 @@
+# 2.1.0 - Unreleased
+
+### Added
+
+- `TryGetNewValue` and `TryGetOldValue` methods for `CollectionChangedArgs<KeyValuePair<TKey, TValue>>`
+- `OnPreStart`, `OnPreDisabled`, and `OnDisabled` lifetime methods to `RuntimeScriptableObject`
+- (Generator) The ability to set custom callback names for generated methods using the `CallbackName` property on the generate attributes
+
+### Changed
+
+- `OnExitPlayMode` is now obsolete. Use `OnDisabled` instead.
+
+### Fixed
+
+- No error is thrown when trying to use a read-only list as a destination list in `ConvertAll`, `FindAll`, `GetRange`, and `Slice` methods
+- Some properties not being marked as ReadOnly when generating property bags
+- Scriptable value drawers not supporting prefab overrides in IMGUI mode
+- (Generator) Fields marked with generate attributes and starting with "on" generating duplicate "On" prefix in generated methods
+- (Generator) Duplicate subscribed callbacks mask names when inheriting from a base class with generated callbacks
+
 # 2.0.0 - 2025-05-08
 
 ### Added

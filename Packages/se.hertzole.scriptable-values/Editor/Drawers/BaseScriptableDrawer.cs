@@ -27,12 +27,16 @@ namespace Hertzole.ScriptableValues.Editor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            label = EditorGUI.BeginProperty(position, label, property);
+
             EditorGUI.BeginChangeCheck();
             Object obj = EditorGUI.ObjectField(position, label, property.objectReferenceValue, fieldInfo.FieldType, true);
             if (EditorGUI.EndChangeCheck())
             {
                 property.objectReferenceValue = obj;
             }
+
+            EditorGUI.EndProperty();
         }
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
