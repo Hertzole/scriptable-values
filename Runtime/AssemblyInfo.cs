@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-#if SCRIPTABLE_VALUES_PROPERTIES
-#endif // SCRIPTABLE_VALUES_PROPERTIES
+#if SCRIPTABLE_VALUES_PROPERTIES && !SCRIPTABLE_VALUES_NO_PROPERTY_BAGS
+using Unity.Properties;
+#endif // SCRIPTABLE_VALUES_PROPERTIES && !SCRIPTABLE_VALUES_NO_PROPERTY_BAGS
 
 #if UNITY_EDITOR
 [assembly: InternalsVisibleTo("Hertzole.ScriptableValues.Editor")]
