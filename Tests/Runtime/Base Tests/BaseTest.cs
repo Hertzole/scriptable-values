@@ -1,5 +1,9 @@
 ﻿#nullable enable
 
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING && SCRIPTABLE_VALUES_UITOOLKIT
+#define SCRIPTABLE_VALUES_DO_UI_TOOLKIT
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,10 +12,12 @@ using System.Linq;
 using NUnit.Framework;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
+using UnityEngine.UIElements;
+#endif
 
 namespace Hertzole.ScriptableValues.Tests
 {
@@ -408,7 +414,7 @@ namespace Hertzole.ScriptableValues.Tests
             // Use lists here because there may be multiple events fired.
             List<PropertyChangingEventArgs> changingEventArgs = new List<PropertyChangingEventArgs>();
             List<PropertyChangedEventArgs> changedEventArgs = new List<PropertyChangedEventArgs>();
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             List<BindablePropertyChangedEventArgs> bindableEventArgs = new List<BindablePropertyChangedEventArgs>();
             long originalHashCode = ((IDataSourceViewHashProvider) instance).GetViewHashCode();
 #endif
@@ -416,7 +422,7 @@ namespace Hertzole.ScriptableValues.Tests
             ((INotifyPropertyChanged) instance).PropertyChanged += OnPropertyChanged;
             ((INotifyPropertyChanging) instance).PropertyChanging += OnPropertyChanging;
 
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             ((INotifyBindablePropertyChanged) instance).propertyChanged += OnBindablePropertyChanged;
 #endif
 
@@ -427,14 +433,14 @@ namespace Hertzole.ScriptableValues.Tests
             Assert.IsTrue(changingEventArgs.Count != 0, "There should be at least one changing event.");
             Assert.IsTrue(changedEventArgs.Count != 0, "There should be at least one changed event.");
             Assert.IsTrue(changingEventArgs.Count == changedEventArgs.Count, "The number of changing and changed events should be the same.");
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             Assert.IsTrue(bindableEventArgs.Count != 0, "There should be at least one bindable event.");
             Assert.IsTrue(changingEventArgs.Count == bindableEventArgs.Count, "The number of changing and bindable events should be the same.");
 #endif
 
             Assert.IsTrue(changingEventArgs.Any(x => x.PropertyName == changingArgs.PropertyName));
             Assert.IsTrue(changedEventArgs.Any(x => x.PropertyName == changedArgs.PropertyName));
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             Assert.IsTrue(bindableEventArgs.Any(x => x.propertyName == changedArgs.PropertyName));
             Assert.AreNotEqual(originalHashCode, ((IDataSourceViewHashProvider) instance).GetViewHashCode(), "Hashcode should've changed between the events.");
 #endif
@@ -442,7 +448,7 @@ namespace Hertzole.ScriptableValues.Tests
             // Cleanup
             ((INotifyPropertyChanged) instance).PropertyChanged -= OnPropertyChanged;
             ((INotifyPropertyChanging) instance).PropertyChanging -= OnPropertyChanging;
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             ((INotifyBindablePropertyChanged) instance).propertyChanged -= OnBindablePropertyChanged;
 #endif
 
@@ -456,7 +462,7 @@ namespace Hertzole.ScriptableValues.Tests
                 changingEventArgs.Add(args);
             }
 
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             void OnBindablePropertyChanged(object _, BindablePropertyChangedEventArgs args)
             {
                 bindableEventArgs.Add(args);

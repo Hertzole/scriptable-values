@@ -35,6 +35,11 @@
       "name": "Unity",
       "expression": "2023.2",
       "define": "SCRIPTABLE_VALUES_RUNTIME_BINDING"
+    },
+    {
+      "name": "com.unity.modules.uielements",
+      "expression": "",
+      "define": "SCRIPTABLE_VALUES_UITOOLKIT"
     }
   ],
   "noEngineReferences": false
