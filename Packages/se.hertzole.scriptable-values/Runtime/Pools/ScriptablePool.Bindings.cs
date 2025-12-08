@@ -1,4 +1,4 @@
-﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING && SCRIPTABLE_VALUES_UITOOLKIT
 namespace Hertzole.ScriptableValues
 {
     partial class ScriptablePool<T>

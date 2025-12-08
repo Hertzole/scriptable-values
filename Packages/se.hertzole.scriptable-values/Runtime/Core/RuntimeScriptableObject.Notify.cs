@@ -1,12 +1,15 @@
 ﻿#nullable enable
+#if SCRIPTABLE_VALUES_RUNTIME_BINDING && SCRIPTABLE_VALUES_UITOOLKIT
+#define SCRIPTABLE_VALUES_DO_UI_TOOLKIT
+#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine.Assertions;
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
+using System;
 using Unity.Properties;
 using UnityEngine.UIElements;
 #endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
@@ -14,7 +17,7 @@ using UnityEngine.UIElements;
 namespace Hertzole.ScriptableValues
 {
     partial class RuntimeScriptableObject :
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
         IDataSourceViewHashProvider,
         INotifyBindablePropertyChanged,
 #endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
@@ -74,7 +77,8 @@ namespace Hertzole.ScriptableValues
             }
             else
             {
-                // If the event is null, we can still notify Unity about the property change
+                // If the event is null, we can still notify Unity about the property change.
+                // NotifyPropertyChanged would call this otherwise...
                 NotifyUnityPropertyChanged(propertyName);
             }
         }
@@ -93,12 +97,12 @@ namespace Hertzole.ScriptableValues
             OnNotifyPropertyChanged?.Invoke(this, args);
         }
 
-        [Conditional("SCRIPTABLE_VALUES_RUNTIME_BINDING")]
+        [Conditional("SCRIPTABLE_VALUES_DO_UI_TOOLKIT")]
         private void NotifyUnityPropertyChanged(string propertyName)
         {
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             OnPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(new BindingId(new PropertyPath(propertyName))));
-#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
+#endif // SCRIPTABLE_VALUES_DO_UI_TOOLKIT
         }
 
         /// <summary>
@@ -190,12 +194,12 @@ namespace Hertzole.ScriptableValues
         {
             EventHelper.WarnIfLeftOverSubscribers(OnNotifyPropertyChanging, "INotifyPropertyChanging.PropertyChanging", this);
             EventHelper.WarnIfLeftOverSubscribers(OnNotifyPropertyChanged, "INotifyPropertyChanged.PropertyChanged", this);
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
             EventHelper.WarnIfLeftOverSubscribers(OnPropertyChanged, "INotifyBindablePropertyChanged.propertyChanged", this);
-#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
+#endif // SCRIPTABLE_VALUES_DO_UI_TOOLKIT
         }
 
-#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+#if SCRIPTABLE_VALUES_DO_UI_TOOLKIT
         private event EventHandler<BindablePropertyChangedEventArgs>? OnPropertyChanged;
 
         event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
@@ -217,6 +221,6 @@ namespace Hertzole.ScriptableValues
         {
             return GetViewHashCode();
         }
-#endif // SCRIPTABLE_VALUES_RUNTIME_BINDING
+#endif // SCRIPTABLE_VALUES_DO_UI_TOOLKIT
     }
 }

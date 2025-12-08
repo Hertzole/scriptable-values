@@ -37,6 +37,11 @@
       "name": "Unity",
       "expression": "2023.1",
       "define": "SCRIPTABLE_VALUES_PROPERTIES_SUPPORTS_READONLY"
+    },
+    {
+      "name": "com.unity.modules.uielements",
+      "expression": "",
+      "define": "SCRIPTABLE_VALUES_UITOOLKIT"
     }
   ],
   "noEngineReferences": false

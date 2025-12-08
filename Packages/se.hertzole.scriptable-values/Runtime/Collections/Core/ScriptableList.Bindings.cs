@@ -1,4 +1,4 @@
-﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING
+﻿#if SCRIPTABLE_VALUES_RUNTIME_BINDING && SCRIPTABLE_VALUES_UITOOLKIT
 using System.Collections.Generic;
 
 namespace Hertzole.ScriptableValues

@@ -9,6 +9,7 @@
 ### Changed
 
 - `OnExitPlayMode` is now obsolete. Use `OnDisabled` instead.
+- The package no longer requires UI Elements module, but will use it if it's available
 
 ### Fixed
 
