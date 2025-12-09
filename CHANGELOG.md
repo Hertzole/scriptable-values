@@ -13,6 +13,7 @@
 - `OnExitPlayMode` is now obsolete. Use `OnDisabled` instead.
 - The package no longer requires UI Elements module, but will use it if it's available
 - Moved a few common base list methods to base `ScriptableList` class
+- Moved a few common base dictionary methods to base `ScriptableDictionary` class
 
 ### Fixed
 
