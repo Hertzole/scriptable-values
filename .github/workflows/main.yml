@@ -24,9 +24,9 @@ jobs:
       fail-fast: false
       matrix:
         unity-version:
-          - 2021.3.45f2
-          - 2022.3.62f2
-          - 6000.0.59f2
+          - 2021.3.58f1
+          - 2022.3.68f2
+          - 6000.0.62f1
     secrets:
       unity-license: ${{ secrets.UNITY_LICENSE }}
       unity-email: ${{ secrets.UNITY_EMAIL }}
@@ -48,7 +48,7 @@ jobs:
   build-docs:
     name: Build documentation
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-6000.0.59f2-base-3.1.0
+    container: unityci/editor:ubuntu-6000.0.62f1-base-3.2.0
     steps:
       # Checkout the repo
       - name: Checkout
