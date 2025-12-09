@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
 {
-    public class CollectionExtensions : BaseRuntimeTest
+    public partial class CollectionExtensions : BaseRuntimeTest
     {
         public static IEnumerable GetNonEnumeratedCountCases
         {

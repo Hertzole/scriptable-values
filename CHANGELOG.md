@@ -4,6 +4,8 @@
 
 - `TryGetNewValue` and `TryGetOldValue` methods for `CollectionChangedArgs<KeyValuePair<TKey, TValue>>`
 - `OnPreStart`, `OnPreDisabled`, and `OnDisabled` lifetime methods to `RuntimeScriptableObject`
+- `ToNativeArray(Allocator)`, `ToNativeArray(AllocatorHandle)`, and `ToNativeList(AllocatorHandle)` extension methods to
+  applicable scriptable lists
 - (Generator) The ability to set custom callback names for generated methods using the `CallbackName` property on the generate attributes
 
 ### Changed
