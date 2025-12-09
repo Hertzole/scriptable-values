@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
@@ -24,7 +23,6 @@ namespace Hertzole.ScriptableValues
         IList<T>,
         IReadOnlyList<T>,
         IList,
-        INotifyCollectionChanged,
         INotifyScriptableCollectionChanged<T>
     {
         [SerializeField]
@@ -152,14 +150,6 @@ namespace Hertzole.ScriptableValues
         ///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableList{T}" /> is refreshed.
         /// </summary>
         public event CollectionChangedEventHandler<T>? OnCollectionChanged;
-
-        private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
-
-        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
-        {
-            add { OnInternalCollectionChanged += value; }
-            remove { OnInternalCollectionChanged -= value; }
-        }
 
         /// <summary>
         ///     Adds an item to the end of the <see cref="ScriptableList{T}" />.
@@ -315,11 +305,8 @@ namespace Hertzole.ScriptableValues
             return list.BinarySearch(index, count, item, comparer);
         }
 
-        /// <summary>
-        ///     Removes all elements from the <see cref="ScriptableList{T}" />.
-        /// </summary>
-        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
-        public void Clear()
+        /// <inheritdoc cref="ScriptableList.Clear" />
+        public sealed override void Clear()
         {
             // If the game is playing, we don't want to set the value if it's read only.
             ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
@@ -451,11 +438,8 @@ namespace Hertzole.ScriptableValues
             ((ICollection) list).CopyTo(array, index);
         }
 
-        /// <summary>
-        ///     Ensures that the list has at least the specified capacity.
-        /// </summary>
-        /// <param name="capacity">The minimum capacity to ensure.</param>
-        public void EnsureCapacity(int capacity)
+        /// <inheritdoc />
+        public sealed override void EnsureCapacity(int capacity)
         {
             if (list.Capacity < capacity)
             {
@@ -1145,22 +1129,14 @@ namespace Hertzole.ScriptableValues
             AddStackTrace();
         }
 
-        /// <summary>
-        ///     Reverses the order of the elements in the entire <see cref="ScriptableList{T}" />.
-        /// </summary>
-        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
-        public void Reverse()
+        /// <inheritdoc />
+        public sealed override void Reverse()
         {
             ReverseInternal(0, list.Count);
         }
 
-        /// <summary>
-        ///     Reverses the order of the elements in the specified range.
-        /// </summary>
-        /// <param name="index">The starting index of the range to reverse.</param>
-        /// <param name="count">The number of elements in the range to reverse.</param>
-        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
-        public void Reverse(int index, int count)
+        /// <inheritdoc />
+        public sealed override void Reverse(int index, int count)
         {
             ReverseInternal(index, count);
         }
@@ -1328,11 +1304,8 @@ namespace Hertzole.ScriptableValues
             return list.ToArray();
         }
 
-        /// <summary>
-        ///     Sets the capacity to the actual number of elements in the <see cref="ScriptableList{T}" />, if that number is less
-        ///     than a threshold value.
-        /// </summary>
-        public void TrimExcess()
+        /// <inheritdoc />
+        public sealed override void TrimExcess()
         {
             list.TrimExcess();
             UpdateCounts();
@@ -1386,7 +1359,10 @@ namespace Hertzole.ScriptableValues
         private void InvokeCollectionChanged(in CollectionChangedArgs<T> args)
         {
             OnCollectionChanged?.Invoke(args);
-            OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
+            if (!IsCollectionChangedNull())
+            {
+                InvokeCollectionChangedBase(args.ToNotifyCollectionChangedEventArgs());
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1419,7 +1395,6 @@ namespace Hertzole.ScriptableValues
         {
             base.WarnIfLeftOverSubscribers();
             EventHelper.WarnIfLeftOverSubscribers(OnCollectionChanged, nameof(OnCollectionChanged), this);
-            EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
         }
 
         /// <summary>
@@ -1451,7 +1426,7 @@ namespace Hertzole.ScriptableValues
             }
 #endif
             OnCollectionChanged = null;
-            OnInternalCollectionChanged = null;
+            ClearBaseSubscribers();
         }
 
         /// <inheritdoc />

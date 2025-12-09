@@ -1,5 +1,11 @@
+#nullable enable
+
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+using UnityEngine.Assertions;
 #if SCRIPTABLE_VALUES_PROPERTIES
 using Unity.Properties;
 #endif
@@ -13,7 +19,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
     [HelpURL(Documentation.SCRIPTABLE_LIST_URL)]
 #endif
-    public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly
+    public abstract class ScriptableList : RuntimeScriptableObject, ICanBeReadOnly, INotifyCollectionChanged
     {
         public static readonly PropertyChangingEventArgs clearOnStartChangingArgs = new PropertyChangingEventArgs(nameof(ClearOnStart));
         public static readonly PropertyChangedEventArgs clearOnStartChangedArgs = new PropertyChangedEventArgs(nameof(ClearOnStart));
@@ -76,5 +82,73 @@ namespace Hertzole.ScriptableValues
         [CreateProperty]
 #endif
         public abstract bool IsReadOnly { get; set; }
+
+        protected event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
+
+        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+        {
+            add { OnInternalCollectionChanged += value; }
+            remove { OnInternalCollectionChanged -= value; }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsCollectionChangedNull()
+        {
+            return OnInternalCollectionChanged == null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvokeCollectionChangedBase(NotifyCollectionChangedEventArgs args)
+        {
+            Assert.IsNotNull(OnInternalCollectionChanged, "Need to check for null before invoking the event using " + nameof(IsCollectionChangedNull) + ".");
+
+            // The event should already be checked for null here.
+            OnInternalCollectionChanged!.Invoke(this, args);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ClearBaseSubscribers()
+        {
+            OnInternalCollectionChanged = null;
+        }
+
+        /// <inheritdoc />
+        protected override void WarnIfLeftOverSubscribers()
+        {
+            base.WarnIfLeftOverSubscribers();
+            EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
+        }
+
+        /// <summary>
+        ///     Removes all elements from the <see cref="ScriptableList{T}" />.
+        /// </summary>
+        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+        public abstract void Clear();
+
+        /// <summary>
+        ///     Ensures that the list has at least the specified capacity.
+        /// </summary>
+        /// <param name="capacity">The minimum capacity to ensure.</param>
+        public abstract void EnsureCapacity(int capacity);
+
+        /// <summary>
+        ///     Reverses the order of the elements in the entire <see cref="ScriptableList{T}" />.
+        /// </summary>
+        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+        public abstract void Reverse();
+
+        /// <summary>
+        ///     Reverses the order of the elements in the specified range.
+        /// </summary>
+        /// <param name="index">The starting index of the range to reverse.</param>
+        /// <param name="count">The number of elements in the range to reverse.</param>
+        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+        public abstract void Reverse(int index, int count);
+
+        /// <summary>
+        ///     Sets the capacity to the actual number of elements in the <see cref="ScriptableList{T}" />, if that number is less
+        ///     than a threshold value.
+        /// </summary>
+        public abstract void TrimExcess();
     }
 }
