@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -24,7 +25,7 @@ namespace Hertzole.ScriptableValues
 #if UNITY_EDITOR
     [HelpURL(Documentation.SCRIPTABLE_DICTIONARY_URL)]
 #endif
-    public abstract class ScriptableDictionary : RuntimeScriptableObject, ICanBeReadOnly
+    public abstract class ScriptableDictionary : RuntimeScriptableObject, ICanBeReadOnly, INotifyCollectionChanged
     {
         public static readonly PropertyChangedEventArgs isReadOnlyChangedEventArgs = new PropertyChangedEventArgs(nameof(IsReadOnly));
         public static readonly PropertyChangingEventArgs isReadOnlyChangingEventArgs = new PropertyChangingEventArgs(nameof(IsReadOnly));
@@ -37,6 +38,16 @@ namespace Hertzole.ScriptableValues
 
         public static readonly PropertyChangedEventArgs countChangedEventArgs = new PropertyChangedEventArgs(nameof(Count));
         public static readonly PropertyChangingEventArgs countChangingEventArgs = new PropertyChangingEventArgs(nameof(Count));
+
+        // Internal event for the INotifyCollectionChanged interface as we don't want to expose that event directly.
+        private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
+
+        /// <inheritdoc />
+        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+        {
+            add { OnInternalCollectionChanged += value; }
+            remove { OnInternalCollectionChanged -= value; }
+        }
 
         /// <summary>
         ///     If <c>true</c>, an equality check will be run before setting an item through the indexer to make sure the new
@@ -85,6 +96,67 @@ namespace Hertzole.ScriptableValues
         {
             return false;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsCollectionChangedNull()
+        {
+            return OnInternalCollectionChanged == null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void InvokeCollectionChangedBase(NotifyCollectionChangedEventArgs args)
+        {
+            Assert.IsNotNull(OnInternalCollectionChanged, "Need to check for null before invoking the event using " + nameof(IsCollectionChangedNull) + ".");
+
+            // The event should already be checked for null here.
+            OnInternalCollectionChanged!.Invoke(this, args);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ClearBaseSubscribers()
+        {
+            OnInternalCollectionChanged = null;
+        }
+
+        /// <inheritdoc />
+        protected override void WarnIfLeftOverSubscribers()
+        {
+            base.WarnIfLeftOverSubscribers();
+            EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
+        }
+
+        /// <summary>
+        ///     Removes all keys and values from the <see cref="ScriptableDictionary{TKey,TValue}" />.
+        /// </summary>
+        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
+        public abstract void Clear();
+
+        /// <summary>
+        ///     Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its
+        ///     backing storage.
+        /// </summary>
+        /// <param name="capacity">The number of entries.</param>
+        /// <returns>The current capacity of the <see cref="ScriptableDictionary{TKey,TValue}" />.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity" /> is less than 0.</exception>
+        public abstract int EnsureCapacity(int capacity);
+
+        /// <summary>
+        ///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to what it would be if it had been
+        ///     originally initialized with all its entries.
+        /// </summary>
+        public abstract void TrimExcess();
+
+        /// <summary>
+        ///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to hold up a specified number of entries
+        ///     without any further expansion of its
+        ///     backing storage.
+        /// </summary>
+        /// <param name="capacity">The new capacity.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     <paramref name="capacity" /> is less than the number of items in the
+        ///     <see cref="ScriptableDictionary{TKey,TValue}" />.
+        /// </exception>
+        public abstract void TrimExcess(int capacity);
     }
 
     /// <summary>
@@ -96,7 +168,6 @@ namespace Hertzole.ScriptableValues
         ISerializationCallbackReceiver,
         IDictionary<TKey, TValue>,
         IReadOnlyDictionary<TKey, TValue>,
-        INotifyCollectionChanged,
         INotifyScriptableCollectionChanged<KeyValuePair<TKey, TValue>>,
         IDictionary where TKey : notnull
     {
@@ -279,16 +350,6 @@ namespace Hertzole.ScriptableValues
             get { return dictionary.Values; }
         }
 
-        // Internal event for the INotifyCollectionChanged interface as we don't want to expose that event directly.
-        private event NotifyCollectionChangedEventHandler? OnInternalCollectionChanged;
-
-        /// <inheritdoc />
-        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
-        {
-            add { OnInternalCollectionChanged += value; }
-            remove { OnInternalCollectionChanged -= value; }
-        }
-
         /// <summary>
         ///     Occurs when an item is added, removed, replaced, or the entire <see cref="ScriptableDictionary{TKey, TValue}" /> is
         ///     refreshed.
@@ -452,11 +513,8 @@ namespace Hertzole.ScriptableValues
             AddStackTrace(1);
         }
 
-        /// <summary>
-        ///     Removes all keys and values from the <see cref="ScriptableDictionary{TKey,TValue}" />.
-        /// </summary>
-        /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
-        public void Clear()
+        /// <inheritdoc cref="ScriptableDictionary.Clear" />
+        public sealed override void Clear()
         {
             ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
 
@@ -558,14 +616,8 @@ namespace Hertzole.ScriptableValues
             ((ICollection<KeyValuePair<TKey, TValue>>) dictionary).CopyTo(array, arrayIndex);
         }
 
-        /// <summary>
-        ///     Ensures that the dictionary can hold up to a specified number of entries without any further expansion of its
-        ///     backing storage.
-        /// </summary>
-        /// <param name="capacity">The number of entries.</param>
-        /// <returns>The current capacity of the <see cref="ScriptableDictionary{TKey,TValue}" />.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity" /> is less than 0.</exception>
-        public int EnsureCapacity(int capacity)
+        /// <inheritdoc />
+        public sealed override int EnsureCapacity(int capacity)
         {
             int result = dictionary.EnsureCapacity(capacity);
             if (keys.Capacity < capacity)
@@ -749,11 +801,8 @@ namespace Hertzole.ScriptableValues
             }
         }
 
-        /// <summary>
-        ///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to what it would be if it had been
-        ///     originally initialized with all its entries.
-        /// </summary>
-        public void TrimExcess()
+        /// <inheritdoc />
+        public sealed override void TrimExcess()
         {
             dictionary.TrimExcess();
 
@@ -763,17 +812,8 @@ namespace Hertzole.ScriptableValues
             AddStackTrace();
         }
 
-        /// <summary>
-        ///     Sets the capacity of this <see cref="ScriptableDictionary{TKey,TValue}" /> to hold up a specified number of entries
-        ///     without any further expansion of its
-        ///     backing storage.
-        /// </summary>
-        /// <param name="capacity">The new capacity.</param>
-        /// <exception cref="ArgumentOutOfRangeException">
-        ///     <paramref name="capacity" /> is less than the number of items in the
-        ///     <see cref="ScriptableDictionary{TKey,TValue}" />.
-        /// </exception>
-        public void TrimExcess(int capacity)
+        /// <inheritdoc />
+        public sealed override void TrimExcess(int capacity)
         {
             dictionary.TrimExcess(capacity);
 
@@ -901,7 +941,10 @@ namespace Hertzole.ScriptableValues
         private void InvokeCollectionChanged(CollectionChangedArgs<KeyValuePair<TKey, TValue>> args)
         {
             OnCollectionChanged?.Invoke(args);
-            OnInternalCollectionChanged?.Invoke(this, args.ToNotifyCollectionChangedEventArgs());
+            if (!IsCollectionChangedNull())
+            {
+                InvokeCollectionChangedBase(args.ToNotifyCollectionChangedEventArgs());
+            }
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
@@ -956,7 +999,6 @@ namespace Hertzole.ScriptableValues
         {
             base.WarnIfLeftOverSubscribers();
             EventHelper.WarnIfLeftOverSubscribers(OnCollectionChanged, nameof(OnCollectionChanged), this);
-            EventHelper.WarnIfLeftOverSubscribers(OnInternalCollectionChanged, "INotifyCollectionChanged.CollectionChanged", this);
         }
 
         /// <summary>
@@ -989,7 +1031,7 @@ namespace Hertzole.ScriptableValues
 #endif
 
             OnCollectionChanged = null;
-            OnInternalCollectionChanged = null;
+            ClearBaseSubscribers();
         }
 
         /// <inheritdoc />

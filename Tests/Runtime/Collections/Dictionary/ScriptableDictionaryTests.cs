@@ -1000,6 +1000,31 @@ namespace Hertzole.ScriptableValues.Tests
         {
             /// <inheritdoc />
             public override bool IsReadOnly { get; set; }
+
+            /// <inheritdoc />
+            public override void Clear()
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <inheritdoc />
+            public override int EnsureCapacity(int capacity)
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <inheritdoc />
+            public override void TrimExcess()
+            {
+                throw new NotImplementedException();
+            }
+
+            /// <inheritdoc />
+            public override void TrimExcess(int capacity)
+            {
+                throw new NotImplementedException();
+            }
+
             /// <inheritdoc />
             public override bool SetEqualityCheck { get; set; }
             /// <inheritdoc />
