@@ -121,7 +121,7 @@ namespace Hertzole.ScriptableValues
         /// </summary>
         public ReadOnlyMemory<T> NewItems { get; }
 
-        private CollectionChangedArgs(NotifyCollectionChangedAction action,
+        internal CollectionChangedArgs(NotifyCollectionChangedAction action,
             int newIndex = -1,
             ReadOnlyMemory<T> newItems = default,
             int oldIndex = -1,
