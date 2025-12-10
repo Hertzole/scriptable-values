@@ -147,16 +147,16 @@ namespace Hertzole.ScriptableValues
 
             Assert.IsNotNull(item);
 
-            activeObjects.Add(item!);
+            activeObjects.Add(item);
 
-            OnPoolChanged?.Invoke(PoolAction.RentedObject, item!);
-            OnGetInternal(item!);
+            OnPoolChanged?.Invoke(PoolAction.RentedObject, item);
+            OnGetInternal(item);
 
             UpdateCounts();
 
             AddStackTrace();
 
-            return item!;
+            return item;
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Hertzole.ScriptableValues
         /// <param name="item">The item to return.</param>
         public void Release(T item)
         {
-            ThrowHelper.ThrowIfNull(item, nameof(item));
+            Guard.IsNotNull(item, nameof(item));
 
             activeObjects.Remove(item);
 

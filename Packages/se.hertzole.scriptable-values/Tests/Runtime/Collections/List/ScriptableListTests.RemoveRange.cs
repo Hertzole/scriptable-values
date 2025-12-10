@@ -92,7 +92,7 @@ namespace Hertzole.ScriptableValues.Tests
             list.AddRange(items);
 
             // Act & Assert
-            AssertThrows<ArgumentOutOfRangeException>(() => list.RemoveRange(2, 8));
+            AssertThrows<ArgumentException>(() => list.RemoveRange(2, 8));
         }
 
         [Test]

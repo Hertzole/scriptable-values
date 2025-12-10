@@ -114,7 +114,7 @@ namespace Hertzole.ScriptableValues
         private void SetValue(T newValue, bool notify)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             // If the equality check is enabled, we don't want to set the value if it's the same as the current value.
             if (SetEqualityCheck && IsSameValue(newValue, value))

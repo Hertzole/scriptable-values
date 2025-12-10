@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
@@ -218,7 +219,7 @@ namespace Hertzole.ScriptableValues.Tests
                     }
                 });
 
-                AssertThrows<ArgumentException>(() =>
+                AssertThrows<ArgumentOutOfRangeException>(() =>
                 {
                     if (slice)
                     {
@@ -230,7 +231,7 @@ namespace Hertzole.ScriptableValues.Tests
                     }
                 });
 
-                AssertThrows<ArgumentException>(() =>
+                AssertThrows<ArgumentOutOfRangeException>(() =>
                 {
                     if (slice)
                     {
@@ -242,7 +243,7 @@ namespace Hertzole.ScriptableValues.Tests
                     }
                 });
 
-                AssertThrows<ArgumentException>(() =>
+                AssertThrows<ArgumentOutOfRangeException>(() =>
                 {
                     if (slice)
                     {
@@ -254,7 +255,7 @@ namespace Hertzole.ScriptableValues.Tests
                     }
                 });
 
-                AssertThrows<ArgumentException>(() =>
+                AssertThrows<ArgumentOutOfRangeException>(() =>
                 {
                     if (slice)
                     {
@@ -286,8 +287,8 @@ namespace Hertzole.ScriptableValues.Tests
         public void GetRange_DestinationListIsReadOnly_ThrowsException()
         {
             list.AddRange(new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
-            AssertThrows<ArgumentException>(() => list.GetRange(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
-            AssertThrows<ArgumentException>(() => list.Slice(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
+            AssertThrows<ReadOnlyException>(() => list.GetRange(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
+            AssertThrows<ReadOnlyException>(() => list.Slice(0, 5, Array.AsReadOnly(new[] { 1, 2, 3 })));
         }
     }
 }

@@ -59,10 +59,10 @@ namespace Hertzole.ScriptableValues
 
         public CollectionEnumerator<T> GetEnumerator()
         {
-            ThrowHelper.ThrowIfNull(array, nameof(array));
+            Guard.IsNotNull(array, nameof(array));
 
             CollectionEnumerator<T> enumerator = CollectionEnumerator<T>.enumeratorPool.Get();
-            enumerator.SetArray(array!, Length);
+            enumerator.SetArray(array, Length);
             return enumerator;
         }
 

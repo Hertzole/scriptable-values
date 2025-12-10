@@ -211,8 +211,8 @@ namespace Hertzole.ScriptableValues
             get { return EqualityHelper.IsSameType(key, out TKey? newKey) ? dictionary[newKey] : null; }
             set
             {
-                ThrowHelper.ThrowIfNull(key, nameof(key));
-                ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
+                Guard.IsNotNull(key, nameof(key));
+                Guard.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
 
                 try
                 {
@@ -451,8 +451,8 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         void IDictionary.Add(object key, object? value)
         {
-            ThrowHelper.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
-            ThrowHelper.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
+            Guard.ThrowIfNullAndNullsAreIllegal<TKey>(key, nameof(key));
+            Guard.ThrowIfNullAndNullsAreIllegal<TValue>(value, nameof(value));
 
             try
             {
@@ -496,7 +496,7 @@ namespace Hertzole.ScriptableValues
         /// </exception>
         private void AddInternal(TKey key, TValue value)
         {
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             dictionary.Add(key, value);
 
@@ -516,7 +516,7 @@ namespace Hertzole.ScriptableValues
         /// <inheritdoc cref="ScriptableDictionary.Clear" />
         public sealed override void Clear()
         {
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             if (Count == 0)
             {
@@ -603,6 +603,8 @@ namespace Hertzole.ScriptableValues
         /// <param name="index">The index at which copying beings.</param>
         void ICollection.CopyTo(Array array, int index)
         {
+            Guard.IsNotNull(array, nameof(array));
+
             ((ICollection) dictionary).CopyTo(array, index);
         }
 
@@ -613,6 +615,8 @@ namespace Hertzole.ScriptableValues
         /// <param name="arrayIndex">The index at which copying beings.</param>
         void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
+            Guard.IsNotNull(array, nameof(array));
+
             ((ICollection<KeyValuePair<TKey, TValue>>) dictionary).CopyTo(array, arrayIndex);
         }
 
@@ -738,7 +742,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         private bool RemoveInternal(TKey key, out TValue value)
         {
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             bool removed = dictionary.Remove(key, out value);
             if (removed)
@@ -767,8 +771,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         private void SetValue(TKey key, TValue value)
         {
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             // Try to add it first. If it fails, we update the value.
             if (!TryAddInternal(key, value))
@@ -836,14 +839,15 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public bool TryAdd(TKey key, TValue value)
         {
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             return TryAddInternal(key, value);
         }
 
         private bool TryAddInternal(TKey key, TValue value)
         {
+            Assert.IsFalse(isReadOnly, "Trying to add to a read-only dictionary.");
+
             bool result = dictionary.TryAdd(key, value);
 
             if (result)
@@ -877,7 +881,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentNullException"><paramref name="predicate" /> is <c>null</c>.</exception>
         public bool TryFindKey(Predicate<TKey> predicate, [NotNullWhen(true)] out TKey? key)
         {
-            ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
+            Guard.IsNotNull(predicate, nameof(predicate));
 
             foreach (TKey dictionaryKey in dictionary.Keys)
             {
@@ -904,7 +908,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentNullException"><paramref name="predicate" /> is <c>null</c>.</exception>
         public bool TryFindValue(Predicate<TValue> predicate, out TValue? value)
         {
-            ThrowHelper.ThrowIfNull(predicate, nameof(predicate));
+            Guard.IsNotNull(predicate, nameof(predicate));
 
             foreach (TValue dictionaryValue in dictionary.Values)
             {

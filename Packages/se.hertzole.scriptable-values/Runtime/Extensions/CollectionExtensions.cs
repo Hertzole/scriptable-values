@@ -5,7 +5,7 @@ namespace Hertzole.ScriptableValues
 {
     public static class CollectionExtensions
     {
-        internal static bool TryEnsureCapacity<T>(this IList<T> list, int capacity)
+        internal static bool TryEnsureCapacity<T>(this ICollection<T> list, int capacity)
         {
             if (list is List<T> genericList)
             {

@@ -125,7 +125,7 @@ namespace Hertzole.ScriptableValues
 
         private void SetListeningToObject(ScriptableEvent<TValue> target, bool listen)
         {
-            ThrowHelper.ThrowIfNull(target, nameof(target));
+            Guard.IsNotNull(target, nameof(target));
 
             if (listen)
             {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using NUnit.Framework;
 
@@ -69,7 +70,7 @@ namespace Hertzole.ScriptableValues.Tests
         [Test]
         public void ConvertAll_DestinationListIsReadOnly_ThrowsException()
         {
-            AssertThrows<ArgumentException>(() => list.ConvertAll(Array.AsReadOnly(new[] { 1f, 2f, 3f }), i => 10 * i));
+            AssertThrows<ReadOnlyException>(() => list.ConvertAll(Array.AsReadOnly(new[] { 1f, 2f, 3f }), i => 10 * i));
         }
 
         [Test]

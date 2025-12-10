@@ -48,7 +48,7 @@ namespace Hertzole.ScriptableValues
 
         protected override void OnGet(T item)
         {
-            ThrowHelper.ThrowIfNull(item, nameof(item));
+            Guard.IsNotNull(item, nameof(item));
 
             item.gameObject.SetActive(true);
 

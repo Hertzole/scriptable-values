@@ -41,7 +41,7 @@ namespace Hertzole.ScriptableValues.Helpers
         /// <param name="obj">The object to check.</param>
         /// <typeparam name="T">The type of the object.</typeparam>
         /// <returns><c>true</c> if the object is null; otherwise <c>false</c>.</returns>
-        public static bool IsNull<T>(T obj)
+        public static bool IsNull<T>([NotNullWhen(false)] T? obj)
         {
             // Do special checking on Unity objects.
             if (typeof(T).IsSubclassOf(typeof(Object)) || typeof(T) == typeof(Object))
@@ -70,7 +70,7 @@ namespace Hertzole.ScriptableValues.Helpers
                 return true;
             }
 
-            ThrowHelper.ThrowIfNull(value, nameof(value));
+            Guard.IsNotNull(value, nameof(value));
 
 #if DEBUG
             Debug.LogError($"{typeof(TType)} is not assignable from {value.GetType()}.");
