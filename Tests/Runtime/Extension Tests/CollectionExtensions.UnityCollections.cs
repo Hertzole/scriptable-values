@@ -25,6 +25,9 @@ namespace Hertzole.ScriptableValues.Tests
             {
                 Assert.That(nativeArray[i], Is.EqualTo(list[i]), $"Element at index {i} should match.");
             }
+
+            // Cleanup
+            list.Clear();
         }
 
 #if SCRIPTABLE_VALUES_UNITY_COLLECTIONS
@@ -46,6 +49,9 @@ namespace Hertzole.ScriptableValues.Tests
             {
                 Assert.That(nativeArray[i], Is.EqualTo(list[i]), $"Element at index {i} should match.");
             }
+
+            // Cleanup
+            list.Clear();
         }
 
         [Test]
@@ -66,6 +72,9 @@ namespace Hertzole.ScriptableValues.Tests
             {
                 Assert.That(nativeList[i], Is.EqualTo(list[i]), $"Element at index {i} should match.");
             }
+
+            // Cleanup
+            list.Clear();
         }
 #endif // SCRIPTABLE_VALUES_UNITY_COLLECTIONS
     }
