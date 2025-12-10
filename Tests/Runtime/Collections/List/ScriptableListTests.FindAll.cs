@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using NUnit.Framework;
 
 namespace Hertzole.ScriptableValues.Tests
@@ -119,7 +120,7 @@ namespace Hertzole.ScriptableValues.Tests
         [Test]
         public void FindAll_DestinationListIsReadOnly_ThrowsException()
         {
-            AssertThrows<ArgumentException>(() => list.FindAll(Array.AsReadOnly(new[] { 1, 2, 3 }), i => i >= 0));
+            AssertThrows<ReadOnlyException>(() => list.FindAll(Array.AsReadOnly(new[] { 1, 2, 3 }), i => i >= 0));
         }
 
         [Test]

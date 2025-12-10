@@ -73,7 +73,7 @@ namespace Hertzole.ScriptableValues
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            ThrowHelper.ThrowIfNull(currentArray, nameof(currentArray));
+            Guard.IsNotNull(currentArray, nameof(currentArray));
 
             Array.Copy(currentArray, 0, array, arrayIndex, Count);
         }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Hertzole.ScriptableValues.Helpers;
@@ -90,7 +91,7 @@ namespace Hertzole.ScriptableValues
             get { return list[index]; }
             set
             {
-                ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
+                Guard.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
 
                 try
                 {
@@ -178,7 +179,7 @@ namespace Hertzole.ScriptableValues
         int IList.Add(object? value)
         {
             // If the item is null and typeof(T) doesn't allow nulls, throw an exception.
-            ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
+            Guard.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
 
             try
             {
@@ -196,8 +197,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         private void AddInternal(T item)
         {
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             int index = Count;
             list.Add(item);
@@ -219,10 +219,8 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public void AddRange(IEnumerable<T> collection)
         {
-            ThrowHelper.ThrowIfNull(collection, nameof(collection));
-
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotNull(collection, nameof(collection));
+            Guard.IsNotReadOnly(this, name);
 
             using (CollectionScope<T> scope = new CollectionScope<T>(collection))
             {
@@ -309,7 +307,7 @@ namespace Hertzole.ScriptableValues
         public sealed override void Clear()
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             if (list.Count == 0)
             {
@@ -370,6 +368,8 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentNullException"><paramref name="converter" /> is <c>null</c>.</exception>
         public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
         {
+            Guard.IsNotNull(converter, nameof(converter));
+
             return list.ConvertAll(converter);
         }
 
@@ -382,12 +382,12 @@ namespace Hertzole.ScriptableValues
         /// </param>
         /// <typeparam name="TOutput">The type of the elements of the target array.</typeparam>
         /// <exception cref="ArgumentNullException"><c>converter</c> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="destinationList" /> is marked as read-only.</exception>
-        public void ConvertAll<TOutput>(IList<TOutput> destinationList, Converter<T, TOutput> converter)
+        /// <exception cref="ReadOnlyException"><paramref name="destinationList" /> is marked as read-only.</exception>
+        public void ConvertAll<TOutput>(ICollection<TOutput> destinationList, Converter<T, TOutput> converter)
         {
-            ThrowHelper.ThrowIfNull(converter, nameof(converter));
-            ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
-            ThrowHelper.ThrowIfDestinationListIsReadOnly(destinationList, nameof(destinationList));
+            Guard.IsNotNull(destinationList, nameof(destinationList));
+            Guard.IsNotNull(converter, nameof(converter));
+            Guard.IsNotReadOnly(destinationList, nameof(destinationList));
 
             destinationList.Clear();
 
@@ -488,8 +488,6 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentNullException"><c>match</c> is <c>null</c>.</exception>
         public List<T> FindAll(Predicate<T> match)
         {
-            ThrowHelper.ThrowIfNull(match, nameof(match));
-
             return list.FindAll(match);
         }
 
@@ -503,9 +501,9 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentException"><paramref name="destinationList" /> is marked as read-only.</exception>
         public void FindAll(IList<T> destinationList, Predicate<T> match)
         {
-            ThrowHelper.ThrowIfNull(match, nameof(match));
-            ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
-            ThrowHelper.ThrowIfDestinationListIsReadOnly(destinationList, nameof(destinationList));
+            Guard.IsNotNull(match, nameof(match));
+            Guard.IsNotNull(destinationList, nameof(destinationList));
+            Guard.IsNotReadOnly(destinationList, nameof(destinationList));
 
             destinationList.Clear();
 
@@ -706,23 +704,11 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="ArgumentException"><paramref name="destinationList" /> is marked as read-only.</exception>
         public void GetRange(int index, int count, IList<T> destinationList)
         {
-            ThrowHelper.ThrowIfNull(destinationList, nameof(destinationList));
-            ThrowHelper.ThrowIfDestinationListIsReadOnly(destinationList, nameof(destinationList));
-
-            if (index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
-
-            if (internalCount - index < count)
-            {
-                throw new ArgumentException(nameof(index) + " and " + nameof(index) + " do not denote a valid range of elements in the list.");
-            }
+            Guard.IsNotNull(destinationList, nameof(destinationList));
+            Guard.IsNotReadOnly(destinationList, nameof(destinationList));
+            Guard.IsGreaterThanOrEqualTo(index, 0, nameof(index));
+            Guard.IsGreaterThanOrEqualTo(count, 0, nameof(count));
+            Guard.IsGreaterThanOrEqualTo(internalCount - index, count, nameof(Count) + " - " + nameof(index));
 
             destinationList.Clear();
 
@@ -819,7 +805,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         void IList.Insert(int index, object? value)
         {
-            ThrowHelper.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
+            Guard.ThrowIfNullAndNullsAreIllegal<T>(value, nameof(value));
 
             try
             {
@@ -842,8 +828,8 @@ namespace Hertzole.ScriptableValues
         private void InsertInternal(int index, T item)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
-            ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
+            Guard.IsNotReadOnly(this, name);
+            Guard.IsInRange(index, 0, list.Count, nameof(index));
 
             list.Insert(index, item);
             UpdateCounts();
@@ -865,11 +851,9 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public void InsertRange(int index, IEnumerable<T> collection)
         {
-            ThrowHelper.ThrowIfNull(collection, nameof(collection));
-            ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
-
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotNull(collection, nameof(collection));
+            Guard.IsInRange(index, 0, list.Count, nameof(index));
+            Guard.IsNotReadOnly(this, name);
 
             using (CollectionScope<T> scope = new CollectionScope<T>(collection))
             {
@@ -978,7 +962,7 @@ namespace Hertzole.ScriptableValues
         private bool RemoveInternal(T item)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             int index = list.IndexOf(item);
             if (index == -1)
@@ -1005,10 +989,10 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public int RemoveAll(Predicate<T> match)
         {
-            ThrowHelper.ThrowIfNull(match, nameof(match));
+            Guard.IsNotNull(match, nameof(match));
 
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             using SpanOwner<T> removed = SpanOwner<T>.Allocate(list.Count);
             int removeLength = RemoveAllWithPredicate(removed.Span, out int firstIndex, match);
@@ -1064,7 +1048,7 @@ namespace Hertzole.ScriptableValues
         public void RemoveAt(int index)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             T? removedItem = list[index];
             list.RemoveAt(index);
@@ -1095,17 +1079,9 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public void RemoveRange(int index, int count)
         {
-#if DEBUG
-            ThrowHelper.ThrowIfOutOfBounds(nameof(index), in index, 0, list.Count);
-
-            if (index + count > list.Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), "Count cannot be greater than the number of elements in the list.");
-            }
-#endif
-
-            // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsInRange(index, 0, list.Count, nameof(index));
+            Guard.IsGreaterThanOrEqualTo(count, 0, nameof(count));
+            Guard.IsNotReadOnly(this, name);
 
             // Calculate how many items to remove based on the count and index.
             int countToRemove = Math.Min(count, list.Count - index);
@@ -1150,7 +1126,7 @@ namespace Hertzole.ScriptableValues
         private void ReverseInternal(int index, int count)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             // There are no items in the list, so we don't need to do anything.
             if (list.Count == 0)
@@ -1188,7 +1164,7 @@ namespace Hertzole.ScriptableValues
         private void SetValue(int index, T value)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             // If the equality check is enabled, we don't want to set the value if it's the same as the current value.
             if (setEqualityCheck && EqualityHelper.Equals(list[index], value))
@@ -1249,7 +1225,7 @@ namespace Hertzole.ScriptableValues
         /// <exception cref="System.Data.ReadOnlyException">If the object is read-only and the application is playing.</exception>
         public void Sort(Comparison<T> comparison)
         {
-            ThrowHelper.ThrowIfNull(comparison, nameof(comparison));
+            Guard.IsNotNull(comparison, nameof(comparison));
 
             SortInternal(0, list.Count, null, comparison);
         }
@@ -1269,7 +1245,7 @@ namespace Hertzole.ScriptableValues
         private void SortInternal(int index, int count, IComparer<T>? comparer, Comparison<T>? comparison)
         {
             // If the game is playing, we don't want to set the value if it's read only.
-            ThrowHelper.ThrowIfIsReadOnly(in isReadOnly, this);
+            Guard.IsNotReadOnly(this, name);
 
             if (list.Count == 0)
             {
