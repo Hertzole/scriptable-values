@@ -52,7 +52,7 @@ jobs:
     steps:
       # Checkout the repo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -68,9 +68,9 @@ jobs:
 
       # Setup .NET
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: fast-actions/setup-dotnet@v1
         with:
-          dotnet-version: '8'
+          sdk-version: '8.x'
 
       # Install tools
       - name: Install .NET tools
@@ -89,6 +89,7 @@ jobs:
         run: |
           echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          rm License.ulf
   
       # Generate the solution
       - name: Generate Solution

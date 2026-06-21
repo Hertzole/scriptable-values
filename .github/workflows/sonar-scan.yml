@@ -17,13 +17,13 @@ jobs:
     container: unityci/editor:ubuntu-6000.0.59f2-base-3.1.0
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           lfs: true
           fetch-depth: 0
 
       - name: Cache library
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Library
           key: Library-Scanner
@@ -31,9 +31,9 @@ jobs:
             Library-Scanner
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v4
+        uses: fast-actions/setup-dotnet@v1
         with:
-          dotnet-version: '8'
+          sdk-version: '8.x'
 
       - name: Install scanner
         run: dotnet tool install dotnet-sonarscanner --tool-path .
@@ -88,6 +88,7 @@ jobs:
         run: |
           echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          rm License.ulf
 
       - name: Generate Solution
         run: |
