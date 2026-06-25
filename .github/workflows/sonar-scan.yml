@@ -41,7 +41,7 @@ jobs:
       # Download the coverage results
       - name: Download coverage results
         id: download-coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: 'unity-*-coverage'
           path: Coverage/unity
@@ -64,7 +64,7 @@ jobs:
         run: ls -R Coverage
 
       - name: Generate report
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.4.5
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.10
         with:
           # .NET coverage reports are located in "Coverage/generator/generator-test-results/GUID/coverage.opencover.xml"
           # Unity coverage reports are located in "Coverage/unity/unity-VERSION-coverage/workspace-opencov/Edit/PlayMode/"
@@ -73,7 +73,7 @@ jobs:
           reporttypes: "Html;Badges"
 
       - name: Upload report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         id: upload_report
         with:
           path: CoverageReport

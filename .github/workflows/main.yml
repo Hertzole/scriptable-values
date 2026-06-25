@@ -116,7 +116,7 @@ jobs:
       # Upload docs artifact
       - name: Upload documentation
         id: upload-docs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docs_output
           path: docs/dist
@@ -129,7 +129,7 @@ jobs:
       # Donwload docs artifact
       - name: Download documentation
         id: download-docs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: docs_output
           path: result
@@ -137,7 +137,7 @@ jobs:
       # Download coverage report
       - name: Download coverage report
         id: download-coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-report
           path: result
@@ -145,7 +145,7 @@ jobs:
       # Upload pages artifact
       - name: Upload pages artifact
         id: upload-pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: result/
 
@@ -164,5 +164,5 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       
