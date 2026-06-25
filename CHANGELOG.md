@@ -1,3 +1,9 @@
+# 2.1.2 - 2026-06-25
+
+### Fixed
+
+- Use EntityId in Unity 6.4 and newer
+
 # 2.1.1 - 2026-06-21
 
 ### Fixed
