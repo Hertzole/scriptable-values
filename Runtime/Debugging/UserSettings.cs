@@ -6,6 +6,11 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_6000_4_OR_NEWER
+using EntityId = UnityEngine.EntityId;
+#else
+using EntityId = System.Int32;
+#endif
 
 namespace Hertzole.ScriptableValues.Debugging
 {
@@ -70,7 +75,7 @@ namespace Hertzole.ScriptableValues.Debugging
             // If the object is not an asset, we use the temporary dictionary.
             if (string.IsNullOrEmpty(guid))
             {
-                return temporaryCollectStackTraces.GetValueOrDefault(obj.GetEntityId(), false);
+                return temporaryCollectStackTraces.GetValueOrDefault(GetEntityId(obj), false);
             }
 
             if (Data.TryGetCollectStackTraces(guid, out bool value))
@@ -88,7 +93,7 @@ namespace Hertzole.ScriptableValues.Debugging
             // If the object is not an asset, we use the temporary dictionary.
             if (string.IsNullOrEmpty(guid))
             {
-                temporaryCollectStackTraces[obj.GetEntityId()] = value;
+                temporaryCollectStackTraces[GetEntityId(obj)] = value;
             }
 
             Data.SetCollectStackTraces(guid, value);
@@ -116,6 +121,15 @@ namespace Hertzole.ScriptableValues.Debugging
             {
                 Directory.CreateDirectory(directoryPath!);
             }
+        }
+
+        private static EntityId GetEntityId(Object obj)
+        {
+#if UNITY_6000_4_OR_NEWER
+            return obj.GetEntityId();
+#else
+            return obj.GetInstanceID();
+#endif
         }
 
         [Serializable]
