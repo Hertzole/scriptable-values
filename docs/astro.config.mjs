@@ -15,43 +15,63 @@ export default defineConfig({
         plugins: [
             starlightLinksValidator({
                 errorOnRelativeLinks: false,
-              }),
+            }),
             starlightSidebarTopics([
                 {
-                  label: 'Documentation',
-                  link: '/guides/getting-started',
-                  icon: 'open-book',
-                  items: [
-                    {
-                        label: 'Guides',
-                        autogenerate: { directory: 'guides' },
-                    },
-                    {
-                        label: 'Types',
-                        autogenerate: { directory: 'types' },
-                    },
-                    {
-                        label: 'Components',
-                        autogenerate: { directory: 'components' },
-                    }
-                  ],
+                    label: 'Documentation',
+                    link: '/guides/getting-started',
+                    icon: 'open-book',
+                    items: [
+                        {
+                            label: 'Guides',
+                            items: [
+                                {
+                                    autogenerate: { directory: 'guides' },
+                                }
+                            ]
+                        },
+                        {
+                            label: 'Types',
+                            items: [
+                                {
+                                    autogenerate: { directory: 'types' },
+                                }
+                            ]
+                        },
+                        {
+                            label: 'Components',
+                            items: [
+                                {
+                                    autogenerate: { directory: 'components' },
+                                }
+                            ]
+                        }
+                    ],
                 },
                 {
-                  label: 'Reference',
-                  link: '/reference/',
-                  icon: 'seti:html',
-                  items: [
-                    {
-                        label: "Hertzole.ScriptableValues",
-                        autogenerate: { directory: 'reference/Hertzole.ScriptableValues' },
-                    },
-                    {
-                        label: "Hertzole.ScriptableValues.Editor",
-                        autogenerate: { directory: 'reference/Hertzole.ScriptableValues.Editor' },
-                    }
-                  ],
+                    label: 'Reference',
+                    link: '/reference/',
+                    icon: 'seti:html',
+                    items: [
+                        {
+                            label: "Hertzole.ScriptableValues",
+                            items: [
+                                {
+                                    autogenerate: { directory: 'reference/Hertzole.ScriptableValues' },
+                                }
+                            ],
+                        },
+                        {
+                            label: "Hertzole.ScriptableValues.Editor",
+                            items: [
+                                {
+                                    autogenerate: { directory: 'reference/Hertzole.ScriptableValues.Editor' },
+                                }
+                            ]
+                        }
+                    ],
                 },
-              ]),],
+            ]),],
         title: 'Scriptable Values Documentation',
         logo: {
             src: './public/sv_icon.svg',
@@ -77,5 +97,5 @@ export default defineConfig({
                 }
             }
         ]
-		}), sitemap()],
+    }), sitemap()],
 });
