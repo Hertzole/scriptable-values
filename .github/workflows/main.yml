@@ -27,6 +27,9 @@ jobs:
           - 2021.3.45f2
           - 2022.3.62f2
           - 6000.0.59f2
+          - 6000.3.18f1
+          - 6000.4.12f1
+          - 6000.5.1f1
     secrets:
       unity-license: ${{ secrets.UNITY_LICENSE }}
       unity-email: ${{ secrets.UNITY_EMAIL }}
@@ -70,7 +73,7 @@ jobs:
       - name: Setup .NET
         uses: fast-actions/setup-dotnet@v1
         with:
-          sdk-version: '8.x'
+          sdk-version: "8.x"
 
       # Install tools
       - name: Install .NET tools
@@ -90,7 +93,7 @@ jobs:
           echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
           rm License.ulf
-  
+
       # Generate the solution
       - name: Generate Solution
         run: |
@@ -165,4 +168,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-      
